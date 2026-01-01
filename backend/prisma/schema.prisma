@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Role {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String   @unique @db.VarChar(50)
+  displayName  String   @map("display_name") @db.VarChar(100)
+  description  String?  @db.Text
+  permissions  Json     @default("[]")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  users        User[]
+
+  @@map("roles")
+}
+
+model User {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String    @unique @db.VarChar(255)
+  passwordHash String    @map("password_hash") @db.VarChar(255)
+  fullName     String    @map("full_name") @db.VarChar(255)
+  roleId       String    @map("role_id") @db.Uuid
+  status       String    @db.VarChar(20)
+  phone        String?   @db.VarChar(50)
+  avatarUrl    String?   @map("avatar_url") @db.Text
+  lastLoginAt  DateTime? @map("last_login_at") @db.Timestamptz
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz
+
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@map("users")
+  @@index([email])
+  @@index([roleId])
+  @@index([status])
+}
+
+model AuditLog {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  action     String   @db.VarChar(100)
+  entityType String?  @map("entity_type") @db.VarChar(100)
+  entityId   String?  @map("entity_id") @db.VarChar(255)
+  oldValue   Json?    @map("old_value")
+  newValue   Json?    @map("new_value")
+  ipAddress  String?  @map("ip_address") @db.VarChar(45)
+  userAgent  String?  @map("user_agent") @db.Text
+  timestamp  DateTime @default(now()) @db.Timestamptz
+
+  @@map("audit_logs")
+  @@index([userId])
+  @@index([action])
+  @@index([entityType, entityId])
+}
+
+model Customer {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyName  String    @map("company_name") @db.VarChar(255)
+  email        String?   @unique @db.VarChar(255)
+  phone        String?   @db.VarChar(50)
+  address      String?   @db.Text
+  npwp         String?   @unique @db.VarChar(50)
+  loyaltyTier  String    @default("Bronze") @map("loyalty_tier") @db.VarChar(50)
+  metrics      Json      @default("{\"totalRevenue\":0,\"totalOrders\":0}")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz
+
+  contacts     Contact[]
+
+  @@map("customers")
+  @@index([email])
+  @@index([npwp])
+  @@index([loyaltyTier])
+}
+
+model Contact {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId  String   @map("customer_id") @db.Uuid
+  name        String   @db.VarChar(255)
+  email       String?  @db.VarChar(255)
+  phone       String?  @db.VarChar(50)
+  position    String?  @db.VarChar(100)
+  isPrimary   Boolean  @default(false) @map("is_primary")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("contacts")
+  @@index([customerId])
+}

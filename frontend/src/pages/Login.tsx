@@ -1,0 +1,57 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+export default function Login() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: implement real login
+    localStorage.setItem('token', 'dummy-token');
+    navigate('/');
+  };
+
+  return (
+    <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 font-sans">
+      <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl border border-slate-100 animate-in fade-in zoom-in duration-300">
+        <div className="mb-8 text-center">
+          <h2 className="text-3xl font-extrabold text-slate-800 mb-2 tracking-tight">MK Printing</h2>
+          <p className="text-slate-500">Sign in to your account</p>
+        </div>
+        <form className="space-y-5" onSubmit={handleLogin}>
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-1">Email</label>
+            <input 
+              type="email" 
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" 
+              placeholder="admin@mkprinting.com" 
+              required
+            />
+          </div>
+          <div>
+            <div className="flex justify-between mb-1">
+              <label className="block text-sm font-semibold text-slate-700">Password</label>
+            </div>
+            <input 
+              type="password" 
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" 
+              required
+            />
+          </div>
+          <button 
+            type="submit" 
+            className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold shadow-md hover:bg-blue-700 hover:shadow-lg transition-all active:scale-[0.98]"
+          >
+            Log In
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
