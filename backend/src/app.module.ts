@@ -7,9 +7,19 @@ import { LoggingMiddleware } from './logger/logging.middleware';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { AuditModule } from './audit/audit.module';
+import { UsersModule } from './users/users.module';
+import { CustomersModule } from './customers/customers.module';
 
 @Module({
-  imports: [CacheModule, LoggerModule, PrismaModule, AuthModule, AuditModule],
+  imports: [
+    CacheModule,
+    LoggerModule,
+    PrismaModule,
+    AuthModule,
+    AuditModule,
+    UsersModule,
+    CustomersModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -16,7 +16,9 @@ export class RefreshTokenUseCase {
 
     const payload = this.jwtService.verifyToken(refreshToken);
     if (!payload || payload.type !== 'refresh') {
-      throw new UnauthorizedException('Refresh token tidak valid atau sudah kadaluarsa');
+      throw new UnauthorizedException(
+        'Refresh token tidak valid atau sudah kadaluarsa',
+      );
     }
 
     const user = await this.prisma.user.findUnique({
@@ -28,7 +30,11 @@ export class RefreshTokenUseCase {
       throw new UnauthorizedException('Pengguna tidak aktif');
     }
 
-    const newAccessToken = this.jwtService.generateAccessToken(user.id, user.email, user.role.name);
+    const newAccessToken = this.jwtService.generateAccessToken(
+      user.id,
+      user.email,
+      user.role.name,
+    );
     const newRefreshToken = this.jwtService.generateRefreshToken(user.id);
 
     return {

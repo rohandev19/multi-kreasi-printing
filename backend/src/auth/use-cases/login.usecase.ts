@@ -21,18 +21,34 @@ export class LoginUseCase {
     });
 
     if (!user || user.status !== 'ACTIVE') {
-      await this.auditService.log({ action: 'LOGIN_FAILED_NOT_FOUND', entityType: 'User', newValue: { email: dto.email } });
+      await this.auditService.log({
+        action: 'LOGIN_FAILED_NOT_FOUND',
+        entityType: 'User',
+        newValue: { email: dto.email },
+      });
       throw new UnauthorizedException('Email atau password salah');
     }
 
-    const isPasswordValid = await bcrypt.compare(dto.password, user.passwordHash);
+    const isPasswordValid = await bcrypt.compare(
+      dto.password,
+      user.passwordHash,
+    );
     if (!isPasswordValid) {
-      await this.auditService.log({ action: 'LOGIN_FAILED_PASSWORD', userId: user.id, entityType: 'User', entityId: user.id });
+      await this.auditService.log({
+        action: 'LOGIN_FAILED_PASSWORD',
+        userId: user.id,
+        entityType: 'User',
+        entityId: user.id,
+      });
       throw new UnauthorizedException('Email atau password salah');
     }
 
     // Generate tokens
-    const accessToken = this.jwtService.generateAccessToken(user.id, user.email, user.role.name);
+    const accessToken = this.jwtService.generateAccessToken(
+      user.id,
+      user.email,
+      user.role.name,
+    );
     const refreshToken = this.jwtService.generateRefreshToken(user.id);
 
     // Update last login

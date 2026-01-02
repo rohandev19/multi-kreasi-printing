@@ -21,8 +21,12 @@ export class AuditService {
         action: data.action,
         entityType: data.entityType,
         entityId: data.entityId,
-        oldValue: data.oldValue ? JSON.parse(JSON.stringify(data.oldValue)) : undefined,
-        newValue: data.newValue ? JSON.parse(JSON.stringify(data.newValue)) : undefined,
+        oldValue: data.oldValue
+          ? JSON.parse(JSON.stringify(data.oldValue))
+          : undefined,
+        newValue: data.newValue
+          ? JSON.parse(JSON.stringify(data.newValue))
+          : undefined,
         ipAddress: data.ipAddress,
         userAgent: data.userAgent,
       },

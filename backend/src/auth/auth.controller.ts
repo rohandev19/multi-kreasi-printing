@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Res, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  Req,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { Response, Request } from 'express';
 import { LoginRequestDto } from './dto/login.dto';
 import { LoginUseCase } from './use-cases/login.usecase';
@@ -17,9 +25,12 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginRequestDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() loginDto: LoginRequestDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.loginUseCase.execute(loginDto);
-    
+
     res.cookie('refresh_token', result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -33,7 +44,10 @@ export class AuthController {
   @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const refreshToken = req.cookies?.refresh_token;
     const result = await this.refreshTokenUseCase.execute(refreshToken);
 
