@@ -96,3 +96,69 @@ model Contact {
   @@map("contacts")
   @@index([customerId])
 }
+
+model Category {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String     @db.VarChar(255)
+  description String?    @db.Text
+  parentId    String?    @map("parent_id") @db.Uuid
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sku           String         @unique @db.VarChar(100)
+  name          String         @db.VarChar(255)
+  description   String?        @db.Text
+  categoryId    String         @map("category_id") @db.Uuid
+  basePrice     Decimal        @map("base_price") @db.Decimal(12, 2)
+  unitOfMeasure String         @map("unit_of_measure") @db.VarChar(50)
+  status        String         @default("Active") @db.VarChar(50)
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  category      Category       @relation(fields: [categoryId], references: [id])
+  pricingTiers  PricingTier[]
+  images        ProductImage[]
+
+  @@map("products")
+  @@index([sku])
+  @@index([categoryId])
+  @@index([status])
+}
+
+model PricingTier {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId   String   @map("product_id") @db.Uuid
+  minQuantity Int      @map("min_quantity")
+  maxQuantity Int?     @map("max_quantity")
+  unitPrice   Decimal  @map("unit_price") @db.Decimal(12, 2)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("pricing_tiers")
+  @@index([productId])
+}
+
+model ProductImage {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  r2Path    String   @map("r2_path") @db.Text
+  url       String   @db.Text
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+  @@index([productId])
+}
