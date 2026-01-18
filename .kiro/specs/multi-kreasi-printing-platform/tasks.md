@@ -343,8 +343,8 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
 
 ### Phase 4: Product Catalog and Pricing
 
-- [ ] 10. Implement product catalog module
-  - [ ] 10.1 Create Product and Category domain entities
+- [x] 10. Implement product catalog module
+  - [x] 10.1 Create Product and Category domain entities
     - Define Product entity with SKU uniqueness validation
     - Define Category entity with hierarchical parent-child relationship
     - Create ProductStatus enum (Active, Inactive, Discontinued)
@@ -352,7 +352,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Create domain events: ProductCreatedEvent, ProductPriceChangedEvent, ProductDiscontinuedEvent
     - _Requirements: 9_
 
-  - [~] 10.2 Create database schema for products
+  - [x] 10.2 Create database schema for products
     - Create Prisma schema for categories table with parent_id self-reference
     - Create Prisma schema for products table with indexes on sku, category_id, status
     - Create Prisma schema for pricing_tiers table
@@ -360,7 +360,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Generate and run migrations
     - _Requirements: 9_
 
-  - [ ] 10.3 Implement product management use cases
+  - [x] 10.3 Implement product management use cases
     - Implement CreateProductUseCase with SKU uniqueness validation
     - Implement UpdateProductUseCase with price change event emission
     - Implement ManageProductImagesUseCase (upload/delete up to 5 images per product)
@@ -369,7 +369,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Prevent product selection in new orders when status is Inactive/Discontinued
     - _Requirements: 9_
 
-  - [ ] 10.4 Create product DTOs and controllers
+  - [x] 10.4 Create product DTOs and controllers
     - Create CreateProductDto with sku, name, category_id, base_price, unit_of_measure validation
     - Create UpdateProductDto with partial update support
     - Create SetPricingTiersDto with min_quantity, max_quantity, unit_price array
@@ -380,7 +380,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Create POST /api/v1/products/:id/images endpoint for image upload
     - _Requirements: 9_
 
-  - [ ] 10.5 Implement Cloudflare R2 storage service for product images
+  - [x] 10.5 Implement Cloudflare R2 storage service for product images
     - Create StorageService abstraction using AWS SDK for JavaScript v3 (S3-compatible)
     - Configure R2 credentials: endpoint, access_key_id, secret_access_key, bucket_name
     - Implement file upload with validation (file type, size limits, malware scanning)
@@ -398,7 +398,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Test image upload and storage
     - _Requirements: 9_
 
-- [ ] 11. Checkpoint - Verify product catalog
+- [x] 11. Checkpoint - Verify product catalog
   - Test product CRUD with pricing tiers
   - Test category hierarchy working
   - Verify image upload and storage

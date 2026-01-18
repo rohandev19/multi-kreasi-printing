@@ -9,7 +9,7 @@ import { SearchProductsUseCase } from './use-cases/search-products.usecase';
 import { SetPricingTiersUseCase } from './use-cases/set-pricing-tiers.usecase';
 import { ManageProductImagesUseCase } from './use-cases/manage-product-images.usecase';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from '../auth/decorators/public.decorator';
 

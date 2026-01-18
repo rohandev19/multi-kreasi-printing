@@ -15,7 +15,7 @@ import { CreateUserUseCase } from './use-cases/create-user.usecase';
 import { UpdateUserUseCase } from './use-cases/update-user.usecase';
 import { SearchUsersUseCase } from './use-cases/search-users.usecase';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 @Controller('api/v1/users')
 @Roles('Owner', 'Manager')
