@@ -7,7 +7,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { Response, Request } from 'express';
+import type { Response, Request } from 'express';
 import { LoginRequestDto } from './dto/login.dto';
 import { LoginUseCase } from './use-cases/login.usecase';
 import { LogoutUseCase } from './use-cases/logout.usecase';

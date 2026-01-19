@@ -15,7 +15,7 @@ import { CreateCustomerUseCase } from './use-cases/create-customer.usecase';
 import { UpdateCustomerUseCase } from './use-cases/update-customer.usecase';
 import { SearchCustomersUseCase } from './use-cases/search-customers.usecase';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 @Controller('api/v1/customers')
 export class CustomersController {
