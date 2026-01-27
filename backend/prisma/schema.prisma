@@ -35,6 +35,7 @@ model User {
 
   role Role @relation(fields: [roleId], references: [id])
   orderTimelines OrderTimeline[]
+  designFiles    DesignFile[]
 
   @@map("users")
   @@index([email])
@@ -184,6 +185,7 @@ model Order {
   customer              Customer        @relation(fields: [customerId], references: [id])
   items                 OrderItem[]
   timeline              OrderTimeline[]
+  designFiles           DesignFile[]
 
   @@map("orders")
   @@index([orderNumber])
@@ -224,4 +226,27 @@ model OrderTimeline {
 
   @@map("order_timeline")
   @@index([orderId])
+}
+
+model DesignFile {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId         String   @map("order_id") @db.Uuid
+  status          String   @default("Uploaded") @db.VarChar(50)
+  version         Int      @default(1)
+  originalName    String   @map("original_name") @db.VarChar(255)
+  r2Path          String   @map("r2_path") @db.Text
+  fileSize        Int      @map("file_size")
+  mimeType        String   @map("mime_type") @db.VarChar(100)
+  notes           String?  @db.Text
+  uploadedBy      String   @map("uploaded_by") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  uploader        User     @relation(fields: [uploadedBy], references: [id])
+  
+  @@map("design_files")
+  @@index([orderId])
+  @@index([status])
+  @@index([uploadedBy])
 }

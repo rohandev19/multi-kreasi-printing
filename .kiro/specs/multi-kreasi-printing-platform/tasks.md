@@ -407,8 +407,8 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
 
 ### Phase 5: Order Management System
 
-- [ ] 11. Implement order module with workflow engine
-  - [ ] 11.1 Create Order domain entities and workflow
+- [x] 11. Implement order module with workflow engine
+  - [x] 11.1 Create Order domain entities and workflow
     - Define Order entity with status workflow (Draft → Pending_Approval → Approved → In_Production → Quality_Check → Completed → Delivered → [Cancelled])
     - Define OrderItem entity with quantity and pricing
     - Create OrderNumber value object with format ORD-YYYY-9999
@@ -416,14 +416,14 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Create domain events: OrderCreatedEvent, OrderApprovedEvent, OrderCompletedEvent, OrderCancelledEvent
     - _Requirements: 8_
 
-  - [ ] 11.2 Create database schema for orders
+  - [x] 11.2 Create database schema for orders
     - Create Prisma schema for orders table with indexes on order_number, customer_id, status, created_at
     - Create Prisma schema for order_items table with order_id and product_id foreign keys
     - Create Prisma schema for order_timeline table for status change tracking
     - Generate and run migrations
     - _Requirements: 8_
 
-  - [ ] 11.3 Implement order management use cases
+  - [x] 11.3 Implement order management use cases
     - Implement CreateOrderUseCase with automatic order number generation
     - Implement UpdateOrderStatusUseCase with workflow validation (prevent invalid transitions)
     - Implement CalculateOrderTotalUseCase with pricing tier selection
@@ -432,7 +432,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Validate order has at least one line item before submission
     - _Requirements: 8_
 
-  - [ ] 11.4 Implement approval workflow engine
+  - [x] 11.4 Implement approval workflow engine
     - Create WorkflowService with configurable approval rules
     - Implement automatic approval for orders < 2M IDR
     - Implement Manager approval requirement for 2M-10M IDR
@@ -441,7 +441,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Store approval decisions in audit log with timestamp and approver
     - _Requirements: 7, 8_
 
-  - [ ] 11.5 Create order DTOs and controllers
+  - [x] 11.5 Create order DTOs and controllers
     - Create CreateOrderDto with customer_id, order_items array, priority, estimated_delivery_date
     - Create UpdateOrderStatusDto with status and notes
     - Create OrderResponseDto with items, timeline, approval status
@@ -465,11 +465,11 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - **Security Test:** Customer A requesting `GET /orders/:id` for order owned by Customer B → must return 403/404, not 200
     - _Requirements: 7, 8_
 
-- [ ] 12. Checkpoint - Verify order management system
-  - Test order creation and workflow transitions
-  - Verify approval routing based on order value
-  - Verify order total calculations accurate
-  - Test timeline tracking for status changes
+- [x] 12. Checkpoint - Verify order management
+  - Test order creation and total calculation
+  - Test order workflow transitions
+  - Test approval logic thresholds
+  - Verify audit logs for approvals and cancellations
   - Ensure all tests pass, ask the user if questions arise
 
 ### Phase 6: Design File Management

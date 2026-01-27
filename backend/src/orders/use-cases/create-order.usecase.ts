@@ -33,7 +33,14 @@ export class CreateOrderUseCase {
       }
       
       const unitPrice = product.pricingTiers.length > 0 
-        ? PricingTierLogic.calculateUnitPrice(product.pricingTiers, itemDto.quantity)
+        ? PricingTierLogic.calculateUnitPrice(
+            product.pricingTiers.map(t => ({
+              minQuantity: t.minQuantity,
+              maxQuantity: t.maxQuantity,
+              unitPrice: Number(t.unitPrice)
+            })), 
+            itemDto.quantity
+          )
         : Number(product.basePrice);
 
       const subtotal = unitPrice * itemDto.quantity;
