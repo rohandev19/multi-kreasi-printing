@@ -7,13 +7,19 @@ import { ApproveOrderUseCase } from './use-cases/approve-order.usecase';
 import { CancelOrderUseCase } from './use-cases/cancel-order.usecase';
 import { SearchOrdersUseCase } from './use-cases/search-orders.usecase';
 import { GetOrderDetailsUseCase } from './use-cases/get-order-details.usecase';
+import { UploadDesignFileUseCase } from './use-cases/upload-design-file.usecase';
+import { ReviewDesignFileUseCase } from './use-cases/review-design-file.usecase';
+import { GetDesignFileUseCase } from './use-cases/get-design-file.usecase';
+import { DownloadDesignFileUseCase } from './use-cases/download-design-file.usecase';
 import { WorkflowService } from './workflow.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuditModule } from '../audit/audit.module';
+import { StorageModule } from '../storage/storage.module';
+import { DesignFilesController } from './design-files.controller';
 
 @Module({
-  imports: [PrismaModule, AuditModule],
-  controllers: [OrdersController],
+  imports: [PrismaModule, AuditModule, StorageModule],
+  controllers: [OrdersController, DesignFilesController],
   providers: [
     WorkflowService,
     CreateOrderUseCase,
@@ -23,6 +29,10 @@ import { AuditModule } from '../audit/audit.module';
     CancelOrderUseCase,
     SearchOrdersUseCase,
     GetOrderDetailsUseCase,
+    UploadDesignFileUseCase,
+    ReviewDesignFileUseCase,
+    GetDesignFileUseCase,
+    DownloadDesignFileUseCase,
   ],
 })
 export class OrdersModule {}

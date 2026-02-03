@@ -1,4 +1,5 @@
-import { Body, Controller, Param, Patch, Post, Req, Get } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post, Req, Get, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateOrderUseCase } from './use-cases/create-order.usecase';
 import { UpdateOrderStatusUseCase } from './use-cases/update-order-status.usecase';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -8,6 +9,7 @@ import { ApproveOrderUseCase } from './use-cases/approve-order.usecase';
 import { CancelOrderUseCase } from './use-cases/cancel-order.usecase';
 import { SearchOrdersUseCase } from './use-cases/search-orders.usecase';
 import { GetOrderDetailsUseCase } from './use-cases/get-order-details.usecase';
+import { PrismaService } from '../prisma/prisma.service';
 import { Roles } from '../auth/decorators/roles.decorator';
 import type { Request } from 'express';
 
@@ -21,6 +23,7 @@ export class OrdersController {
     private readonly cancelOrder: CancelOrderUseCase,
     private readonly searchOrders: SearchOrdersUseCase,
     private readonly getOrderDetails: GetOrderDetailsUseCase,
+    private readonly prisma: PrismaService,
   ) {}
 
   @Post()
@@ -74,8 +77,25 @@ export class OrdersController {
   }
 
   @Get(':id')
-  @Roles('Production', 'Sales', 'Manager', 'Owner')
+  @Roles('Production', 'Sales', 'Manager', 'Owner', 'Customer')
   async getDetails(@Param('id') id: string) {
     return this.getOrderDetails.execute(id);
+  }
+
+  @Get(':orderId/design-files')
+  @Roles('Customer', 'Production', 'Sales', 'Manager', 'Owner')
+  async getOrderDesignFiles(@Param('orderId') orderId: string, @Req() req: Request) {
+    const user = (req as any).user;
+    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) return [];
+
+    if (user.role.name === 'Customer' && order.customerId !== user.id) {
+      return []; // Prevent IDOR, hide existence of order
+    }
+
+    return this.prisma.designFile.findMany({
+      where: { orderId },
+      orderBy: { createdAt: 'desc' }
+    });
   }
 }
