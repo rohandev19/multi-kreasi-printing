@@ -57,6 +57,26 @@ export class StorageService {
     }
   }
 
+  async uploadRaw(r2Path: string, buffer: Buffer, mimeType: string): Promise<{ url: string; r2Path: string }> {
+    try {
+      await this.s3Client.send(
+        new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: r2Path,
+          Body: buffer,
+          ContentType: mimeType,
+        }),
+      );
+
+      return {
+        url: `${this.publicDomain}/${r2Path}`,
+        r2Path,
+      };
+    } catch (error) {
+      throw new Error(`Gagal mengupload file: ${(error as Error).message}`);
+    }
+  }
+
   async getSignedUrl(r2Path: string): Promise<string> {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
