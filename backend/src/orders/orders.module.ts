@@ -11,6 +11,7 @@ import { UploadDesignFileUseCase } from './use-cases/upload-design-file.usecase'
 import { ReviewDesignFileUseCase } from './use-cases/review-design-file.usecase';
 import { GetDesignFileUseCase } from './use-cases/get-design-file.usecase';
 import { DownloadDesignFileUseCase } from './use-cases/download-design-file.usecase';
+import { GenerateThumbnailUseCase } from './use-cases/generate-thumbnail.usecase';
 import { WorkflowService } from './workflow.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuditModule } from '../audit/audit.module';
@@ -33,6 +34,7 @@ import { DesignFilesController } from './design-files.controller';
     ReviewDesignFileUseCase,
     GetDesignFileUseCase,
     DownloadDesignFileUseCase,
+    GenerateThumbnailUseCase,
   ],
 })
 export class OrdersModule {}

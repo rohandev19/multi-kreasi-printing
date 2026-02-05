@@ -235,6 +235,7 @@ model DesignFile {
   version         Int      @default(1)
   originalName    String   @map("original_name") @db.VarChar(255)
   r2Path          String   @map("r2_path") @db.Text
+  thumbnailPath   String?  @map("thumbnail_path") @db.Text
   fileSize        Int      @map("file_size")
   mimeType        String   @map("mime_type") @db.VarChar(100)
   notes           String?  @db.Text
