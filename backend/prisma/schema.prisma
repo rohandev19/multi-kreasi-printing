@@ -7,14 +7,14 @@ datasource db {
 }
 
 model Role {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name         String   @unique @db.VarChar(50)
-  displayName  String   @map("display_name") @db.VarChar(100)
-  description  String?  @db.Text
-  permissions  Json     @default("[]")
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  users        User[]
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String   @unique @db.VarChar(50)
+  displayName String   @map("display_name") @db.VarChar(100)
+  description String?  @db.Text
+  permissions Json     @default("[]")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  users       User[]
 
   @@map("roles")
 }
@@ -33,14 +33,15 @@ model User {
   updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt    DateTime? @map("deleted_at") @db.Timestamptz
 
-  role Role @relation(fields: [roleId], references: [id])
+  role           Role            @relation(fields: [roleId], references: [id])
   orderTimelines OrderTimeline[]
   designFiles    DesignFile[]
+  productionJobs ProductionJob[]
 
-  @@map("users")
   @@index([email])
   @@index([roleId])
   @@index([status])
+  @@map("users")
 }
 
 model AuditLog {
@@ -55,49 +56,49 @@ model AuditLog {
   userAgent  String?  @map("user_agent") @db.Text
   timestamp  DateTime @default(now()) @db.Timestamptz
 
-  @@map("audit_logs")
   @@index([userId])
   @@index([action])
   @@index([entityType, entityId])
+  @@map("audit_logs")
 }
 
 model Customer {
-  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyName  String    @map("company_name") @db.VarChar(255)
-  email        String?   @unique @db.VarChar(255)
-  phone        String?   @db.VarChar(50)
-  address      String?   @db.Text
-  npwp         String?   @unique @db.VarChar(50)
-  loyaltyTier  String    @default("Bronze") @map("loyalty_tier") @db.VarChar(50)
-  metrics      Json      @default("{\"totalRevenue\":0,\"totalOrders\":0}")
-  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyName String    @map("company_name") @db.VarChar(255)
+  email       String?   @unique @db.VarChar(255)
+  phone       String?   @db.VarChar(50)
+  address     String?   @db.Text
+  npwp        String?   @unique @db.VarChar(50)
+  loyaltyTier String    @default("Bronze") @map("loyalty_tier") @db.VarChar(50)
+  metrics     Json      @default("{\"totalRevenue\":0,\"totalOrders\":0}")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz
 
-  contacts     Contact[]
-  orders       Order[]
+  contacts Contact[]
+  orders   Order[]
 
-  @@map("customers")
   @@index([email])
   @@index([npwp])
   @@index([loyaltyTier])
+  @@map("customers")
 }
 
 model Contact {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  customerId  String   @map("customer_id") @db.Uuid
-  name        String   @db.VarChar(255)
-  email       String?  @db.VarChar(255)
-  phone       String?  @db.VarChar(50)
-  position    String?  @db.VarChar(100)
-  isPrimary   Boolean  @default(false) @map("is_primary")
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId String   @map("customer_id") @db.Uuid
+  name       String   @db.VarChar(255)
+  email      String?  @db.VarChar(255)
+  phone      String?  @db.VarChar(50)
+  position   String?  @db.VarChar(100)
+  isPrimary  Boolean  @default(false) @map("is_primary")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
-  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
-  @@map("contacts")
   @@index([customerId])
+  @@map("contacts")
 }
 
 model Category {
@@ -110,32 +111,33 @@ model Category {
   createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz
   updatedAt   DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
-  products    Product[]
+  products Product[]
 
   @@map("categories")
 }
 
 model Product {
-  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  sku           String         @unique @db.VarChar(100)
-  name          String         @db.VarChar(255)
-  description   String?        @db.Text
-  categoryId    String         @map("category_id") @db.Uuid
-  basePrice     Decimal        @map("base_price") @db.Decimal(12, 2)
-  unitOfMeasure String         @map("unit_of_measure") @db.VarChar(50)
-  status        String         @default("Active") @db.VarChar(50)
-  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sku           String   @unique @db.VarChar(100)
+  name          String   @db.VarChar(255)
+  description   String?  @db.Text
+  categoryId    String   @map("category_id") @db.Uuid
+  basePrice     Decimal  @map("base_price") @db.Decimal(12, 2)
+  unitOfMeasure String   @map("unit_of_measure") @db.VarChar(50)
+  status        String   @default("Active") @db.VarChar(50)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
-  category      Category       @relation(fields: [categoryId], references: [id])
-  pricingTiers  PricingTier[]
-  images        ProductImage[]
-  orderItems    OrderItem[]
+  category     Category              @relation(fields: [categoryId], references: [id])
+  pricingTiers PricingTier[]
+  images       ProductImage[]
+  orderItems   OrderItem[]
+  consumptions MaterialConsumption[]
 
-  @@map("products")
   @@index([sku])
   @@index([categoryId])
   @@index([status])
+  @@map("products")
 }
 
 model PricingTier {
@@ -147,10 +149,10 @@ model PricingTier {
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@map("pricing_tiers")
   @@index([productId])
+  @@map("pricing_tiers")
 }
 
 model ProductImage {
@@ -161,37 +163,38 @@ model ProductImage {
   isPrimary Boolean  @default(false) @map("is_primary")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@map("product_images")
   @@index([productId])
+  @@map("product_images")
 }
 
 model Order {
-  id                    String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  orderNumber           String          @unique @map("order_number") @db.VarChar(50)
-  customerId            String          @map("customer_id") @db.Uuid
-  status                String          @default("Draft") @db.VarChar(50)
-  priority              String          @default("Normal") @db.VarChar(50)
-  subtotal              Decimal         @db.Decimal(12, 2)
-  tax                   Decimal         @db.Decimal(12, 2)
-  shipping              Decimal         @db.Decimal(12, 2)
-  totalAmount           Decimal         @map("total_amount") @db.Decimal(12, 2)
-  estimatedDeliveryDate DateTime?       @map("estimated_delivery_date") @db.Date
-  notes                 String?         @db.Text
-  createdAt             DateTime        @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt             DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderNumber           String    @unique @map("order_number") @db.VarChar(50)
+  customerId            String    @map("customer_id") @db.Uuid
+  status                String    @default("Draft") @db.VarChar(50)
+  priority              String    @default("Normal") @db.VarChar(50)
+  subtotal              Decimal   @db.Decimal(12, 2)
+  tax                   Decimal   @db.Decimal(12, 2)
+  shipping              Decimal   @db.Decimal(12, 2)
+  totalAmount           Decimal   @map("total_amount") @db.Decimal(12, 2)
+  estimatedDeliveryDate DateTime? @map("estimated_delivery_date") @db.Date
+  notes                 String?   @db.Text
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
-  customer              Customer        @relation(fields: [customerId], references: [id])
-  items                 OrderItem[]
-  timeline              OrderTimeline[]
-  designFiles           DesignFile[]
+  customer       Customer        @relation(fields: [customerId], references: [id])
+  items          OrderItem[]
+  timeline       OrderTimeline[]
+  designFiles    DesignFile[]
+  productionJobs ProductionJob[]
 
-  @@map("orders")
   @@index([orderNumber])
   @@index([customerId])
   @@index([status])
   @@index([createdAt])
+  @@map("orders")
 }
 
 model OrderItem {
@@ -205,49 +208,106 @@ model OrderItem {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
 
-  @@map("order_items")
   @@index([orderId])
   @@index([productId])
+  @@map("order_items")
 }
 
 model OrderTimeline {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  orderId     String   @map("order_id") @db.Uuid
-  status      String   @db.VarChar(50)
-  notes       String?  @db.Text
-  createdBy   String   @map("created_by") @db.Uuid
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId   String   @map("order_id") @db.Uuid
+  status    String   @db.VarChar(50)
+  notes     String?  @db.Text
+  createdBy String   @map("created_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  user        User     @relation(fields: [createdBy], references: [id])
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [createdBy], references: [id])
 
-  @@map("order_timeline")
   @@index([orderId])
+  @@map("order_timeline")
 }
 
 model DesignFile {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  orderId         String   @map("order_id") @db.Uuid
-  status          String   @default("Uploaded") @db.VarChar(50)
-  version         Int      @default(1)
-  originalName    String   @map("original_name") @db.VarChar(255)
-  r2Path          String   @map("r2_path") @db.Text
-  thumbnailPath   String?  @map("thumbnail_path") @db.Text
-  fileSize        Int      @map("file_size")
-  mimeType        String   @map("mime_type") @db.VarChar(100)
-  notes           String?  @db.Text
-  uploadedBy      String   @map("uploaded_by") @db.Uuid
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId       String   @map("order_id") @db.Uuid
+  status        String   @default("Uploaded") @db.VarChar(50) // Uploaded, AI_Check, Manual_Review, Approved, Rejected, Revision_Required
+  version       Int      @default(1)
+  originalName  String   @map("original_name") @db.VarChar(255)
+  r2Path        String   @map("r2_path") @db.Text
+  thumbnailPath String?  @map("thumbnail_path") @db.Text
+  fileSize      Int      @map("file_size")
+  mimeType      String   @map("mime_type") @db.VarChar(100)
+  notes         String?  @db.Text
+  uploadedBy    String   @map("uploaded_by") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
-  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  uploader        User     @relation(fields: [uploadedBy], references: [id])
-  
-  @@map("design_files")
+  order          Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  uploadedByUser User  @relation(fields: [uploadedBy], references: [id])
+
   @@index([orderId])
   @@index([status])
   @@index([uploadedBy])
+  @@map("design_files")
+}
+
+model Machine {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String    @db.VarChar(100)
+  type            String    @db.VarChar(50)
+  status          String    @default("Available") @db.VarChar(50)
+  productionTime  Int       @default(0) @map("total_production_time") // in seconds
+  idleTime        Int       @default(0) @map("total_idle_time") // in seconds
+  maintenanceDate DateTime? @map("maintenance_date") @db.Timestamptz
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  jobs ProductionJob[]
+
+  @@index([status])
+  @@map("machines")
+}
+
+model ProductionJob {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  jobNumber  String    @unique @map("job_number") @db.VarChar(50)
+  orderId    String    @map("order_id") @db.Uuid
+  machineId  String?   @map("machine_id") @db.Uuid
+  assignedTo String?   @map("assigned_to") @db.Uuid
+  status     String    @default("Queue") @db.VarChar(50)
+  startTime  DateTime? @map("start_time") @db.Timestamptz
+  endTime    DateTime? @map("end_time") @db.Timestamptz
+  notes      String?   @db.Text
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  order        Order                 @relation(fields: [orderId], references: [id])
+  machine      Machine?              @relation(fields: [machineId], references: [id])
+  assignee     User?                 @relation(fields: [assignedTo], references: [id])
+  consumptions MaterialConsumption[]
+
+  @@index([status])
+  @@index([orderId])
+  @@index([machineId])
+  @@map("production_jobs")
+}
+
+model MaterialConsumption {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  jobId     String   @map("job_id") @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  quantity  Int
+  notes     String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  job     ProductionJob @relation(fields: [jobId], references: [id])
+  product Product       @relation(fields: [productId], references: [id])
+
+  @@index([jobId])
+  @@index([productId])
+  @@map("material_consumption")
 }
