@@ -43,10 +43,10 @@ export class StartProductionUseCase {
     await this.audit.log({
       userId: currentUserId,
       action: 'JOB_STARTED',
-      entityName: 'ProductionJob',
+      entityType: 'ProductionJob',
       entityId: jobId,
-      oldData: { status: job.status },
-      newData: { status: updatedJob.status, startTime: updatedJob.startTime },
+      oldValue: { status: job.status },
+      newValue: { status: updatedJob.status, startTime: updatedJob.startTime },
     });
 
     return updatedJob;

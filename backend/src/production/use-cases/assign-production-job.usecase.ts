@@ -36,10 +36,10 @@ export class AssignProductionJobUseCase {
     await this.audit.log({
       userId: currentUserId,
       action: 'JOB_ASSIGNED',
-      entityName: 'ProductionJob',
+      entityType: 'ProductionJob',
       entityId: jobId,
-      oldData: { status: job.status, machineId: job.machineId, assignedTo: job.assignedTo },
-      newData: { status: updatedJob.status, machineId, assignedTo: assigneeId },
+      oldValue: { status: job.status, machineId: job.machineId, assignedTo: job.assignedTo },
+      newValue: { status: updatedJob.status, machineId, assignedTo: assigneeId },
     });
 
     return updatedJob;

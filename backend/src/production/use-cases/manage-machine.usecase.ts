@@ -22,10 +22,10 @@ export class ManageMachineUseCase {
     await this.audit.log({
       userId: currentUserId,
       action: 'MACHINE_CREATED',
-      entityName: 'Machine',
+      entityType: 'Machine',
       entityId: machine.id,
-      oldData: null,
-      newData: { name, type },
+      oldValue: null,
+      newValue: { name, type },
     });
 
     return machine;
@@ -47,10 +47,10 @@ export class ManageMachineUseCase {
     await this.audit.log({
       userId: currentUserId,
       action: 'MACHINE_STATUS_UPDATED',
-      entityName: 'Machine',
+      entityType: 'Machine',
       entityId: machineId,
-      oldData: { status: machine.status },
-      newData: { status },
+      oldValue: { status: machine.status },
+      newValue: { status },
     });
 
     return updated;
@@ -65,10 +65,10 @@ export class ManageMachineUseCase {
     await this.audit.log({
       userId: currentUserId,
       action: 'MACHINE_MAINTENANCE_SCHEDULED',
-      entityName: 'Machine',
+      entityType: 'Machine',
       entityId: machineId,
-      oldData: null,
-      newData: { maintenanceDate },
+      oldValue: null,
+      newValue: { maintenanceDate },
     });
 
     return machine;

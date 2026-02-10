@@ -28,10 +28,10 @@ export class RecordMaterialConsumptionUseCase {
     await this.audit.log({
       userId: currentUserId,
       action: 'MATERIAL_CONSUMED',
-      entityName: 'ProductionJob',
+      entityType: 'ProductionJob',
       entityId: jobId,
-      oldData: null,
-      newData: { productId, quantity, consumptionId: consumption.id },
+      oldValue: null,
+      newValue: { productId, quantity, consumptionId: consumption.id },
     });
 
     return consumption;

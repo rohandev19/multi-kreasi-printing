@@ -59,10 +59,10 @@ export class CompleteProductionUseCase {
     await this.audit.log({
       userId: currentUserId,
       action: passedQualityCheck ? 'JOB_COMPLETED' : 'JOB_FAILED',
-      entityName: 'ProductionJob',
+      entityType: 'ProductionJob',
       entityId: jobId,
-      oldData: { status: job.status },
-      newData: { status: updatedJob.status, endTime: updatedJob.endTime },
+      oldValue: { status: job.status },
+      newValue: { status: updatedJob.status, endTime: updatedJob.endTime },
     });
 
     return updatedJob;

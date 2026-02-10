@@ -48,10 +48,10 @@ export class CreateReworkJobUseCase {
     await this.audit.log({
       userId: currentUserId,
       action: 'REWORK_CREATED',
-      entityName: 'ProductionJob',
+      entityType: 'ProductionJob',
       entityId: updatedJob.id,
-      oldData: null,
-      newData: { failedJobId, reason },
+      oldValue: null,
+      newValue: { failedJobId, reason },
     });
 
     return updatedJob;
