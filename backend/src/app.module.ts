@@ -12,6 +12,8 @@ import { CustomersModule } from './customers/customers.module';
 import { ProductsModule } from './products/products.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductionModule } from './production/production.module';
+import { FinanceModule } from './finance/finance.module';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -25,6 +27,13 @@ import { ProductionModule } from './production/production.module';
     ProductsModule,
     OrdersModule,
     ProductionModule,
+    FinanceModule,
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379', 10),
+      },
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
