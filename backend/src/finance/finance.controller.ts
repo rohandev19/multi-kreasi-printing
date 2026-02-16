@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Param, Body, Query, UseGuards, Req, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RecordPaymentDto, InvoiceFilterDto } from './dto/finance.dto';
 import { RecordPaymentUseCase } from './use-cases/record-payment.usecase';
 import { SendInvoiceUseCase } from './use-cases/send-invoice.usecase';
@@ -99,7 +99,7 @@ export class FinanceController {
       return { message: 'PDF not generated yet' };
     }
 
-    const presignedUrl = await this.storageService.getPresignedUrl(`invoices/${invoice.invoiceNumber}.pdf`);
+    const presignedUrl = await this.storageService.getSignedUrl(`invoices/${invoice.invoiceNumber}.pdf`);
     return { url: presignedUrl };
   }
 

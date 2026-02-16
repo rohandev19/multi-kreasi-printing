@@ -2,7 +2,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
 import { StorageService } from '../../storage/storage.service';
-import * as PDFDocument from 'pdfkit';
+import PDFDocument = require('pdfkit');
 import { Logger } from '@nestjs/common';
 import { PassThrough } from 'stream';
 
@@ -17,7 +17,7 @@ export class PdfGenerationProcessor extends WorkerHost {
     super();
   }
 
-  async process(job: Job<any, any, string>): Promise<any> {
+  async process(job: any): Promise<any> {
     if (job.name === 'generate-invoice-pdf') {
       const { invoiceId } = job.data;
       this.logger.log(`Generating PDF for invoice ${invoiceId}`);
@@ -82,16 +82,16 @@ export class PdfGenerationProcessor extends WorkerHost {
 
       // Upload to R2
       const filename = `invoices/${invoice.invoiceNumber}.pdf`;
-      const url = await this.storage.uploadRaw(filename, buffer, 'application/pdf');
+      const uploaded = await this.storage.uploadRaw(filename, buffer, 'application/pdf');
 
       // Update invoice record
       await this.prisma.invoice.update({
         where: { id: invoice.id },
-        data: { pdfUrl: url },
+        data: { pdfUrl: uploaded.url },
       });
 
-      this.logger.log(`PDF generated and uploaded for invoice ${invoiceId} at ${url}`);
-      return { url };
+      this.logger.log(`PDF generated and uploaded for invoice ${invoiceId} at ${uploaded.url}`);
+      return { url: uploaded.url };
     }
   }
 }
