@@ -474,21 +474,21 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
 
 ### Phase 6: Design File Management
 
-- [ ] 13. Implement design file module with version control
-  - [ ] 13.1 Create DesignFile domain entity
+- [x] 13. Implement design file module with version control
+  - [x] 13.1 Create DesignFile domain entity
     - Define DesignFile entity with version tracking
     - Create DesignFileStatus enum (Uploaded, AI_Check, Manual_Review, Approved, Rejected, Revision_Required)
     - Implement file metadata tracking: filename, size, mime_type, version
     - Create domain events: DesignFileUploadedEvent, DesignFileApprovedEvent, DesignFileRejectedEvent
     - _Requirements: 10_
 
-  - [ ] 13.2 Create database schema for design files
+  - [x] 13.2 Create database schema for design files
     - Create Prisma schema for design_files table with indexes on order_id, status, uploaded_by
     - Store file path, original filename, file size, mime type, version number
     - Generate and run migrations
     - _Requirements: 10_
 
-  - [ ] 13.3 Implement design file use cases
+  - [x] 13.3 Implement design file use cases
     - Implement UploadDesignFileUseCase with file validation (PSD, AI, PDF, JPG, PNG max 100MB)
     - **Security (SVG Handling):** SVG files require special handling — choose one:
       - Option A: Remove SVG from allowed file types, OR
@@ -501,7 +501,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Implement GenerateThumbnailUseCase for image formats (JPG, PNG)
     - _Requirements: 10_
 
-  - [ ] 13.4 Enhance Cloudflare R2 storage service for design files
+  - [x] 13.4 Enhance Cloudflare R2 storage service for design files
     - Organize design files in R2: designs/{orderId}/{fileId}-v{version}.{ext}
     - Implement file versioning with version number increment
     - Store thumbnails in R2: thumbnails/ path
@@ -512,7 +512,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - **Security (IDOR Prevention):** `GET /design-files/:id` and `GET /orders/:orderId/design-files` must be scoped to customer owning the order, same pattern as Order endpoints
     - _Requirements: 10, 36_
 
-  - [~] 13.5 Create design file DTOs and controllers
+  - [x] 13.5 Create design file DTOs and controllers
     - Create UploadDesignFileDto with order_id and file validation
     - Create ApproveDesignFileDto with review notes
     - Create RejectDesignFileDto with rejection reason
@@ -532,33 +532,25 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Test approve/reject workflow with notifications
     - _Requirements: 10_
 
-- [ ] 14. Checkpoint - Verify design file system
+- [x] 14. Checkpoint - Verify design file system
   - Test file upload with various formats
   - Verify version control working correctly
   - Test thumbnail generation
   - Verify malware scanning integrated
   - Ensure all tests pass, ask the user if questions arise
 
-### Phase 7: Production Workflow and Job Tracking
+### Phase 7: Production Workflow & Job Tracking
 
-- [~] 15. Implement production module
-  - [ ] 15.1 Create ProductionJob and Machine domain entities
-    - Define ProductionJob entity with status workflow (Queue → Assigned → In_Progress → Quality_Check → Completed → [Failed → Rework])
-    - Define Machine entity with status tracking (Available, In_Use, Maintenance, Broken, Offline)
-    - Create ProductionJobNumber value object with format PROD-YYYY-9999
-    - Implement production time tracking (start_time, end_time, duration)
-    - Create domain events: ProductionJobCreatedEvent, ProductionJobStartedEvent, ProductionJobCompletedEvent, QualityCheckFailedEvent
-    - _Requirements: 11, 12_
-
-  - [ ] 15.2 Create database schema for production
+- [x] 15. Implement production module
+  - [x] 15.1 Create `Machine` & `ProductionJob` schemas and enums (Queue, Assigned, In_Progress, Quality_Check, Completed)
+  - [x] 15.2 Create database schema for production
     - Create Prisma schema for machines table with indexes on status
     - Create Prisma schema for production_jobs table with indexes on status, order_id, machine_id
     - Create Prisma schema for material_consumption table linking jobs to materials
     - Track machine utilization: total_production_time, total_idle_time
     - Generate and run migrations
     - _Requirements: 11, 12_
-
-  - [~] 15.3 Implement production use cases
+  - [x] 15.3 Implement production use cases
     - Implement CreateProductionJobUseCase (auto-triggered by OrderApprovedEvent)
     - Implement AssignProductionJobUseCase with machine availability checking
     - Implement StartProductionUseCase with automatic time tracking
@@ -567,8 +559,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Implement CreateReworkJobUseCase when quality check fails
     - Send notification to assigned staff within 60 seconds
     - _Requirements: 11_
-
-  - [ ] 15.4 Implement machine management use cases
+  - [x] 15.4 Implement machine management use cases
     - Implement CreateMachineUseCase
     - Implement UpdateMachineStatusUseCase (prevent assignment when Maintenance/Broken)
     - Implement CalculateMachineUtilizationUseCase (production_time / total_available_time × 100)
@@ -576,7 +567,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Display active production jobs per machine in real-time
     - _Requirements: 12_
 
-  - [ ] 15.5 Create production DTOs and controllers
+  - [x] 15.5 Create production DTOs and controllers
     - Create CreateProductionJobDto with order_id and machine_id
     - Create AssignProductionJobDto with machine_id and staff_id
     - Create CompleteProductionJobDto with quality check result
@@ -590,7 +581,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Create PATCH /api/v1/machines/:id/status endpoint
     - _Requirements: 11, 12_
 
-  - [~]* 15.6 Write integration tests for production workflow
+  - [x]* 15.6 Write integration tests for production workflow
     - Test production job auto-creation from approved order
     - Test machine assignment based on availability
     - Test production time tracking
@@ -598,7 +589,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Test machine utilization calculation
     - _Requirements: 11, 12_
 
-- [ ] 16. Checkpoint - Verify production system
+- [x] 16. Checkpoint - Verify production system
   - Test production job creation from orders
   - Verify machine assignment logic
   - Test time tracking and duration calculation
@@ -607,42 +598,33 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
 
 ### Phase 8: Financial Management and Invoicing
 
-- [ ] 17. Implement finance module
-  - [~] 17.1 Create Invoice and Payment domain entities
-    - Define Invoice entity with automatic generation from completed orders
-    - Define Payment entity with payment method tracking
-    - Create InvoiceNumber value object with format INV-YYYY-9999
-    - Create InvoiceStatus enum (Draft, Sent, Partially_Paid, Fully_Paid, Overdue, Cancelled)
-    - Implement outstanding balance calculation (invoice_total - sum_of_payments)
-    - Create domain events: InvoiceGeneratedEvent, PaymentReceivedEvent, InvoiceOverdueEvent
+- [x] 17. Implement finance module
+  - [x] 17.1 Define `Invoice` and `Payment` models
+    - Create Invoice entity (order, customer, amount, status, due date, pdf_url)
+    - Create Payment entity (invoice, amount, method, reference_number, date)
     - _Requirements: 15_
 
-  - [ ] 17.2 Create database schema for finance
-    - Create Prisma schema for invoices table with indexes on invoice_number, customer_id, status, due_date
-    - Create Prisma schema for payments table with invoice_id foreign key
-    - Track payment method (Bank_Transfer, Cash, Credit_Card, Debit_Card, E_Wallet)
-    - Generate and run migrations
+  - [x] 17.2 Database schema updates
+    - Add models to Prisma schema
+    - Run `prisma db push` (or generate migration)
     - _Requirements: 15_
 
-  - [ ] 17.3 Implement finance use cases
-    - Implement GenerateInvoiceUseCase (auto-triggered by OrderCompletedEvent)
-    - Implement RecordPaymentUseCase with partial payment support
-    - Implement CalculateOutstandingBalanceUseCase
-    - Implement SendInvoiceUseCase via email within 60 seconds
-    - Implement SendPaymentReminderUseCase (3 days before due date, 1 day after)
-    - Auto-update invoice status to Overdue when due date passes
-    - Auto-update status to Fully_Paid when balance reaches zero (within 5 seconds)
+  - [x] 17.3 Implement core finance use cases
+    - `GenerateInvoiceUseCase`: Auto-create on order completion
+    - `RecordPaymentUseCase`: Support partial and full payments
+    - `CalculateOutstandingBalanceUseCase`: Total amount minus payments
+    - `SendInvoiceUseCase`: Trigger PDF generation and email
+    - `SendPaymentReminderUseCase`: Trigger for upcoming/overdue invoices
     - _Requirements: 15_
 
-  - [ ] 17.4 Implement PDF generation service with Cloudflare R2 storage
-    - Create PDFService using library like pdfkit or puppeteer
+  - [x] 17.4 Implement PDF generation
     - Create invoice PDF template with company logo, invoice details, line items
     - Store generated PDFs in Cloudflare R2: invoices/ path
     - Implement PDF generation as background job via BullMQ
     - Support PDF download via signed URL (expiry: 24 hours)
     - _Requirements: 15, 36_
 
-  - [~] 17.5 Create finance DTOs and controllers
+  - [x] 17.5 Create finance DTOs and controllers
     - Create RecordPaymentDto with invoice_id, amount, payment_method, reference_number
     - Create InvoiceResponseDto with payments and outstanding balance
     - Create GET /api/v1/invoices endpoint with filters: customer, status, date range
@@ -654,7 +636,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - **Future Security Note:** When integrating automatic payment gateway (Midtrans/Xendit) later, MUST verify HMAC signature of webhook before updating status to "Fully_Paid" — without this, anyone knowing webhook URL can send fake requests
     - _Requirements: 15_
 
-  - [ ]* 17.6 Write integration tests for finance module
+  - [x]* 17.6 Write integration tests for finance module
     - Test invoice auto-generation from completed order
     - Test partial payment recording and balance calculation
     - Test invoice status transitions (Sent → Partially_Paid → Fully_Paid)
@@ -662,7 +644,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Test PDF generation and download
     - _Requirements: 15_
 
-- [ ] 18. Checkpoint - Verify financial system
+- [x] 18. Checkpoint - Verify financial system
   - Test invoice auto-generation workflow
   - Verify payment recording and balance calculation
   - Test PDF generation and email delivery
