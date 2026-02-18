@@ -36,8 +36,10 @@ model User {
   role           Role            @relation(fields: [roleId], references: [id])
   orderTimelines OrderTimeline[]
   designFiles    DesignFile[]
-  productionJobs ProductionJob[]
-  invoices       Invoice[]
+  productionJobs          ProductionJob[]
+  invoices                Invoice[]
+  notifications           Notification[]
+  notificationPreferences NotificationPreference?
 
   @@index([email])
   @@index([roleId])
@@ -376,4 +378,42 @@ model Payment {
 
   @@index([invoiceId])
   @@map("payments")
+}
+
+// ==========================================
+// Phase 9: Event-Driven Communication
+// ==========================================
+
+model NotificationPreference {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @unique @map("user_id") @db.Uuid
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  emailEnabled Boolean  @default(true) @map("email_enabled")
+  inAppEnabled Boolean  @default(true) @map("in_app_enabled")
+  pushEnabled  Boolean  @default(false) @map("push_enabled")
+  
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("notification_preferences")
+}
+
+model Notification {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type      String   @db.VarChar(50) // e.g., Order_Update, Payment_Received
+  title     String   @db.VarChar(255)
+  message   String   @db.Text
+  isRead    Boolean  @default(false) @map("is_read")
+  channels  String[] // Array of channels sent to, e.g. ["In_App", "Email"]
+  metadata  Json?    @default("{}")
+  
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
 }
