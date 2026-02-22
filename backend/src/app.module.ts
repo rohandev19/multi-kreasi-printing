@@ -13,6 +13,8 @@ import { ProductsModule } from './products/products.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductionModule } from './production/production.module';
 import { FinanceModule } from './finance/finance.module';
+import { EventsModule } from './events/events.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { BullModule } from '@nestjs/bullmq';
 
 @Module({
@@ -28,6 +30,8 @@ import { BullModule } from '@nestjs/bullmq';
     OrdersModule,
     ProductionModule,
     FinanceModule,
+    EventsModule,
+    NotificationsModule,
     BullModule.forRoot({
       connection: {
         host: process.env.REDIS_HOST || 'localhost',
