@@ -7,8 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger, UseGuards } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { JwtService } from '../../auth/jwt.service';
 
 @WebSocketGateway({
   cors: {
@@ -23,7 +22,6 @@ export class NotificationsGateway
 
   constructor(
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
   ) {}
 
   afterInit(server: Server) {
@@ -37,8 +35,7 @@ export class NotificationsGateway
         throw new Error('No token provided');
       }
 
-      const secret = this.configService.get<string>('JWT_SECRET');
-      const payload = await this.jwtService.verifyAsync(token, { secret });
+      const payload = this.jwtService.verifyToken(token);
 
       // Join a room specifically for this user
       const userId = payload.sub;
