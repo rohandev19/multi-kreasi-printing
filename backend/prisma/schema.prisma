@@ -40,6 +40,7 @@ model User {
   invoices                Invoice[]
   notifications           Notification[]
   notificationPreferences NotificationPreference?
+  widgetPreference        WidgetPreference?
 
   @@index([email])
   @@index([roleId])
@@ -416,4 +417,21 @@ model Notification {
   @@index([isRead])
   @@index([createdAt])
   @@map("notifications")
+}
+
+// ==========================================
+// Phase 10: Dashboard and Business Intelligence
+// ==========================================
+
+model WidgetPreference {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String   @unique @map("user_id") @db.Uuid
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  layoutOrder     Json     @default("[]") @map("layout_order")
+  enabledWidgets  String[] @map("enabled_widgets")
+  
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("widget_preferences")
 }
