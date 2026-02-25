@@ -1,0 +1,90 @@
+import { Body, Controller, Get, Patch, Request, UseGuards, UseInterceptors } from '@nestjs/common';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { GetDashboardMetricsUseCase } from './use-cases/get-dashboard-metrics.usecase';
+import { CalculateKPIsUseCase } from './use-cases/calculate-kpis.usecase';
+import { GetRevenueChartDataUseCase } from './use-cases/get-revenue-chart-data.usecase';
+import { GetProductionStatusUseCase } from './use-cases/get-production-status.usecase';
+import { PrismaClient } from '@prisma/client';
+
+@Controller('v1/dashboard')
+@UseGuards(JwtAuthGuard)
+export class DashboardController {
+  private prisma = new PrismaClient();
+
+  constructor(
+    private readonly getMetrics: GetDashboardMetricsUseCase,
+    private readonly calculateKpis: CalculateKPIsUseCase,
+    private readonly getRevenueChart: GetRevenueChartDataUseCase,
+    private readonly getProductionStatus: GetProductionStatusUseCase,
+  ) {}
+
+  @Get('metrics')
+  @UseInterceptors(CacheInterceptor)
+  @CacheKey('dashboard-metrics')
+  @CacheTTL(300) // 5 minutes (in seconds for cache-manager v5) - or standard millisecond fallback for v4
+  async getDashboardMetrics() {
+    return this.getMetrics.execute();
+  }
+
+  @Get('kpis')
+  @UseInterceptors(CacheInterceptor)
+  @CacheKey('dashboard-kpis')
+  @CacheTTL(900) // 15 minutes
+  async getKpis() {
+    return this.calculateKpis.execute();
+  }
+
+  @Get('charts/revenue')
+  @UseInterceptors(CacheInterceptor)
+  @CacheKey('dashboard-revenue-chart')
+  @CacheTTL(1800) // 30 minutes
+  async getRevenueChartData() {
+    return this.getRevenueChart.execute();
+  }
+
+  @Get('production-status')
+  // We do not cache production status as it requires real-time overview for queue
+  async getProductionOverview() {
+    return this.getProductionStatus.execute();
+  }
+
+  @Get('preferences')
+  async getWidgetPreferences(@Request() req) {
+    const userId = req.user.sub;
+    let pref = await this.prisma.widgetPreference.findUnique({
+      where: { userId },
+    });
+
+    if (!pref) {
+      // Create defaults
+      pref = await this.prisma.widgetPreference.create({
+        data: {
+          userId,
+          layoutOrder: ['revenue', 'orders', 'kpis', 'chart', 'production', 'low_stock'],
+          enabledWidgets: ['revenue', 'orders', 'kpis', 'chart', 'production', 'low_stock'],
+        },
+      });
+    }
+    
+    return pref;
+  }
+
+  @Patch('preferences')
+  async updateWidgetPreferences(@Request() req, @Body() body: any) {
+    const userId = req.user.sub;
+    
+    return this.prisma.widgetPreference.upsert({
+      where: { userId },
+      update: {
+        layoutOrder: body.layoutOrder,
+        enabledWidgets: body.enabledWidgets,
+      },
+      create: {
+        userId,
+        layoutOrder: body.layoutOrder || [],
+        enabledWidgets: body.enabledWidgets || [],
+      }
+    });
+  }
+}

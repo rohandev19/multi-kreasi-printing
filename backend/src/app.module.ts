@@ -15,6 +15,7 @@ import { ProductionModule } from './production/production.module';
 import { FinanceModule } from './finance/finance.module';
 import { EventsModule } from './events/events.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 import { BullModule } from '@nestjs/bullmq';
 
 @Module({
@@ -32,6 +33,7 @@ import { BullModule } from '@nestjs/bullmq';
     FinanceModule,
     EventsModule,
     NotificationsModule,
+    DashboardModule,
     BullModule.forRoot({
       connection: {
         host: process.env.REDIS_HOST || 'localhost',
