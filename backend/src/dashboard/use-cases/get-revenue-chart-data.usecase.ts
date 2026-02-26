@@ -17,9 +17,9 @@ export class GetRevenueChartDataUseCase {
     const rawData = await this.prisma.$queryRaw<{ date: Date; total: bigint }[]>`
       SELECT 
         DATE(created_at) as date, 
-        SUM(total_amount) as total
+        SUM(amount) as total
       FROM invoices
-      WHERE status = 'Paid' AND created_at >= ${thirtyDaysAgo}
+      WHERE status = 'Fully_Paid' AND created_at >= ${thirtyDaysAgo}
       GROUP BY DATE(created_at)
       ORDER BY date ASC
     `;

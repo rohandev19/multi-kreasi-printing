@@ -12,23 +12,23 @@ export class CalculateKPIsUseCase {
     // Revenue
     const completedInvoices = await this.prisma.invoice.aggregate({
       _sum: {
-        totalAmount: true,
+        amount: true,
       },
       where: {
-        status: 'Paid',
+        status: 'Fully_Paid',
       },
     });
 
-    const totalRevenue = completedInvoices._sum.totalAmount?.toNumber() || 0;
+    const totalRevenue = completedInvoices._sum.amount?.toNumber() || 0;
 
     // Gross Profit (Revenue - Material Costs) -> Simplified to 30% margin for MVP if no clear materials cost logged
     const grossProfit = totalRevenue * 0.3;
 
-    // Conversion Rate: Completed Orders / Total Leads (We'll use Total Quotes instead of Leads for this MVP context)
-    const totalQuotes = await this.prisma.quote.count();
-    const approvedQuotes = await this.prisma.quote.count({ where: { status: 'Approved' } });
+    // Conversion Rate: Completed Orders / Total Orders
+    const totalOrders = await this.prisma.order.count();
+    const approvedOrders = await this.prisma.order.count({ where: { status: 'Completed' } });
     
-    const conversionRate = totalQuotes > 0 ? (approvedQuotes / totalQuotes) * 100 : 0;
+    const conversionRate = totalOrders > 0 ? (approvedOrders / totalOrders) * 100 : 0;
 
     // Production Time Avg (difference between startedAt and completedAt)
     // We would need to calculate average from production_jobs. For MVP, mock if data isn't easily aggregatable.

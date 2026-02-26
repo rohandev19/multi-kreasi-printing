@@ -25,7 +25,7 @@ export class GetProductionStatusUseCase {
     const completedJobsToday = await this.prisma.productionJob.count({
       where: { 
         status: 'Completed',
-        completedAt: { gte: today },
+        endTime: { gte: today },
       },
     });
 

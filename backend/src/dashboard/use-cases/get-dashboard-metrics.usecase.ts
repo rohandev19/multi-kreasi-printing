@@ -16,23 +16,23 @@ export class GetDashboardMetricsUseCase {
 
     // Revenue Today
     const todayInvoices = await this.prisma.invoice.aggregate({
-      _sum: { totalAmount: true },
+      _sum: { amount: true },
       where: {
-        status: 'Paid',
+        status: 'Fully_Paid',
         createdAt: { gte: today },
       },
     });
 
     const yesterdayInvoices = await this.prisma.invoice.aggregate({
-      _sum: { totalAmount: true },
+      _sum: { amount: true },
       where: {
-        status: 'Paid',
+        status: 'Fully_Paid',
         createdAt: { gte: yesterday, lt: today },
       },
     });
 
-    const revenueToday = todayInvoices._sum.totalAmount?.toNumber() || 0;
-    const revenueYesterday = yesterdayInvoices._sum.totalAmount?.toNumber() || 0;
+    const revenueToday = todayInvoices._sum.amount?.toNumber() || 0;
+    const revenueYesterday = yesterdayInvoices._sum.amount?.toNumber() || 0;
 
     // Orders Today
     const ordersToday = await this.prisma.order.count({
@@ -41,8 +41,8 @@ export class GetDashboardMetricsUseCase {
       },
     });
 
-    // Pending Approvals (Quotes)
-    const pendingQuotes = await this.prisma.quote.count({
+    // Pending Approvals (Draft Orders)
+    const pendingQuotes = await this.prisma.order.count({
       where: { status: 'Draft' },
     });
 

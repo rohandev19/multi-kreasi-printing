@@ -50,7 +50,7 @@ export class DashboardController {
   }
 
   @Get('preferences')
-  async getWidgetPreferences(@Request() req) {
+  async getWidgetPreferences(@Request() req: any) {
     const userId = req.user.sub;
     let pref = await this.prisma.widgetPreference.findUnique({
       where: { userId },
@@ -71,7 +71,7 @@ export class DashboardController {
   }
 
   @Patch('preferences')
-  async updateWidgetPreferences(@Request() req, @Body() body: any) {
+  async updateWidgetPreferences(@Request() req: any, @Body() body: any) {
     const userId = req.user.sub;
     
     return this.prisma.widgetPreference.upsert({
