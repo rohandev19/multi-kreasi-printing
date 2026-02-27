@@ -6,6 +6,7 @@ import { CalculateKPIsUseCase } from './use-cases/calculate-kpis.usecase';
 import { GetRevenueChartDataUseCase } from './use-cases/get-revenue-chart-data.usecase';
 import { GetProductionStatusUseCase } from './use-cases/get-production-status.usecase';
 import { PrismaClient } from '@prisma/client';
+import { UpdateWidgetPreferenceDto } from './dto/widget-preference.dto';
 
 @Controller('v1/dashboard')
 @UseGuards(JwtAuthGuard)
@@ -71,7 +72,7 @@ export class DashboardController {
   }
 
   @Patch('preferences')
-  async updateWidgetPreferences(@Request() req: any, @Body() body: any) {
+  async updateWidgetPreferences(@Request() req: any, @Body() body: UpdateWidgetPreferenceDto) {
     const userId = req.user.sub;
     
     return this.prisma.widgetPreference.upsert({
