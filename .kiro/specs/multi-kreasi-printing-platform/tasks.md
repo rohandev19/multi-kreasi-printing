@@ -756,7 +756,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Test widget personalization
     - _Requirements: 21_
 
-- [ ] 22. Final checkpoint - Verify complete MVP system
+- [x] 22. Final checkpoint - Verify complete MVP system
   - Run full integration test suite
   - Verify all core workflows end-to-end
   - Test system performance under load
@@ -766,8 +766,8 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
 
 ### Phase 11: Security & Legal Hardening
 
-- [ ] 23. Security audit and legal compliance
-  - [ ] 23.1 Audit Git secrets and rotate compromised credentials
+- [x] 23. Security audit and legal compliance
+  - [x] 23.1 Audit Git secrets and rotate compromised credentials
     - Run comprehensive Git history scan for leaked secrets (use gitleaks or git-secrets)
     - Search for `.env` files, API keys, connection strings, JWT secrets in entire Git history
     - If any secrets found in history, rotate ALL related secrets immediately:
@@ -779,7 +779,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Document rotation process and verify new secrets not in Git history
     - _Requirements: 37, 38_
 
-  - [ ] 23.2 Implement UU PDP (Indonesian Personal Data Protection Law) compliance
+  - [x] 23.2 Implement UU PDP (Indonesian Personal Data Protection Law) compliance
     - **Legal Context:** UU No. 27 Tahun 2022, fully effective since October 2024
     - System stores personal data: customer NPWP, address, phone, email — falls under UU PDP scope
     - **Sanctions:** Administrative (warnings, processing suspension, fines up to 2% annual revenue) and criminal penalties for serious violations — not just technical issue
@@ -790,7 +790,14 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Ensure customer data access controls working (from IDOR prevention tasks)
     - _Requirements: 3, 37_
 
-  - [ ] 23.3 Full backup restore test before go-live
+  - [x] 23.3 Implement infrastructure security
+    - Configure production environment variables correctly (no defaults in production)
+    - Setup secure database connections (SSL/TLS required in production)
+    - Set up server-level firewalls (restrict ports to 80, 443, 22)
+    - Ensure database port (5432) and Redis port (6379) are NOT publicly accessible
+    - _Requirements: 37_
+
+  - [x] 23.4 Full backup restore test before go-live
     - Perform complete manual backup restore (not just weekly automated verification)
     - Restore to separate test environment or /tmp directory
     - Verify all tables restored correctly
@@ -800,7 +807,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Time the restore process (know RTO - Recovery Time Objective)
     - _Requirements: 47, 48_
 
-  - [ ] 23.4 Final CORS and security headers audit
+  - [x] 23.4 Final CORS and security headers audit
     - Verify CORS configuration: NO wildcard origins (`*`) with credentials
     - Audit security headers present in all responses:
       - `X-Frame-Options: DENY`
@@ -812,7 +819,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Confirm rate limiting active on all authentication endpoints
     - _Requirements: 37, 38_
 
-- [ ] 24. Final checkpoint - Security audit complete and go-live ready
+- [x] 24. Final checkpoint - Security audit complete and go-live ready
   - Verify all secrets rotated if needed
   - Confirm UU PDP compliance mechanisms in place
   - Verify full backup restore tested successfully
