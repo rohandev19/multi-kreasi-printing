@@ -1,22 +1,20 @@
 import { Module, Logger } from '@nestjs/common';
-import { CacheModule } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-redis-store';
+import { CacheModule as NestCacheModule } from '@nestjs/cache-manager';
 import { DashboardController } from './dashboard.controller';
 import { GetDashboardMetricsUseCase } from './use-cases/get-dashboard-metrics.usecase';
 import { GetRevenueChartDataUseCase } from './use-cases/get-revenue-chart-data.usecase';
 import { GetProductionStatusUseCase } from './use-cases/get-production-status.usecase';
 import { CalculateKPIsUseCase } from './use-cases/calculate-kpis.usecase';
 import { DashboardCacheInvalidationListener } from './listeners/dashboard-cache-invalidation.listener';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
-    CacheModule.registerAsync({
-      useFactory: async () => ({
-        store: await redisStore({
-          url: process.env.REDIS_URL || 'redis://localhost:6379',
-        }),
-      }),
+    NestCacheModule.register({
+      ttl: 300, // 5 minutes default TTL in seconds
+      max: 100, // maximum number of items in cache
     }),
+    AuthModule,
   ],
   controllers: [DashboardController],
   providers: [

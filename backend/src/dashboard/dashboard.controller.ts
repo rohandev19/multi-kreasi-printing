@@ -5,13 +5,13 @@ import { GetDashboardMetricsUseCase } from './use-cases/get-dashboard-metrics.us
 import { CalculateKPIsUseCase } from './use-cases/calculate-kpis.usecase';
 import { GetRevenueChartDataUseCase } from './use-cases/get-revenue-chart-data.usecase';
 import { GetProductionStatusUseCase } from './use-cases/get-production-status.usecase';
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../prisma/prisma-client.helper';
 import { UpdateWidgetPreferenceDto } from './dto/widget-preference.dto';
 
 @Controller('v1/dashboard')
 @UseGuards(JwtAuthGuard)
 export class DashboardController {
-  private prisma = new PrismaClient();
+  private prisma = createPrismaClient();
 
   constructor(
     private readonly getMetrics: GetDashboardMetricsUseCase,

@@ -303,7 +303,7 @@ This implementation plan breaks down the MVP scope into incremental, manageable 
     - Create domain events: CustomerCreatedEvent, LoyaltyTierChangedEvent, CustomerMetricsUpdatedEvent
     - _Requirements: 3_
 
-  - [~] 8.2 Create database schema for customers
+  - [ ] 8.2 Create database schema for customers
     - Create Prisma schema for customers table with indexes on email, npwp, loyalty_tier
     - Create Prisma schema for contacts table (customer contact persons)
     - Add full-text search index on company_name

@@ -28,7 +28,7 @@ async function bootstrap() {
     : ['http://localhost:5173']; // default vite dev server
     
   app.enableCors({
-    origin: (origin, callback) => {
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       // allow requests with no origin (like mobile apps or curl requests)
       // in strict prod, you might block !origin as well
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuditModule } from '../audit/audit.module';
+import { AuthModule } from '../auth/auth.module';
 import { ProductionJobsController } from './production-jobs.controller';
 import { MachinesController } from './machines.controller';
 import { CreateProductionJobUseCase } from './use-cases/create-production-job.usecase';
@@ -12,7 +13,7 @@ import { CreateReworkJobUseCase } from './use-cases/create-rework-job.usecase';
 import { ManageMachineUseCase } from './use-cases/manage-machine.usecase';
 
 @Module({
-  imports: [PrismaModule, AuditModule],
+  imports: [PrismaModule, AuditModule, AuthModule],
   controllers: [ProductionJobsController, MachinesController],
   providers: [
     CreateProductionJobUseCase,

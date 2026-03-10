@@ -3,6 +3,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuditModule } from '../audit/audit.module';
 import { StorageModule } from '../storage/storage.module';
+import { AuthModule } from '../auth/auth.module';
 
 import { FinanceController } from './finance.controller';
 import { GenerateInvoiceUseCase } from './use-cases/generate-invoice.usecase';
@@ -17,6 +18,7 @@ import { PdfGenerationProcessor } from './jobs/pdf-generation.processor';
     PrismaModule,
     AuditModule,
     StorageModule,
+    AuthModule,
     BullModule.registerQueue({
       name: 'pdf-generation',
     }),

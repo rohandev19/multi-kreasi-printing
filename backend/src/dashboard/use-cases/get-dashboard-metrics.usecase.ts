@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../../prisma/prisma-client.helper';
 
 @Injectable()
 export class GetDashboardMetricsUseCase {
   private readonly logger = new Logger(GetDashboardMetricsUseCase.name);
-  private prisma = new PrismaClient();
+  private prisma = createPrismaClient();
 
   async execute() {
     this.logger.log('Fetching Dashboard Metrics...');

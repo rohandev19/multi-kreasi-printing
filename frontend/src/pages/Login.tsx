@@ -1,16 +1,30 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: implement real login
-    localStorage.setItem('token', 'dummy-token');
-    navigate('/');
+    setError('');
+    setLoading(true);
+    try {
+      const res = await api.post('/api/v1/auth/login', { email, password });
+      localStorage.setItem('token', res.data.access_token);
+      navigate('/');
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        'Login failed. Please check your credentials.';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -21,6 +35,11 @@ export default function Login() {
           <p className="text-slate-500">Sign in to your account</p>
         </div>
         <form className="space-y-5" onSubmit={handleLogin}>
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
+              {error}
+            </div>
+          )}
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-1">Email</label>
             <input 
@@ -46,9 +65,10 @@ export default function Login() {
           </div>
           <button 
             type="submit" 
-            className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold shadow-md hover:bg-blue-700 hover:shadow-lg transition-all active:scale-[0.98]"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold shadow-md hover:bg-blue-700 hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Log In
+            {loading ? 'Signing in...' : 'Log In'}
           </button>
         </form>
       </div>

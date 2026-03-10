@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../../prisma/prisma-client.helper';
 
 @Injectable()
 export class ExportUserDataUseCase {
-  private prisma = new PrismaClient();
+  private prisma = createPrismaClient();
 
   async execute(userId: string) {
     const user = await this.prisma.user.findUnique({
