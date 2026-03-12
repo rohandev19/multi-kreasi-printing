@@ -1,0 +1,113 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import api from '../api/axios';
+import { useNavigate } from 'react-router-dom';
+
+export type UserRole = 
+  | 'Owner' 
+  | 'Manager' 
+  | 'Designer' 
+  | 'Production_Staff' 
+  | 'Warehouse_Staff' 
+  | 'Finance_Staff' 
+  | 'Customer';
+
+export interface User {
+  id: string;
+  email: string;
+  role: UserRole;
+  name?: string;
+}
+
+interface RoleContextType {
+  role: UserRole | null;
+  user: User | null;
+  loading: boolean;
+  hasAccess: (allowedRoles: UserRole[]) => boolean;
+  hasPermission: (permission: string) => boolean;
+  refreshRole: () => Promise<void>;
+}
+
+const RoleContext = createContext<RoleContextType | undefined>(undefined);
+
+export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [role, setRole] = useState<UserRole | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const refreshRole = async () => {
+    try {
+      const response = await api.get('/api/v1/auth/me'); // Using the /me endpoint
+      const userData = response.data;
+      setUser(userData);
+      setRole(userData.role);
+      localStorage.setItem('user', JSON.stringify(userData));
+    } catch (error) {
+      console.error('Failed to refresh role context:', error);
+      // The axios interceptor already handles redirecting to login on 401
+      setRole(null);
+      setUser(null);
+      localStorage.removeItem('user');
+      
+      // If we are not on a public route, redirect to login
+      const publicRoutes = ['/login', '/register', '/catalog', '/cart'];
+      const isPublicRoute = publicRoutes.some(route => window.location.pathname.startsWith(route));
+      if (!isPublicRoute) {
+        navigate('/login');
+      }
+    }
+  };
+
+  useEffect(() => {
+    const initRole = async () => {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const storedUserStr = localStorage.getItem('user');
+      
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      if (storedUserStr) {
+        try {
+          const storedUser = JSON.parse(storedUserStr);
+          setUser(storedUser);
+          setRole(storedUser.role);
+        } catch (e) {
+          console.error('Failed to parse stored user in RoleContext', e);
+        }
+      }
+
+      // Always fetch latest to ensure it's up to date
+      await refreshRole();
+      setLoading(false);
+    };
+
+    initRole();
+  }, []);
+
+  const hasAccess = (allowedRoles: UserRole[]) => {
+    if (!role) return false;
+    return allowedRoles.includes(role);
+  };
+
+  const hasPermission = (permission: string) => {
+    // Basic implementation for now, can be expanded if roles have distinct fine-grained permissions
+    return true; 
+  };
+
+  return (
+    <RoleContext.Provider value={{ role, user, loading, hasAccess, hasPermission, refreshRole }}>
+      {children}
+    </RoleContext.Provider>
+  );
+};
+
+export const useRoleContext = () => {
+  const context = useContext(RoleContext);
+  if (context === undefined) {
+    throw new Error('useRoleContext must be used within a RoleProvider');
+  }
+  return context;
+};
