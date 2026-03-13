@@ -46,28 +46,28 @@ The implementation follows an incremental approach: first establishing core infr
 - [ ] 2. Checkpoint - Verify role infrastructure
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 3. Create database migrations for new features
-  - [ ] 3.1 Create email_verification_tokens table migration
+- [x] 3. Create database migrations for new features
+  - [x] 3.1 Create email_verification_tokens table migration
     - Create Prisma migration file for email_verification_tokens table
     - Add columns: id (UUID), user_id (UUID FK), token (VARCHAR 255 unique), expires_at (TIMESTAMPTZ), used_at (TIMESTAMPTZ nullable), created_at (TIMESTAMPTZ)
     - Add indexes on token and user_id columns
     - Add foreign key constraint to users table with CASCADE delete
     - _Requirements: 18.1, 18.2_
   
-  - [ ] 3.2 Update User model with email verification status
+  - [x] 3.2 Update User model with email verification status
     - Update Prisma schema to add emailVerified Boolean field (default false) to User model
     - Update Prisma schema to add verificationToken relation to User model
     - Generate Prisma migration
     - _Requirements: 18.1, 18.6_
   
-  - [ ] 3.3 Create cart and cart_items tables migration
+  - [x] 3.3 Create cart and cart_items tables migration
     - Create Prisma migration for cart table with columns: id (UUID), user_id (UUID FK unique), created_at, updated_at
     - Create Prisma migration for cart_items table with columns: id (UUID), cart_id (UUID FK), product_id (UUID FK), quantity (INT), unit_price (DECIMAL), subtotal (DECIMAL), created_at, updated_at
     - Add indexes on user_id, cart_id, and product_id
     - Add foreign key constraints with CASCADE delete
     - _Requirements: 17.1, 17.2, 17.4, 17.5_
   
-  - [ ] 3.4 Run all migrations
+  - [x] 3.4 Run all migrations
     - Execute `npx prisma migrate dev` to apply all migrations
     - Verify migration success
     - Generate updated Prisma client
