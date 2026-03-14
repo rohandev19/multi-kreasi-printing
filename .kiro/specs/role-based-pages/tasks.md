@@ -76,14 +76,14 @@ The implementation follows an incremental approach: first establishing core infr
 - [ ] 4. Checkpoint - Verify database migrations
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. Implement Email Verification Service
-  - [ ] 5.1 Create email verification DTOs and types
+- [x] 5. Implement Email Verification Service
+  - [x] 5.1 Create email verification DTOs and types
     - Create `backend/src/auth/dto/verify-email.dto.ts` with VerifyEmailDto and VerifyEmailResponse
     - Create `backend/src/auth/dto/resend-verification.dto.ts` with ResendVerificationDto
     - Create email verification token entity/type
     - _Requirements: 18.1, 18.2, 18.3_
   
-  - [ ] 5.2 Implement EmailVerificationService
+  - [x] 5.2 Implement EmailVerificationService
     - Create `backend/src/auth/services/email-verification.service.ts`
     - Implement `sendVerificationEmail(userId, email)` method using crypto.randomBytes for token
     - Implement `verifyEmail(token)` method to validate token and update user status
@@ -92,14 +92,14 @@ The implementation follows an incremental approach: first establishing core infr
     - Store tokens in email_verification_tokens table
     - _Requirements: 18.1, 18.2, 18.3, 18.4_
   
-  - [ ] 5.3 Integrate email service for sending verification emails
+  - [x] 5.3 Integrate email service for sending verification emails
     - Create email template for verification email in HTML format
     - Configure email service (SMTP or email provider) in environment variables
     - Implement email sending logic in EmailVerificationService
     - Test email delivery with verification link
     - _Requirements: 18.1_
   
-  - [ ] 5.4 Enhance Auth Controller with registration and verification endpoints
+  - [x] 5.4 Enhance Auth Controller with registration and verification endpoints
     - Update `backend/src/auth/auth.controller.ts`
     - Add `POST /api/v1/auth/register` endpoint with @Public() decorator
     - Add `GET /api/v1/auth/verify-email/:token` endpoint with @Public() decorator
@@ -109,7 +109,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Return appropriate error messages for invalid/expired tokens
     - _Requirements: 18.1, 18.2, 18.3, 18.5, 18.6_
   
-  - [ ] 5.5 Add checkout verification guard
+  - [x] 5.5 Add checkout verification guard
     - Create guard to block checkout for unverified users
     - Update checkout endpoint with verification status check
     - Return error message with resend option if user is unverified

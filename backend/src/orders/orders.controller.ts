@@ -11,6 +11,8 @@ import { SearchOrdersUseCase } from './use-cases/search-orders.usecase';
 import { GetOrderDetailsUseCase } from './use-cases/get-order-details.usecase';
 import { PrismaService } from '../prisma/prisma.service';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { VerifiedGuard } from '../auth/guards/verified.guard';
+import { UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
 
 @Controller('api/v1/orders')
@@ -27,10 +29,46 @@ export class OrdersController {
   ) {}
 
   @Post()
-  @Roles('Sales', 'Manager', 'Owner')
+  @Roles('Sales', 'Manager', 'Owner', 'Customer')
+  @UseGuards(VerifiedGuard)
   async create(@Body() dto: CreateOrderDto, @Req() req: Request) {
     const userId = (req as any).user.id;
     return this.createOrder.execute(dto, userId);
+  }
+
+  @Get()
+  @Roles('Production', 'Sales', 'Manager', 'Owner', 'Designer', 'Production_Staff', 'Finance_Staff', 'Customer')
+  async list(@Req() req: Request) {
+    const user = (req as any).user;
+    
+    // If user is Customer, only show their orders
+    if (user.role === 'Customer') {
+      return this.prisma.order.findMany({
+        where: { customerId: user.id },
+        include: {
+          customer: {
+            select: {
+              companyName: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      });
+    }
+
+    // For staff, show all orders
+    return this.prisma.order.findMany({
+      include: {
+        customer: {
+          select: {
+            companyName: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
   }
 
   @Patch(':id/status')
