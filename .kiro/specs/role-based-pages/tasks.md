@@ -401,6 +401,12 @@ The implementation follows an incremental approach: first establishing core infr
 - [ ] 16. Checkpoint - Verify dashboard functionality
   - Ensure all tests pass, ask the user if questions arise.
 
+- [x] 6. Add Role Seeding to Prisma Seeder
+  - [x] 6.1 Update `backend/prisma/seed.ts` to include standard roles
+    - Owner, Manager, Sales, Designer, Production, Warehouse, Finance, Customer
+  - [x] 6.2 Execute seed script
+  - [x] 6.3 Test user authentication with newly seeded roles
+
 - [ ] 17. Implement role-filtered Orders page
   - [ ] 17.1 Create OrdersTable component with role-based columns
     - Create `frontend/src/components/tables/OrdersTable.tsx`
