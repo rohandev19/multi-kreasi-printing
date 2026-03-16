@@ -13,6 +13,7 @@ const MyOrders = lazy(() => import('./pages/MyOrders'));
 const Login = lazy(() => import('./pages/Login'));
 
 import { RoleProvider } from './contexts/RoleContext';
+import { CartProvider } from './contexts/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const LoadingSpinner = () => (
@@ -34,9 +35,11 @@ export const router = createBrowserRouter([
     path: '/',
     element: (
       <RoleProvider>
-        <ProtectedRoute>
-          <AppLayout />
-        </ProtectedRoute>
+        <CartProvider>
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        </CartProvider>
       </RoleProvider>
     ),
     children: [
