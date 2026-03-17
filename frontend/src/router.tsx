@@ -11,6 +11,7 @@ const DesignFiles = lazy(() => import('./pages/DesignFiles'));
 const Warehouse = lazy(() => import('./pages/Warehouse'));
 const MyOrders = lazy(() => import('./pages/MyOrders'));
 const Login = lazy(() => import('./pages/Login'));
+const Cart = lazy(() => import('./pages/Cart'));
 
 import { RoleProvider } from './contexts/RoleContext';
 import { CartProvider } from './contexts/CartContext';
@@ -48,6 +49,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingSpinner />}>
             <Dashboard />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'cart',
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <Cart />
           </Suspense>
         ),
       },
