@@ -119,15 +119,15 @@ The implementation follows an incremental approach: first establishing core infr
 - [ ] 6. Checkpoint - Verify email verification functionality
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. Implement Public Products API
-  - [ ] 7.1 Create public products DTOs
+- [x] 7. Implement Public Products API
+  - [x] 7.1 Create public products DTOs
     - Create `backend/src/products/dto/get-public-products.dto.ts` with query params: search, categoryId, sortBy, page, limit
     - Create `backend/src/products/dto/public-product.dto.ts` with safe product fields (no internal data)
     - Create `backend/src/products/dto/product-list-response.dto.ts` with data, pagination, categories
     - Create `backend/src/products/dto/product-detail-response.dto.ts` with product, pricing tiers, images
     - _Requirements: 16.1, 16.2_
   
-  - [ ] 7.2 Create PublicProductsController
+  - [x] 7.2 Create PublicProductsController
     - Create `backend/src/products/public-products.controller.ts`
     - Add `@Controller('api/v1/public/products')` decorator
     - Add `GET /` endpoint with @Public() decorator for product catalog
@@ -138,7 +138,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Implement pagination (default 20 per page)
     - _Requirements: 16.1, 16.2, 16.4_
   
-  - [ ] 7.3 Implement product caching for public endpoints
+  - [x] 7.3 Implement product caching for public endpoints
     - Add cache decorator to public product endpoints (5-minute TTL)
     - Configure cache key strategy based on query parameters
     - Implement cache invalidation on product updates

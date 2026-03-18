@@ -7,15 +7,22 @@ import { SetPricingTiersUseCase } from './use-cases/set-pricing-tiers.usecase';
 import { ManageProductImagesUseCase } from './use-cases/manage-product-images.usecase';
 import { StorageModule } from '../storage/storage.module';
 
+import { CacheModule } from '@nestjs/cache-manager';
+import { PublicProductsController } from './public-products.controller';
+import { GetPublicProductsUseCase } from './use-cases/get-public-products.usecase';
+import { GetPublicProductDetailUseCase } from './use-cases/get-public-product-detail.usecase';
+
 @Module({
-  imports: [StorageModule],
-  controllers: [ProductsController],
+  imports: [StorageModule, CacheModule.register()],
+  controllers: [ProductsController, PublicProductsController],
   providers: [
     CreateProductUseCase,
     UpdateProductUseCase,
     SearchProductsUseCase,
     SetPricingTiersUseCase,
     ManageProductImagesUseCase,
+    GetPublicProductsUseCase,
+    GetPublicProductDetailUseCase,
   ],
 })
 export class ProductsModule {}
