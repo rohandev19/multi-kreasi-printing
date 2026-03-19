@@ -145,15 +145,15 @@ The implementation follows an incremental approach: first establishing core infr
     - Test cache performance and hit rates
     - _Requirements: 16.1, 16.2_
 
-- [ ] 8. Implement Cart Merge Service
-  - [ ] 8.1 Create cart DTOs and types
+- [x] 8. Implement Cart Merge Service
+  - [x] 8.1 Create cart DTOs and types
     - Create `backend/src/cart/dto/guest-cart-item.dto.ts` with productId, quantity
     - Create `backend/src/cart/dto/merge-cart.dto.ts` with guestCartItems array
     - Create `backend/src/cart/dto/cart-response.dto.ts` with cart items, subtotal, tax, shipping, total
     - Define CartItem and Cart types
     - _Requirements: 17.1, 17.2, 17.4, 17.5_
   
-  - [ ] 8.2 Create CartMergeService
+  - [x] 8.2 Create CartMergeService
     - Create `backend/src/cart/cart-merge.service.ts`
     - Implement `mergeGuestCart(userId, guestCartItems)` method
     - Get or create user cart in database
@@ -162,7 +162,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Return merged cart with all items
     - _Requirements: 17.4, 17.5_
   
-  - [ ] 8.3 Create Cart Controller with merge endpoint
+  - [x] 8.3 Create Cart Controller with merge endpoint
     - Create `backend/src/cart/cart.controller.ts`
     - Add `@Controller('api/v1/cart')` decorator
     - Add `POST /merge` endpoint with @Roles('Customer') decorator
