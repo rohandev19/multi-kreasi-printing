@@ -1,4 +1,4 @@
-import { Controller, Post, Patch, Body, Param, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Patch, Body, Param, Req, UseGuards, Get } from '@nestjs/common';
 import { CreateProductionJobUseCase } from './use-cases/create-production-job.usecase';
 import { AssignProductionJobUseCase } from './use-cases/assign-production-job.usecase';
 import { StartProductionUseCase } from './use-cases/start-production.usecase';
@@ -9,6 +9,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AssignProductionJobDto, CompleteProductionDto, RecordMaterialConsumptionDto, CreateReworkJobDto } from './dto/production.dto';
+import { PrismaService } from '../prisma/prisma.service';
 import type { Request } from 'express';
 
 @Controller('api/v1/production-jobs')
@@ -21,7 +22,40 @@ export class ProductionJobsController {
     private readonly completeProduction: CompleteProductionUseCase,
     private readonly recordMaterialConsumption: RecordMaterialConsumptionUseCase,
     private readonly createReworkJob: CreateReworkJobUseCase,
+    private readonly prisma: PrismaService,
   ) {}
+
+  @Get()
+  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
+  async list() {
+    return this.prisma.productionJob.findMany({
+      include: {
+        order: {
+          select: {
+            orderNumber: true,
+            customer: {
+              select: {
+                companyName: true,
+              },
+            },
+          },
+        },
+        machine: {
+          select: {
+            name: true,
+            type: true,
+          },
+        },
+        assignee: {
+          select: {
+            fullName: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+  }
 
   @Post('from-order/:orderId')
   @Roles('Sales', 'Manager', 'Owner', 'Production')

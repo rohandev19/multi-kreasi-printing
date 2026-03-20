@@ -33,6 +33,7 @@ export class CustomersController {
   }
 
   @Get()
+  @Roles('Owner', 'Manager', 'Finance_Staff')
   async search(@Query() query: SearchCustomersDto) {
     return this.searchCustomersUseCase.execute(query);
   }

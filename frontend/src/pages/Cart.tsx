@@ -2,9 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Cart() {
   const { items, updateQuantity, removeFromCart, totalItems, totalPrice } = useCart();
+  const { user } = useAuth();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -110,7 +112,7 @@ export default function Cart() {
             </div>
             
             <Link
-              to="/checkout"
+              to={user ? "/checkout" : "/login?redirect=/checkout"}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 px-4 rounded-xl transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 group"
             >
               <span>Lanjut ke Pembayaran</span>

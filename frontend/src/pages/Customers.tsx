@@ -8,14 +8,13 @@ interface Customer {
   phone: string | null;
   loyaltyTier: string;
   totalOrders: number;
-  totalRevenue: number;
 }
 
 const tierColors: Record<string, string> = {
-  Bronze: 'bg-amber-700 text-white',
-  Silver: 'bg-gray-400 text-white',
-  Gold: 'bg-yellow-500 text-white',
-  Platinum: 'bg-cyan-500 text-white',
+  Bronze: 'bg-amber-100 text-amber-700',
+  Silver: 'bg-gray-100 text-gray-700',
+  Gold: 'bg-yellow-100 text-yellow-700',
+  Platinum: 'bg-cyan-100 text-cyan-700',
 };
 
 export default function Customers() {
@@ -30,9 +29,14 @@ export default function Customers() {
   const fetchCustomers = async () => {
     try {
       const response = await api.get('/api/v1/customers');
-      setCustomers(response.data);
+      // Handle if response is wrapped in a data property or is directly an array
+      const customerData = Array.isArray(response.data) 
+        ? response.data 
+        : response.data.data || [];
+      setCustomers(customerData);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load customers');
+      setCustomers([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -89,13 +93,7 @@ export default function Customers() {
               {customers.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
-                    <div className="flex flex-col items-center gap-3">
-                      <svg className="w-16 h-16 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                      </svg>
-                      <p className="text-base font-medium text-slate-700">No customers yet</p>
-                      <p className="text-sm text-slate-500">Add your first customer to start managing orders</p>
-                    </div>
+                    No customers yet. Add your first customer to get started.
                   </td>
                 </tr>
               ) : (
@@ -111,7 +109,7 @@ export default function Customers() {
                       {customer.phone || '-'}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${tierColors[customer.loyaltyTier] || 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${tierColors[customer.loyaltyTier] || 'bg-gray-100 text-gray-700'}`}>
                         {customer.loyaltyTier}
                       </span>
                     </td>

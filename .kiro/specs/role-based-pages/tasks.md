@@ -171,11 +171,11 @@ The implementation follows an incremental approach: first establishing core infr
     - Return merged cart response
     - _Requirements: 17.4_
 
-- [ ] 9. Checkpoint - Verify cart merge functionality
+- [x] 9. Checkpoint - Verify cart merge functionality
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 10. Implement frontend Public Storefront Shell
-  - [ ] 10.1 Create PublicLayout component
+- [x] 10. Implement frontend Public Storefront Shell
+  - [x] 10.1 Create PublicLayout component
     - Create `frontend/src/components/layout/PublicLayout.tsx`
     - Create PublicNavbar with Logo, Search, Categories dropdown, Cart icon with badge, Login/Register buttons
     - Create PublicFooter with company info and links
@@ -183,7 +183,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Apply responsive design with Tailwind CSS
     - _Requirements: 16.1, 16.2, 16.5_
   
-  - [ ] 10.2 Create CatalogPage component
+  - [x] 10.2 Create CatalogPage component
     - Create `frontend/src/pages/public/Catalog.tsx`
     - Fetch products from `GET /api/v1/public/products` with query params
     - Display product grid with images, names, base prices
@@ -195,19 +195,17 @@ The implementation follows an incremental approach: first establishing core infr
     - Handle loading and error states
     - _Requirements: 16.1, 16.4_
   
-  - [ ] 10.3 Create ProductDetailPage component
+  - [x] 10.3 Create ProductDetailPage component
     - Create `frontend/src/pages/public/ProductDetail.tsx`
     - Fetch product detail from `GET /api/v1/public/products/:id`
-    - Display primary image with thumbnail gallery
-    - Display product name, SKU, description
-    - Display base price and pricing tiers table
-    - Add quantity selector with +/- buttons
-    - Add "Add to Cart" button that adds to Guest_Cart
-    - Show success notification on add to cart
+    - Display large primary image and thumbnails gallery
+    - Display product name, description, and category
+    - Display base price and bulk pricing tiers in a table
+    - Add quantity input and "Add to Cart" button connecting to CartContext
     - Handle loading and error states
-    - _Requirements: 16.2_
+    - _Requirements: 16.2, 16.4, 17.2_
   
-  - [ ] 10.4 Create useGuestCart custom hook
+  - [x] 10.4 Create useGuestCart custom hook
     - Create `frontend/src/hooks/useGuestCart.ts`
     - Implement `addItem(productId, quantity)` method writing to localStorage
     - Implement `updateQuantity(productId, quantity)` method
@@ -219,7 +217,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Provide `cart` state and `itemCount` computed value
     - _Requirements: 17.1, 17.2, 17.3_
   
-  - [ ] 10.5 Create GuestCartPage component
+  - [x] 10.5 Create GuestCartPage component
     - Create `frontend/src/pages/public/Cart.tsx`
     - Use useGuestCart hook to get cart state
     - Display cart items list with images, names, quantities, prices
@@ -232,7 +230,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Handle empty cart state
     - _Requirements: 17.2, 17.3_
   
-  - [ ] 10.6 Create VerifyEmailPage component
+  - [x] 10.6 Create VerifyEmailPage component
     - Create `frontend/src/pages/public/VerifyEmail.tsx`
     - Extract token from URL params `:token`
     - Make API call to `GET /api/v1/auth/verify-email/:token` on mount
@@ -243,8 +241,8 @@ The implementation follows an incremental approach: first establishing core infr
     - Add "Go to Login" button
     - _Requirements: 18.2, 18.3_
 
-- [ ] 11. Update frontend routing for Public Storefront
-  - [ ] 11.1 Add public routes to router
+- [x] 11. Update frontend routing for Public Storefront
+  - [x] 11.1 Add public routes to router
     - Update `frontend/src/router.tsx`
     - Add public routes OUTSIDE ProtectedRoute: `/catalog`, `/products/:id`, `/cart`, `/register`, `/verify-email/:token`
     - Wrap public routes with PublicLayout component
@@ -252,7 +250,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Add redirect from `/` to `/catalog` for unauthenticated users, to Dashboard for authenticated users
     - _Requirements: 16.1, 16.2, 16.3, 16.5_
   
-  - [ ] 11.2 Create Register page component
+  - [x] 11.2 Create Register page component
     - Create `frontend/src/pages/public/Register.tsx`
     - Create registration form with email, password, confirm password, full name, phone (optional)
     - Implement password validation (min 8 chars, uppercase, lowercase, number)
@@ -262,7 +260,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Handle validation errors and API errors
     - _Requirements: 18.1_
   
-  - [ ] 11.3 Update Login page with cart merge
+  - [x] 11.3 Update Login page with cart merge
     - Update `frontend/src/pages/Login.tsx`
     - After successful login, check if Guest_Cart exists in localStorage
     - If Guest_Cart exists, call `POST /api/v1/cart/merge` with guest cart items
@@ -271,7 +269,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Display success notification for cart merge
     - _Requirements: 17.4, 17.6_
 
-- [ ] 12. Checkpoint - Verify public storefront and cart functionality
+- [x] 12. Checkpoint - Verify public storefront and cart functionality
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 13. Implement backend dashboard metrics infrastructure

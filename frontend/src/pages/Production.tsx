@@ -6,18 +6,16 @@ interface ProductionJob {
   order: { orderNumber: string };
   machine: { name: string } | null;
   status: string;
-  assignedStaff: { fullName: string } | null;
   startTime: string | null;
-  createdAt: string;
+  assignedStaff: { fullName: string } | null;
 }
 
 const statusColors: Record<string, string> = {
   Queue: 'bg-gray-100 text-gray-700',
   Assigned: 'bg-blue-100 text-blue-700',
   In_Progress: 'bg-purple-100 text-purple-700',
-  Quality_Check: 'bg-amber-100 text-amber-700',
+  Quality_Check: 'bg-indigo-100 text-indigo-700',
   Completed: 'bg-emerald-100 text-emerald-700',
-  Rework: 'bg-red-100 text-red-700',
 };
 
 export default function Production() {
@@ -32,28 +30,20 @@ export default function Production() {
   const fetchJobs = async () => {
     try {
       const response = await api.get('/api/v1/production-jobs');
-      setJobs(response.data);
+      // Handle if response is wrapped in a data property or is directly an array
+      const jobData = Array.isArray(response.data) 
+        ? response.data 
+        : response.data.data || [];
+      setJobs(jobData);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load production jobs');
+      setJobs([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
   };
 
-  const formatStatus = (status: string) => {
-    return status.replace(/_/g, ' ');
-  };
-
-  const formatDateTime = (dateString: string | null) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleString('id-ID', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const formatStatus = (status: string) => status.replace(/_/g, ' ');
 
   if (loading) {
     return (
@@ -73,17 +63,7 @@ export default function Production() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-800">Production Jobs</h2>
-        <div className="flex gap-3">
-          <button className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg font-medium hover:bg-slate-50 transition-colors">
-            Filter
-          </button>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
-            Create Job
-          </button>
-        </div>
-      </div>
+      <h2 className="text-2xl font-bold text-slate-800">Production Jobs</h2>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
@@ -114,13 +94,7 @@ export default function Production() {
               {jobs.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
-                    <div className="flex flex-col items-center gap-3">
-                      <svg className="w-16 h-16 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                      </svg>
-                      <p className="text-base font-medium text-slate-700">No production jobs yet</p>
-                      <p className="text-sm text-slate-500">Jobs will appear here when orders are approved</p>
-                    </div>
+                    No production jobs yet.
                   </td>
                 </tr>
               ) : (
@@ -133,7 +107,7 @@ export default function Production() {
                       {job.order?.orderNumber || 'N/A'}
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-700">
-                      {job.machine?.name || '-'}
+                      {job.machine?.name || 'Unassigned'}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[job.status] || 'bg-gray-100 text-gray-700'}`}>
@@ -141,10 +115,10 @@ export default function Production() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-700">
-                      {job.assignedStaff?.fullName || '-'}
+                      {job.assignedStaff?.fullName || 'Unassigned'}
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600">
-                      {formatDateTime(job.startTime)}
+                      {job.startTime ? new Date(job.startTime).toLocaleString('id-ID') : '-'}
                     </td>
                   </tr>
                 ))

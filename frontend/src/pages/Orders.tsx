@@ -33,9 +33,14 @@ export default function Orders() {
   const fetchOrders = async () => {
     try {
       const response = await api.get('/api/v1/orders');
-      setOrders(response.data);
+      // Handle if response is wrapped in a data property or is directly an array
+      const orderData = Array.isArray(response.data) 
+        ? response.data 
+        : response.data.data || [];
+      setOrders(orderData);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load orders');
+      setOrders([]); // Set empty array on error
     } finally {
       setLoading(false);
     }

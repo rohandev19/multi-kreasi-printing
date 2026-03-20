@@ -9,8 +9,15 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   constructor() {
-    const connectionString = process.env.DATABASE_URL;
-    const pool = new Pool({ connectionString });
+    // Direct connection config to avoid URL parsing issues with special characters
+    const pool = new Pool({
+      host: 'localhost',
+      port: 5432,
+      user: 'postgres',
+      password: '17210535Rohan',
+      database: 'mkprinting',
+    });
+    
     const adapter = new PrismaPg(pool);
     super({ adapter });
   }

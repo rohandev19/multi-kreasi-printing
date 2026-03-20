@@ -6,6 +6,7 @@ import { GetDesignFileUseCase } from './use-cases/get-design-file.usecase';
 import { DownloadDesignFileUseCase } from './use-cases/download-design-file.usecase';
 import { ReviewDesignFileDto } from './dto/review-design-file.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { PrismaService } from '../prisma/prisma.service';
 import type { Request } from 'express';
 import { DesignFileStatus } from './domain/design-file.entity';
 
@@ -16,7 +17,34 @@ export class DesignFilesController {
     private readonly reviewDesignFile: ReviewDesignFileUseCase,
     private readonly getDesignFile: GetDesignFileUseCase,
     private readonly downloadDesignFile: DownloadDesignFileUseCase,
+    private readonly prisma: PrismaService,
   ) {}
+
+  @Get()
+  @Roles('Designer', 'Production', 'Manager', 'Owner')
+  async list() {
+    return this.prisma.designFile.findMany({
+      include: {
+        order: {
+          select: {
+            orderNumber: true,
+            customer: {
+              select: {
+                companyName: true,
+              },
+            },
+          },
+        },
+        uploadedByUser: {
+          select: {
+            fullName: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+  }
 
   @Post('upload')
   @Roles('Sales', 'Manager', 'Owner')
