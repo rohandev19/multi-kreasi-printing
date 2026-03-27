@@ -8,6 +8,14 @@ import { CalculateKPIsUseCase } from './use-cases/calculate-kpis.usecase';
 import { DashboardCacheInvalidationListener } from './listeners/dashboard-cache-invalidation.listener';
 import { AuthModule } from '../auth/auth.module';
 
+import { GetOwnerMetricsUseCase } from './use-cases/get-owner-metrics.usecase';
+import { GetManagerMetricsUseCase } from './use-cases/get-manager-metrics.usecase';
+import { GetDesignerMetricsUseCase } from './use-cases/get-designer-metrics.usecase';
+import { GetProductionStaffMetricsUseCase } from './use-cases/get-production-staff-metrics.usecase';
+import { GetWarehouseStaffMetricsUseCase } from './use-cases/get-warehouse-staff-metrics.usecase';
+import { GetFinanceStaffMetricsUseCase } from './use-cases/get-finance-staff-metrics.usecase';
+import { GetCustomerMetricsUseCase } from './use-cases/get-customer-metrics.usecase';
+
 @Module({
   imports: [
     NestCacheModule.register({
@@ -20,6 +28,13 @@ import { AuthModule } from '../auth/auth.module';
   providers: [
     Logger,
     GetDashboardMetricsUseCase,
+    GetOwnerMetricsUseCase,
+    GetManagerMetricsUseCase,
+    GetDesignerMetricsUseCase,
+    GetProductionStaffMetricsUseCase,
+    GetWarehouseStaffMetricsUseCase,
+    GetFinanceStaffMetricsUseCase,
+    GetCustomerMetricsUseCase,
     GetRevenueChartDataUseCase,
     GetProductionStatusUseCase,
     CalculateKPIsUseCase,
