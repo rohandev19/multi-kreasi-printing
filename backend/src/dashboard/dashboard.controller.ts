@@ -8,6 +8,16 @@ import { GetProductionStatusUseCase } from './use-cases/get-production-status.us
 import { createPrismaClient } from '../prisma/prisma-client.helper';
 import { UpdateWidgetPreferenceDto } from './dto/widget-preference.dto';
 
+import { GetOwnerMetricsUseCase } from './use-cases/get-owner-metrics.usecase';
+import { GetManagerMetricsUseCase } from './use-cases/get-manager-metrics.usecase';
+import { GetDesignerMetricsUseCase } from './use-cases/get-designer-metrics.usecase';
+import { GetProductionStaffMetricsUseCase } from './use-cases/get-production-staff-metrics.usecase';
+import { GetWarehouseStaffMetricsUseCase } from './use-cases/get-warehouse-staff-metrics.usecase';
+import { GetFinanceStaffMetricsUseCase } from './use-cases/get-finance-staff-metrics.usecase';
+import { GetCustomerMetricsUseCase } from './use-cases/get-customer-metrics.usecase';
+import { Param, ForbiddenException } from '@nestjs/common';
+import { Roles } from '../auth/decorators/roles.decorator';
+
 @Controller('v1/dashboard')
 @UseGuards(JwtAuthGuard)
 export class DashboardController {
@@ -15,6 +25,13 @@ export class DashboardController {
 
   constructor(
     private readonly getMetrics: GetDashboardMetricsUseCase,
+    private readonly getOwnerMetrics: GetOwnerMetricsUseCase,
+    private readonly getManagerMetrics: GetManagerMetricsUseCase,
+    private readonly getDesignerMetrics: GetDesignerMetricsUseCase,
+    private readonly getProductionStaffMetrics: GetProductionStaffMetricsUseCase,
+    private readonly getWarehouseStaffMetrics: GetWarehouseStaffMetricsUseCase,
+    private readonly getFinanceStaffMetrics: GetFinanceStaffMetricsUseCase,
+    private readonly getCustomerMetrics: GetCustomerMetricsUseCase,
     private readonly calculateKpis: CalculateKPIsUseCase,
     private readonly getRevenueChart: GetRevenueChartDataUseCase,
     private readonly getProductionStatus: GetProductionStatusUseCase,
@@ -26,6 +43,36 @@ export class DashboardController {
   @CacheTTL(300) // 5 minutes (in seconds for cache-manager v5) - or standard millisecond fallback for v4
   async getDashboardMetrics() {
     return this.getMetrics.execute();
+  }
+
+  @Get('metrics/:role')
+  async getRoleMetrics(@Param('role') role: string, @Request() req: any) {
+    const userRole = req.user.role;
+    
+    if (userRole !== 'Owner' && userRole.toLowerCase() !== role.toLowerCase()) {
+      throw new ForbiddenException(`Cannot access metrics for role: ${role}`);
+    }
+
+    const userId = req.user.sub;
+
+    switch (role.toLowerCase()) {
+      case 'owner':
+        return this.getOwnerMetrics.execute();
+      case 'manager':
+        return this.getManagerMetrics.execute();
+      case 'designer':
+        return this.getDesignerMetrics.execute();
+      case 'production_staff':
+        return this.getProductionStaffMetrics.execute(userId);
+      case 'warehouse_staff':
+        return this.getWarehouseStaffMetrics.execute();
+      case 'finance_staff':
+        return this.getFinanceStaffMetrics.execute();
+      case 'customer':
+        return this.getCustomerMetrics.execute(userId);
+      default:
+        return this.getMetrics.execute();
+    }
   }
 
   @Get('kpis')

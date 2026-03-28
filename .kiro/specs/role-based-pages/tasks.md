@@ -272,15 +272,15 @@ The implementation follows an incremental approach: first establishing core infr
 - [x] 12. Checkpoint - Verify public storefront and cart functionality
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 13. Implement backend dashboard metrics infrastructure
-  - [ ] 13.1 Create base dashboard types and DTOs
+- [x] 13. Implement backend dashboard metrics infrastructure
+  - [x] 13.1 Create base dashboard types and DTOs
     - Create `backend/src/dashboard/dto/dashboard-metrics-response.dto.ts`
     - Create `backend/src/dashboard/dto/widget.dto.ts`
     - Create `backend/src/dashboard/dto/update-widget-preference.dto.ts`
     - Define interfaces for DashboardMetrics, Widget, and WidgetPreference
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7_
   
-  - [ ] 13.2 Create dashboard controller with role-specific endpoint
+  - [x] 13.2 Create dashboard controller with role-specific endpoint
     - Create or update `backend/src/dashboard/dashboard.controller.ts`
     - Add `GET /v1/dashboard/metrics/:role` endpoint with @Roles() decorator
     - Add `GET /v1/dashboard/preferences` endpoint
@@ -288,7 +288,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Implement role validation and request handling
     - _Requirements: 2.2, 13.1, 13.3_
   
-  - [ ] 13.3 Implement GetOwnerMetricsUseCase
+  - [x] 13.3 Implement GetOwnerMetricsUseCase
     - Create `backend/src/dashboard/use-cases/get-owner-metrics.usecase.ts`
     - Calculate total revenue from orders
     - Count orders created today
@@ -299,7 +299,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Return formatted widget data
     - _Requirements: 1.1_
   
-  - [ ] 13.4 Implement GetManagerMetricsUseCase
+  - [x] 13.4 Implement GetManagerMetricsUseCase
     - Create `backend/src/dashboard/use-cases/get-manager-metrics.usecase.ts`
     - Count orders created today
     - Count pending approvals
@@ -309,7 +309,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Return formatted widget data
     - _Requirements: 1.2_
   
-  - [ ] 13.5 Implement GetDesignerMetricsUseCase
+  - [x] 13.5 Implement GetDesignerMetricsUseCase
     - Create `backend/src/dashboard/use-cases/get-designer-metrics.usecase.ts`
     - Count pending design reviews (design_files with Manual_Review status)
     - Count approved designs today
@@ -318,7 +318,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Return formatted widget data
     - _Requirements: 1.3_
   
-  - [ ] 13.6 Implement GetProductionStaffMetricsUseCase
+  - [x] 13.6 Implement GetProductionStaffMetricsUseCase
     - Create `backend/src/dashboard/use-cases/get-production-staff-metrics.usecase.ts`
     - Count jobs in queue (Pending status)
     - Count jobs in progress (In_Progress status, assigned to current user)
@@ -328,7 +328,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Return formatted widget data
     - _Requirements: 1.4_
   
-  - [ ] 13.7 Implement GetWarehouseStaffMetricsUseCase
+  - [x] 13.7 Implement GetWarehouseStaffMetricsUseCase
     - Create `backend/src/dashboard/use-cases/get-warehouse-staff-metrics.usecase.ts`
     - Count low stock items (current_stock <= reorder_point)
     - Count incoming materials (pending purchase orders)
@@ -337,7 +337,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Return formatted widget data
     - _Requirements: 1.5_
   
-  - [ ] 13.8 Implement GetFinanceStaffMetricsUseCase
+  - [x] 13.8 Implement GetFinanceStaffMetricsUseCase
     - Create `backend/src/dashboard/use-cases/get-finance-staff-metrics.usecase.ts`
     - Count pending invoices (status = Pending)
     - Sum payments received today
@@ -346,7 +346,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Return formatted widget data
     - _Requirements: 1.6_
   
-  - [ ] 13.9 Implement GetCustomerMetricsUseCase
+  - [x] 13.9 Implement GetCustomerMetricsUseCase
     - Create `backend/src/dashboard/use-cases/get-customer-metrics.usecase.ts`
     - Count active orders (customer_id = current user, status in active states)
     - Generate order history summary
