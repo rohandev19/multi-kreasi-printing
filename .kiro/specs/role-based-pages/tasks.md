@@ -358,8 +358,8 @@ The implementation follows an incremental approach: first establishing core infr
 - [ ] 14. Checkpoint - Verify backend metrics calculation
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 15. Implement frontend dashboard UI
-  - [ ] 15.1 Create MetricCard component
+- [x] 15. Implement frontend dashboard UI
+  - [x] 15.1 Create MetricCard component
     - Create `frontend/src/components/MetricCard.tsx`
     - Accept props: title, value, change, icon, color, loading
     - Implement loading skeleton state
@@ -368,7 +368,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Apply color-coded styling (emerald, blue, amber, red, purple, indigo)
     - _Requirements: 1.1, 2.4_
   
-  - [ ] 15.2 Refactor Dashboard component with role-based rendering
+  - [x] 15.2 Refactor Dashboard component with role-based rendering
     - Update `frontend/src/pages/Dashboard.tsx`
     - Use RoleContext to get current user role
     - Fetch role-specific metrics from `GET /v1/dashboard/metrics/:role`
@@ -378,7 +378,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Handle API errors with cached data fallback
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 2.1, 2.2, 2.3, 2.4, 2.5_
   
-  - [ ] 15.3 Implement dashboard customization modal
+  - [x] 15.3 Implement dashboard customization modal
     - Create `frontend/src/components/DashboardCustomization.tsx`
     - Add "Customize Dashboard" button to Dashboard page
     - Display modal with checkboxes for available widgets
@@ -388,7 +388,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Show success/error feedback
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
   
-  - [ ] 15.4 Add responsive dashboard layout
+  - [x] 15.4 Add responsive dashboard layout
     - Update Dashboard.tsx with responsive grid layout
     - Use Tailwind CSS grid classes for desktop (3 columns)
     - Stack widgets vertically on mobile (< 768px viewport)
