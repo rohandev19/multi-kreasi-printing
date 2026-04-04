@@ -41,29 +41,38 @@ export class OrdersController {
   async list(@Req() req: Request) {
     const user = (req as any).user;
     
+    // Determine which role context to use (either query param or actual user role)
+    // Only Owner/Manager can view as other roles
+    const queryRole = (req.query.role as string);
+    const effectiveRole = (user.role === 'Owner' || user.role === 'Manager') && queryRole 
+      ? queryRole 
+      : user.role;
+    
     // If user is Customer, only show their orders
-    if (user.role === 'Customer') {
+    if (effectiveRole === 'Customer') {
       return this.prisma.order.findMany({
         where: { customerId: user.id },
-        include: {
-          customer: {
-            select: {
-              companyName: true,
-            },
-          },
-        },
+        include: { customer: { select: { companyName: true, email: true } } },
         orderBy: { createdAt: 'desc' },
         take: 50,
       });
     }
 
-    // For staff, show all orders
+    let whereClause: any = {};
+    
+    if (effectiveRole === 'Designer') {
+      whereClause.status = { in: ['Draft', 'Pending_Approval', 'Design_In_Progress', 'Design_Review', 'Design_Approved'] };
+    } else if (effectiveRole === 'Production_Staff' || effectiveRole === 'Production') {
+      whereClause.status = { in: ['Approved', 'In_Production', 'Quality_Check', 'Completed'] };
+    }
+    
+    // For Finance_Staff, Owner, Manager, return all (whereClause remains {})
+
     return this.prisma.order.findMany({
+      where: whereClause,
       include: {
         customer: {
-          select: {
-            companyName: true,
-          },
+          select: { companyName: true, email: true },
         },
       },
       orderBy: { createdAt: 'desc' },
