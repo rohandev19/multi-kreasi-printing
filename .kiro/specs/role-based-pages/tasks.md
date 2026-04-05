@@ -405,8 +405,8 @@ The implementation follows an incremental approach: first establishing core infr
   - [x] 6.2 Execute seed script
   - [x] 6.3 Test user authentication with newly seeded roles
 
-- [ ] 17. Implement role-filtered Orders page
-  - [ ] 17.1 Create OrdersTable component with role-based columns
+- [x] 17. Implement role-filtered Orders page
+  - [x] 17.1 Create OrdersTable component with role-based columns
     - Create `frontend/src/components/tables/OrdersTable.tsx`
     - Accept props: orders array, userRole, loading
     - Define column configurations for each role (Owner, Manager, Designer, Production_Staff, Finance_Staff)
@@ -415,7 +415,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Add loading skeleton for table rows
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 11.1, 11.2_
   
-  - [ ] 17.2 Update Orders page with role filtering
+  - [x] 17.2 Update Orders page with role filtering
     - Update `frontend/src/pages/Orders.tsx`
     - Use RoleContext to get current user role
     - Redirect Customer role to My Orders page
@@ -425,7 +425,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Handle empty states and errors
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
   
-  - [ ] 17.3 Enhance backend Orders controller with role filtering
+  - [x] 17.3 Enhance backend Orders controller with role filtering
     - Update `backend/src/orders/orders.controller.ts`
     - Modify `GET /api/v1/orders` endpoint to filter by user role
     - For Designer: return only orders in design stages (Draft, Pending_Approval, Design_In_Progress)
