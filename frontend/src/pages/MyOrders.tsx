@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { ShoppingBag, Eye, FileText } from 'lucide-react';
+import { OrderDetailsModal } from '../components/OrderDetailsModal';
 
 interface Order {
   id: string;
@@ -30,6 +31,7 @@ export default function MyOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMyOrders();
@@ -37,7 +39,7 @@ export default function MyOrders() {
 
   const fetchMyOrders = async () => {
     try {
-      const response = await api.get('/api/v1/orders/my-orders');
+      const response = await api.get('/api/v1/orders');
       const orderData = Array.isArray(response.data) 
         ? response.data 
         : response.data.data || [];
@@ -146,7 +148,10 @@ export default function MyOrders() {
               )}
 
               <div className="flex gap-2">
-                <button className="flex-1 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors flex items-center justify-center gap-2">
+                <button 
+                  onClick={() => setSelectedOrderId(order.id)}
+                  className="flex-1 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors flex items-center justify-center gap-2"
+                >
                   <Eye size={16} />
                   View Details
                 </button>
@@ -159,6 +164,12 @@ export default function MyOrders() {
           ))}
         </div>
       )}
+
+      <OrderDetailsModal 
+        isOpen={!!selectedOrderId}
+        orderId={selectedOrderId}
+        onClose={() => setSelectedOrderId(null)}
+      />
     </div>
   );
 }
