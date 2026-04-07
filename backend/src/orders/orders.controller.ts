@@ -125,8 +125,9 @@ export class OrdersController {
 
   @Get(':id')
   @Roles('Production', 'Sales', 'Manager', 'Owner', 'Customer')
-  async getDetails(@Param('id') id: string) {
-    return this.getOrderDetails.execute(id);
+  async getDetails(@Param('id') id: string, @Req() req: Request) {
+    const user = (req as any).user;
+    return this.getOrderDetails.execute(id, user);
   }
 
   @Get(':orderId/design-files')

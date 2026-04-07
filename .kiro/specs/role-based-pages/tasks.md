@@ -435,24 +435,26 @@ The implementation follows an incremental approach: first establishing core infr
     - Add role-specific field selection in query
     - _Requirements: 3.1, 3.2, 3.3, 3.4_
 
-- [ ] 18. Implement My Orders page for customers
-  - [ ] 18.1 Create My Orders page component
+- [x] 18. Implement My Orders page for customers
+  - [x] 18.1 Create My Orders page component
     - Create `frontend/src/pages/MyOrders.tsx`
-    - Fetch customer orders from `GET /api/v1/my-orders`
+    - Fetch customer orders from `GET /api/v1/orders`
     - Display orders in card layout on mobile, table on desktop
     - Show order number, status, total amount, estimated delivery, creation date
     - Add "View Details" and "Download Invoice" action buttons
     - Implement pagination
     - _Requirements: 9.1, 9.2, 14.3_
   
-  - [ ] 18.2 Create order details modal for customers
+  - [x] 18.2 Create order details modal for customers
     - Create `frontend/src/components/OrderDetailsModal.tsx`
-    - Fetch order details from `GET /api/v1/my-orders/:id`
+    - Fetch order details from `GET /api/v1/orders/:id`
+    - Display order timeline, items, and total amount
+    - Add "Download Invoice" action if order is paid
     - Display order items with product name, quantity, unit price, subtotal
     - Display order timeline with status updates
     - Display design file previews with thumbnails
     - Show customer-appropriate information only
-    - _Requirements: 9.3_
+    - _Requirements: 9.1, 9.2, 9.3_
   
   - [ ] 18.3 Create backend CustomerOrdersController
     - Create `backend/src/orders/customer-orders.controller.ts`
