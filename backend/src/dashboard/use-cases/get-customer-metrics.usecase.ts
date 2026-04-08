@@ -56,9 +56,12 @@ export class GetCustomerMetricsUseCase {
         where: { userId },
         include: { items: true },
       });
-      
+
       if (cart) {
-        cartItemsCount = cart.items.reduce((acc, item) => acc + item.quantity, 0);
+        cartItemsCount = cart.items.reduce(
+          (acc, item) => acc + item.quantity,
+          0,
+        );
       }
 
       return {
@@ -69,7 +72,7 @@ export class GetCustomerMetricsUseCase {
             type: 'stat',
             value: activeOrders,
             icon: 'clock',
-            color: 'blue'
+            color: 'blue',
           },
           {
             id: 'customer-completed-orders',
@@ -77,7 +80,7 @@ export class GetCustomerMetricsUseCase {
             type: 'stat',
             value: completedOrders,
             icon: 'check',
-            color: 'emerald'
+            color: 'emerald',
           },
           {
             id: 'customer-amount-spent',
@@ -85,7 +88,7 @@ export class GetCustomerMetricsUseCase {
             type: 'stat',
             value: totalAmountSpent,
             icon: 'revenue',
-            color: 'purple'
+            color: 'purple',
           },
           {
             id: 'customer-cart',
@@ -93,9 +96,9 @@ export class GetCustomerMetricsUseCase {
             type: 'stat',
             value: cartItemsCount,
             icon: 'cart',
-            color: 'amber'
-          }
-        ]
+            color: 'amber',
+          },
+        ],
       };
     } catch (error) {
       this.logger.error('Error fetching customer metrics', error);

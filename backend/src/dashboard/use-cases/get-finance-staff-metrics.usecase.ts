@@ -46,7 +46,8 @@ export class GetFinanceStaffMetricsUseCase {
         _sum: { amount: true },
         where: { status: { in: ['Sent', 'Partially_Paid', 'Overdue'] } },
       });
-      const outstandingReceivables = outstandingReceivablesRaw._sum.amount?.toNumber() || 0;
+      const outstandingReceivables =
+        outstandingReceivablesRaw._sum.amount?.toNumber() || 0;
 
       // 4. Overdue Invoices
       const overdueInvoices = await this.prisma.invoice.count({
@@ -61,7 +62,7 @@ export class GetFinanceStaffMetricsUseCase {
             type: 'stat',
             value: pendingInvoices,
             icon: 'clock',
-            color: 'amber'
+            color: 'amber',
           },
           {
             id: 'finance-revenue-today',
@@ -69,12 +70,15 @@ export class GetFinanceStaffMetricsUseCase {
             type: 'stat',
             value: revenueToday,
             trend: {
-              value: revenueYesterday > 0 ? ((revenueToday - revenueYesterday) / revenueYesterday) * 100 : 0,
+              value:
+                revenueYesterday > 0
+                  ? ((revenueToday - revenueYesterday) / revenueYesterday) * 100
+                  : 0,
               isPositive: revenueToday >= revenueYesterday,
-              label: 'vs yesterday'
+              label: 'vs yesterday',
             },
             icon: 'revenue',
-            color: 'emerald'
+            color: 'emerald',
           },
           {
             id: 'finance-outstanding',
@@ -82,7 +86,7 @@ export class GetFinanceStaffMetricsUseCase {
             type: 'stat',
             value: outstandingReceivables,
             icon: 'document',
-            color: 'blue'
+            color: 'blue',
           },
           {
             id: 'finance-overdue',
@@ -90,9 +94,9 @@ export class GetFinanceStaffMetricsUseCase {
             type: 'stat',
             value: overdueInvoices,
             icon: 'alert',
-            color: 'red'
-          }
-        ]
+            color: 'red',
+          },
+        ],
       };
     } catch (error) {
       this.logger.error('Error fetching finance staff metrics', error);

@@ -1,4 +1,13 @@
-import { Controller, Get, Patch, Param, Body, UseGuards, Req, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Patch,
+  Param,
+  Body,
+  UseGuards,
+  Req,
+  Query,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateNotificationPreferencesDto } from './dto/notification.dto';
@@ -52,13 +61,13 @@ export class NotificationsController {
   @Patch(':id/read')
   async markAsRead(@Req() req: any, @Param('id') id: string) {
     const userId = req.user.userId;
-    
+
     // Ensure the notification belongs to the user
     await this.prisma.notification.updateMany({
       where: { id, userId },
       data: { isRead: true },
     });
-    
+
     return { success: true };
   }
 

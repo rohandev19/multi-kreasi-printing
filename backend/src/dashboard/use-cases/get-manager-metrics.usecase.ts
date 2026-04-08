@@ -48,7 +48,9 @@ export class GetManagerMetricsUseCase {
       // 4. Low Stock Alerts
       let lowStockAlerts = 0;
       try {
-        const lowStockAlertsRaw = await this.prisma.$queryRaw<{ count: bigint }[]>`
+        const lowStockAlertsRaw = await this.prisma.$queryRaw<
+          { count: bigint }[]
+        >`
           SELECT COUNT(*) as count 
           FROM raw_materials 
           WHERE current_stock < minimum_stock
@@ -60,12 +62,12 @@ export class GetManagerMetricsUseCase {
 
       // 5. Team Performance (Mocked for now since not fully in schema)
       const activeStaff = await this.prisma.user.count({
-        where: { 
+        where: {
           role: {
-            name: { in: ['Production_Staff', 'Designer', 'Warehouse_Staff'] }
+            name: { in: ['Production_Staff', 'Designer', 'Warehouse_Staff'] },
           },
-          status: 'Active'
-        }
+          status: 'Active',
+        },
       });
 
       return {
@@ -76,12 +78,15 @@ export class GetManagerMetricsUseCase {
             type: 'stat',
             value: ordersToday,
             trend: {
-              value: ordersYesterday > 0 ? ((ordersToday - ordersYesterday) / ordersYesterday) * 100 : 0,
+              value:
+                ordersYesterday > 0
+                  ? ((ordersToday - ordersYesterday) / ordersYesterday) * 100
+                  : 0,
               isPositive: ordersToday >= ordersYesterday,
-              label: 'vs yesterday'
+              label: 'vs yesterday',
             },
             icon: 'orders',
-            color: 'blue'
+            color: 'blue',
           },
           {
             id: 'manager-pending-approvals',
@@ -89,7 +94,7 @@ export class GetManagerMetricsUseCase {
             type: 'stat',
             value: pendingApprovals,
             icon: 'clock',
-            color: 'amber'
+            color: 'amber',
           },
           {
             id: 'manager-production',
@@ -97,11 +102,19 @@ export class GetManagerMetricsUseCase {
             type: 'list',
             data: [
               { label: 'Queued', value: queuedJobs, color: 'text-gray-500' },
-              { label: 'In Progress', value: inProgressJobs, color: 'text-blue-500' },
-              { label: 'Completed Today', value: completedJobsToday, color: 'text-emerald-500' }
+              {
+                label: 'In Progress',
+                value: inProgressJobs,
+                color: 'text-blue-500',
+              },
+              {
+                label: 'Completed Today',
+                value: completedJobsToday,
+                color: 'text-emerald-500',
+              },
             ],
             icon: 'cogs',
-            color: 'indigo'
+            color: 'indigo',
           },
           {
             id: 'manager-low-stock',
@@ -109,7 +122,7 @@ export class GetManagerMetricsUseCase {
             type: 'stat',
             value: lowStockAlerts,
             icon: 'alert',
-            color: 'red'
+            color: 'red',
           },
           {
             id: 'manager-team',
@@ -117,9 +130,9 @@ export class GetManagerMetricsUseCase {
             type: 'stat',
             value: activeStaff,
             icon: 'users',
-            color: 'purple'
-          }
-        ]
+            color: 'purple',
+          },
+        ],
       };
     } catch (error) {
       this.logger.error('Error fetching manager metrics', error);

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../audit/audit.service';
 import { OrderLogic } from '../domain/order.entity';
@@ -7,7 +11,7 @@ import { OrderLogic } from '../domain/order.entity';
 export class CancelOrderUseCase {
   constructor(
     private prisma: PrismaService,
-    private audit: AuditService
+    private audit: AuditService,
   ) {}
 
   async execute(orderId: string, reason: string, currentUserId: string) {
@@ -15,11 +19,15 @@ export class CancelOrderUseCase {
       throw new BadRequestException('Alasan pembatalan harus diisi');
     }
 
-    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
     if (!order) throw new NotFoundException('Pesanan tidak ditemukan');
 
     if (!OrderLogic.isValidTransition(order.status, 'Cancelled')) {
-      throw new BadRequestException(`Pesanan dalam status ${order.status} tidak dapat dibatalkan`);
+      throw new BadRequestException(
+        `Pesanan dalam status ${order.status} tidak dapat dibatalkan`,
+      );
     }
 
     const updated = await this.prisma.$transaction(async (tx) => {
@@ -35,7 +43,7 @@ export class CancelOrderUseCase {
           status: 'Cancelled',
           notes: `Dibatalkan: ${reason}`,
           createdBy: currentUserId,
-        }
+        },
       });
 
       return updatedOrder;

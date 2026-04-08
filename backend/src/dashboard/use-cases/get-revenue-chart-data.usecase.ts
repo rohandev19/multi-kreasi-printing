@@ -8,13 +8,15 @@ export class GetRevenueChartDataUseCase {
 
   async execute() {
     this.logger.log('Fetching Revenue Chart Data...');
-    
+
     // For MVP, we'll fetch the last 30 days of paid invoices
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     thirtyDaysAgo.setHours(0, 0, 0, 0);
 
-    const rawData = await this.prisma.$queryRaw<{ date: Date; total: bigint }[]>`
+    const rawData = await this.prisma.$queryRaw<
+      { date: Date; total: bigint }[]
+    >`
       SELECT 
         DATE(created_at) as date, 
         SUM(amount) as total
@@ -24,7 +26,7 @@ export class GetRevenueChartDataUseCase {
       ORDER BY date ASC
     `;
 
-    return rawData.map(row => ({
+    return rawData.map((row) => ({
       date: row.date.toISOString().split('T')[0],
       total: Number(row.total || 0),
     }));

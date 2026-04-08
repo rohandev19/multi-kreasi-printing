@@ -29,10 +29,10 @@ export class PdfGenerationProcessor extends WorkerHost {
           order: {
             include: {
               items: {
-                include: { product: true }
-              }
-            }
-          }
+                include: { product: true },
+              },
+            },
+          },
         },
       });
 
@@ -43,7 +43,7 @@ export class PdfGenerationProcessor extends WorkerHost {
       // Generate PDF
       const doc = new PDFDocument();
       const passThrough = new PassThrough();
-      
+
       doc.pipe(passThrough);
 
       doc.fontSize(25).text('INVOICE', { align: 'center' });
@@ -60,15 +60,21 @@ export class PdfGenerationProcessor extends WorkerHost {
       doc.moveDown();
 
       let yPos = doc.y;
-      invoice.order.items.forEach(item => {
+      invoice.order.items.forEach((item) => {
         doc.fontSize(12).text(item.product.name, 50, yPos);
-        doc.text(`${item.quantity} x Rp ${item.unitPrice.toString()}`, 300, yPos);
+        doc.text(
+          `${item.quantity} x Rp ${item.unitPrice.toString()}`,
+          300,
+          yPos,
+        );
         doc.text(`Rp ${item.subtotal.toString()}`, 450, yPos);
         yPos += 20;
       });
 
       doc.moveDown();
-      doc.fontSize(14).text(`Total Amount: Rp ${invoice.amount.toString()}`, { align: 'right' });
+      doc.fontSize(14).text(`Total Amount: Rp ${invoice.amount.toString()}`, {
+        align: 'right',
+      });
 
       doc.end();
 
@@ -82,7 +88,11 @@ export class PdfGenerationProcessor extends WorkerHost {
 
       // Upload to R2
       const filename = `invoices/${invoice.invoiceNumber}.pdf`;
-      const uploaded = await this.storage.uploadRaw(filename, buffer, 'application/pdf');
+      const uploaded = await this.storage.uploadRaw(
+        filename,
+        buffer,
+        'application/pdf',
+      );
 
       // Update invoice record
       await this.prisma.invoice.update({
@@ -90,7 +100,9 @@ export class PdfGenerationProcessor extends WorkerHost {
         data: { pdfUrl: uploaded.url },
       });
 
-      this.logger.log(`PDF generated and uploaded for invoice ${invoiceId} at ${uploaded.url}`);
+      this.logger.log(
+        `PDF generated and uploaded for invoice ${invoiceId} at ${uploaded.url}`,
+      );
       return { url: uploaded.url };
     }
   }

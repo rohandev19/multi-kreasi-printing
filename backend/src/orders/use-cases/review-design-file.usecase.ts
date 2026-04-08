@@ -1,6 +1,13 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { DesignFileLogic, DesignFileStatus } from '../domain/design-file.entity';
+import {
+  DesignFileLogic,
+  DesignFileStatus,
+} from '../domain/design-file.entity';
 import { AuditService } from '../../audit/audit.service';
 import { ReviewDesignFileDto } from '../dto/review-design-file.dto';
 
@@ -11,15 +18,27 @@ export class ReviewDesignFileUseCase {
     private audit: AuditService,
   ) {}
 
-  async execute(fileId: string, dto: ReviewDesignFileDto, currentUserId: string) {
-    const file = await this.prisma.designFile.findUnique({ where: { id: fileId } });
+  async execute(
+    fileId: string,
+    dto: ReviewDesignFileDto,
+    currentUserId: string,
+  ) {
+    const file = await this.prisma.designFile.findUnique({
+      where: { id: fileId },
+    });
     if (!file) throw new NotFoundException('File desain tidak ditemukan');
 
     if (!DesignFileLogic.isValidTransition(file.status, dto.status)) {
-      throw new BadRequestException(`Transisi status file dari ${file.status} ke ${dto.status} tidak valid`);
+      throw new BadRequestException(
+        `Transisi status file dari ${file.status} ke ${dto.status} tidak valid`,
+      );
     }
 
-    if ((dto.status === DesignFileStatus.Rejected || dto.status === DesignFileStatus.Revision_Required) && !dto.notes) {
+    if (
+      (dto.status === DesignFileStatus.Rejected ||
+        dto.status === DesignFileStatus.Revision_Required) &&
+      !dto.notes
+    ) {
       throw new BadRequestException('Alasan penolakan atau revisi harus diisi');
     }
 

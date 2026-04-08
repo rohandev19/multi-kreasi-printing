@@ -10,11 +10,11 @@ export class SendPaymentReminderUseCase {
 
   async execute() {
     this.logger.log('Checking for invoices needing payment reminders...');
-    
+
     // Find invoices approaching due date or overdue
     const targetDate = new Date();
     targetDate.setDate(targetDate.getDate() + 3); // 3 days before due date
-    
+
     const invoices = await this.prisma.invoice.findMany({
       where: {
         status: {
@@ -22,16 +22,18 @@ export class SendPaymentReminderUseCase {
         },
         dueDate: {
           lte: targetDate,
-        }
+        },
       },
       include: {
         customer: true,
-      }
+      },
     });
 
     for (const invoice of invoices) {
       // In a real app, send an email. For now we just log it.
-      this.logger.log(`Reminder: Invoice ${invoice.invoiceNumber} is due on ${invoice.dueDate.toISOString()}. Sent reminder to ${invoice.customer.email}`);
+      this.logger.log(
+        `Reminder: Invoice ${invoice.invoiceNumber} is due on ${invoice.dueDate.toISOString()}. Sent reminder to ${invoice.customer.email}`,
+      );
     }
 
     return { remindersSent: invoices.length };

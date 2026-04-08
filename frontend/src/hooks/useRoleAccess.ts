@@ -1,4 +1,5 @@
-import { useRoleContext, UserRole } from '../contexts/RoleContext';
+import { useRoleContext } from '../contexts/RoleContext';
+import type { UserRole } from '../contexts/RoleContext';
 
 export interface MenuItem {
   name: string;

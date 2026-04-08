@@ -5,7 +5,10 @@ import { AuditService } from '../../audit/audit.service';
 
 @Injectable()
 export class UpdateProductUseCase {
-  constructor(private prisma: PrismaService, private audit: AuditService) {}
+  constructor(
+    private prisma: PrismaService,
+    private audit: AuditService,
+  ) {}
 
   async execute(id: string, dto: UpdateProductDto, currentUserId: string) {
     const existing = await this.prisma.product.findUnique({ where: { id } });

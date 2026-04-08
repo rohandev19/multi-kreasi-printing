@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { useCart } from '../../hooks/useCart';
@@ -25,7 +25,7 @@ export const CatalogPage = () => {
   const [error, setError] = useState('');
   
   // Filters and Pagination
-  const [search, setSearch] = useState('');
+  const [search] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [sortBy, setSortBy] = useState('NEWEST');
   const [page, setPage] = useState(1);
@@ -54,11 +54,6 @@ export const CatalogPage = () => {
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1); // Reset to page 1 on new search
-    fetchProducts();
-  };
 
   return (
     <div className="flex flex-col md:flex-row gap-8">

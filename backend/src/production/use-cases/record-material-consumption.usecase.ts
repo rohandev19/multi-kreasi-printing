@@ -9,11 +9,21 @@ export class RecordMaterialConsumptionUseCase {
     private audit: AuditService,
   ) {}
 
-  async execute(jobId: string, productId: string, quantity: number, notes: string | undefined, currentUserId: string) {
-    const job = await this.prisma.productionJob.findUnique({ where: { id: jobId } });
+  async execute(
+    jobId: string,
+    productId: string,
+    quantity: number,
+    notes: string | undefined,
+    currentUserId: string,
+  ) {
+    const job = await this.prisma.productionJob.findUnique({
+      where: { id: jobId },
+    });
     if (!job) throw new NotFoundException('Production job not found');
 
-    const product = await this.prisma.product.findUnique({ where: { id: productId } });
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
     if (!product) throw new NotFoundException('Material/Product not found');
 
     const consumption = await this.prisma.materialConsumption.create({

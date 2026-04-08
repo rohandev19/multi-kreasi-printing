@@ -11,7 +11,9 @@ export class RegisterUseCase {
     private readonly emailVerificationService: EmailVerificationService,
   ) {}
 
-  async execute(dto: RegisterRequestDto): Promise<{ message: string; userId: string }> {
+  async execute(
+    dto: RegisterRequestDto,
+  ): Promise<{ message: string; userId: string }> {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -37,7 +39,7 @@ export class RegisterUseCase {
           displayName: 'Customer',
           description: 'Regular customer',
           permissions: [],
-        }
+        },
       });
     }
 
@@ -54,10 +56,14 @@ export class RegisterUseCase {
     });
 
     // Send verification email
-    await this.emailVerificationService.sendVerificationEmail(user.id, user.email);
+    await this.emailVerificationService.sendVerificationEmail(
+      user.id,
+      user.email,
+    );
 
     return {
-      message: 'Registration successful. Please check your email to verify your account.',
+      message:
+        'Registration successful. Please check your email to verify your account.',
       userId: user.id,
     };
   }

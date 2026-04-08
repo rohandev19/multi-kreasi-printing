@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Param, Body, Query, UseGuards, Req, ForbiddenException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Body,
+  Query,
+  UseGuards,
+  Req,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RecordPaymentDto, InvoiceFilterDto } from './dto/finance.dto';
@@ -21,10 +31,10 @@ export class FinanceController {
   @Get()
   async getInvoices(@Query() filters: InvoiceFilterDto, @Req() req: any) {
     const user = req.user;
-    
+
     const where: any = {};
     if (filters.status) where.status = filters.status;
-    
+
     // Customers can only see their own invoices
     if (user.role === 'Customer') {
       where.customerId = user.userId;
@@ -36,10 +46,10 @@ export class FinanceController {
       where,
       include: {
         customer: {
-          select: { id: true, fullName: true, email: true }
-        }
+          select: { id: true, fullName: true, email: true },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
 
     return invoices;
@@ -50,7 +60,7 @@ export class FinanceController {
     const user = req.user;
     const invoice = await this.prisma.invoice.findUnique({
       where: { id },
-      include: { payments: true }
+      include: { payments: true },
     });
 
     if (!invoice) throw new ForbiddenException('Invoice not found');
@@ -59,7 +69,8 @@ export class FinanceController {
       throw new ForbiddenException('Access denied');
     }
 
-    const outstandingInfo = await this.calculateOutstandingBalanceUseCase.execute(id);
+    const outstandingInfo =
+      await this.calculateOutstandingBalanceUseCase.execute(id);
 
     return {
       ...invoice,
@@ -71,14 +82,14 @@ export class FinanceController {
   async recordPayment(
     @Param('id') id: string,
     @Body() dto: RecordPaymentDto,
-    @Req() req: any
+    @Req() req: any,
   ) {
     return this.recordPaymentUseCase.execute(
       id,
       dto.amount,
       dto.paymentMethod,
       dto.referenceNumber,
-      req.user.userId
+      req.user.userId,
     );
   }
 
@@ -86,7 +97,7 @@ export class FinanceController {
   async getInvoicePdf(@Param('id') id: string, @Req() req: any) {
     const user = req.user;
     const invoice = await this.prisma.invoice.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!invoice) throw new ForbiddenException('Invoice not found');
@@ -99,7 +110,9 @@ export class FinanceController {
       return { message: 'PDF not generated yet' };
     }
 
-    const presignedUrl = await this.storageService.getSignedUrl(`invoices/${invoice.invoiceNumber}.pdf`);
+    const presignedUrl = await this.storageService.getSignedUrl(
+      `invoices/${invoice.invoiceNumber}.pdf`,
+    );
     return { url: presignedUrl };
   }
 

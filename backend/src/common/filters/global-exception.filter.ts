@@ -25,19 +25,28 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       message = exception.getResponse();
     } else if (exception instanceof Error) {
       // Don't leak DB errors (Prisma) or random Stack Traces to the client
-      this.logger.error(`[${request.method}] ${request.url} - ${exception.message}`, exception.stack);
-      
+      this.logger.error(
+        `[${request.method}] ${request.url} - ${exception.message}`,
+        exception.stack,
+      );
+
       // Sanitized response for non-HttpExceptions (like DB errors)
       message = 'An unexpected error occurred. Please try again later.';
     } else {
-      this.logger.error(`[${request.method}] ${request.url} - Unknown Error`, exception);
+      this.logger.error(
+        `[${request.method}] ${request.url} - Unknown Error`,
+        exception,
+      );
     }
 
     const errorResponse = {
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
-      message: typeof message === 'string' ? message : (message as any).message || message,
+      message:
+        typeof message === 'string'
+          ? message
+          : (message as any).message || message,
     };
 
     response.status(status).json(errorResponse);

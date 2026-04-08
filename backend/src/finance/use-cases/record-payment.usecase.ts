@@ -10,7 +10,13 @@ export class RecordPaymentUseCase {
     private audit: AuditService,
   ) {}
 
-  async execute(invoiceId: string, amount: number, paymentMethod: string, referenceNumber: string | undefined, currentUserId: string) {
+  async execute(
+    invoiceId: string,
+    amount: number,
+    paymentMethod: string,
+    referenceNumber: string | undefined,
+    currentUserId: string,
+  ) {
     const invoice = await this.prisma.invoice.findUnique({
       where: { id: invoiceId },
       include: { payments: true },
@@ -20,7 +26,11 @@ export class RecordPaymentUseCase {
       throw new NotFoundException('Invoice not found');
     }
 
-    InvoiceLogic.validatePaymentAmount(invoice.amount, invoice.payments, amount);
+    InvoiceLogic.validatePaymentAmount(
+      invoice.amount,
+      invoice.payments,
+      amount,
+    );
 
     const updatedInvoice = await this.prisma.$transaction(async (tx) => {
       const payment = await tx.payment.create({
@@ -34,7 +44,12 @@ export class RecordPaymentUseCase {
 
       // Recalculate status
       const updatedPayments = [...invoice.payments, payment];
-      const newStatus = InvoiceLogic.determineStatus(invoice.amount, updatedPayments, invoice.dueDate, invoice.status);
+      const newStatus = InvoiceLogic.determineStatus(
+        invoice.amount,
+        updatedPayments,
+        invoice.dueDate,
+        invoice.status,
+      );
 
       const updated = await tx.invoice.update({
         where: { id: invoiceId },

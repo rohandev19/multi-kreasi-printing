@@ -21,15 +21,29 @@ export class InvoiceLogic {
     return `INV-${year}-${paddedSequence}`;
   }
 
-  static calculateOutstandingBalance(totalAmount: Decimal | number, payments: Array<{ amount: Decimal | number }>): Decimal {
+  static calculateOutstandingBalance(
+    totalAmount: Decimal | number,
+    payments: Array<{ amount: Decimal | number }>,
+  ): Decimal {
     const total = new Decimal(totalAmount);
-    const paid = payments.reduce((sum, payment) => sum.plus(new Decimal(payment.amount)), new Decimal(0));
+    const paid = payments.reduce(
+      (sum, payment) => sum.plus(new Decimal(payment.amount)),
+      new Decimal(0),
+    );
     return total.minus(paid);
   }
 
-  static determineStatus(totalAmount: Decimal | number, payments: Array<{ amount: Decimal | number }>, dueDate: Date, currentStatus: string): InvoiceStatus {
-    if (currentStatus === InvoiceStatus.Cancelled || currentStatus === InvoiceStatus.Draft) {
-      return currentStatus as InvoiceStatus;
+  static determineStatus(
+    totalAmount: Decimal | number,
+    payments: Array<{ amount: Decimal | number }>,
+    dueDate: Date,
+    currentStatus: string,
+  ): InvoiceStatus {
+    if (
+      currentStatus === InvoiceStatus.Cancelled ||
+      currentStatus === InvoiceStatus.Draft
+    ) {
+      return currentStatus;
     }
 
     const outstanding = this.calculateOutstandingBalance(totalAmount, payments);
@@ -54,10 +68,16 @@ export class InvoiceLogic {
     return currentStatus as InvoiceStatus;
   }
 
-  static validatePaymentAmount(totalAmount: Decimal | number, payments: Array<{ amount: Decimal | number }>, incomingAmount: Decimal | number): void {
+  static validatePaymentAmount(
+    totalAmount: Decimal | number,
+    payments: Array<{ amount: Decimal | number }>,
+    incomingAmount: Decimal | number,
+  ): void {
     const outstanding = this.calculateOutstandingBalance(totalAmount, payments);
     if (new Decimal(incomingAmount).gt(outstanding)) {
-      throw new BadRequestException('Payment amount exceeds outstanding balance');
+      throw new BadRequestException(
+        'Payment amount exceeds outstanding balance',
+      );
     }
   }
 }

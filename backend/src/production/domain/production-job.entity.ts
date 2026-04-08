@@ -20,14 +20,29 @@ export class ProductionJobLogic {
     return `PROD-${year}-${paddedSequence}`;
   }
 
-  static canTransition(currentStatus: string, nextStatus: ProductionJobStatus): boolean {
+  static canTransition(
+    currentStatus: string,
+    nextStatus: ProductionJobStatus,
+  ): boolean {
     const transitions: Record<string, ProductionJobStatus[]> = {
       [ProductionJobStatus.Queue]: [ProductionJobStatus.Assigned],
-      [ProductionJobStatus.Assigned]: [ProductionJobStatus.In_Progress, ProductionJobStatus.Queue],
-      [ProductionJobStatus.In_Progress]: [ProductionJobStatus.Quality_Check, ProductionJobStatus.Failed],
-      [ProductionJobStatus.Quality_Check]: [ProductionJobStatus.Completed, ProductionJobStatus.Failed],
+      [ProductionJobStatus.Assigned]: [
+        ProductionJobStatus.In_Progress,
+        ProductionJobStatus.Queue,
+      ],
+      [ProductionJobStatus.In_Progress]: [
+        ProductionJobStatus.Quality_Check,
+        ProductionJobStatus.Failed,
+      ],
+      [ProductionJobStatus.Quality_Check]: [
+        ProductionJobStatus.Completed,
+        ProductionJobStatus.Failed,
+      ],
       [ProductionJobStatus.Failed]: [ProductionJobStatus.Rework],
-      [ProductionJobStatus.Rework]: [ProductionJobStatus.Assigned, ProductionJobStatus.In_Progress],
+      [ProductionJobStatus.Rework]: [
+        ProductionJobStatus.Assigned,
+        ProductionJobStatus.In_Progress,
+      ],
       [ProductionJobStatus.Completed]: [],
     };
 
@@ -35,9 +50,14 @@ export class ProductionJobLogic {
     return allowed.includes(nextStatus);
   }
 
-  static validateTransition(currentStatus: string, nextStatus: ProductionJobStatus): void {
+  static validateTransition(
+    currentStatus: string,
+    nextStatus: ProductionJobStatus,
+  ): void {
     if (!this.canTransition(currentStatus, nextStatus)) {
-      throw new BadRequestException(`Cannot transition from ${currentStatus} to ${nextStatus}`);
+      throw new BadRequestException(
+        `Cannot transition from ${currentStatus} to ${nextStatus}`,
+      );
     }
   }
 }

@@ -4,7 +4,7 @@ export enum DesignFileStatus {
   Manual_Review = 'Manual_Review',
   Approved = 'Approved',
   Rejected = 'Rejected',
-  Revision_Required = 'Revision_Required'
+  Revision_Required = 'Revision_Required',
 }
 
 export class DesignFileLogic {
@@ -14,14 +14,25 @@ export class DesignFileLogic {
 
   static isValidTransition(currentStatus: string, nextStatus: string): boolean {
     const transitions: Record<string, string[]> = {
-      [DesignFileStatus.Uploaded]: [DesignFileStatus.AI_Check, DesignFileStatus.Manual_Review],
-      [DesignFileStatus.AI_Check]: [DesignFileStatus.Manual_Review, DesignFileStatus.Approved, DesignFileStatus.Rejected],
-      [DesignFileStatus.Manual_Review]: [DesignFileStatus.Approved, DesignFileStatus.Rejected, DesignFileStatus.Revision_Required],
+      [DesignFileStatus.Uploaded]: [
+        DesignFileStatus.AI_Check,
+        DesignFileStatus.Manual_Review,
+      ],
+      [DesignFileStatus.AI_Check]: [
+        DesignFileStatus.Manual_Review,
+        DesignFileStatus.Approved,
+        DesignFileStatus.Rejected,
+      ],
+      [DesignFileStatus.Manual_Review]: [
+        DesignFileStatus.Approved,
+        DesignFileStatus.Rejected,
+        DesignFileStatus.Revision_Required,
+      ],
       [DesignFileStatus.Approved]: [],
       [DesignFileStatus.Rejected]: [],
-      [DesignFileStatus.Revision_Required]: [DesignFileStatus.Uploaded]
+      [DesignFileStatus.Revision_Required]: [DesignFileStatus.Uploaded],
     };
-    
+
     return transitions[currentStatus]?.includes(nextStatus) || false;
   }
 
@@ -31,7 +42,7 @@ export class DesignFileLogic {
       'application/postscript', // AI
       'application/pdf', // PDF
       'image/jpeg', // JPG
-      'image/png' // PNG
+      'image/png', // PNG
       // SVG removed per security Option A
     ];
     return allowed.includes(mimeType);

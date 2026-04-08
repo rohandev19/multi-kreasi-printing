@@ -1,4 +1,16 @@
-import { Controller, Post, Body, Req, Get, Query, Param, Patch, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Req,
+  Get,
+  Query,
+  Param,
+  Patch,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { SearchProductsDto } from './dto/search-products.dto';
@@ -38,14 +50,22 @@ export class ProductsController {
 
   @Patch(':id')
   @Roles('Owner', 'Manager')
-  async update(@Param('id') id: string, @Body() dto: UpdateProductDto, @Req() req: Request) {
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateProductDto,
+    @Req() req: Request,
+  ) {
     const userId = (req as any).user.sub;
     return this.updateProductUseCase.execute(id, dto, userId);
   }
 
   @Post(':id/pricing-tiers')
   @Roles('Owner', 'Manager')
-  async setPricingTiers(@Param('id') id: string, @Body() dto: SetPricingTiersDto, @Req() req: Request) {
+  async setPricingTiers(
+    @Param('id') id: string,
+    @Body() dto: SetPricingTiersDto,
+    @Req() req: Request,
+  ) {
     const userId = (req as any).user.sub;
     return this.setPricingTiersUseCase.execute(id, dto, userId);
   }
@@ -54,14 +74,19 @@ export class ProductsController {
   @Roles('Owner', 'Manager')
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(
-    @Param('id') id: string, 
-    @UploadedFile() file: Express.Multer.File, 
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
     @Body('isPrimary') isPrimary: string,
-    @Req() req: Request
+    @Req() req: Request,
   ) {
     if (!file) throw new BadRequestException('File gambar tidak ditemukan');
     const userId = (req as any).user.sub;
     const isPrimaryBool = isPrimary === 'true';
-    return this.manageProductImagesUseCase.uploadImage(id, file, isPrimaryBool, userId);
+    return this.manageProductImagesUseCase.uploadImage(
+      id,
+      file,
+      isPrimaryBool,
+      userId,
+    );
   }
 }

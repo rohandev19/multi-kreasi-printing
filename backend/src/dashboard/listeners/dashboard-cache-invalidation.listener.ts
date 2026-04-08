@@ -14,7 +14,9 @@ export class DashboardCacheInvalidationListener {
   @OnEvent('payment.received')
   @OnEvent('invoice.generated')
   async handleDomainEventsToInvalidateDashboard() {
-    this.logger.log('Domain event received. Invalidating dashboard cache keys...');
+    this.logger.log(
+      'Domain event received. Invalidating dashboard cache keys...',
+    );
     try {
       await this.cacheManager.del('dashboard-metrics');
       await this.cacheManager.del('dashboard-kpis');

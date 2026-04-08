@@ -29,14 +29,18 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
       });
 
       this.redisClient.on('connect', () => {
-        this.logger.log('Connected to Redis (Support for Memurai/Native Redis)');
+        this.logger.log(
+          'Connected to Redis (Support for Memurai/Native Redis)',
+        );
       });
 
       this.redisClient.on('error', (err) => {
         this.logger.warn(`Redis connection error (optional): ${err.message}`);
       });
     } catch (err) {
-      this.logger.warn(`Redis initialization failed (optional): ${err.message}`);
+      this.logger.warn(
+        `Redis initialization failed (optional): ${err.message}`,
+      );
       this.redisClient = null;
     }
   }

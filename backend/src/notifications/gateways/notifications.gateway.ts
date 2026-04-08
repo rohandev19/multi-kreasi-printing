@@ -20,9 +20,7 @@ export class NotificationsGateway
   @WebSocketServer() server: Server;
   private readonly logger = new Logger(NotificationsGateway.name);
 
-  constructor(
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   afterInit(server: Server) {
     this.logger.log('WebSocket Gateway initialized');
@@ -42,7 +40,9 @@ export class NotificationsGateway
       client.join(userId);
       this.logger.log(`Client connected: ${client.id} (UserId: ${userId})`);
     } catch (error) {
-      this.logger.warn(`Client connection failed: ${client.id} - ${error.message}`);
+      this.logger.warn(
+        `Client connection failed: ${client.id} - ${error.message}`,
+      );
       client.disconnect();
     }
   }

@@ -7,12 +7,18 @@ import { PricingTierLogic } from '../../products/domain/pricing-tier';
 
 @Injectable()
 export class CreateOrderUseCase {
-  constructor(private prisma: PrismaService, private audit: AuditService) {}
+  constructor(
+    private prisma: PrismaService,
+    private audit: AuditService,
+  ) {}
 
   async execute(dto: CreateOrderDto, currentUserId: string) {
-    if (dto.items.length === 0) throw new BadRequestException('Order must have at least one item');
+    if (dto.items.length === 0)
+      throw new BadRequestException('Order must have at least one item');
 
-    const customer = await this.prisma.customer.findUnique({ where: { id: dto.customerId } });
+    const customer = await this.prisma.customer.findUnique({
+      where: { id: dto.customerId },
+    });
     if (!customer) throw new BadRequestException('Customer tidak ditemukan');
 
     // Fetch product details for validation and pricing
@@ -31,17 +37,18 @@ export class CreateOrderUseCase {
       if (product.status !== 'Active') {
         throw new BadRequestException(`Produk ${product.name} tidak aktif`);
       }
-      
-      const unitPrice = product.pricingTiers.length > 0 
-        ? PricingTierLogic.calculateUnitPrice(
-            product.pricingTiers.map(t => ({
-              minQuantity: t.minQuantity,
-              maxQuantity: t.maxQuantity,
-              unitPrice: Number(t.unitPrice)
-            })), 
-            itemDto.quantity
-          )
-        : Number(product.basePrice);
+
+      const unitPrice =
+        product.pricingTiers.length > 0
+          ? PricingTierLogic.calculateUnitPrice(
+              product.pricingTiers.map((t) => ({
+                minQuantity: t.minQuantity,
+                maxQuantity: t.maxQuantity,
+                unitPrice: Number(t.unitPrice),
+              })),
+              itemDto.quantity,
+            )
+          : Number(product.basePrice);
 
       const subtotal = unitPrice * itemDto.quantity;
       return {
@@ -66,7 +73,9 @@ export class CreateOrderUseCase {
           tax,
           shipping: 0, // Set to 0 for MVP
           totalAmount: total,
-          estimatedDeliveryDate: dto.estimatedDeliveryDate ? new Date(dto.estimatedDeliveryDate) : null,
+          estimatedDeliveryDate: dto.estimatedDeliveryDate
+            ? new Date(dto.estimatedDeliveryDate)
+            : null,
           notes: dto.notes,
           status: 'Draft',
           items: {
@@ -77,8 +86,8 @@ export class CreateOrderUseCase {
               status: 'Draft',
               createdBy: currentUserId,
               notes: 'Pesanan dibuat (Draft)',
-            }
-          }
+            },
+          },
         },
         include: { items: true, timeline: true },
       });

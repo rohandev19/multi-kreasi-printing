@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationsGateway } from '../gateways/notifications.gateway';
-import { NotificationType, NotificationChannel } from '../domain/notification.entity';
+import {
+  NotificationType,
+  NotificationChannel,
+} from '../domain/notification.entity';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 
@@ -35,13 +38,16 @@ export class SendNotificationUseCase {
     const channels: string[] = forceChannels ? [...forceChannels] : [];
 
     if (!forceChannels) {
-      if (prefs?.inAppEnabled ?? true) channels.push(NotificationChannel.IN_APP);
+      if (prefs?.inAppEnabled ?? true)
+        channels.push(NotificationChannel.IN_APP);
       if (prefs?.emailEnabled ?? true) channels.push(NotificationChannel.EMAIL);
       // if (prefs?.pushEnabled) channels.push(NotificationChannel.PUSH);
     }
 
     if (channels.length === 0) {
-      this.logger.debug(`No channels enabled for user ${userId}, skipping notification.`);
+      this.logger.debug(
+        `No channels enabled for user ${userId}, skipping notification.`,
+      );
       return;
     }
 
@@ -75,15 +81,19 @@ export class SendNotificationUseCase {
     if (channels.includes(NotificationChannel.EMAIL)) {
       const user = await this.prisma.user.findUnique({ where: { id: userId } });
       if (user && user.email) {
-        await this.emailQueue.add('send-email', {
-          to: user.email,
-          subject: title,
-          body: message,
-          notificationId: notification.id,
-        }, {
-          attempts: 3,
-          backoff: { type: 'exponential', delay: 2000 },
-        });
+        await this.emailQueue.add(
+          'send-email',
+          {
+            to: user.email,
+            subject: title,
+            body: message,
+            notificationId: notification.id,
+          },
+          {
+            attempts: 3,
+            backoff: { type: 'exponential', delay: 2000 },
+          },
+        );
       }
     }
   }

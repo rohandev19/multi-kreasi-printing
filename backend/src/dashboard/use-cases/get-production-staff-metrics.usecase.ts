@@ -23,9 +23,9 @@ export class GetProductionStaffMetricsUseCase {
 
       // 2. Jobs In Progress (assigned to current user)
       const inProgressJobs = await this.prisma.productionJob.count({
-        where: { 
+        where: {
           status: 'In_Progress',
-          assignedTo: userId
+          assignedTo: userId,
         },
       });
 
@@ -58,7 +58,7 @@ export class GetProductionStaffMetricsUseCase {
             type: 'stat',
             value: queuedJobs,
             icon: 'clock',
-            color: 'amber'
+            color: 'amber',
           },
           {
             id: 'production-in-progress',
@@ -66,7 +66,7 @@ export class GetProductionStaffMetricsUseCase {
             type: 'stat',
             value: inProgressJobs,
             icon: 'cogs',
-            color: 'blue'
+            color: 'blue',
           },
           {
             id: 'production-completed',
@@ -74,12 +74,17 @@ export class GetProductionStaffMetricsUseCase {
             type: 'stat',
             value: completedToday,
             trend: {
-              value: completedYesterday > 0 ? ((completedToday - completedYesterday) / completedYesterday) * 100 : 0,
+              value:
+                completedYesterday > 0
+                  ? ((completedToday - completedYesterday) /
+                      completedYesterday) *
+                    100
+                  : 0,
               isPositive: completedToday >= completedYesterday,
-              label: 'vs yesterday'
+              label: 'vs yesterday',
             },
             icon: 'check',
-            color: 'emerald'
+            color: 'emerald',
           },
           {
             id: 'production-machines',
@@ -87,9 +92,9 @@ export class GetProductionStaffMetricsUseCase {
             type: 'stat',
             value: `${availableMachines}/${totalMachines}`,
             icon: 'server',
-            color: 'indigo'
-          }
-        ]
+            color: 'indigo',
+          },
+        ],
       };
     } catch (error) {
       this.logger.error('Error fetching production staff metrics', error);

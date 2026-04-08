@@ -1,4 +1,15 @@
-import { Body, Controller, Param, Patch, Post, Req, Get, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Patch,
+  Post,
+  Req,
+  Get,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadDesignFileUseCase } from './use-cases/upload-design-file.usecase';
 import { ReviewDesignFileUseCase } from './use-cases/review-design-file.usecase';
@@ -83,7 +94,11 @@ export class DesignFilesController {
     @Req() req: Request,
   ) {
     const userId = (req as any).user.id;
-    return this.reviewDesignFile.execute(id, { status: DesignFileStatus.Approved, notes: dto.notes }, userId);
+    return this.reviewDesignFile.execute(
+      id,
+      { status: DesignFileStatus.Approved, notes: dto.notes },
+      userId,
+    );
   }
 
   @Patch(':id/reject')
@@ -94,6 +109,10 @@ export class DesignFilesController {
     @Req() req: Request,
   ) {
     const userId = (req as any).user.id;
-    return this.reviewDesignFile.execute(id, { status: DesignFileStatus.Rejected, notes: dto.notes }, userId);
+    return this.reviewDesignFile.execute(
+      id,
+      { status: DesignFileStatus.Rejected, notes: dto.notes },
+      userId,
+    );
   }
 }

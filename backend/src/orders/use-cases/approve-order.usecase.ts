@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../audit/audit.service';
 import { WorkflowService } from '../workflow.service';
@@ -8,23 +13,40 @@ export class ApproveOrderUseCase {
   constructor(
     private prisma: PrismaService,
     private audit: AuditService,
-    private workflow: WorkflowService
+    private workflow: WorkflowService,
   ) {}
 
-  async execute(orderId: string, currentUserId: string, currentUserRole: string) {
-    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+  async execute(
+    orderId: string,
+    currentUserId: string,
+    currentUserRole: string,
+  ) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
     if (!order) throw new NotFoundException('Pesanan tidak ditemukan');
 
     if (order.status !== 'Pending_Approval') {
-      throw new BadRequestException(`Pesanan dalam status ${order.status} tidak dapat disetujui`);
+      throw new BadRequestException(
+        `Pesanan dalam status ${order.status} tidak dapat disetujui`,
+      );
     }
 
-    const requiredRole = await this.workflow.determineApprovalRequired(Number(order.totalAmount));
+    const requiredRole = await this.workflow.determineApprovalRequired(
+      Number(order.totalAmount),
+    );
     if (requiredRole === 'Owner' && currentUserRole !== 'Owner') {
-      throw new ForbiddenException('Persetujuan Owner diperlukan untuk nominal pesanan ini');
+      throw new ForbiddenException(
+        'Persetujuan Owner diperlukan untuk nominal pesanan ini',
+      );
     }
-    if (requiredRole === 'Manager' && !['Manager', 'Owner'].includes(currentUserRole)) {
-      throw new ForbiddenException('Persetujuan Manager diperlukan untuk nominal pesanan ini');
+    if (
+      requiredRole === 'Manager' &&
+      !['Manager', 'Owner'].includes(currentUserRole)
+    ) {
+      throw new ForbiddenException(
+        'Persetujuan Manager diperlukan untuk nominal pesanan ini',
+      );
     }
 
     const updated = await this.prisma.$transaction(async (tx) => {
@@ -40,7 +62,7 @@ export class ApproveOrderUseCase {
           status: 'Approved',
           notes: `Disetujui oleh ${currentUserRole}`,
           createdBy: currentUserId,
-        }
+        },
       });
 
       return updatedOrder;

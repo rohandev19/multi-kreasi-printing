@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Patch, Request, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Request,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GetDashboardMetricsUseCase } from './use-cases/get-dashboard-metrics.usecase';
@@ -48,7 +56,7 @@ export class DashboardController {
   @Get('metrics/:role')
   async getRoleMetrics(@Param('role') role: string, @Request() req: any) {
     const userRole = req.user.role;
-    
+
     if (userRole !== 'Owner' && userRole.toLowerCase() !== role.toLowerCase()) {
       throw new ForbiddenException(`Cannot access metrics for role: ${role}`);
     }
@@ -109,19 +117,36 @@ export class DashboardController {
       pref = await this.prisma.widgetPreference.create({
         data: {
           userId,
-          layoutOrder: ['revenue', 'orders', 'kpis', 'chart', 'production', 'low_stock'],
-          enabledWidgets: ['revenue', 'orders', 'kpis', 'chart', 'production', 'low_stock'],
+          layoutOrder: [
+            'revenue',
+            'orders',
+            'kpis',
+            'chart',
+            'production',
+            'low_stock',
+          ],
+          enabledWidgets: [
+            'revenue',
+            'orders',
+            'kpis',
+            'chart',
+            'production',
+            'low_stock',
+          ],
         },
       });
     }
-    
+
     return pref;
   }
 
   @Patch('preferences')
-  async updateWidgetPreferences(@Request() req: any, @Body() body: UpdateWidgetPreferenceDto) {
+  async updateWidgetPreferences(
+    @Request() req: any,
+    @Body() body: UpdateWidgetPreferenceDto,
+  ) {
     const userId = req.user.sub;
-    
+
     return this.prisma.widgetPreference.upsert({
       where: { userId },
       update: {
@@ -132,7 +157,7 @@ export class DashboardController {
         userId,
         layoutOrder: body.layoutOrder || [],
         enabledWidgets: body.enabledWidgets || [],
-      }
+      },
     });
   }
 }

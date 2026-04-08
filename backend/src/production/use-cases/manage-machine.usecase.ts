@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MachineLogic, MachineStatus } from '../domain/machine.entity';
 import { AuditService } from '../../audit/audit.service';
@@ -31,12 +35,23 @@ export class ManageMachineUseCase {
     return machine;
   }
 
-  async updateStatus(machineId: string, status: MachineStatus, currentUserId: string) {
-    const machine = await this.prisma.machine.findUnique({ where: { id: machineId } });
+  async updateStatus(
+    machineId: string,
+    status: MachineStatus,
+    currentUserId: string,
+  ) {
+    const machine = await this.prisma.machine.findUnique({
+      where: { id: machineId },
+    });
     if (!machine) throw new NotFoundException('Machine not found');
 
-    if (machine.status === MachineStatus.In_Use && status !== MachineStatus.Available) {
-      throw new BadRequestException('Cannot change status of a machine that is currently in use');
+    if (
+      machine.status === MachineStatus.In_Use &&
+      status !== MachineStatus.Available
+    ) {
+      throw new BadRequestException(
+        'Cannot change status of a machine that is currently in use',
+      );
     }
 
     const updated = await this.prisma.machine.update({
@@ -56,7 +71,11 @@ export class ManageMachineUseCase {
     return updated;
   }
 
-  async scheduleMaintenance(machineId: string, maintenanceDate: Date, currentUserId: string) {
+  async scheduleMaintenance(
+    machineId: string,
+    maintenanceDate: Date,
+    currentUserId: string,
+  ) {
     const machine = await this.prisma.machine.update({
       where: { id: machineId },
       data: { maintenanceDate },
@@ -75,11 +94,16 @@ export class ManageMachineUseCase {
   }
 
   async getMachineUtilization(machineId: string) {
-    const machine = await this.prisma.machine.findUnique({ where: { id: machineId } });
+    const machine = await this.prisma.machine.findUnique({
+      where: { id: machineId },
+    });
     if (!machine) throw new NotFoundException('Machine not found');
 
-    const utilization = MachineLogic.calculateUtilization(machine.productionTime, machine.idleTime);
-    
+    const utilization = MachineLogic.calculateUtilization(
+      machine.productionTime,
+      machine.idleTime,
+    );
+
     return {
       machineId: machine.id,
       name: machine.name,

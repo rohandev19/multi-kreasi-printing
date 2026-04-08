@@ -42,6 +42,8 @@ export class SendInvoiceUseCase {
       newValue: null,
     });
 
-    return { message: 'Invoice PDF generation and email delivery queued successfully' };
+    return {
+      message: 'Invoice PDF generation and email delivery queued successfully',
+    };
   }
 }

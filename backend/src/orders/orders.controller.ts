@@ -1,4 +1,15 @@
-import { Body, Controller, Param, Patch, Post, Req, Get, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Patch,
+  Post,
+  Req,
+  Get,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateOrderUseCase } from './use-cases/create-order.usecase';
 import { UpdateOrderStatusUseCase } from './use-cases/update-order-status.usecase';
@@ -37,17 +48,27 @@ export class OrdersController {
   }
 
   @Get()
-  @Roles('Production', 'Sales', 'Manager', 'Owner', 'Designer', 'Production_Staff', 'Finance_Staff', 'Customer')
+  @Roles(
+    'Production',
+    'Sales',
+    'Manager',
+    'Owner',
+    'Designer',
+    'Production_Staff',
+    'Finance_Staff',
+    'Customer',
+  )
   async list(@Req() req: Request) {
     const user = (req as any).user;
-    
+
     // Determine which role context to use (either query param or actual user role)
     // Only Owner/Manager can view as other roles
-    const queryRole = (req.query.role as string);
-    const effectiveRole = (user.role === 'Owner' || user.role === 'Manager') && queryRole 
-      ? queryRole 
-      : user.role;
-    
+    const queryRole = req.query.role as string;
+    const effectiveRole =
+      (user.role === 'Owner' || user.role === 'Manager') && queryRole
+        ? queryRole
+        : user.role;
+
     // If user is Customer, only show their orders
     if (effectiveRole === 'Customer') {
       return this.prisma.order.findMany({
@@ -58,14 +79,27 @@ export class OrdersController {
       });
     }
 
-    let whereClause: any = {};
-    
+    const whereClause: any = {};
+
     if (effectiveRole === 'Designer') {
-      whereClause.status = { in: ['Draft', 'Pending_Approval', 'Design_In_Progress', 'Design_Review', 'Design_Approved'] };
-    } else if (effectiveRole === 'Production_Staff' || effectiveRole === 'Production') {
-      whereClause.status = { in: ['Approved', 'In_Production', 'Quality_Check', 'Completed'] };
+      whereClause.status = {
+        in: [
+          'Draft',
+          'Pending_Approval',
+          'Design_In_Progress',
+          'Design_Review',
+          'Design_Approved',
+        ],
+      };
+    } else if (
+      effectiveRole === 'Production_Staff' ||
+      effectiveRole === 'Production'
+    ) {
+      whereClause.status = {
+        in: ['Approved', 'In_Production', 'Quality_Check', 'Completed'],
+      };
     }
-    
+
     // For Finance_Staff, Owner, Manager, return all (whereClause remains {})
 
     return this.prisma.order.findMany({
@@ -132,9 +166,14 @@ export class OrdersController {
 
   @Get(':orderId/design-files')
   @Roles('Customer', 'Production', 'Sales', 'Manager', 'Owner')
-  async getOrderDesignFiles(@Param('orderId') orderId: string, @Req() req: Request) {
+  async getOrderDesignFiles(
+    @Param('orderId') orderId: string,
+    @Req() req: Request,
+  ) {
     const user = (req as any).user;
-    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
     if (!order) return [];
 
     if (user.role.name === 'Customer' && order.customerId !== user.id) {
@@ -143,7 +182,7 @@ export class OrdersController {
 
     return this.prisma.designFile.findMany({
       where: { orderId },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 }

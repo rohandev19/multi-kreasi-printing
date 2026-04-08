@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useRoleContext, UserRole } from '../contexts/RoleContext';
+import { useRoleContext } from '../contexts/RoleContext';
+import type { UserRole } from '../contexts/RoleContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

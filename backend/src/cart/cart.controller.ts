@@ -14,7 +14,7 @@ export class CartController {
     const userId = (req as any).user.id;
     return this.cartMergeService.mergeGuestCart(userId, dto.guestCartItems);
   }
-  
+
   @Get()
   @Roles('Customer')
   async getCart(@Req() req: Request) {

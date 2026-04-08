@@ -50,7 +50,9 @@ export class GetDashboardMetricsUseCase {
       // Low Stock Alerts - gracefully handle if table doesn't exist
       let lowStockAlerts = 0;
       try {
-        const lowStockAlertsRaw = await this.prisma.$queryRaw<{ count: bigint }[]>`
+        const lowStockAlertsRaw = await this.prisma.$queryRaw<
+          { count: bigint }[]
+        >`
           SELECT COUNT(*) as count 
           FROM raw_materials 
           WHERE current_stock < minimum_stock

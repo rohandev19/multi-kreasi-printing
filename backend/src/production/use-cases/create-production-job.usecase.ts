@@ -15,7 +15,9 @@ export class CreateProductionJobUseCase {
       });
 
       if (!order) {
-        this.logger.error(`Order ${orderId} not found, cannot create production job.`);
+        this.logger.error(
+          `Order ${orderId} not found, cannot create production job.`,
+        );
         return;
       }
 
@@ -38,12 +40,17 @@ export class CreateProductionJobUseCase {
           jobNumber,
           orderId,
           status: 'Queue',
-        }
+        },
       });
 
-      this.logger.log(`Created production job ${jobNumber} for order ${orderId}`);
+      this.logger.log(
+        `Created production job ${jobNumber} for order ${orderId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to create production job for order ${orderId}`, error);
+      this.logger.error(
+        `Failed to create production job for order ${orderId}`,
+        error,
+      );
       throw error;
     }
   }

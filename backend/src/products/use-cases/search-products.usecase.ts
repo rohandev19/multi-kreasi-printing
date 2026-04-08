@@ -29,7 +29,7 @@ export class SearchProductsUseCase {
         include: {
           category: { select: { name: true } },
           pricingTiers: true,
-          images: { where: { isPrimary: true }, select: { url: true } }
+          images: { where: { isPrimary: true }, select: { url: true } },
         },
         orderBy: { createdAt: 'desc' },
       }),

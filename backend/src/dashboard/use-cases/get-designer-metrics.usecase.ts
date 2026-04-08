@@ -57,7 +57,7 @@ export class GetDesignerMetricsUseCase {
             type: 'stat',
             value: pendingReviews,
             icon: 'clock',
-            color: 'amber'
+            color: 'amber',
           },
           {
             id: 'designer-approved',
@@ -65,12 +65,16 @@ export class GetDesignerMetricsUseCase {
             type: 'stat',
             value: approvedToday,
             trend: {
-              value: approvedYesterday > 0 ? ((approvedToday - approvedYesterday) / approvedYesterday) * 100 : 0,
+              value:
+                approvedYesterday > 0
+                  ? ((approvedToday - approvedYesterday) / approvedYesterday) *
+                    100
+                  : 0,
               isPositive: approvedToday >= approvedYesterday,
-              label: 'vs yesterday'
+              label: 'vs yesterday',
             },
             icon: 'check',
-            color: 'emerald'
+            color: 'emerald',
           },
           {
             id: 'designer-revisions',
@@ -78,7 +82,7 @@ export class GetDesignerMetricsUseCase {
             type: 'stat',
             value: revisionRequests,
             icon: 'alert',
-            color: 'red'
+            color: 'red',
           },
           {
             id: 'designer-active-projects',
@@ -86,9 +90,9 @@ export class GetDesignerMetricsUseCase {
             type: 'stat',
             value: activeProjects,
             icon: 'palette',
-            color: 'indigo'
-          }
-        ]
+            color: 'indigo',
+          },
+        ],
       };
     } catch (error) {
       this.logger.error('Error fetching designer metrics', error);

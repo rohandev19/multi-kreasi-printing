@@ -8,23 +8,25 @@ export class GetPublicProductDetailUseCase {
 
   async execute(id: string): Promise<ProductDetailResponseDto> {
     const product = await this.prisma.product.findUnique({
-      where: { 
+      where: {
         id,
-        status: 'ACTIVE'
+        status: 'ACTIVE',
       },
       include: {
         category: true,
         images: {
-          orderBy: { isPrimary: 'desc' }
+          orderBy: { isPrimary: 'desc' },
         },
         pricingTiers: {
-          orderBy: { minQuantity: 'asc' }
-        }
-      }
+          orderBy: { minQuantity: 'asc' },
+        },
+      },
     });
 
     if (!product) {
-      throw new NotFoundException(`Product with ID ${id} not found or not active`);
+      throw new NotFoundException(
+        `Product with ID ${id} not found or not active`,
+      );
     }
 
     return {
@@ -35,15 +37,15 @@ export class GetPublicProductDetailUseCase {
         basePrice: Number(product.basePrice),
         categoryId: product.categoryId,
         categoryName: product.category?.name,
-        images: product.images.map(img => ({
+        images: product.images.map((img) => ({
           url: img.url,
-          isPrimary: img.isPrimary
-        }))
+          isPrimary: img.isPrimary,
+        })),
       },
-      pricingTiers: product.pricingTiers.map(tier => ({
+      pricingTiers: product.pricingTiers.map((tier) => ({
         minQuantity: tier.minQuantity,
-        pricePerUnit: Number(tier.unitPrice)
-      }))
+        pricePerUnit: Number(tier.unitPrice),
+      })),
     };
   }
 }

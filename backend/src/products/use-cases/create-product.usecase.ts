@@ -5,10 +5,15 @@ import { AuditService } from '../../audit/audit.service';
 
 @Injectable()
 export class CreateProductUseCase {
-  constructor(private prisma: PrismaService, private audit: AuditService) {}
+  constructor(
+    private prisma: PrismaService,
+    private audit: AuditService,
+  ) {}
 
   async execute(dto: CreateProductDto, currentUserId: string) {
-    const existing = await this.prisma.product.findUnique({ where: { sku: dto.sku } });
+    const existing = await this.prisma.product.findUnique({
+      where: { sku: dto.sku },
+    });
     if (existing) throw new ConflictException('SKU produk sudah terdaftar');
 
     const product = await this.prisma.product.create({

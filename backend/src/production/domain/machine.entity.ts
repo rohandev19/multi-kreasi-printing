@@ -13,7 +13,10 @@ export class MachineLogic {
    * @param idleTime In seconds
    * @returns Percentage (0 to 100)
    */
-  static calculateUtilization(productionTime: number, idleTime: number): number {
+  static calculateUtilization(
+    productionTime: number,
+    idleTime: number,
+  ): number {
     const total = productionTime + idleTime;
     if (total === 0) return 0;
     return Math.round((productionTime / total) * 100);

@@ -17,10 +17,11 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { AuditModule } from '../audit/audit.module';
 import { StorageModule } from '../storage/storage.module';
 import { DesignFilesController } from './design-files.controller';
+import { CustomerOrdersController } from './customer-orders.controller';
 
 @Module({
   imports: [PrismaModule, AuditModule, StorageModule],
-  controllers: [OrdersController, DesignFilesController],
+  controllers: [OrdersController, DesignFilesController, CustomerOrdersController],
   providers: [
     WorkflowService,
     CreateOrderUseCase,

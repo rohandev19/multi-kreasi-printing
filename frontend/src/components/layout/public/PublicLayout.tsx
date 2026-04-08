@@ -1,15 +1,14 @@
-import React from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { useCart } from '../../hooks/useCart';
-import { ShoppingCartIcon, UserIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { useAuth } from '../../hooks/useAuth';
+import { useCart } from '../../../hooks/useCart';
+import { ShoppingCartIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { useRoleContext } from '../../../contexts/RoleContext';
 
 const PublicNavbar = () => {
   const { items } = useCart();
-  const { user } = useAuth();
+  const { user } = useRoleContext();
   const navigate = useNavigate();
 
-  const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const cartItemCount = items.reduce((sum: number, item: any) => sum + item.quantity, 0);
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">

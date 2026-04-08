@@ -17,8 +17,13 @@ export class WorkflowService {
     }
   }
 
-  async processOrderApproval(orderId: string, currentUserId: string): Promise<any> {
-    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+  async processOrderApproval(
+    orderId: string,
+    currentUserId: string,
+  ): Promise<any> {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
     if (!order) throw new Error('Order not found');
 
     const amount = Number(order.totalAmount);
@@ -41,7 +46,9 @@ export class WorkflowService {
         });
 
         // Simulating notification sending
-        this.logger.log(`Notification sent for auto-approval of order ${order.orderNumber}`);
+        this.logger.log(
+          `Notification sent for auto-approval of order ${order.orderNumber}`,
+        );
 
         return updated;
       });
@@ -62,7 +69,9 @@ export class WorkflowService {
         });
 
         // Simulating notification sending
-        this.logger.log(`Notification sent to ${requiredRole} for approval of order ${order.orderNumber}`);
+        this.logger.log(
+          `Notification sent to ${requiredRole} for approval of order ${order.orderNumber}`,
+        );
 
         return updated;
       });

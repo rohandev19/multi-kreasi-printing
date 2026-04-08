@@ -8,7 +8,7 @@ export class CalculateKPIsUseCase {
 
   async execute() {
     this.logger.log('Calculating Dashboard KPIs...');
-    
+
     // Revenue
     const completedInvoices = await this.prisma.invoice.aggregate({
       _sum: {
@@ -26,13 +26,16 @@ export class CalculateKPIsUseCase {
 
     // Conversion Rate: Completed Orders / Total Orders
     const totalOrders = await this.prisma.order.count();
-    const approvedOrders = await this.prisma.order.count({ where: { status: 'Completed' } });
-    
-    const conversionRate = totalOrders > 0 ? (approvedOrders / totalOrders) * 100 : 0;
+    const approvedOrders = await this.prisma.order.count({
+      where: { status: 'Completed' },
+    });
+
+    const conversionRate =
+      totalOrders > 0 ? (approvedOrders / totalOrders) * 100 : 0;
 
     // Production Time Avg (difference between startedAt and completedAt)
     // We would need to calculate average from production_jobs. For MVP, mock if data isn't easily aggregatable.
-    
+
     return {
       totalRevenue,
       grossProfit,

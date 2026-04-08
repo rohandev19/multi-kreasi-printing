@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { GuestCartItemDto } from './dto/guest-cart-item.dto';
 import { CartResponseDto, CartItemResponseDto } from './dto/cart-response.dto';
@@ -7,7 +11,10 @@ import { CartResponseDto, CartItemResponseDto } from './dto/cart-response.dto';
 export class CartMergeService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async mergeGuestCart(userId: string, guestCartItems: GuestCartItemDto[]): Promise<CartResponseDto> {
+  async mergeGuestCart(
+    userId: string,
+    guestCartItems: GuestCartItemDto[],
+  ): Promise<CartResponseDto> {
     // 1. Get or create user cart
     let cart = await this.prisma.cart.findUnique({
       where: { userId },
@@ -18,19 +25,21 @@ export class CartMergeService {
               include: {
                 images: {
                   where: { isPrimary: true },
-                  take: 1
-                }
-              }
-            }
-          }
-        }
-      }
+                  take: 1,
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!cart) {
       cart = await this.prisma.cart.create({
         data: { userId },
-        include: { items: { include: { product: { include: { images: true } } } } }
+        include: {
+          items: { include: { product: { include: { images: true } } } },
+        },
       });
     }
 
@@ -39,12 +48,14 @@ export class CartMergeService {
       for (const guestItem of guestCartItems) {
         // Verify product exists and get its price
         const product = await this.prisma.product.findUnique({
-          where: { id: guestItem.productId, status: 'ACTIVE' }
+          where: { id: guestItem.productId, status: 'ACTIVE' },
         });
 
         if (!product) continue; // Skip invalid or inactive products
 
-        const existingItemIndex = cart.items.findIndex(item => item.productId === guestItem.productId);
+        const existingItemIndex = cart.items.findIndex(
+          (item) => item.productId === guestItem.productId,
+        );
 
         if (existingItemIndex >= 0) {
           // Update quantity and subtotal of existing item
@@ -56,8 +67,8 @@ export class CartMergeService {
             where: { id: existingItem.id },
             data: {
               quantity: newQuantity,
-              subtotal: newSubtotal
-            }
+              subtotal: newSubtotal,
+            },
           });
         } else {
           // Add new item to cart
@@ -68,8 +79,8 @@ export class CartMergeService {
               productId: guestItem.productId,
               quantity: guestItem.quantity,
               unitPrice: product.basePrice,
-              subtotal: subtotal
-            }
+              subtotal: subtotal,
+            },
           });
         }
       }
@@ -84,22 +95,22 @@ export class CartMergeService {
                 include: {
                   images: {
                     where: { isPrimary: true },
-                    take: 1
-                  }
-                }
-              }
-            }
-          }
-        }
-      }) as any;
+                    take: 1,
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
     }
 
     // 3. Calculate totals
     let subtotal = 0;
-    const formattedItems: CartItemResponseDto[] = cart!.items.map(item => {
+    const formattedItems: CartItemResponseDto[] = cart!.items.map((item) => {
       const itemSubtotal = Number(item.subtotal);
       subtotal += itemSubtotal;
-      
+
       const primaryImage = item.product.images?.[0]?.url;
 
       return {
@@ -126,7 +137,7 @@ export class CartMergeService {
       subtotal,
       tax,
       shipping,
-      totalAmount
+      totalAmount,
     };
   }
 }

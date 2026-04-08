@@ -1,7 +1,14 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { StorageService } from '../../storage/storage.service';
-import { DesignFileLogic, DesignFileStatus } from '../domain/design-file.entity';
+import {
+  DesignFileLogic,
+  DesignFileStatus,
+} from '../domain/design-file.entity';
 import { AuditService } from '../../audit/audit.service';
 import { GenerateThumbnailUseCase } from './generate-thumbnail.usecase';
 import * as path from 'path';
@@ -16,16 +23,27 @@ export class UploadDesignFileUseCase {
     private generateThumbnail: GenerateThumbnailUseCase,
   ) {}
 
-  async execute(orderId: string, file: Express.Multer.File, notes: string | undefined, currentUserId: string) {
-    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+  async execute(
+    orderId: string,
+    file: Express.Multer.File,
+    notes: string | undefined,
+    currentUserId: string,
+  ) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
     if (!order) throw new NotFoundException('Pesanan tidak ditemukan');
 
     if (!DesignFileLogic.isValidFileSize(file.size)) {
-      throw new BadRequestException('Ukuran file melebihi batas maksimal 100MB');
+      throw new BadRequestException(
+        'Ukuran file melebihi batas maksimal 100MB',
+      );
     }
 
     if (!DesignFileLogic.isValidFileType(file.mimetype)) {
-      throw new BadRequestException('Tipe file tidak diizinkan. Gunakan PSD, AI, PDF, JPG, atau PNG.');
+      throw new BadRequestException(
+        'Tipe file tidak diizinkan. Gunakan PSD, AI, PDF, JPG, atau PNG.',
+      );
     }
 
     // Determine the next version
@@ -33,7 +51,7 @@ export class UploadDesignFileUseCase {
       where: { orderId },
       orderBy: { version: 'desc' },
     });
-    
+
     const version = DesignFileLogic.getNextVersion(lastVersionFile?.version);
 
     // Upload to R2
@@ -42,7 +60,12 @@ export class UploadDesignFileUseCase {
     const r2Path = `orders/${orderId}/designs/v${version}/${uniqueFilename}`;
 
     await this.storage.uploadRaw(r2Path, file.buffer, file.mimetype);
-    const thumbnailPath = await this.generateThumbnail.execute(file.buffer, file.originalname, r2Path, file.mimetype);
+    const thumbnailPath = await this.generateThumbnail.execute(
+      file.buffer,
+      file.originalname,
+      r2Path,
+      file.mimetype,
+    );
 
     // Save to DB
     const designFile = await this.prisma.designFile.create({
@@ -57,7 +80,7 @@ export class UploadDesignFileUseCase {
         mimeType: file.mimetype,
         notes,
         uploadedBy: currentUserId,
-      }
+      },
     });
 
     await this.audit.log({

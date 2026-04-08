@@ -51,7 +51,9 @@ export class GetOwnerMetricsUseCase {
       // 4. Low Stock Alerts
       let lowStockAlerts = 0;
       try {
-        const lowStockAlertsRaw = await this.prisma.$queryRaw<{ count: bigint }[]>`
+        const lowStockAlertsRaw = await this.prisma.$queryRaw<
+          { count: bigint }[]
+        >`
           SELECT COUNT(*) as count 
           FROM raw_materials 
           WHERE current_stock < minimum_stock
@@ -80,12 +82,15 @@ export class GetOwnerMetricsUseCase {
             type: 'stat',
             value: revenueToday,
             trend: {
-              value: revenueYesterday > 0 ? ((revenueToday - revenueYesterday) / revenueYesterday) * 100 : 0,
+              value:
+                revenueYesterday > 0
+                  ? ((revenueToday - revenueYesterday) / revenueYesterday) * 100
+                  : 0,
               isPositive: revenueToday >= revenueYesterday,
-              label: 'vs yesterday'
+              label: 'vs yesterday',
             },
             icon: 'revenue',
-            color: 'emerald'
+            color: 'emerald',
           },
           {
             id: 'owner-orders',
@@ -93,7 +98,7 @@ export class GetOwnerMetricsUseCase {
             type: 'stat',
             value: ordersToday,
             icon: 'orders',
-            color: 'blue'
+            color: 'blue',
           },
           {
             id: 'owner-pending-approvals',
@@ -101,7 +106,7 @@ export class GetOwnerMetricsUseCase {
             type: 'stat',
             value: pendingApprovals,
             icon: 'clock',
-            color: 'amber'
+            color: 'amber',
           },
           {
             id: 'owner-low-stock',
@@ -109,7 +114,7 @@ export class GetOwnerMetricsUseCase {
             type: 'stat',
             value: lowStockAlerts,
             icon: 'alert',
-            color: 'red'
+            color: 'red',
           },
           {
             id: 'owner-active-jobs',
@@ -117,7 +122,7 @@ export class GetOwnerMetricsUseCase {
             type: 'stat',
             value: activeProductionJobs,
             icon: 'cogs',
-            color: 'indigo'
+            color: 'indigo',
           },
           {
             id: 'owner-customers',
@@ -125,9 +130,9 @@ export class GetOwnerMetricsUseCase {
             type: 'stat',
             value: totalCustomers,
             icon: 'users',
-            color: 'purple'
-          }
-        ]
+            color: 'purple',
+          },
+        ],
       };
     } catch (error) {
       this.logger.error('Error fetching owner metrics', error);

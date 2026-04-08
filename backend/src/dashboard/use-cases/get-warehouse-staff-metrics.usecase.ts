@@ -11,13 +11,15 @@ export class GetWarehouseStaffMetricsUseCase {
     this.logger.log('Fetching Warehouse Staff Metrics...');
 
     try {
-      // Since raw_materials, purchase_orders, and shipments are not yet in the schema, 
+      // Since raw_materials, purchase_orders, and shipments are not yet in the schema,
       // we gracefully return 0 or placeholder values.
 
       // 1. Low Stock Items (current_stock <= minimum_stock)
       let lowStockAlerts = 0;
       try {
-        const lowStockAlertsRaw = await this.prisma.$queryRaw<{ count: bigint }[]>`
+        const lowStockAlertsRaw = await this.prisma.$queryRaw<
+          { count: bigint }[]
+        >`
           SELECT COUNT(*) as count 
           FROM raw_materials 
           WHERE current_stock <= minimum_stock
@@ -30,39 +32,45 @@ export class GetWarehouseStaffMetricsUseCase {
       // 2. Incoming Materials (pending purchase orders)
       let incomingMaterials = 0;
       try {
-        const incomingMaterialsRaw = await this.prisma.$queryRaw<{ count: bigint }[]>`
+        const incomingMaterialsRaw = await this.prisma.$queryRaw<
+          { count: bigint }[]
+        >`
           SELECT COUNT(*) as count 
           FROM purchase_orders 
           WHERE status = 'Pending'
         `;
         incomingMaterials = Number(incomingMaterialsRaw[0]?.count || 0);
       } catch (error) {
-        incomingMaterials = 0; 
+        incomingMaterials = 0;
       }
 
       // 3. Outgoing Shipments (shipments in transit)
       let outgoingShipments = 0;
       try {
-        const outgoingShipmentsRaw = await this.prisma.$queryRaw<{ count: bigint }[]>`
+        const outgoingShipmentsRaw = await this.prisma.$queryRaw<
+          { count: bigint }[]
+        >`
           SELECT COUNT(*) as count 
           FROM shipments 
           WHERE status = 'In_Transit'
         `;
         outgoingShipments = Number(outgoingShipmentsRaw[0]?.count || 0);
       } catch (error) {
-        outgoingShipments = 0; 
+        outgoingShipments = 0;
       }
 
       // 4. Total Inventory Value
       let totalInventoryValue = 0;
       try {
-        const inventoryValueRaw = await this.prisma.$queryRaw<{ total: number }[]>`
+        const inventoryValueRaw = await this.prisma.$queryRaw<
+          { total: number }[]
+        >`
           SELECT SUM(current_stock * unit_cost) as total 
           FROM raw_materials
         `;
         totalInventoryValue = Number(inventoryValueRaw[0]?.total || 0);
       } catch (error) {
-        totalInventoryValue = 0; 
+        totalInventoryValue = 0;
       }
 
       return {
@@ -73,7 +81,7 @@ export class GetWarehouseStaffMetricsUseCase {
             type: 'stat',
             value: lowStockAlerts,
             icon: 'alert',
-            color: 'red'
+            color: 'red',
           },
           {
             id: 'warehouse-incoming',
@@ -81,7 +89,7 @@ export class GetWarehouseStaffMetricsUseCase {
             type: 'stat',
             value: incomingMaterials,
             icon: 'inbox',
-            color: 'blue'
+            color: 'blue',
           },
           {
             id: 'warehouse-outgoing',
@@ -89,7 +97,7 @@ export class GetWarehouseStaffMetricsUseCase {
             type: 'stat',
             value: outgoingShipments,
             icon: 'truck',
-            color: 'emerald'
+            color: 'emerald',
           },
           {
             id: 'warehouse-inventory-value',
@@ -97,9 +105,9 @@ export class GetWarehouseStaffMetricsUseCase {
             type: 'stat',
             value: totalInventoryValue, // Ideally formatted on frontend
             icon: 'revenue',
-            color: 'purple'
-          }
-        ]
+            color: 'purple',
+          },
+        ],
       };
     } catch (error) {
       this.logger.error('Error fetching warehouse staff metrics', error);

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '../../hooks/useCart';
-import { useRoleAccess } from '../../contexts/RoleContext';
+import { useRoleAccess } from '../../hooks/useRoleAccess';
 
 export default function Header() {
   const { totalItems } = useCart();

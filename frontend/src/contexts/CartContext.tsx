@@ -1,4 +1,5 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 
 export interface CartItem {
   id: string; // Unique identifier for the cart item (usually productId for local carts)

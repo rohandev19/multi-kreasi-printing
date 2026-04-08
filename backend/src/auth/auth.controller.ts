@@ -99,7 +99,11 @@ export class AuthController {
   @Post('resend-verification')
   @HttpCode(HttpStatus.OK)
   async resendVerification(@Body() resendDto: ResendVerificationDto) {
-    await this.emailVerificationService.resendVerificationEmail(resendDto.email);
-    return { message: 'Verification email sent if account exists and is unverified' };
+    await this.emailVerificationService.resendVerificationEmail(
+      resendDto.email,
+    );
+    return {
+      message: 'Verification email sent if account exists and is unverified',
+    };
   }
 }

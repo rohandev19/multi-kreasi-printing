@@ -9,7 +9,12 @@ export class GenerateThumbnailUseCase {
 
   constructor(private storage: StorageService) {}
 
-  async execute(fileBuffer: Buffer, filename: string, r2Path: string, mimeType: string): Promise<string | null> {
+  async execute(
+    fileBuffer: Buffer,
+    filename: string,
+    r2Path: string,
+    mimeType: string,
+  ): Promise<string | null> {
     const isImage = mimeType === 'image/jpeg' || mimeType === 'image/png';
     if (!isImage) {
       return null;
@@ -24,9 +29,15 @@ export class GenerateThumbnailUseCase {
         .webp({ quality: 80 })
         .toBuffer();
 
-      const thumbnailPath = r2Path.replace('designs/', 'thumbnails/').replace(path.extname(r2Path), '.webp');
-      
-      await this.storage.uploadRaw(thumbnailPath, thumbnailBuffer, 'image/webp');
+      const thumbnailPath = r2Path
+        .replace('designs/', 'thumbnails/')
+        .replace(path.extname(r2Path), '.webp');
+
+      await this.storage.uploadRaw(
+        thumbnailPath,
+        thumbnailBuffer,
+        'image/webp',
+      );
       return thumbnailPath;
     } catch (error) {
       this.logger.error(`Failed to generate thumbnail for ${filename}:`, error);

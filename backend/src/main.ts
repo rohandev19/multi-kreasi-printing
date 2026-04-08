@@ -6,10 +6,10 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // Security Headers
   app.use(helmet());
-  
+
   // Enable Global Validation Pipe
   app.useGlobalPipes(
     new ValidationPipe({
@@ -23,12 +23,15 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   // Strict CORS Configuration
-  const allowedOrigins = process.env.ALLOWED_ORIGINS 
-    ? process.env.ALLOWED_ORIGINS.split(',') 
+  const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
     : ['http://localhost:5173']; // default vite dev server
-    
+
   app.enableCors({
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
       // allow requests with no origin (like mobile apps or curl requests)
       // in strict prod, you might block !origin as well
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {

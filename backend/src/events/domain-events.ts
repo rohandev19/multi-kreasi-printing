@@ -28,7 +28,5 @@ export class ProductionJobAssignedEvent {
 }
 
 export class ProductionJobCompletedEvent {
-  constructor(
-    public readonly jobId: string,
-  ) {}
+  constructor(public readonly jobId: string) {}
 }

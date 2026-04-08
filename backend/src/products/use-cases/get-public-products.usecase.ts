@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { GetPublicProductsDto, SortByOption } from '../dto/get-public-products.dto';
+import {
+  GetPublicProductsDto,
+  SortByOption,
+} from '../dto/get-public-products.dto';
 import { ProductListResponseDto } from '../dto/product-list-response.dto';
 import { Prisma } from '@prisma/client';
 
@@ -28,7 +31,7 @@ export class GetPublicProductsUseCase {
     }
 
     let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: 'desc' };
-    
+
     switch (sortBy) {
       case SortByOption.PRICE_ASC:
         orderBy = { basePrice: 'asc' };
@@ -55,14 +58,14 @@ export class GetPublicProductsUseCase {
           category: true,
           images: {
             where: { isPrimary: true },
-            take: 1
-          }
+            take: 1,
+          },
         },
       }),
       this.prisma.product.count({ where }),
       this.prisma.category.findMany({
-        orderBy: { name: 'asc' }
-      })
+        orderBy: { name: 'asc' },
+      }),
     ]);
 
     return {
@@ -75,8 +78,8 @@ export class GetPublicProductsUseCase {
         categoryName: p.category?.name,
         images: p.images.map((img: any) => ({
           url: img.url,
-          isPrimary: img.isPrimary
-        }))
+          isPrimary: img.isPrimary,
+        })),
       })),
       meta: {
         total,
@@ -84,7 +87,7 @@ export class GetPublicProductsUseCase {
         limit,
         totalPages: Math.ceil(total / limit),
       },
-      categories: categoriesData.map((c: any) => ({ id: c.id, name: c.name }))
+      categories: categoriesData.map((c: any) => ({ id: c.id, name: c.name })),
     };
   }
 }

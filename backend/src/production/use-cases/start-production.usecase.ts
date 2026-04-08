@@ -1,6 +1,13 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { ProductionJobLogic, ProductionJobStatus } from '../domain/production-job.entity';
+import {
+  ProductionJobLogic,
+  ProductionJobStatus,
+} from '../domain/production-job.entity';
 import { MachineStatus } from '../domain/machine.entity';
 import { AuditService } from '../../audit/audit.service';
 
@@ -12,13 +19,20 @@ export class StartProductionUseCase {
   ) {}
 
   async execute(jobId: string, currentUserId: string) {
-    const job = await this.prisma.productionJob.findUnique({ where: { id: jobId } });
+    const job = await this.prisma.productionJob.findUnique({
+      where: { id: jobId },
+    });
     if (!job) throw new NotFoundException('Production job not found');
 
-    ProductionJobLogic.validateTransition(job.status, ProductionJobStatus.In_Progress);
+    ProductionJobLogic.validateTransition(
+      job.status,
+      ProductionJobStatus.In_Progress,
+    );
 
     if (!job.machineId) {
-      throw new BadRequestException('Cannot start job without an assigned machine');
+      throw new BadRequestException(
+        'Cannot start job without an assigned machine',
+      );
     }
 
     const updatedJob = await this.prisma.$transaction(async (tx) => {

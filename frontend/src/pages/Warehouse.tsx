@@ -16,7 +16,6 @@ interface Material {
 export default function Warehouse() {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   // Fallback data for demo
   const fallbackMaterials: Material[] = [
@@ -39,7 +38,7 @@ export default function Warehouse() {
         : response.data.data || [];
       setMaterials(materialData.length > 0 ? materialData : fallbackMaterials);
     } catch (err: any) {
-      setError('');
+      console.error(err);
       setMaterials(fallbackMaterials); // Use fallback on error
     } finally {
       setLoading(false);

@@ -15,7 +15,9 @@ export class GenerateInvoiceUseCase {
       });
 
       if (!order) {
-        this.logger.error(`Order ${orderId} not found, cannot generate invoice.`);
+        this.logger.error(
+          `Order ${orderId} not found, cannot generate invoice.`,
+        );
         return;
       }
 
@@ -43,12 +45,17 @@ export class GenerateInvoiceUseCase {
           amount: order.totalAmount,
           status: InvoiceStatus.Draft,
           dueDate,
-        }
+        },
       });
 
-      this.logger.log(`Generated invoice ${invoiceNumber} for order ${orderId}`);
+      this.logger.log(
+        `Generated invoice ${invoiceNumber} for order ${orderId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to generate invoice for order ${orderId}`, error);
+      this.logger.error(
+        `Failed to generate invoice for order ${orderId}`,
+        error,
+      );
       throw error;
     }
   }

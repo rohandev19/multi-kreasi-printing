@@ -5,10 +5,19 @@ import { AuditService } from '../../audit/audit.service';
 
 @Injectable()
 export class SetPricingTiersUseCase {
-  constructor(private prisma: PrismaService, private audit: AuditService) {}
+  constructor(
+    private prisma: PrismaService,
+    private audit: AuditService,
+  ) {}
 
-  async execute(productId: string, dto: SetPricingTiersDto, currentUserId: string) {
-    const product = await this.prisma.product.findUnique({ where: { id: productId } });
+  async execute(
+    productId: string,
+    dto: SetPricingTiersDto,
+    currentUserId: string,
+  ) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
     if (!product) throw new NotFoundException('Produk tidak ditemukan');
 
     // Inside a transaction to replace old tiers

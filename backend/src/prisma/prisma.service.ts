@@ -17,7 +17,7 @@ export class PrismaService
       password: '17210535Rohan',
       database: 'mkprinting',
     });
-    
+
     const adapter = new PrismaPg(pool);
     super({ adapter });
   }

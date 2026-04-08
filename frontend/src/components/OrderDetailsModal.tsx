@@ -17,10 +17,10 @@ interface OrderDetails {
     subtotal: number;
     product: { name: string; description?: string };
   }>;
-  designFile?: {
+  designFiles?: Array<{
     status: string;
     fileUrl: string;
-  };
+  }>;
 }
 
 interface OrderDetailsModalProps {
@@ -140,13 +140,13 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                       <p className="text-xs text-slate-500">{new Date(order.createdAt).toLocaleDateString()}</p>
                     </div>
                   </div>
-                  {order.designFile && (
+                  {order.designFiles && order.designFiles.length > 0 && (
                     <div className="flex items-start gap-3">
                       <div className="mt-0.5">
-                        <CheckCircle size={16} className={order.designFile.status === 'Design_Approved' ? 'text-emerald-500' : 'text-blue-500'} />
+                        <CheckCircle size={16} className={order.designFiles[0].status === 'Design_Approved' ? 'text-emerald-500' : 'text-blue-500'} />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-slate-800">Design: {order.designFile.status.replace(/_/g, ' ')}</p>
+                        <p className="text-sm font-medium text-slate-800">Design: {order.designFiles[0].status.replace(/_/g, ' ')}</p>
                       </div>
                     </div>
                   )}

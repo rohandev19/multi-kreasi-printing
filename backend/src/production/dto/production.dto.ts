@@ -1,4 +1,13 @@
-import { IsString, IsNotEmpty, IsUUID, IsEnum, IsOptional, IsBoolean, IsDateString, IsInt } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsUUID,
+  IsEnum,
+  IsOptional,
+  IsBoolean,
+  IsDateString,
+  IsInt,
+} from 'class-validator';
 import { MachineStatus } from '../domain/machine.entity';
 
 export class AssignProductionJobDto {

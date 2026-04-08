@@ -1,6 +1,13 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { ProductionJobLogic, ProductionJobStatus } from '../domain/production-job.entity';
+import {
+  ProductionJobLogic,
+  ProductionJobStatus,
+} from '../domain/production-job.entity';
 import { MachineStatus } from '../domain/machine.entity';
 import { AuditService } from '../../audit/audit.service';
 
@@ -11,25 +18,44 @@ export class CompleteProductionUseCase {
     private audit: AuditService,
   ) {}
 
-  async execute(jobId: string, currentUserId: string, passedQualityCheck: boolean, notes?: string) {
-    const job = await this.prisma.productionJob.findUnique({ where: { id: jobId } });
+  async execute(
+    jobId: string,
+    currentUserId: string,
+    passedQualityCheck: boolean,
+    notes?: string,
+  ) {
+    const job = await this.prisma.productionJob.findUnique({
+      where: { id: jobId },
+    });
     if (!job) throw new NotFoundException('Production job not found');
 
     // Technically in a strict flow, it goes to Quality_Check first.
     // If we assume this use case is called after quality check:
-    ProductionJobLogic.validateTransition(job.status, ProductionJobStatus.Quality_Check);
-    
+    ProductionJobLogic.validateTransition(
+      job.status,
+      ProductionJobStatus.Quality_Check,
+    );
+
     // Determine the next status based on QC
-    const nextStatus = passedQualityCheck ? ProductionJobStatus.Completed : ProductionJobStatus.Failed;
-    
-    ProductionJobLogic.validateTransition(ProductionJobStatus.Quality_Check, nextStatus);
+    const nextStatus = passedQualityCheck
+      ? ProductionJobStatus.Completed
+      : ProductionJobStatus.Failed;
+
+    ProductionJobLogic.validateTransition(
+      ProductionJobStatus.Quality_Check,
+      nextStatus,
+    );
 
     if (!job.startTime) {
-      throw new BadRequestException('Job has not started (no start time recorded)');
+      throw new BadRequestException(
+        'Job has not started (no start time recorded)',
+      );
     }
 
     const endTime = new Date();
-    const durationSeconds = Math.round((endTime.getTime() - job.startTime.getTime()) / 1000);
+    const durationSeconds = Math.round(
+      (endTime.getTime() - job.startTime.getTime()) / 1000,
+    );
 
     const updatedJob = await this.prisma.$transaction(async (tx) => {
       // First, temporarily move to Quality_Check in audit if we want, but here we just go straight to final status
@@ -38,7 +64,11 @@ export class CompleteProductionUseCase {
         data: {
           status: nextStatus,
           endTime,
-          notes: notes ? (job.notes ? job.notes + '\n' + notes : notes) : job.notes,
+          notes: notes
+            ? job.notes
+              ? job.notes + '\n' + notes
+              : notes
+            : job.notes,
         },
       });
 
@@ -46,9 +76,9 @@ export class CompleteProductionUseCase {
         // Free the machine and record production time
         await tx.machine.update({
           where: { id: job.machineId },
-          data: { 
+          data: {
             status: MachineStatus.Available,
-            productionTime: { increment: durationSeconds }
+            productionTime: { increment: durationSeconds },
           },
         });
       }

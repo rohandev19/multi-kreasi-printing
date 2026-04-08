@@ -1,6 +1,13 @@
 export class OrderLogic {
-  static calculateTotal(items: { quantity: number; unitPrice: number }[]): { subtotal: number; tax: number; total: number } {
-    const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+  static calculateTotal(items: { quantity: number; unitPrice: number }[]): {
+    subtotal: number;
+    tax: number;
+    total: number;
+  } {
+    const subtotal = items.reduce(
+      (sum, item) => sum + item.quantity * item.unitPrice,
+      0,
+    );
     const tax = subtotal * 0.11; // 11% tax
     const total = subtotal + tax; // shipping handled separately for MVP if not in items
     return { subtotal, tax, total };
@@ -14,14 +21,14 @@ export class OrderLogic {
 
   static isValidTransition(currentStatus: string, nextStatus: string): boolean {
     const transitions: Record<string, string[]> = {
-      'Draft': ['Pending_Approval', 'Cancelled'],
-      'Pending_Approval': ['Approved', 'Cancelled'],
-      'Approved': ['In_Production', 'Cancelled'],
-      'In_Production': ['Quality_Check', 'Cancelled'],
-      'Quality_Check': ['Completed', 'In_Production'],
-      'Completed': ['Delivered'],
-      'Delivered': [],
-      'Cancelled': []
+      Draft: ['Pending_Approval', 'Cancelled'],
+      Pending_Approval: ['Approved', 'Cancelled'],
+      Approved: ['In_Production', 'Cancelled'],
+      In_Production: ['Quality_Check', 'Cancelled'],
+      Quality_Check: ['Completed', 'In_Production'],
+      Completed: ['Delivered'],
+      Delivered: [],
+      Cancelled: [],
     };
     return transitions[currentStatus]?.includes(nextStatus) || false;
   }

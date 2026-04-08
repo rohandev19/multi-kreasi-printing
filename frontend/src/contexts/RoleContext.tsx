@@ -92,7 +92,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return allowedRoles.includes(role);
   };
 
-  const hasPermission = (permission: string) => {
+  const hasPermission = (_permission: string) => {
     // Basic implementation for now, can be expanded if roles have distinct fine-grained permissions
     return true; 
   };

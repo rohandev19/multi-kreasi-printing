@@ -36,6 +36,9 @@ export class DeleteUserAccountUseCase {
     await this.prisma.widgetPreference.deleteMany({ where: { userId } });
     await this.prisma.notificationPreference.deleteMany({ where: { userId } });
 
-    return { success: true, message: 'Account and PII have been securely deleted/anonymized.' };
+    return {
+      success: true,
+      message: 'Account and PII have been securely deleted/anonymized.',
+    };
   }
 }

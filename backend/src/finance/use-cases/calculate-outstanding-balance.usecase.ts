@@ -14,8 +14,11 @@ export class CalculateOutstandingBalanceUseCase {
 
     if (!invoice) throw new NotFoundException('Invoice not found');
 
-    const outstanding = InvoiceLogic.calculateOutstandingBalance(invoice.amount, invoice.payments);
-    
+    const outstanding = InvoiceLogic.calculateOutstandingBalance(
+      invoice.amount,
+      invoice.payments,
+    );
+
     return {
       invoiceId,
       totalAmount: invoice.amount,

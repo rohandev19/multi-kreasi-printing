@@ -11,17 +11,29 @@ export class ManageProductImagesUseCase {
     private audit: AuditService,
   ) {}
 
-  async uploadImage(productId: string, file: Express.Multer.File, isPrimary: boolean, currentUserId: string) {
-    const product = await this.prisma.product.findUnique({ where: { id: productId } });
+  async uploadImage(
+    productId: string,
+    file: Express.Multer.File,
+    isPrimary: boolean,
+    currentUserId: string,
+  ) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
     if (!product) throw new NotFoundException('Produk tidak ditemukan');
 
-    const imageCount = await this.prisma.productImage.count({ where: { productId } });
+    const imageCount = await this.prisma.productImage.count({
+      where: { productId },
+    });
     if (imageCount >= 5) {
       throw new Error('Maksimal 5 gambar per produk');
     }
 
     // Upload to Cloudflare R2
-    const { url, r2Path } = await this.storage.uploadFile(file, `products/${productId}`);
+    const { url, r2Path } = await this.storage.uploadFile(
+      file,
+      `products/${productId}`,
+    );
 
     // Inside transaction: if isPrimary is true, unset other primary images
     await this.prisma.$transaction(async (tx) => {

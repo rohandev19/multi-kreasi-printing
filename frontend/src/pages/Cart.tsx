@@ -1,12 +1,11 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
-import { useAuth } from '../hooks/useAuth';
+import { useRoleContext } from '../contexts/RoleContext';
 
 export default function Cart() {
   const { items, updateQuantity, removeFromCart, totalItems, totalPrice } = useCart();
-  const { user } = useAuth();
+  const { user } = useRoleContext();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {

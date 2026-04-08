@@ -1,17 +1,28 @@
-import { Controller, Post, Patch, Get, Body, Param, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Patch,
+  Get,
+  Body,
+  Param,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ManageMachineUseCase } from './use-cases/manage-machine.usecase';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { CreateMachineDto, UpdateMachineStatusDto, ScheduleMaintenanceDto } from './dto/production.dto';
+import {
+  CreateMachineDto,
+  UpdateMachineStatusDto,
+  ScheduleMaintenanceDto,
+} from './dto/production.dto';
 import type { Request } from 'express';
 
 @Controller('api/v1/machines')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class MachinesController {
-  constructor(
-    private readonly manageMachine: ManageMachineUseCase,
-  ) {}
+  constructor(private readonly manageMachine: ManageMachineUseCase) {}
 
   @Post()
   @Roles('Manager', 'Owner')
@@ -22,16 +33,28 @@ export class MachinesController {
 
   @Patch(':id/status')
   @Roles('Production', 'Manager', 'Owner')
-  async updateStatus(@Param('id') id: string, @Body() dto: UpdateMachineStatusDto, @Req() req: Request) {
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateMachineStatusDto,
+    @Req() req: Request,
+  ) {
     const userId = (req as any).user.id;
     return this.manageMachine.updateStatus(id, dto.status, userId);
   }
 
   @Patch(':id/maintenance')
   @Roles('Manager', 'Owner')
-  async scheduleMaintenance(@Param('id') id: string, @Body() dto: ScheduleMaintenanceDto, @Req() req: Request) {
+  async scheduleMaintenance(
+    @Param('id') id: string,
+    @Body() dto: ScheduleMaintenanceDto,
+    @Req() req: Request,
+  ) {
     const userId = (req as any).user.id;
-    return this.manageMachine.scheduleMaintenance(id, dto.maintenanceDate, userId);
+    return this.manageMachine.scheduleMaintenance(
+      id,
+      dto.maintenanceDate,
+      userId,
+    );
   }
 
   @Get(':id/utilization')

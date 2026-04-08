@@ -7,7 +7,6 @@ import {
   FileText,
   Package,
   Palette,
-  Wallet,
   ClipboardList
 } from 'lucide-react';
 import { useEffect, useState } from 'react';

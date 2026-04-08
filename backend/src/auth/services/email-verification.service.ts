@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as crypto from 'crypto';
 import * as nodemailer from 'nodemailer';
@@ -39,7 +44,10 @@ export class EmailVerificationService {
         },
       });
 
-      const appUrl = this.configService.get<string>('APP_URL', 'http://localhost:5173');
+      const appUrl = this.configService.get<string>(
+        'APP_URL',
+        'http://localhost:5173',
+      );
       const verificationLink = `${appUrl}/verify-email?token=${token}`;
 
       const htmlTemplate = `
@@ -54,7 +62,10 @@ export class EmailVerificationService {
       `;
 
       await this.transporter.sendMail({
-        from: this.configService.get<string>('SMTP_FROM', '"Multi Kreasi Printing" <noreply@mkprinting.test>'),
+        from: this.configService.get<string>(
+          'SMTP_FROM',
+          '"Multi Kreasi Printing" <noreply@mkprinting.test>',
+        ),
         to: email,
         subject: 'Verify Your Email - Multi Kreasi Printing',
         html: htmlTemplate,
@@ -62,16 +73,22 @@ export class EmailVerificationService {
 
       this.logger.log(`Verification email sent to ${email}`);
     } catch (error: any) {
-      this.logger.error(`Failed to send verification email to ${email}`, error.stack);
-      throw new InternalServerErrorException('Failed to send verification email');
+      this.logger.error(
+        `Failed to send verification email to ${email}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException(
+        'Failed to send verification email',
+      );
     }
   }
 
   async verifyEmail(token: string): Promise<void> {
-    const verificationToken = await this.prisma.emailVerificationToken.findUnique({
-      where: { token },
-      include: { user: true },
-    });
+    const verificationToken =
+      await this.prisma.emailVerificationToken.findUnique({
+        where: { token },
+        include: { user: true },
+      });
 
     if (!verificationToken) {
       throw new BadRequestException('Invalid verification token');
@@ -95,9 +112,9 @@ export class EmailVerificationService {
       // Update user status
       await prisma.user.update({
         where: { id: verificationToken.userId },
-        data: { 
+        data: {
           emailVerified: true,
-          status: 'Active'
+          status: 'Active',
         },
       });
     });

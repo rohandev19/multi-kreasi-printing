@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
@@ -29,7 +29,7 @@ export const VerifyEmailPage = () => {
   }, [token]);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setInterval>;
     if (status === 'success') {
       timer = setInterval(() => {
         setCountdown((prev) => {

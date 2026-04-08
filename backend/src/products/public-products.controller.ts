@@ -33,7 +33,7 @@ export class PublicProductsController {
         id: true,
         name: true,
         description: true,
-      }
+      },
     });
     return { data: categories };
   }
