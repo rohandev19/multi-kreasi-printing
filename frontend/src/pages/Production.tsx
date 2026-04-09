@@ -1,51 +1,71 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
-
-interface ProductionJob {
-  id: string;
-  order: { orderNumber: string };
-  machine: { name: string } | null;
-  status: string;
-  startTime: string | null;
-  assignedStaff: { fullName: string } | null;
-}
-
-const statusColors: Record<string, string> = {
-  Queue: 'bg-gray-100 text-gray-700',
-  Assigned: 'bg-blue-100 text-blue-700',
-  In_Progress: 'bg-purple-100 text-purple-700',
-  Quality_Check: 'bg-indigo-100 text-indigo-700',
-  Completed: 'bg-emerald-100 text-emerald-700',
-};
+import { useRoleContext } from '../contexts/RoleContext';
+import { ProductionTable } from '../components/tables/ProductionTable';
 
 export default function Production() {
-  const [jobs, setJobs] = useState<ProductionJob[]>([]);
+  const { role, loading: roleLoading } = useRoleContext();
+  const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchJobs();
-  }, []);
+    if (!roleLoading && role) {
+      fetchJobs();
+    }
+  }, [role, roleLoading]);
 
   const fetchJobs = async () => {
     try {
       const response = await api.get('/api/v1/production-jobs');
-      // Handle if response is wrapped in a data property or is directly an array
       const jobData = Array.isArray(response.data) 
         ? response.data 
         : response.data.data || [];
       setJobs(jobData);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load production jobs');
-      setJobs([]); // Set empty array on error
+      setJobs([]); 
     } finally {
       setLoading(false);
     }
   };
 
-  const formatStatus = (status: string) => status.replace(/_/g, ' ');
+  const handleStartJob = async (id: string) => {
+    try {
+      await api.patch(`/api/v1/production-jobs/${id}/start`);
+      fetchJobs();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to start job');
+    }
+  };
 
-  if (loading) {
+  const handleCompleteJob = async (id: string) => {
+    try {
+      await api.patch(`/api/v1/production-jobs/${id}/complete`, { passedQualityCheck: true });
+      fetchJobs();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to complete job');
+    }
+  };
+
+  const handleReportIssue = (id: string) => {
+    // Navigate to report issue or open modal
+    alert(`Report issue for job ${id}`);
+  };
+
+  const handleReassign = (id: string) => {
+    // Open reassign modal
+    alert(`Reassign job ${id}`);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this job?')) {
+      // API call to delete
+      alert(`Delete job ${id}`);
+    }
+  };
+
+  if (roleLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -53,80 +73,33 @@ export default function Production() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-        {error}
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-slate-800">Production Jobs</h2>
-
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Job ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Order
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Machine
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Assigned Staff
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Start Time
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {jobs.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
-                    No production jobs yet.
-                  </td>
-                </tr>
-              ) : (
-                jobs.map((job) => (
-                  <tr key={job.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium text-slate-900">
-                      #{job.id.slice(0, 8)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-700">
-                      {job.order?.orderNumber || 'N/A'}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-700">
-                      {job.machine?.name || 'Unassigned'}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[job.status] || 'bg-gray-100 text-gray-700'}`}>
-                        {formatStatus(job.status)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-700">
-                      {job.assignedStaff?.fullName || 'Unassigned'}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-600">
-                      {job.startTime ? new Date(job.startTime).toLocaleString('id-ID') : '-'}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-slate-800">Production Jobs</h2>
+        {(role === 'Owner' || role === 'Manager') && (
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+            New Job
+          </button>
+        )}
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      <ProductionTable 
+        jobs={jobs} 
+        userRole={role || ''} 
+        loading={loading}
+        onStartJob={handleStartJob}
+        onCompleteJob={handleCompleteJob}
+        onReportIssue={handleReportIssue}
+        onReassign={handleReassign}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

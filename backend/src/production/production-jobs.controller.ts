@@ -41,8 +41,16 @@ export class ProductionJobsController {
 
   @Get()
   @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
-  async list() {
+  async list(@Req() req: Request) {
+    const user = (req as any).user;
+    let whereClause = {};
+
+    if (user.role === 'Production_Staff') {
+      whereClause = { assigneeId: user.id };
+    }
+
     return this.prisma.productionJob.findMany({
+      where: whereClause,
       include: {
         order: {
           select: {

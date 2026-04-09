@@ -456,37 +456,32 @@ The implementation follows an incremental approach: first establishing core infr
     - Show customer-appropriate information only
     - _Requirements: 9.1, 9.2, 9.3_
   
-  - [ ] 18.3 Create backend CustomerOrdersController
+  - [x] 18.3 Implement backend `CustomerOrdersController`
     - Create `backend/src/orders/customer-orders.controller.ts`
-    - Add `@Controller('api/v1/my-orders')` decorator
-    - Add `@UseGuards(JwtAuthGuard, RolesGuard)` and `@Roles('Customer')`
-    - Implement `GET /api/v1/my-orders` endpoint filtering by customer_id from JWT
-    - Implement `GET /api/v1/my-orders/:id` endpoint with ownership validation
-    - Implement `GET /api/v1/my-orders/:id/invoice` endpoint for invoice download
-    - Return 403 if customer tries to access orders they don't own
-    - _Requirements: 9.1, 9.2, 9.3_
+    - Implement `GET /api/v1/my-orders` and `GET /api/v1/my-orders/:id` with ownership validation
+    - Implement `GET /api/v1/my-orders/:id/invoice` for download
+    - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [ ] 19. Checkpoint - Verify orders and my-orders functionality
+- [x] 19. Verify orders and my-orders functionality
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 20. Implement role-filtered Production page
-  - [ ] 20.1 Create ProductionTable component
+- [x] 20. Implement role-filtered Production page
+  - [x] 20.1 Create ProductionTable component
     - Create `frontend/src/components/tables/ProductionTable.tsx`
-    - Accept props: jobs array, userRole, loading
-    - Display columns: job number, order number, status, priority, assigned machine, start time
+    - Display columns: job ID, order ID, product, quantity, status, deadline, assigned machine
     - Add role-specific action buttons (start job, complete job, report issue)
-    - Implement loading skeleton
-    - _Requirements: 4.1, 4.2, 4.3, 11.3_
+    - Hide delete and reassign buttons for Production_Staff
+    - _Requirements: 4.1, 4.2, 4.3, 11.2_
   
-  - [ ] 20.2 Update Production page with role filtering
+  - [x] 20.2 Update Production page with role filtering
     - Update `frontend/src/pages/Production.tsx`
     - Use ProtectedRoute with allowedRoles: Owner, Manager, Production_Staff
-    - Fetch production jobs from `GET /api/v1/production/jobs`
-    - Display jobs filtered by role on frontend
+    - Fetch production jobs from `GET /api/v1/production`
+    - Display appropriate action buttons based on role
     - Handle unauthorized access attempts
-    - _Requirements: 4.1, 4.2, 4.3, 4.4_
+    - _Requirements: 4.1, 4.2, 4.4_
   
-  - [ ] 20.3 Enhance backend Production controller with role filtering
+  - [x] 20.3 Enhance backend Production controller with role filtering
     - Update `backend/src/production/production.controller.ts`
     - Modify `GET /api/v1/production/jobs` endpoint
     - For Production_Staff: return only jobs assigned to current user OR unassigned jobs
