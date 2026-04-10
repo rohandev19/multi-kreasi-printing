@@ -489,8 +489,8 @@ The implementation follows an incremental approach: first establishing core infr
     - Add @Roles('Owner', 'Manager', 'Production_Staff') decorator
     - _Requirements: 4.1, 4.2, 4.3_
 
-- [ ] 21. Implement role-filtered Design Files page
-  - [ ] 21.1 Create DesignFilesTable component
+- [x] 21. Implement role-filtered Design Files page
+  - [x] 21.1 Create DesignFilesTable component
     - Create `frontend/src/components/tables/DesignFilesTable.tsx`
     - Display columns: thumbnail, order number, status, uploaded date
     - Add role-specific action buttons (approve, reject, request revision)
@@ -498,7 +498,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Hide delete button for Designer role
     - _Requirements: 5.1, 5.2, 11.2_
   
-  - [ ] 21.2 Update Design Files page with role filtering
+  - [x] 21.2 Update Design Files page with role filtering
     - Update `frontend/src/pages/DesignFiles.tsx`
     - Use ProtectedRoute with allowedRoles: Owner, Manager, Designer
     - Fetch design files from `GET /api/v1/design-files`
@@ -506,8 +506,8 @@ The implementation follows an incremental approach: first establishing core infr
     - Handle unauthorized access attempts
     - _Requirements: 5.1, 5.2, 5.4_
   
-  - [ ] 21.3 Enhance backend Design Files controller with role filtering
-    - Update `backend/src/design-files/design-files.controller.ts`
+  - [x] 21.3 Enhance backend Design Files controller with role filtering
+    - Update `backend/src/orders/design-files.controller.ts`
     - Modify `GET /api/v1/design-files` endpoint
     - For Designer: return only files with Manual_Review status
     - For Owner/Manager: return all design files with additional fields
@@ -515,7 +515,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Implement notification sending on approval
     - _Requirements: 5.1, 5.2, 5.3_
 
-- [ ] 22. Checkpoint - Verify production and design files functionality
+- [x] 22. Checkpoint - Verify production and design files functionality
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 23. Implement role-filtered Warehouse page

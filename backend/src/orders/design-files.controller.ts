@@ -33,8 +33,16 @@ export class DesignFilesController {
 
   @Get()
   @Roles('Designer', 'Production', 'Manager', 'Owner')
-  async list() {
+  async list(@Req() req: Request) {
+    const user = (req as any).user;
+    let whereClause = {};
+
+    if (user.role === 'Designer') {
+      whereClause = { status: DesignFileStatus.Manual_Review };
+    }
+
     return this.prisma.designFile.findMany({
+      where: whereClause,
       include: {
         order: {
           select: {
@@ -112,6 +120,21 @@ export class DesignFilesController {
     return this.reviewDesignFile.execute(
       id,
       { status: DesignFileStatus.Rejected, notes: dto.notes },
+      userId,
+    );
+  }
+
+  @Patch(':id/request-revision')
+  @Roles('Designer', 'Production', 'Manager', 'Owner')
+  async requestRevision(
+    @Param('id') id: string,
+    @Body() dto: { notes: string },
+    @Req() req: Request,
+  ) {
+    const userId = (req as any).user.id;
+    return this.reviewDesignFile.execute(
+      id,
+      { status: DesignFileStatus.Revision_Required, notes: dto.notes },
       userId,
     );
   }
