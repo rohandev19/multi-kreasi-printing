@@ -18,6 +18,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { LegalModule } from './legal/legal.module';
 import { CartModule } from './cart/cart.module';
+import { InventoryModule } from './inventory/inventory.module';
 import { BullModule } from '@nestjs/bullmq';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
@@ -40,6 +41,7 @@ import { APP_GUARD } from '@nestjs/core';
     DashboardModule,
     LegalModule,
     CartModule,
+    InventoryModule,
     BullModule.forRoot({
       connection: {
         host: process.env.REDIS_HOST || 'localhost',

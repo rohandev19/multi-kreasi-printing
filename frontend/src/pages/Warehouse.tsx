@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { Package, AlertTriangle, TrendingDown, TrendingUp } from 'lucide-react';
+import { useRoleContext } from '../contexts/RoleContext';
+import { WarehouseTable } from '../components/tables/WarehouseTable';
 
 interface Material {
   id: string;
@@ -14,6 +16,7 @@ interface Material {
 }
 
 export default function Warehouse() {
+  const { role, loading: roleLoading } = useRoleContext();
   const [materials, setMaterials] = useState<Material[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,31 +30,42 @@ export default function Warehouse() {
   ];
 
   useEffect(() => {
-    fetchMaterials();
-  }, []);
+    if (!roleLoading && role) {
+      fetchMaterials();
+    }
+  }, [role, roleLoading]);
 
   const fetchMaterials = async () => {
     try {
-      const response = await api.get('/api/v1/warehouse/materials');
+      const response = await api.get('/api/v1/inventory');
       const materialData = Array.isArray(response.data) 
         ? response.data 
         : response.data.data || [];
       setMaterials(materialData.length > 0 ? materialData : fallbackMaterials);
     } catch (err: any) {
       console.error(err);
-      setMaterials(fallbackMaterials); // Use fallback on error
+      setMaterials(fallbackMaterials);
     } finally {
       setLoading(false);
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const config = {
-      In_Stock: { color: 'bg-emerald-100 text-emerald-700', icon: <TrendingUp size={14} /> },
-      Low_Stock: { color: 'bg-amber-100 text-amber-700', icon: <AlertTriangle size={14} /> },
-      Out_of_Stock: { color: 'bg-red-100 text-red-700', icon: <TrendingDown size={14} /> },
-    };
-    return config[status as keyof typeof config] || config.In_Stock;
+  const handleAdjustStock = (id: string) => {
+    alert(`Adjust stock for material ${id}`);
+  };
+
+  const handleRecordShipment = (id: string) => {
+    alert(`Record shipment for material ${id}`);
+  };
+
+  const handleEditMaterial = (id: string) => {
+    alert(`Edit material ${id}`);
+  };
+
+  const handleDeleteMaterial = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this material?')) {
+      alert(`Delete material ${id}`);
+    }
   };
 
   const stats = {
@@ -61,7 +75,7 @@ export default function Warehouse() {
     outOfStock: materials.filter(m => m.status === 'Out_of_Stock').length,
   };
 
-  if (loading) {
+  if (roleLoading || loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -69,13 +83,17 @@ export default function Warehouse() {
     );
   }
 
+  const canManageCatalog = role === 'Owner' || role === 'Manager';
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-800">Warehouse Inventory</h2>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
-          Add Material
-        </button>
+        {canManageCatalog && (
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+            Add Material
+          </button>
+        )}
       </div>
 
       {/* Stats Cards */}
@@ -118,65 +136,15 @@ export default function Warehouse() {
         </div>
       </div>
 
-      {/* Materials Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Material
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  SKU
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Category
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Quantity
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Min Stock
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {materials.map((material) => {
-                const badge = getStatusBadge(material.status);
-                return (
-                  <tr key={material.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium text-slate-900">
-                      {material.name}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-700 font-mono">
-                      {material.sku}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-700">
-                      {material.category}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-right tabular-nums font-medium text-slate-900">
-                      {material.quantity} {material.unit}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-right tabular-nums text-slate-600">
-                      {material.minStock} {material.unit}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${badge.color}`}>
-                        {badge.icon}
-                        {material.status.replace(/_/g, ' ')}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <WarehouseTable 
+        materials={materials} 
+        userRole={role || ''} 
+        loading={loading}
+        onAdjustStock={handleAdjustStock}
+        onRecordShipment={handleRecordShipment}
+        onEditMaterial={handleEditMaterial}
+        onDeleteMaterial={handleDeleteMaterial}
+      />
     </div>
   );
 }

@@ -518,8 +518,8 @@ The implementation follows an incremental approach: first establishing core infr
 - [x] 22. Checkpoint - Verify production and design files functionality
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 23. Implement role-filtered Warehouse page
-  - [ ] 23.1 Create WarehouseTable component
+- [x] 23. Implement role-filtered Warehouse page
+  - [x] 23.1 Create WarehouseTable component
     - Create `frontend/src/components/tables/WarehouseTable.tsx`
     - Display columns: product name, SKU, current stock, reorder point, unit of measure
     - Highlight low stock items in red
@@ -527,7 +527,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Hide delete and create product buttons for Warehouse_Staff
     - _Requirements: 6.1, 6.2, 6.3, 11.4_
   
-  - [ ] 23.2 Update Warehouse page with role filtering
+  - [x] 23.2 Update Warehouse page with role filtering
     - Update `frontend/src/pages/Warehouse.tsx`
     - Use ProtectedRoute with allowedRoles: Owner, Manager, Warehouse_Staff
     - Fetch inventory from `GET /api/v1/inventory`
@@ -535,7 +535,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Handle unauthorized access attempts
     - _Requirements: 6.1, 6.2, 6.4_
   
-  - [ ] 23.3 Enhance backend Inventory controller with role filtering
+  - [x] 23.3 Enhance backend Inventory controller with role filtering
     - Update `backend/src/inventory/inventory.controller.ts`
     - Modify `GET /api/v1/inventory` endpoint
     - For Warehouse_Staff: return stock management fields only
