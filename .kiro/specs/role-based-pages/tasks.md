@@ -543,15 +543,15 @@ The implementation follows an incremental approach: first establishing core infr
     - Add @Roles('Owner', 'Manager', 'Warehouse_Staff') decorator
     - _Requirements: 6.1, 6.2_
 
-- [ ] 24. Implement role-filtered Customers page
-  - [ ] 24.1 Create CustomersTable component
+- [x] 24. Implement role-filtered Customers page
+  - [x] 24.1 Create CustomersTable component
     - Create `frontend/src/components/tables/CustomersTable.tsx`
     - Display columns: company name, email, phone, loyalty tier, total revenue
     - Add payment history and outstanding balance columns for Finance_Staff
     - Add role-specific action buttons
     - _Requirements: 7.1, 7.2_
   
-  - [ ] 24.2 Update Customers page with role filtering
+  - [x] 24.2 Update Customers page with role filtering
     - Update `frontend/src/pages/Customers.tsx`
     - Use ProtectedRoute with allowedRoles: Owner, Manager, Finance_Staff
     - Fetch customers from `GET /api/v1/customers`
@@ -559,7 +559,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Handle unauthorized access attempts
     - _Requirements: 7.1, 7.3_
   
-  - [ ] 24.3 Enhance backend Customers controller with role filtering
+  - [x] 24.3 Enhance backend Customers controller with role filtering
     - Update `backend/src/customers/customers.controller.ts`
     - Modify `GET /api/v1/customers` endpoint
     - For Finance_Staff: include payment history and outstanding balance

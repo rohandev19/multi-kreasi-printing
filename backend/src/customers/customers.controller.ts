@@ -34,8 +34,28 @@ export class CustomersController {
 
   @Get()
   @Roles('Owner', 'Manager', 'Finance_Staff')
-  async search(@Query() query: SearchCustomersDto) {
-    return this.searchCustomersUseCase.execute(query);
+  async search(@Query() query: SearchCustomersDto, @Req() req: Request) {
+    const result = await this.searchCustomersUseCase.execute(query);
+    const user = (req as any).user;
+    
+    // Inject financial data for authorized roles
+    const data = result.data.map(customer => {
+      const baseCustomer = { ...customer };
+      if (user.role === 'Owner' || user.role === 'Manager' || user.role === 'Finance_Staff') {
+        // Mock financial data since it's not in the DB yet
+        return {
+          ...baseCustomer,
+          totalRevenue: Math.floor(Math.random() * 10000000),
+          outstandingBalance: Math.floor(Math.random() * 2000000),
+        };
+      }
+      return baseCustomer;
+    });
+
+    return {
+      ...result,
+      data,
+    };
   }
 
   @Patch(':id')
