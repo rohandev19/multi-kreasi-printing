@@ -11,6 +11,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { RecordPaymentDto, InvoiceFilterDto } from './dto/finance.dto';
 import { RecordPaymentUseCase } from './use-cases/record-payment.usecase';
 import { SendInvoiceUseCase } from './use-cases/send-invoice.usecase';
@@ -18,7 +20,7 @@ import { StorageService } from '../storage/storage.service';
 import { CalculateOutstandingBalanceUseCase } from './use-cases/calculate-outstanding-balance.usecase';
 
 @Controller('api/v1/invoices')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class FinanceController {
   constructor(
     private readonly prisma: PrismaService,
@@ -29,6 +31,7 @@ export class FinanceController {
   ) {}
 
   @Get()
+  @Roles('Customer', 'Finance_Staff', 'Owner', 'Manager')
   async getInvoices(@Query() filters: InvoiceFilterDto, @Req() req: any) {
     const user = req.user;
 
@@ -56,6 +59,7 @@ export class FinanceController {
   }
 
   @Get(':id')
+  @Roles('Customer', 'Finance_Staff', 'Owner', 'Manager')
   async getInvoice(@Param('id') id: string, @Req() req: any) {
     const user = req.user;
     const invoice = await this.prisma.invoice.findUnique({
@@ -78,7 +82,8 @@ export class FinanceController {
     };
   }
 
-  @Post(':id/payments')
+  @Post(':id/payment')
+  @Roles('Finance_Staff', 'Owner', 'Manager')
   async recordPayment(
     @Param('id') id: string,
     @Body() dto: RecordPaymentDto,
@@ -94,6 +99,7 @@ export class FinanceController {
   }
 
   @Get(':id/pdf')
+  @Roles('Customer', 'Finance_Staff', 'Owner', 'Manager')
   async getInvoicePdf(@Param('id') id: string, @Req() req: any) {
     const user = req.user;
     const invoice = await this.prisma.invoice.findUnique({
@@ -117,6 +123,7 @@ export class FinanceController {
   }
 
   @Post(':id/send')
+  @Roles('Finance_Staff', 'Owner', 'Manager')
   async sendInvoice(@Param('id') id: string, @Req() req: any) {
     return this.sendInvoiceUseCase.execute(id, req.user.userId);
   }

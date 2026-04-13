@@ -567,8 +567,8 @@ The implementation follows an incremental approach: first establishing core infr
     - Add @Roles('Owner', 'Manager', 'Finance_Staff') decorator
     - _Requirements: 7.1, 7.2_
 
-- [ ] 25. Implement role-filtered Invoices page
-  - [ ] 25.1 Create InvoicesTable component
+- [x] 25. Implement role-filtered Invoices page
+  - [x] 25.1 Create InvoicesTable component
     - Create `frontend/src/components/tables/InvoicesTable.tsx`
     - Display columns: invoice number, customer name, order number, amount, status, due date
     - Add payment action buttons for Finance_Staff (record payment, send reminder)
@@ -576,7 +576,7 @@ The implementation follows an incremental approach: first establishing core infr
     - For Customer role: display simplified view with download button only
     - _Requirements: 8.1, 8.2, 11.5_
   
-  - [ ] 25.2 Update Invoices page with role filtering
+  - [x] 25.2 Update Invoices page with role filtering
     - Update `frontend/src/pages/Invoices.tsx`
     - Use ProtectedRoute with allowedRoles: Owner, Manager, Finance_Staff, Customer
     - Fetch invoices from `GET /api/v1/invoices`
@@ -584,7 +584,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Handle unauthorized access attempts
     - _Requirements: 8.1, 8.2, 8.4_
   
-  - [ ] 25.3 Enhance backend Invoices controller with role filtering
+  - [x] 25.3 Enhance backend Invoices controller with role filtering
     - Update `backend/src/invoices/invoices.controller.ts`
     - Modify `GET /api/v1/invoices` endpoint
     - For Customer: return only invoices for that customer_id
