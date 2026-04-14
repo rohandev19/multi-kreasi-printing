@@ -51,9 +51,93 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
   const canManageCatalog = userRole === 'Owner' || userRole === 'Manager';
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
+    <>
+      {/* Mobile Card Layout */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {materials.map((material) => {
+          const badge = getStatusBadge(material.status);
+          const isLow = material.status !== 'In_Stock';
+          
+          return (
+            <div key={material.id} className={`bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3 flex flex-col ${isLow ? 'bg-red-50/30' : ''}`}>
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="font-medium text-slate-900">{material.name}</div>
+                  <div className="text-xs text-slate-500 font-mono">{material.sku}</div>
+                </div>
+                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${badge.color}`}>
+                  {badge.icon}
+                  {material.status.replace(/_/g, ' ')}
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-slate-500 block text-xs">Category</span>
+                  <span className="text-slate-900">{material.category}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-slate-500 block text-xs">Quantity</span>
+                  <span className={`font-medium ${isLow ? 'text-red-600' : 'text-slate-900'}`}>
+                    {material.quantity} {material.unit}
+                  </span>
+                </div>
+                <div className="col-span-2 flex justify-between text-xs text-slate-500 border-t border-slate-100 pt-2 mt-1">
+                  <span>Min Stock: {material.minStock} {material.unit}</span>
+                </div>
+              </div>
+              
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  onClick={() => onAdjustStock(material.id)}
+                  className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  title="Adjust Stock"
+                >
+                  <ArrowRightLeft size={18} />
+                </button>
+                <button
+                  onClick={() => onRecordShipment(material.id)}
+                  className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                  title="Record Shipment"
+                >
+                  <Plus size={18} />
+                </button>
+                
+                {canManageCatalog && onEditMaterial && (
+                  <button
+                    onClick={() => onEditMaterial(material.id)}
+                    className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    title="Edit Material"
+                  >
+                    <Edit size={18} />
+                  </button>
+                )}
+                
+                {canManageCatalog && onDeleteMaterial && (
+                  <button
+                    onClick={() => onDeleteMaterial(material.id)}
+                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Delete Material"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+        {materials.length === 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-slate-500">
+            <Package size={48} className="mx-auto mb-3 text-slate-300" />
+            <p>No materials found in warehouse.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table Layout */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden md:block">
+        <div className="overflow-x-auto">
+          <table className="w-full">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
@@ -156,8 +240,9 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
               })
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

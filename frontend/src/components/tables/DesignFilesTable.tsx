@@ -67,9 +67,105 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
   const canManage = userRole === 'Owner' || userRole === 'Manager';
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
+    <>
+      {/* Mobile Card Layout */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {files.map((file) => (
+          <div key={file.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3 flex flex-col">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-2">
+                <FileImage size={16} className="text-blue-500 flex-shrink-0" />
+                <div className="font-medium text-slate-900 break-all">{file.originalName}</div>
+              </div>
+            </div>
+            
+            <div className="flex justify-between items-center text-sm">
+              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig[file.status]?.color || 'bg-gray-100 text-gray-700'}`}>
+                {statusConfig[file.status]?.icon}
+                {formatStatus(file.status)}
+              </span>
+              <span className="text-slate-500">v{file.version} • {formatFileSize(file.fileSize)}</span>
+            </div>
+            
+            <div className="text-sm space-y-1">
+              <div>
+                <span className="text-slate-500 mr-2">Order:</span>
+                <span className="font-medium text-slate-900">{file.order?.orderNumber || 'N/A'}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 mr-2">Customer:</span>
+                <span className="text-slate-900">{file.order?.customer?.companyName || 'N/A'}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 mr-2">Uploaded:</span>
+                <span className="text-slate-900">{new Date(file.createdAt).toLocaleDateString('id-ID')}</span>
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                onClick={() => onPreview(file.id)}
+                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                title="Preview"
+              >
+                <Eye size={18} />
+              </button>
+              <button
+                onClick={() => onDownload(file.id)}
+                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                title="Download"
+              >
+                <Download size={18} />
+              </button>
+              {(isDesigner || canManage) && file.status === 'Manual_Review' && (
+                <>
+                  <button
+                    onClick={() => onApprove(file.id)}
+                    className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                    title="Approve"
+                  >
+                    <Check size={18} />
+                  </button>
+                  <button
+                    onClick={() => onReject(file.id)}
+                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Reject"
+                  >
+                    <X size={18} />
+                  </button>
+                  <button
+                    onClick={() => onRevisionRequest(file.id)}
+                    className="p-1.5 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                    title="Request Revision"
+                  >
+                    <Edit size={18} />
+                  </button>
+                </>
+              )}
+              {canManage && onDelete && (
+                <button
+                  onClick={() => onDelete(file.id)}
+                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Delete"
+                >
+                  <Trash2 size={18} />
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+        {files.length === 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-slate-500">
+            <FileImage size={48} className="mx-auto mb-3 text-slate-300" />
+            <p>No design files found.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table Layout */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden md:block">
+        <div className="overflow-x-auto">
+          <table className="w-full">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
@@ -188,8 +284,9 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
               ))
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

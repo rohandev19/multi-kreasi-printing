@@ -99,8 +99,79 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
   const showProductionStatus = userRole === 'Owner' || userRole === 'Manager' || userRole === 'Production_Staff';
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
-      <table className="w-full text-left border-collapse">
+    <>
+      {/* Mobile Card Layout */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {orders.map((order) => (
+          <div key={order.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3 flex flex-col">
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="font-medium text-slate-900">{order.orderNumber}</div>
+                <div className="text-xs text-slate-500">{formatDate(order.createdAt)}</div>
+              </div>
+              <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
+                {order.status.replace(/_/g, ' ')}
+              </span>
+            </div>
+            
+            {showCustomer && order.customer && (
+              <div className="text-sm">
+                <span className="text-slate-500 mr-2">Customer:</span>
+                <span className="font-medium text-slate-900">{order.customer.name}</span>
+              </div>
+            )}
+            
+            <div className="flex flex-wrap gap-2 text-sm">
+              {showDesignStatus && order.designFile && (
+                <div className="bg-slate-50 px-2 py-1 rounded">
+                  <span className="text-slate-500 text-xs block">Design</span>
+                  <span className={`font-medium ${getStatusColor(order.designFile.status).replace('bg-', 'text-').split(' ')[1]}`}>
+                    {order.designFile.status.replace(/_/g, ' ')}
+                  </span>
+                </div>
+              )}
+              {showProductionStatus && order.productionJob && (
+                <div className="bg-slate-50 px-2 py-1 rounded">
+                  <span className="text-slate-500 text-xs block">Production</span>
+                  <span className={`font-medium ${getStatusColor(order.productionJob.status).replace('bg-', 'text-').split(' ')[1]}`}>
+                    {order.productionJob.status.replace(/_/g, ' ')}
+                  </span>
+                </div>
+              )}
+            </div>
+            
+            {showPayment && (
+              <div className="flex justify-between items-center border-t border-slate-100 pt-3">
+                <span className={`px-2 py-0.5 text-xs font-medium rounded ${getStatusColor(order.paymentStatus)}`}>
+                  {order.paymentStatus}
+                </span>
+                <div className="font-bold text-slate-900">{formatCurrency(order.totalAmount)}</div>
+              </div>
+            )}
+            
+            <div className="flex justify-end gap-2 pt-2">
+              <button 
+                onClick={() => onView(order.id)}
+                className="px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors"
+              >
+                View
+              </button>
+              {onEdit && (userRole === 'Owner' || userRole === 'Manager') && (
+                <button 
+                  onClick={() => onEdit(order.id)}
+                  className="px-3 py-1.5 text-sm bg-indigo-50 text-indigo-600 rounded-lg font-medium hover:bg-indigo-100 transition-colors"
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table Layout */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto hidden md:block">
+        <table className="w-full text-left border-collapse">
         <thead>
           <tr className="bg-slate-50 border-b border-slate-200 text-sm font-medium text-slate-500 uppercase tracking-wider">
             <th className="px-6 py-4 whitespace-nowrap">Order ID</th>
@@ -191,6 +262,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
           ))}
         </tbody>
       </table>
-    </div>
+      </div>
+    </>
   );
 };

@@ -53,9 +53,92 @@ export const ProductionTable: React.FC<ProductionTableProps> = ({
   const canManageJobs = userRole === 'Owner' || userRole === 'Manager';
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
+    <>
+      {/* Mobile Card Layout */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {jobs.map((job) => (
+          <div key={job.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3 flex flex-col">
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="font-medium text-slate-900">#{job.id.slice(0, 8)}</div>
+                <div className="text-xs text-slate-500">
+                  {job.dueDate ? `Due: ${new Date(job.dueDate).toLocaleDateString('id-ID')}` : 'No deadline'}
+                </div>
+              </div>
+              <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${statusColors[job.status] || 'bg-gray-100 text-gray-700'}`}>
+                {formatStatus(job.status)}
+              </span>
+            </div>
+            
+            <div className="text-sm space-y-1">
+              <div>
+                <span className="text-slate-500 mr-2">Order:</span>
+                <span className="font-medium text-slate-900">{job.order?.orderNumber || 'N/A'}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 mr-2">Machine:</span>
+                <span className="text-slate-900">{job.machine?.name || 'Unassigned'}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 mr-2">Staff:</span>
+                <span className="text-slate-900">{job.assignee?.fullName || 'Unassigned'}</span>
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                onClick={() => onStartJob(job.id)}
+                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                title="Start Job"
+              >
+                <Play size={18} />
+              </button>
+              <button
+                onClick={() => onCompleteJob(job.id)}
+                className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                title="Complete Job"
+              >
+                <CheckCircle size={18} />
+              </button>
+              <button
+                onClick={() => onReportIssue(job.id)}
+                className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                title="Report Issue"
+              >
+                <AlertCircle size={18} />
+              </button>
+              {canManageJobs && onReassign && (
+                <button
+                  onClick={() => onReassign(job.id)}
+                  className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                  title="Reassign"
+                >
+                  <Edit size={18} />
+                </button>
+              )}
+              {canManageJobs && onDelete && (
+                <button
+                  onClick={() => onDelete(job.id)}
+                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Delete Job"
+                >
+                  <Trash2 size={18} />
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+        {jobs.length === 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-slate-500">
+            No production jobs found.
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table Layout */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden md:block">
+        <div className="overflow-x-auto">
+          <table className="w-full">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
@@ -156,8 +239,9 @@ export const ProductionTable: React.FC<ProductionTableProps> = ({
               ))
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

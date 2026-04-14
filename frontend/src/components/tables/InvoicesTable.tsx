@@ -61,9 +61,112 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
   const canManage = isOwner || userRole === 'Manager' || isFinance;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
+    <>
+      {/* Mobile Card Layout */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {invoices.map((invoice) => (
+          <div key={invoice.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3 flex flex-col">
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="font-medium text-slate-900">{invoice.invoiceNumber}</div>
+                <div className="text-xs text-slate-500">
+                  Due: {new Date(invoice.dueDate).toLocaleDateString('id-ID')}
+                </div>
+              </div>
+              <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${statusColors[invoice.status] || 'bg-gray-100 text-gray-700'}`}>
+                {formatStatus(invoice.status)}
+              </span>
+            </div>
+            
+            <div className="text-sm space-y-1">
+              {!isCustomer && (
+                <div>
+                  <span className="text-slate-500 mr-2">Customer:</span>
+                  <span className="font-medium text-slate-900">{invoice.customer?.companyName || 'N/A'}</span>
+                </div>
+              )}
+              <div>
+                <span className="text-slate-500 mr-2">Order:</span>
+                <span className="text-slate-900">{invoice.order?.orderNumber || '-'}</span>
+              </div>
+            </div>
+            
+            <div className="flex justify-between items-center border-t border-slate-100 pt-3">
+              <span className="text-sm text-slate-500 font-medium">Amount:</span>
+              <span className="font-bold text-slate-900">{formatCurrency(invoice.amount)}</span>
+            </div>
+            
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+              {isCustomer ? (
+                <button
+                  onClick={() => onDownload(invoice.id)}
+                  className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  title="Download Invoice"
+                >
+                  <Download size={18} />
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => onViewDetails?.(invoice.id)}
+                    className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="View Details"
+                  >
+                    <Eye size={18} />
+                  </button>
+                  <button
+                    onClick={() => onDownload(invoice.id)}
+                    className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    title="Download Invoice"
+                  >
+                    <Download size={18} />
+                  </button>
+                  
+                  {canManage && invoice.status !== 'Fully_Paid' && (
+                    <button
+                      onClick={() => onRecordPayment?.(invoice.id)}
+                      className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                      title="Record Payment"
+                    >
+                      <CreditCard size={18} />
+                    </button>
+                  )}
+                  
+                  {canManage && (invoice.status === 'Sent' || invoice.status === 'Overdue') && (
+                    <button
+                      onClick={() => onSendReminder?.(invoice.id)}
+                      className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                      title="Send Reminder"
+                    >
+                      <Bell size={18} />
+                    </button>
+                  )}
+                  
+                  {isOwner && onDelete && (
+                    <button
+                      onClick={() => onDelete(invoice.id)}
+                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete Invoice"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        ))}
+        {invoices.length === 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-slate-500">
+            No invoices found.
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table Layout */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden md:block">
+        <div className="overflow-x-auto">
+          <table className="w-full">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
@@ -185,8 +288,9 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
               ))
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
