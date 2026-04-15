@@ -85,7 +85,37 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     initRole();
-  }, []);
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'user') {
+        if (e.newValue) {
+          try {
+            const storedUser = JSON.parse(e.newValue);
+            setUser(storedUser);
+            setRole(storedUser.role);
+          } catch (error) {
+            console.error('Failed to parse user from storage event', error);
+          }
+        } else {
+          // User was removed in another tab
+          setUser(null);
+          setRole(null);
+          navigate('/login');
+        }
+      } else if (e.key === 'token' && !e.newValue) {
+        // Token was removed in another tab
+        setUser(null);
+        setRole(null);
+        navigate('/login');
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [navigate]);
 
   const hasAccess = (allowedRoles: UserRole[]) => {
     if (!role) return false;
