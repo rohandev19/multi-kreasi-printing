@@ -593,11 +593,11 @@ The implementation follows an incremental approach: first establishing core infr
     - Implement notification sending on payment recorded
     - _Requirements: 8.1, 8.2, 8.3_
 
-- [ ] 26. Checkpoint - Verify all role-specific pages
+- [x] 26. Checkpoint - Verify all role-specific pages
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 27. Implement responsive table layouts
-  - [ ] 27.1 Add mobile card layout for all table components
+- [x] 27. Implement responsive table layouts
+  - [x] 27.1 Add mobile card layout for all table components
     - Update OrdersTable, ProductionTable, DesignFilesTable, WarehouseTable, CustomersTable, InvoicesTable
     - Add conditional rendering: table on desktop (>= 768px), cards on mobile (< 768px)
     - Ensure all data fields are visible in card layout
@@ -605,15 +605,15 @@ The implementation follows an incremental approach: first establishing core infr
     - Test on various mobile devices
     - _Requirements: 14.1, 14.2, 14.3, 14.4_
 
-- [ ] 28. Implement role context synchronization
-  - [ ] 28.1 Add role context refresh mechanism
+- [x] 28. Implement role context synchronization
+  - [x] 28.1 Add role context refresh mechanism
     - Update RoleContext.tsx to add polling for role changes
     - Implement `refreshRole()` method that fetches current user from backend
     - Update local storage with latest role information
     - Trigger re-render when role changes
     - _Requirements: 15.1, 15.2_
   
-  - [ ] 28.2 Add role switching for multi-role users
+  - [x] 28.2 Add role switching for multi-role users
     - Add role switcher dropdown in Header component
     - Fetch associated roles from `GET /api/v1/users/me/roles`
     - Allow switching between Customer and Staff roles
@@ -621,14 +621,14 @@ The implementation follows an incremental approach: first establishing core infr
     - Store selected role in local storage
     - _Requirements: 15.4_
   
-  - [ ] 28.3 Add session validation and role expiration handling
+  - [x] 28.3 Add session validation and role expiration handling
     - Implement token expiration check in RoleContext
     - Redirect to login when token expires or role becomes invalid
     - Show session expired message to user
     - Clear local storage on logout or invalid session
     - _Requirements: 15.3_
 
-- [ ] 29. Final checkpoint and integration testing
+- [x] 29. Final checkpoint and integration testing
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
