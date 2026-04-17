@@ -37,7 +37,7 @@ export const ProductDetailPage = () => {
         const primaryImage = res.data.product.images.find((img: any) => img.isPrimary)?.url;
         if (primaryImage) setActiveImage(primaryImage);
         else if (res.data.product.images.length > 0) setActiveImage(res.data.product.images[0].url);
-      } catch (err) {
+      } catch {
         setError('Failed to load product details');
       } finally {
         setLoading(false);
