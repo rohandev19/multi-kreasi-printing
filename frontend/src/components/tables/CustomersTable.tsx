@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, Eye, Trash2, FileText, CreditCard } from 'lucide-react';
+import { Edit, Eye, Trash2, CreditCard } from 'lucide-react';
 
 interface Customer {
   id: string;
