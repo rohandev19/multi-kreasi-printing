@@ -47,7 +47,7 @@ export const CatalogPage = () => {
       setProducts(res.data.data);
       setCategories(res.data.categories);
       setTotalPages(res.data.meta.totalPages);
-    } catch (err) {
+    } catch {
       setError('Failed to load products');
     } finally {
       setLoading(false);
