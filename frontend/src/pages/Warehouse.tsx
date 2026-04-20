@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import api from '../api/axios';
 import { Package, AlertTriangle, TrendingDown, TrendingUp } from 'lucide-react';
 import { useRoleContext } from '../contexts/RoleContext';
@@ -15,27 +15,20 @@ interface Material {
   status: 'In_Stock' | 'Low_Stock' | 'Out_of_Stock';
 }
 
+const fallbackMaterials: Material[] = [
+  { id: '1', name: 'A4 Paper 80gsm', sku: 'PPR-A4-80', quantity: 5000, unit: 'sheets', minStock: 1000, category: 'Paper', status: 'In_Stock' },
+  { id: '2', name: 'Vinyl Banner Material', sku: 'VNL-BNR-01', quantity: 250, unit: 'm²', minStock: 500, category: 'Vinyl', status: 'Low_Stock' },
+  { id: '3', name: 'Inkjet Ink Cyan', sku: 'INK-CYN-01', quantity: 0, unit: 'liters', minStock: 5, category: 'Ink', status: 'Out_of_Stock' },
+  { id: '4', name: 'Laminating Film', sku: 'LAM-FLM-01', quantity: 1200, unit: 'm²', minStock: 300, category: 'Laminate', status: 'In_Stock' },
+  { id: '5', name: 'Cardstock 300gsm', sku: 'CRD-300', quantity: 800, unit: 'sheets', minStock: 1000, category: 'Paper', status: 'Low_Stock' },
+];
+
 export default function Warehouse() {
   const { role, loading: roleLoading } = useRoleContext();
   const [materials, setMaterials] = useState<Material[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fallback data for demo
-  const fallbackMaterials: Material[] = [
-    { id: '1', name: 'A4 Paper 80gsm', sku: 'PPR-A4-80', quantity: 5000, unit: 'sheets', minStock: 1000, category: 'Paper', status: 'In_Stock' },
-    { id: '2', name: 'Vinyl Banner Material', sku: 'VNL-BNR-01', quantity: 250, unit: 'm²', minStock: 500, category: 'Vinyl', status: 'Low_Stock' },
-    { id: '3', name: 'Inkjet Ink Cyan', sku: 'INK-CYN-01', quantity: 0, unit: 'liters', minStock: 5, category: 'Ink', status: 'Out_of_Stock' },
-    { id: '4', name: 'Laminating Film', sku: 'LAM-FLM-01', quantity: 1200, unit: 'm²', minStock: 300, category: 'Laminate', status: 'In_Stock' },
-    { id: '5', name: 'Cardstock 300gsm', sku: 'CRD-300', quantity: 800, unit: 'sheets', minStock: 1000, category: 'Paper', status: 'Low_Stock' },
-  ];
-
-  useEffect(() => {
-    if (!roleLoading && role) {
-      fetchMaterials();
-    }
-  }, [role, roleLoading]);
-
-  const fetchMaterials = async () => {
+  const fetchMaterials = useCallback(async () => {
     try {
       const response = await api.get('/api/v1/inventory');
       const materialData = Array.isArray(response.data) 
@@ -48,7 +41,13 @@ export default function Warehouse() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!roleLoading && role) {
+      fetchMaterials();
+    }
+  }, [role, roleLoading, fetchMaterials]);
 
   const handleAdjustStock = (id: string) => {
     alert(`Adjust stock for material ${id}`);
