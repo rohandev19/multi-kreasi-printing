@@ -355,7 +355,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Return formatted widget data
     - _Requirements: 1.7_
 
-- [ ] 14. Checkpoint - Verify backend metrics calculation
+- [x] 14. Checkpoint - Verify backend metrics calculation
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 15. Implement frontend dashboard UI
@@ -396,7 +396,7 @@ The implementation follows an incremental approach: first establishing core infr
     - Test on various viewport sizes
     - _Requirements: 14.1, 14.2, 14.4_
 
-- [ ] 16. Checkpoint - Verify dashboard functionality
+- [x] 16. Checkpoint - Verify dashboard functionality
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 6. Add Role Seeding to Prisma Seeder
