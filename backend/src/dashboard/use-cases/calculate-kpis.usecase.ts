@@ -33,16 +33,35 @@ export class CalculateKPIsUseCase {
     const conversionRate =
       totalOrders > 0 ? (approvedOrders / totalOrders) * 100 : 0;
 
-    // Production Time Avg (difference between startedAt and completedAt)
-    // We would need to calculate average from production_jobs. For MVP, mock if data isn't easily aggregatable.
+    // Average Production Time Avg (difference between startedAt and completedAt)
+    const completedJobs = await this.prisma.productionJob.findMany({
+      where: { 
+        status: 'Completed',
+        startTime: { not: null },
+        endTime: { not: null }
+      },
+      select: {
+        startTime: true,
+        endTime: true
+      }
+    });
+
+    let averageProductionTimeHours = 0;
+    if (completedJobs.length > 0) {
+      const totalHours = completedJobs.reduce((acc, job) => {
+        const diffMs = job.endTime!.getTime() - job.startTime!.getTime();
+        return acc + (diffMs / (1000 * 60 * 60));
+      }, 0);
+      averageProductionTimeHours = totalHours / completedJobs.length;
+    }
 
     return {
       totalRevenue,
       grossProfit,
       conversionRate: parseFloat(conversionRate.toFixed(2)),
-      retentionRate: 85.5, // Mock for MVP
-      averageProductionTimeHours: 12.4, // Mock for MVP
-      customerSatisfactionScore: 4.8, // Mock for MVP
+      retentionRate: 85.5, // Mock for MVP: requires complex cohort analysis
+      averageProductionTimeHours: parseFloat(averageProductionTimeHours.toFixed(2)),
+      customerSatisfactionScore: 4.8, // Mock for MVP: requires external survey integration
     };
   }
 }

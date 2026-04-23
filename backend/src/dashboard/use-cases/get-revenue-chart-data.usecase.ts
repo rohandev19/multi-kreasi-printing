@@ -26,9 +26,26 @@ export class GetRevenueChartDataUseCase {
       ORDER BY date ASC
     `;
 
-    return rawData.map((row) => ({
-      date: row.date.toISOString().split('T')[0],
-      total: Number(row.total || 0),
-    }));
+    // Map database result to an easily accessible dictionary
+    const dataMap = new Map<string, number>();
+    rawData.forEach(row => {
+      const dateStr = row.date.toISOString().split('T')[0];
+      dataMap.set(dateStr, Number(row.total || 0));
+    });
+
+    // Generate last 30 days sequence to ensure no gaps
+    const chartData = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      
+      chartData.push({
+        date: dateStr,
+        total: dataMap.get(dateStr) || 0,
+      });
+    }
+
+    return chartData;
   }
 }
