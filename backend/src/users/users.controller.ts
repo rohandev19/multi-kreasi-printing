@@ -16,6 +16,7 @@ import { SearchUsersDto } from './dto/search-users.dto';
 import { CreateUserUseCase } from './use-cases/create-user.usecase';
 import { UpdateUserUseCase } from './use-cases/update-user.usecase';
 import { SearchUsersUseCase } from './use-cases/search-users.usecase';
+import { GetRolesUseCase } from './use-cases/get-roles.usecase';
 import { ExportUserDataUseCase } from './use-cases/export-user-data.usecase';
 import { DeleteUserAccountUseCase } from './use-cases/delete-user-account.usecase';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -30,6 +31,7 @@ export class UsersController {
     private createUserUseCase: CreateUserUseCase,
     private updateUserUseCase: UpdateUserUseCase,
     private searchUsersUseCase: SearchUsersUseCase,
+    private getRolesUseCase: GetRolesUseCase,
     private exportUserDataUseCase: ExportUserDataUseCase,
     private deleteUserAccountUseCase: DeleteUserAccountUseCase,
   ) {}
@@ -38,6 +40,11 @@ export class UsersController {
   async create(@Body() dto: CreateUserDto, @Req() req: Request) {
     const userId = (req as any).user.sub;
     return this.createUserUseCase.execute(dto, userId);
+  }
+
+  @Get('roles')
+  async getRoles() {
+    return this.getRolesUseCase.execute();
   }
 
   @Get()
