@@ -11,16 +11,18 @@ const Invoices = lazy(() => import('./pages/Invoices'));
 const DesignFiles = lazy(() => import('./pages/DesignFiles'));
 const Warehouse = lazy(() => import('./pages/Warehouse'));
 const MyOrders = lazy(() => import('./pages/MyOrders'));
+const Users = lazy(() => import('./pages/Users'));
 const Login = lazy(() => import('./pages/Login'));
-const Cart = lazy(() => import('./pages/Cart'));
-
 import { RoleProvider } from './contexts/RoleContext';
-import { CartProvider } from './contexts/CartContext';
+import { ToastProvider } from './contexts/ToastContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
-const Catalog = lazy(() => import('./pages/public/Catalog').then(m => ({ default: m.CatalogPage })));
-const ProductDetail = lazy(() => import('./pages/public/ProductDetail').then(m => ({ default: m.ProductDetailPage })));
 import { PublicLayout } from './components/layout/public/PublicLayout';
+import { ProductsCatalog } from './pages/public/ProductsCatalog';
+import { CartPage } from './pages/public/CartPage';
+import { AboutPage } from './pages/public/AboutPage';
+import { ContactPage } from './pages/public/ContactPage';
+import { TermsPage } from './pages/public/TermsPage';
 
 const Register = lazy(() => import('./pages/public/Register').then(m => ({ default: m.RegisterPage })));
 const VerifyEmail = lazy(() => import('./pages/public/VerifyEmail').then(m => ({ default: m.VerifyEmailPage })));
@@ -32,11 +34,11 @@ const LoadingSpinner = () => (
 );
 
 const AppProviders = ({ children }: { children: React.ReactNode }) => (
-  <RoleProvider>
-    <CartProvider>
+  <ToastProvider>
+    <RoleProvider>
       {children}
-    </CartProvider>
-  </RoleProvider>
+    </RoleProvider>
+  </ToastProvider>
 );
 
 export const router = createBrowserRouter([
@@ -44,46 +46,42 @@ export const router = createBrowserRouter([
     element: <AppProviders><Outlet /></AppProviders>,
     children: [
       {
+        path: '/',
+        element: <PublicLayout />,
+        children: [
+          {
+            index: true,
+            element: <ProductsCatalog />,
+          },
+          {
+            path: 'products',
+            element: <ProductsCatalog />,
+          },
+          {
+            path: 'cart',
+            element: <CartPage />,
+          },
+          {
+            path: 'about',
+            element: <AboutPage />,
+          },
+          {
+            path: 'contact',
+            element: <ContactPage />,
+          },
+          {
+            path: 'terms',
+            element: <TermsPage />,
+          },
+        ],
+      },
+      {
         path: '/login',
         element: (
           <Suspense fallback={<LoadingSpinner />}>
             <Login />
           </Suspense>
         ),
-      },
-      {
-        path: '/',
-        element: <PublicLayout />,
-        children: [
-          {
-            index: true,
-            element: <Navigate to="/products" replace />,
-          },
-          {
-            path: 'products',
-            element: (
-              <Suspense fallback={<LoadingSpinner />}>
-                <Catalog />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'products/:id',
-            element: (
-              <Suspense fallback={<LoadingSpinner />}>
-                <ProductDetail />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'cart',
-            element: (
-              <Suspense fallback={<LoadingSpinner />}>
-                <Cart />
-              </Suspense>
-            ),
-          },
-        ],
       },
       {
         path: '/register',
@@ -183,6 +181,16 @@ export const router = createBrowserRouter([
               <ProtectedRoute allowedRoles={['Customer']}>
                 <Suspense fallback={<LoadingSpinner />}>
                   <MyOrders />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'users',
+            element: (
+              <ProtectedRoute allowedRoles={['Owner', 'Manager']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Users />
                 </Suspense>
               </ProtectedRoute>
             ),
