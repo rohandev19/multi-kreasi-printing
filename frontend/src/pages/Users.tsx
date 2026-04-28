@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
 import { UsersTable, User } from '../components/tables/UsersTable';
@@ -35,13 +35,7 @@ export default function Users() {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  useEffect(() => {
-    if (!roleLoading && role) {
-      fetchUsers();
-    }
-  }, [role, roleLoading, debouncedSearch, page]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const response = await api.get('/api/v1/users', {
@@ -58,7 +52,13 @@ export default function Users() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, debouncedSearch]);
+
+  useEffect(() => {
+    if (!roleLoading && role) {
+      fetchUsers();
+    }
+  }, [role, roleLoading, fetchUsers]);
 
   const handleAddUser = () => {
     setSelectedUserId(null);
