@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
-import { UsersTable, User } from '../components/tables/UsersTable';
+import { UsersTable, type User } from '../components/tables/UsersTable';
 import { UserFormModal } from '../components/modals/UserFormModal';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useToast } from '../contexts/ToastContext';
@@ -19,7 +19,7 @@ export default function Users() {
   // Modal States
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  
+
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -168,14 +168,14 @@ export default function Users() {
 
       <ConfirmDialog
         isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={confirmDelete}
         title="Delete User Account"
         message="Are you sure you want to delete this user? They will lose access immediately. This action cannot be undone."
-        confirmText="Yes, Delete User"
-        cancelText="Cancel"
-        onConfirm={confirmDelete}
-        onCancel={() => setDeleteId(null)}
-        isLoading={isDeleting}
-        isDanger={true}
+        confirmLabel="Yes, Delete User"
+        cancelLabel="Cancel"
+        variant="danger"
+        loading={isDeleting}
       />
     </div>
   );
