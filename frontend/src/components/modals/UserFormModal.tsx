@@ -46,10 +46,14 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
   const fetchRoles = async () => {
     try {
       const response = await api.get('/api/v1/users/roles');
-      setRoles(response.data.data || []);
+      const filteredRoles = (response.data.data || []).filter(
+        (r: any) => r.name !== 'Customer' && r.displayName !== 'Customer'
+      );
       
-      if (!isEditMode && response.data.data?.length > 0) {
-        setRoleId(response.data.data[0].id);
+      setRoles(filteredRoles);
+      
+      if (!isEditMode && filteredRoles.length > 0) {
+        setRoleId(filteredRoles[0].id);
       }
     } catch (err) {
       console.error('Failed to load roles', err);
