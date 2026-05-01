@@ -21,7 +21,11 @@ import { CustomerOrdersController } from './customer-orders.controller';
 
 @Module({
   imports: [PrismaModule, AuditModule, StorageModule],
-  controllers: [OrdersController, DesignFilesController, CustomerOrdersController],
+  controllers: [
+    OrdersController,
+    DesignFilesController,
+    CustomerOrdersController,
+  ],
   providers: [
     WorkflowService,
     CreateOrderUseCase,

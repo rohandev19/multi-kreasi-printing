@@ -47,7 +47,8 @@ export default function Login() {
 
       // Handle redirect parameter
       const params = new URLSearchParams(window.location.search);
-      const redirectUrl = params.get('redirect') || '/';
+      const defaultPath = response.data.user.role === 'Customer' ? '/products' : '/dashboard';
+      const redirectUrl = params.get('redirect') || defaultPath;
       
       navigate(redirectUrl);
     } catch (err: any) {

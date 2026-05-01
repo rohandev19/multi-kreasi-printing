@@ -50,8 +50,8 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem('user');
       
       // If we are not on a public route, redirect to login
-      const publicRoutes = ['/login', '/register', '/catalog', '/cart'];
-      const isPublicRoute = publicRoutes.some(route => window.location.pathname.startsWith(route));
+      const publicRoutes = ['/login', '/register', '/verify-email', '/products', '/cart', '/about', '/contact', '/terms'];
+      const isPublicRoute = window.location.pathname === '/' || publicRoutes.some(route => window.location.pathname.startsWith(route));
       if (!isPublicRoute) {
         navigate('/login');
       }

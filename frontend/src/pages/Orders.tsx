@@ -3,13 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
 import { OrdersTable } from '../components/tables/OrdersTable';
-
+import { CreateOrderModal } from '../components/modals/CreateOrderModal';
+import { OrderDetailsModal } from '../components/OrderDetailsModal';
 export default function Orders() {
   const { role, loading: roleLoading } = useRoleContext();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // Modal State
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [editOrderId, setEditOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!roleLoading) {
@@ -41,13 +48,24 @@ export default function Orders() {
   };
 
   const handleViewOrder = (id: string) => {
-    // Navigate to order details
-    navigate(`/orders/${id}`);
+    setSelectedOrderId(id);
+    setIsDetailModalOpen(true);
   };
 
   const handleEditOrder = (id: string) => {
-    // Navigate to order edit
-    navigate(`/orders/${id}/edit`);
+    setEditOrderId(id);
+    setIsCreateModalOpen(true);
+  };
+
+  const handleModalSuccess = () => {
+    if (role) {
+      fetchOrders(role);
+    }
+  };
+
+  const handleOpenCreateNew = () => {
+    setEditOrderId(null);
+    setIsCreateModalOpen(true);
   };
 
   if (roleLoading) {
@@ -63,7 +81,10 @@ export default function Orders() {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-800">Orders</h2>
         {(role === 'Owner' || role === 'Manager') && (
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+          <button 
+            onClick={handleOpenCreateNew}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
             New Order
           </button>
         )}
@@ -81,6 +102,20 @@ export default function Orders() {
         loading={loading}
         onView={handleViewOrder}
         onEdit={handleEditOrder}
+      />
+
+      {/* Modals */}
+      <CreateOrderModal 
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={handleModalSuccess}
+        orderId={editOrderId}
+      />
+
+      <OrderDetailsModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        orderId={selectedOrderId}
       />
     </div>
   );

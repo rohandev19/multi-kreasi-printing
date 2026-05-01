@@ -129,10 +129,10 @@ export default function Dashboard() {
     if (widget.type === 'kpi-grid') {
       return (
         <div key={widget.id} className="col-span-full md:col-span-2 lg:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-2">
-           <MetricCard title="Total Revenue" value={`$${(widget.data.totalRevenue || 0).toLocaleString()}`} icon="revenue" color="emerald" />
-           <MetricCard title="Gross Profit" value={`$${(widget.data.grossProfit || 0).toLocaleString()}`} icon="revenue" color="indigo" />
-           <MetricCard title="Conversion Rate" value={`${widget.data.conversionRate}%`} icon="chart" color="blue" />
-           <MetricCard title="Avg Production Time" value={`${widget.data.averageProductionTimeHours}h`} icon="clock" color="amber" />
+           <MetricCard title="Total Revenue" value={`$${(widget.data.totalRevenue?.value || 0).toLocaleString()}`} change={widget.data.totalRevenue?.trend} icon="revenue" color="emerald" />
+           <MetricCard title="Gross Profit" value={`$${(widget.data.grossProfit?.value || 0).toLocaleString()}`} change={widget.data.grossProfit?.trend} icon="revenue" color="indigo" />
+           <MetricCard title="Conversion Rate" value={`${widget.data.conversionRate?.value || 0}%`} change={widget.data.conversionRate?.trend} icon="chart" color="blue" />
+           <MetricCard title="CAC (Acquisition)" value={`$${(widget.data.customerAcquisitionCost?.value || 0).toLocaleString()}`} change={widget.data.customerAcquisitionCost?.trend} icon="users" color="amber" />
         </div>
       );
     }
@@ -147,7 +147,7 @@ export default function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                 <XAxis dataKey="date" tick={{fontSize: 12, fill: '#64748b'}} tickFormatter={(v) => v.slice(5)} />
                 <YAxis tick={{fontSize: 12, fill: '#64748b'}} />
-                <Tooltip formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']} />
+                <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']} />
                 <Line type="monotone" dataKey="total" stroke="#10b981" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} />
               </LineChart>
             </ResponsiveContainer>
@@ -166,7 +166,7 @@ export default function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
                 <XAxis type="number" tick={{fontSize: 12, fill: '#64748b'}} domain={[0, 100]} />
                 <YAxis type="category" dataKey="machineName" tick={{fontSize: 12, fill: '#64748b'}} width={100} />
-                <Tooltip formatter={(value: number) => [`${value}%`, 'Utilization']} />
+                <Tooltip formatter={(value) => [`${Number(value)}%`, 'Utilization']} />
                 <Bar dataKey="utilization" fill="#3b82f6" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -212,16 +212,61 @@ export default function Dashboard() {
     );
   }
 
+  const exportToCSV = () => {
+    if (!metrics) return;
+    
+    // We export a simple summary of current widgets
+    const rows = [
+      ['Widget Title', 'Type', 'Data Summary']
+    ];
+
+    displayedWidgets.forEach((w) => {
+      let dataSummary = '';
+      if (w.type === 'stat') {
+        dataSummary = `${w.value}`;
+      } else if (w.type === 'kpi-grid' && w.data) {
+        dataSummary = `Revenue: $${w.data.totalRevenue?.value}, Conversion: ${w.data.conversionRate?.value}%`;
+      } else if (w.type === 'recharts-line' && w.data) {
+        dataSummary = `Total points: ${w.data.length}`;
+      } else if (w.type === 'recharts-bar' && w.data) {
+        dataSummary = `Total items: ${w.data.length}`;
+      } else if (w.type === 'list' && w.data) {
+        dataSummary = w.data.map((i: any) => `${i.label}: ${i.value}`).join(' | ');
+      }
+
+      rows.push([w.title, w.type, dataSummary]);
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + rows.map(e => e.join(",")).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `dashboard_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-slate-800">Dashboard</h2>
-        <button
-          onClick={() => setIsCustomizing(true)}
-          className="text-sm px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2"
-        >
-          <span>⚙️</span> Customize
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={exportToCSV}
+            className="text-sm px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2"
+          >
+            <span>📥</span> Export CSV
+          </button>
+          <button
+            onClick={() => setIsCustomizing(true)}
+            className="text-sm px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2"
+          >
+            <span>⚙️</span> Customize
+          </button>
+        </div>
       </div>
       
       {error && (

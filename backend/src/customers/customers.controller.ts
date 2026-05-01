@@ -37,11 +37,15 @@ export class CustomersController {
   async search(@Query() query: SearchCustomersDto, @Req() req: Request) {
     const result = await this.searchCustomersUseCase.execute(query);
     const user = (req as any).user;
-    
+
     // Inject financial data for authorized roles
-    const data = result.data.map(customer => {
+    const data = result.data.map((customer) => {
       const baseCustomer = { ...customer };
-      if (user.role === 'Owner' || user.role === 'Manager' || user.role === 'Finance_Staff') {
+      if (
+        user.role === 'Owner' ||
+        user.role === 'Manager' ||
+        user.role === 'Finance_Staff'
+      ) {
         // Mock financial data since it's not in the DB yet
         return {
           ...baseCustomer,

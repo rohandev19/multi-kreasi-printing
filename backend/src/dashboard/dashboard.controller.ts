@@ -48,7 +48,7 @@ export class DashboardController {
   @Get('metrics')
   @UseInterceptors(CacheInterceptor)
   @CacheKey('dashboard-metrics')
-  @CacheTTL(300) // 5 minutes (in seconds for cache-manager v5) - or standard millisecond fallback for v4
+  @CacheTTL(300000) // 5 minutes
   async getDashboardMetrics() {
     return this.getMetrics.execute();
   }
@@ -86,7 +86,7 @@ export class DashboardController {
   @Get('kpis')
   @UseInterceptors(CacheInterceptor)
   @CacheKey('dashboard-kpis')
-  @CacheTTL(900) // 15 minutes
+  @CacheTTL(900000) // 15 minutes
   async getKpis() {
     return this.calculateKpis.execute();
   }
@@ -94,7 +94,7 @@ export class DashboardController {
   @Get('charts/revenue')
   @UseInterceptors(CacheInterceptor)
   @CacheKey('dashboard-revenue-chart')
-  @CacheTTL(1800) // 30 minutes
+  @CacheTTL(1800000) // 30 minutes
   async getRevenueChartData() {
     return this.getRevenueChart.execute();
   }

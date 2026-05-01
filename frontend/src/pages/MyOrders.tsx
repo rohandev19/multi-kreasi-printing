@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { ShoppingBag, Eye, FileText } from 'lucide-react';
 import { OrderDetailsModal } from '../components/OrderDetailsModal';
@@ -32,6 +33,7 @@ export default function MyOrders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchMyOrders();
@@ -84,7 +86,10 @@ export default function MyOrders() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-800">My Orders</h2>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2">
+        <button 
+          onClick={() => navigate('/products')}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
+        >
           <ShoppingBag size={18} />
           New Order
         </button>
@@ -95,7 +100,10 @@ export default function MyOrders() {
           <ShoppingBag size={64} className="mx-auto mb-4 text-slate-300" />
           <h3 className="text-lg font-semibold text-slate-800 mb-2">No orders yet</h3>
           <p className="text-slate-500 mb-6">Create your first order to get started with MK Printing</p>
-          <button className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+          <button 
+            onClick={() => navigate('/products')}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
             Create Order
           </button>
         </div>
@@ -155,7 +163,10 @@ export default function MyOrders() {
                   <Eye size={16} />
                   View Details
                 </button>
-                <button className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                <button 
+                  onClick={() => navigate('/dashboard/invoices')}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                >
                   <FileText size={16} />
                   View Invoice
                 </button>

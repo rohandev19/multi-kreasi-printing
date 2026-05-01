@@ -8,7 +8,9 @@ import {
   HttpStatus,
   Get,
   Param,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import type { Response, Request } from 'express';
 import { LoginRequestDto } from './dto/login.dto';
 import { LoginUseCase } from './use-cases/login.usecase';
@@ -28,6 +30,7 @@ export class AuthController {
     private readonly refreshTokenUseCase: RefreshTokenUseCase,
     private readonly registerUseCase: RegisterUseCase,
     private readonly emailVerificationService: EmailVerificationService,
+    private readonly prisma: PrismaService,
   ) {}
 
   @Public()
@@ -67,6 +70,28 @@ export class AuthController {
     });
 
     return result.response;
+  }
+
+  @Get('me')
+  @HttpCode(HttpStatus.OK)
+  async getMe(@Req() req: Request) {
+    const user = (req as any).user;
+    if (!user || !user.sub) {
+      throw new UnauthorizedException();
+    }
+    const dbUser = await this.prisma.user.findUnique({
+      where: { id: user.sub },
+      include: { role: true },
+    });
+    if (!dbUser) {
+      throw new UnauthorizedException();
+    }
+    return {
+      id: dbUser.id,
+      email: dbUser.email,
+      role: dbUser.role.name,
+      name: dbUser.fullName,
+    };
   }
 
   @Post('logout')

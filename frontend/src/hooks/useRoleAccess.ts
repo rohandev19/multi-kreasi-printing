@@ -1,5 +1,5 @@
 import { useRoleContext } from '../contexts/RoleContext';
-import type { UserRole } from '../contexts/RoleContext';
+import type { UserRole, User } from '../contexts/RoleContext';
 
 export interface MenuItem {
   name: string;
@@ -61,7 +61,7 @@ export const MENU_ITEMS: MenuItem[] = [
 ];
 
 export const useRoleAccess = () => {
-  const { role, loading, hasAccess: contextHasAccess } = useRoleContext();
+  const { role, user, loading, hasAccess: contextHasAccess } = useRoleContext();
 
   const canAccess = (allowedRoles: UserRole[]): boolean => {
     return contextHasAccess(allowedRoles);
@@ -116,6 +116,8 @@ export const useRoleAccess = () => {
   return {
     loading,
     role,
+    roleName: role || 'Guest',
+    user,
     canAccess,
     canPerformAction,
     getVisibleMenuItems,

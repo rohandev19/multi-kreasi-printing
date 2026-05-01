@@ -11,14 +11,14 @@ export class CartController {
   @Post('merge')
   @Roles('Customer')
   async mergeCart(@Body() dto: MergeCartDto, @Req() req: Request) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     return this.cartMergeService.mergeGuestCart(userId, dto.guestCartItems);
   }
 
   @Get()
   @Roles('Customer')
   async getCart(@Req() req: Request) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     // Calling merge without new items will just fetch and calculate current cart
     return this.cartMergeService.mergeGuestCart(userId, []);
   }

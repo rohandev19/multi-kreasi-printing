@@ -2,12 +2,24 @@ import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
 import { ProductionTable } from '../components/tables/ProductionTable';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { ReportIssueModal } from '../components/modals/ReportIssueModal';
+import { ReassignJobModal } from '../components/modals/ReassignJobModal';
+import { useToast } from '../contexts/ToastContext';
 
 export default function Production() {
   const { role, loading: roleLoading } = useRoleContext();
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  const { success, error: toastError } = useToast();
+  
+  // Modal states
+  const [reportIssueJobId, setReportIssueJobId] = useState<string | null>(null);
+  const [reassignJobId, setReassignJobId] = useState<string | null>(null);
+  const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!roleLoading && role) {
@@ -33,35 +45,47 @@ export default function Production() {
   const handleStartJob = async (id: string) => {
     try {
       await api.patch(`/api/v1/production-jobs/${id}/start`);
+      success('Job Started', 'The production job has been marked as in-progress.');
       fetchJobs();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to start job');
+      toastError('Error', err.response?.data?.message || 'Failed to start job');
     }
   };
 
   const handleCompleteJob = async (id: string) => {
     try {
       await api.patch(`/api/v1/production-jobs/${id}/complete`, { passedQualityCheck: true });
+      success('Job Completed', 'The production job has been completed.');
       fetchJobs();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to complete job');
+      toastError('Error', err.response?.data?.message || 'Failed to complete job');
     }
   };
 
   const handleReportIssue = (id: string) => {
-    // Navigate to report issue or open modal
-    alert(`Report issue for job ${id}`);
+    setReportIssueJobId(id);
   };
 
   const handleReassign = (id: string) => {
-    // Open reassign modal
-    alert(`Reassign job ${id}`);
+    setReassignJobId(id);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this job?')) {
-      // API call to delete
-      alert(`Delete job ${id}`);
+  const handleDelete = (id: string) => {
+    setDeleteJobId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteJobId) return;
+    setIsDeleting(true);
+    try {
+      await api.delete(`/api/v1/production-jobs/${deleteJobId}`);
+      success('Job Deleted', 'The production job has been deleted.');
+      fetchJobs();
+    } catch (err: any) {
+      toastError('Failed to delete', err.response?.data?.message || 'Please try again.');
+    } finally {
+      setIsDeleting(false);
+      setDeleteJobId(null);
     }
   };
 
@@ -99,6 +123,31 @@ export default function Production() {
         onReportIssue={handleReportIssue}
         onReassign={handleReassign}
         onDelete={handleDelete}
+      />
+
+      <ReportIssueModal
+        isOpen={!!reportIssueJobId}
+        jobId={reportIssueJobId}
+        onClose={() => setReportIssueJobId(null)}
+        onSuccess={fetchJobs}
+      />
+
+      <ReassignJobModal
+        isOpen={!!reassignJobId}
+        jobId={reassignJobId}
+        onClose={() => setReassignJobId(null)}
+        onSuccess={fetchJobs}
+      />
+
+      <ConfirmDialog
+        isOpen={!!deleteJobId}
+        title="Delete Production Job"
+        message="Are you sure you want to delete this production job? This action cannot be undone."
+        confirmLabel="Delete Job"
+        variant="danger"
+        loading={isDeleting}
+        onClose={() => setDeleteJobId(null)}
+        onConfirm={confirmDelete}
       />
     </div>
   );

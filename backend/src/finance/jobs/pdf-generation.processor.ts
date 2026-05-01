@@ -2,7 +2,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
 import { StorageService } from '../../storage/storage.service';
-import PDFDocument = require('pdfkit');
+import PDFDocument from 'pdfkit';
 import { Logger } from '@nestjs/common';
 import { PassThrough } from 'stream';
 

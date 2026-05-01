@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
 import { InvoicesTable } from '../components/tables/InvoicesTable';
+import { CreateInvoiceModal } from '../components/modals/CreateInvoiceModal';
+import { InvoiceDetailModal } from '../components/modals/InvoiceDetailModal';
+import { RecordPaymentModal } from '../components/modals/RecordPaymentModal';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { useToast } from '../contexts/ToastContext';
 
 interface Invoice {
   id: string;
@@ -18,6 +23,14 @@ export default function Invoices() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { success, error: toastError } = useToast();
+
+  // Modal states
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [detailInvoiceId, setDetailInvoiceId] = useState<string | null>(null);
+  const [paymentInvoiceId, setPaymentInvoiceId] = useState<string | null>(null);
+  const [deleteInvoiceId, setDeleteInvoiceId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!roleLoading && role) {
@@ -41,30 +54,43 @@ export default function Invoices() {
   };
 
   const handleDownload = (id: string) => {
-    alert(`Download invoice ${id}`);
+    // Navigate to download endpoint or open detail modal
+    setDetailInvoiceId(id);
   };
 
   const handleViewDetails = (id: string) => {
-    alert(`View details for invoice ${id}`);
+    setDetailInvoiceId(id);
   };
 
-  const handleRecordPayment = async (id: string) => {
+  const handleRecordPayment = (id: string) => {
+    setPaymentInvoiceId(id);
+  };
+
+  const handleSendReminder = async (id: string) => {
     try {
-      await api.post(`/api/v1/invoices/${id}/payment`, { amount: 0, method: 'Transfer' }); // Dummy amount for now
-      alert(`Payment recorded for invoice ${id}`);
-      fetchInvoices();
+      await api.post(`/api/v1/invoices/${id}/reminder`);
+      success('Reminder Sent', 'Payment reminder has been sent to the customer.');
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to record payment');
+      toastError('Failed to send reminder', err.response?.data?.message || 'Please try again.');
     }
   };
 
-  const handleSendReminder = (id: string) => {
-    alert(`Send reminder for invoice ${id}`);
+  const handleDelete = (id: string) => {
+    setDeleteInvoiceId(id);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this invoice?')) {
-      alert(`Delete invoice ${id}`);
+  const confirmDelete = async () => {
+    if (!deleteInvoiceId) return;
+    setIsDeleting(true);
+    try {
+      await api.delete(`/api/v1/invoices/${deleteInvoiceId}`);
+      success('Invoice Deleted', 'The invoice has been deleted.');
+      fetchInvoices();
+    } catch (err: any) {
+      toastError('Failed to delete', err.response?.data?.message || 'Please try again.');
+    } finally {
+      setIsDeleting(false);
+      setDeleteInvoiceId(null);
     }
   };
 
@@ -86,7 +112,10 @@ export default function Invoices() {
           {isCustomer ? 'My Invoices' : 'Invoices'}
         </h2>
         {canManage && (
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+          <button 
+            onClick={() => setIsCreateOpen(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
             Create Invoice
           </button>
         )}
@@ -107,6 +136,37 @@ export default function Invoices() {
         onRecordPayment={handleRecordPayment}
         onSendReminder={handleSendReminder}
         onDelete={handleDelete}
+      />
+
+      {/* Modals */}
+      <CreateInvoiceModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onSuccess={fetchInvoices}
+      />
+
+      <InvoiceDetailModal
+        isOpen={!!detailInvoiceId}
+        invoiceId={detailInvoiceId}
+        onClose={() => setDetailInvoiceId(null)}
+      />
+
+      <RecordPaymentModal
+        isOpen={!!paymentInvoiceId}
+        invoiceId={paymentInvoiceId}
+        onClose={() => setPaymentInvoiceId(null)}
+        onSuccess={fetchInvoices}
+      />
+
+      <ConfirmDialog
+        isOpen={!!deleteInvoiceId}
+        title="Delete Invoice"
+        message="Are you sure you want to delete this invoice? This action cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+        loading={isDeleting}
+        onClose={() => setDeleteInvoiceId(null)}
+        onConfirm={confirmDelete}
       />
     </div>
   );

@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
 import { CustomersTable } from '../components/tables/CustomersTable';
+import { CustomerFormModal } from '../components/modals/CustomerFormModal';
+import { CustomerDetailModal } from '../components/modals/CustomerDetailModal';
+import { PaymentHistoryModal } from '../components/modals/PaymentHistoryModal';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { useToast } from '../contexts/ToastContext';
 
 interface Customer {
   id: string;
@@ -19,6 +24,16 @@ export default function Customers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { success, error: toastError } = useToast();
+
+  // Modal States
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!roleLoading && role) {
@@ -41,22 +56,43 @@ export default function Customers() {
     }
   };
 
+  const handleAddCustomer = () => {
+    setSelectedCustomerId(null);
+    setIsFormOpen(true);
+  };
+
   const handleViewCustomer = (id: string) => {
-    alert(`View customer ${id}`);
+    setSelectedCustomerId(id);
+    setIsDetailOpen(true);
   };
 
   const handleEditCustomer = (id: string) => {
-    alert(`Edit customer ${id}`);
+    setSelectedCustomerId(id);
+    setIsFormOpen(true);
   };
 
-  const handleDeleteCustomer = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this customer?')) {
-      alert(`Delete customer ${id}`);
+  const handleDeleteCustomer = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    setIsDeleting(true);
+    try {
+      await api.delete(`/api/v1/customers/${deleteId}`);
+      success('Customer Deleted', 'The customer has been deleted.');
+      fetchCustomers();
+    } catch (err: any) {
+      toastError('Failed to delete', err.response?.data?.message || 'Please try again.');
+    } finally {
+      setIsDeleting(false);
+      setDeleteId(null);
     }
   };
 
   const handleViewPaymentHistory = (id: string) => {
-    alert(`View payment history for customer ${id}`);
+    setSelectedCustomerId(id);
+    setIsHistoryOpen(true);
   };
 
   if (roleLoading || loading) {
@@ -74,7 +110,10 @@ export default function Customers() {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-800">Customers</h2>
         {canManage && (
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+          <button 
+            onClick={handleAddCustomer}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
             Add Customer
           </button>
         )}
@@ -94,6 +133,37 @@ export default function Customers() {
         onEditCustomer={handleEditCustomer}
         onDeleteCustomer={handleDeleteCustomer}
         onViewPaymentHistory={handleViewPaymentHistory}
+      />
+
+      {/* Modals */}
+      <CustomerFormModal
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSuccess={fetchCustomers}
+        customerId={selectedCustomerId}
+      />
+
+      <CustomerDetailModal
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        customerId={selectedCustomerId}
+      />
+
+      <PaymentHistoryModal
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        customerId={selectedCustomerId}
+      />
+
+      <ConfirmDialog
+        isOpen={!!deleteId}
+        title="Delete Customer"
+        message="Are you sure you want to delete this customer? This action cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+        loading={isDeleting}
+        onClose={() => setDeleteId(null)}
+        onConfirm={confirmDelete}
       />
     </div>
   );

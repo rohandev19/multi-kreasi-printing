@@ -1,4 +1,5 @@
 import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CacheModule } from './cache/cache.module';
@@ -25,6 +26,7 @@ import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     CacheModule,
     LoggerModule,
     PrismaModule,

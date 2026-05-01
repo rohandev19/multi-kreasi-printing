@@ -2,12 +2,22 @@ import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
 import { DesignFilesTable } from '../components/tables/DesignFilesTable';
+import { UploadDesignModal } from '../components/modals/UploadDesignModal';
+import { DesignPreviewModal } from '../components/modals/DesignPreviewModal';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { useToast } from '../contexts/ToastContext';
 
 export default function DesignFiles() {
   const { role, loading: roleLoading } = useRoleContext();
   const [files, setFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { success, error: toastError } = useToast();
+
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [previewFileId, setPreviewFileId] = useState<string | null>(null);
+  const [deleteFileId, setDeleteFileId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!roleLoading && role) {
@@ -31,43 +41,60 @@ export default function DesignFiles() {
   };
 
   const handlePreview = (id: string) => {
-    alert(`Preview design file ${id}`);
+    setPreviewFileId(id);
   };
 
   const handleDownload = async (id: string) => {
-    alert(`Download design file ${id}`);
+    // In a real app, this would trigger a file download
+    success('Download Started', 'Your file is downloading.');
   };
 
   const handleApprove = async (id: string) => {
     try {
       await api.patch(`/api/v1/design-files/${id}/approve`);
+      success('File Approved', 'The design file has been approved.');
       fetchDesignFiles();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to approve design file');
+      toastError('Error', err.response?.data?.message || 'Failed to approve design file');
     }
   };
 
   const handleReject = async (id: string) => {
     try {
       await api.patch(`/api/v1/design-files/${id}/reject`, { notes: 'Rejected by review' });
+      success('File Rejected', 'The design file has been rejected.');
       fetchDesignFiles();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to reject design file');
+      toastError('Error', err.response?.data?.message || 'Failed to reject design file');
     }
   };
 
   const handleRevisionRequest = async (id: string) => {
     try {
       await api.patch(`/api/v1/design-files/${id}/request-revision`, { notes: 'Revision requested' });
+      success('Revision Requested', 'A revision has been requested for this file.');
       fetchDesignFiles();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to request revision for design file');
+      toastError('Error', err.response?.data?.message || 'Failed to request revision for design file');
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this file?')) {
-      alert(`Delete design file ${id}`);
+  const handleDelete = (id: string) => {
+    setDeleteFileId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteFileId) return;
+    setIsDeleting(true);
+    try {
+      await api.delete(`/api/v1/design-files/${deleteFileId}`);
+      success('File Deleted', 'The design file has been deleted.');
+      fetchDesignFiles();
+    } catch (err: any) {
+      toastError('Failed to delete', err.response?.data?.message || 'Please try again.');
+    } finally {
+      setIsDeleting(false);
+      setDeleteFileId(null);
     }
   };
 
@@ -83,8 +110,11 @@ export default function DesignFiles() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-800">Design Files</h2>
-        {(role === 'Owner' || role === 'Manager' || role === 'Sales') && (
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+        {(role === 'Owner' || role === 'Manager') && (
+          <button 
+            onClick={() => setIsUploadOpen(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
             Upload Design
           </button>
         )}
@@ -106,6 +136,29 @@ export default function DesignFiles() {
         onReject={handleReject}
         onRevisionRequest={handleRevisionRequest}
         onDelete={handleDelete}
+      />
+
+      <UploadDesignModal
+        isOpen={isUploadOpen}
+        onClose={() => setIsUploadOpen(false)}
+        onSuccess={fetchDesignFiles}
+      />
+
+      <DesignPreviewModal
+        isOpen={!!previewFileId}
+        fileId={previewFileId}
+        onClose={() => setPreviewFileId(null)}
+      />
+
+      <ConfirmDialog
+        isOpen={!!deleteFileId}
+        title="Delete Design File"
+        message="Are you sure you want to delete this design file? This action cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+        loading={isDeleting}
+        onClose={() => setDeleteFileId(null)}
+        onConfirm={confirmDelete}
       />
     </div>
   );
