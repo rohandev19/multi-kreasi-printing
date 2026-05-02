@@ -54,24 +54,33 @@ async function main() {
     }
   }
 
-  // Create a default Customer user for testing
-  const customerRole = await prisma.role.findUnique({ where: { name: 'Customer' } });
-  if (customerRole) {
-    const customerEmail = 'customer@example.com';
-    const existingCustomer = await prisma.user.findUnique({ where: { email: customerEmail } });
-    
-    if (!existingCustomer) {
-      const passwordHash = await bcrypt.hash('Customer@123!', 10);
-      await prisma.user.create({
-        data: {
-          email: customerEmail,
-          passwordHash,
-          fullName: 'Test Customer',
-          roleId: customerRole.id,
-          status: 'ACTIVE',
-        },
-      });
-      console.log('Default customer created: customer@example.com / Customer@123!');
+  const testUsers = [
+    { name: 'Manager', email: 'manager@mkprinting.com', pass: 'Manager@123!' },
+    { name: 'Sales', email: 'sales@mkprinting.com', pass: 'Sales@123!' },
+    { name: 'Designer', email: 'designer@mkprinting.com', pass: 'Designer@123!' },
+    { name: 'Production_Staff', email: 'production@mkprinting.com', pass: 'Production@123!' },
+    { name: 'Warehouse_Staff', email: 'warehouse@mkprinting.com', pass: 'Warehouse@123!' },
+    { name: 'Finance_Staff', email: 'finance@mkprinting.com', pass: 'Finance@123!' },
+    { name: 'Customer', email: 'customer@example.com', pass: 'Customer@123!' },
+  ];
+
+  for (const user of testUsers) {
+    const role = await prisma.role.findUnique({ where: { name: user.name } });
+    if (role) {
+      const existingUser = await prisma.user.findUnique({ where: { email: user.email } });
+      if (!existingUser) {
+        const passwordHash = await bcrypt.hash(user.pass, 10);
+        await prisma.user.create({
+          data: {
+            email: user.email,
+            passwordHash,
+            fullName: `Test ${user.name.replace('_', ' ')}`,
+            roleId: role.id,
+            status: 'ACTIVE',
+          },
+        });
+        console.log(`Default ${user.name} created: ${user.email} / ${user.pass}`);
+      }
     }
   }
 

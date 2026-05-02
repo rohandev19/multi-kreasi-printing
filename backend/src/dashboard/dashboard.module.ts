@@ -15,6 +15,7 @@ import { GetProductionStaffMetricsUseCase } from './use-cases/get-production-sta
 import { GetWarehouseStaffMetricsUseCase } from './use-cases/get-warehouse-staff-metrics.usecase';
 import { GetFinanceStaffMetricsUseCase } from './use-cases/get-finance-staff-metrics.usecase';
 import { GetCustomerMetricsUseCase } from './use-cases/get-customer-metrics.usecase';
+import { GetSalesMetricsUseCase } from './use-cases/get-sales-metrics.usecase';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { GetCustomerMetricsUseCase } from './use-cases/get-customer-metrics.usec
     GetWarehouseStaffMetricsUseCase,
     GetFinanceStaffMetricsUseCase,
     GetCustomerMetricsUseCase,
+    GetSalesMetricsUseCase,
     GetRevenueChartDataUseCase,
     GetProductionStatusUseCase,
     CalculateKPIsUseCase,

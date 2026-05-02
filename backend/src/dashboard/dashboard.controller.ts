@@ -23,6 +23,7 @@ import { GetProductionStaffMetricsUseCase } from './use-cases/get-production-sta
 import { GetWarehouseStaffMetricsUseCase } from './use-cases/get-warehouse-staff-metrics.usecase';
 import { GetFinanceStaffMetricsUseCase } from './use-cases/get-finance-staff-metrics.usecase';
 import { GetCustomerMetricsUseCase } from './use-cases/get-customer-metrics.usecase';
+import { GetSalesMetricsUseCase } from './use-cases/get-sales-metrics.usecase';
 import { Param, ForbiddenException } from '@nestjs/common';
 import { Roles } from '../auth/decorators/roles.decorator';
 
@@ -40,6 +41,7 @@ export class DashboardController {
     private readonly getWarehouseStaffMetrics: GetWarehouseStaffMetricsUseCase,
     private readonly getFinanceStaffMetrics: GetFinanceStaffMetricsUseCase,
     private readonly getCustomerMetrics: GetCustomerMetricsUseCase,
+    private readonly getSalesMetrics: GetSalesMetricsUseCase,
     private readonly calculateKpis: CalculateKPIsUseCase,
     private readonly getRevenueChart: GetRevenueChartDataUseCase,
     private readonly getProductionStatus: GetProductionStatusUseCase,
@@ -76,6 +78,8 @@ export class DashboardController {
         return this.getWarehouseStaffMetrics.execute();
       case 'finance_staff':
         return this.getFinanceStaffMetrics.execute();
+      case 'sales':
+        return this.getSalesMetrics.execute();
       case 'customer':
         return this.getCustomerMetrics.execute(userId);
       default:
