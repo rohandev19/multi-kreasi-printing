@@ -36,9 +36,13 @@ export default function Header() {
             <p className="text-sm font-medium text-slate-700">{user?.fullName || user?.name || 'Guest'}</p>
             <p className="text-xs text-slate-500 capitalize">{roleName.replace('_', ' ')}</p>
           </div>
-          <div className="w-9 h-9 bg-blue-100 text-blue-600 flex items-center justify-center rounded-full font-bold shadow-inner uppercase">
+          <Link 
+            to="/dashboard/profile"
+            className="w-9 h-9 bg-blue-100 text-blue-600 flex items-center justify-center rounded-full font-bold shadow-inner uppercase hover:bg-blue-200 transition-colors cursor-pointer"
+            title="Profile"
+          >
             {(user?.fullName || user?.name || 'G').charAt(0)}
-          </div>
+          </Link>
           <button 
             onClick={handleLogout}
             className="p-2 ml-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"

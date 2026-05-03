@@ -13,6 +13,7 @@ const Warehouse = lazy(() => import('./pages/Warehouse'));
 const MyOrders = lazy(() => import('./pages/MyOrders'));
 const Users = lazy(() => import('./pages/Users'));
 const Login = lazy(() => import('./pages/Login'));
+const Profile = lazy(() => import('./pages/Profile'));
 import { RoleProvider } from './contexts/RoleContext';
 import { ToastProvider } from './contexts/ToastContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -112,6 +113,14 @@ export const router = createBrowserRouter([
             element: (
               <Suspense fallback={<LoadingSpinner />}>
                 <Dashboard />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'profile',
+            element: (
+              <Suspense fallback={<LoadingSpinner />}>
+                <Profile />
               </Suspense>
             ),
           },
