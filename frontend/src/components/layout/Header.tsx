@@ -6,7 +6,7 @@ import { useRoleContext } from '../../contexts/RoleContext';
 
 export default function Header() {
   const { totalItems } = useCart();
-  const { roleName, user } = useRoleAccess();
+  const { role, roleName, user } = useRoleAccess();
   const { refreshRole } = useRoleContext();
   const navigate = useNavigate();
 
@@ -23,14 +23,16 @@ export default function Header() {
         <span className="text-lg font-medium text-slate-700">Overview</span>
       </div>
       <div className="flex items-center space-x-4">
-        <Link to="/cart" className="relative p-2 text-slate-500 hover:text-blue-600 transition-colors">
-          <ShoppingCart className="w-6 h-6" />
-          {totalItems > 0 && (
-            <span className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs flex items-center justify-center rounded-full font-bold shadow-sm">
-              {totalItems > 99 ? '99+' : totalItems}
-            </span>
-          )}
-        </Link>
+        {(!role || role === 'Customer') && (
+          <Link to="/cart" className="relative p-2 text-slate-500 hover:text-blue-600 transition-colors">
+            <ShoppingCart className="w-6 h-6" />
+            {totalItems > 0 && (
+              <span className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs flex items-center justify-center rounded-full font-bold shadow-sm">
+                {totalItems > 99 ? '99+' : totalItems}
+              </span>
+            )}
+          </Link>
+        )}
         <div className="flex items-center space-x-3 border-l pl-4 border-gray-200">
           <div className="text-right hidden md:block">
             <p className="text-sm font-medium text-slate-700">{user?.fullName || user?.name || 'Guest'}</p>

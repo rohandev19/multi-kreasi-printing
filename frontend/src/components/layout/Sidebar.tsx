@@ -23,13 +23,13 @@ const menuItems: MenuItem[] = [
     path: '/dashboard',
     icon: <LayoutDashboard size={20} />,
     label: 'Dashboard',
-    roles: ['Owner', 'Manager', 'Designer', 'Production_Staff', 'Warehouse_Staff', 'Finance_Staff'],
+    roles: ['Owner', 'Manager', 'Designer', 'Production_Staff', 'Warehouse_Staff', 'Finance_Staff', 'Sales'],
   },
   {
     path: '/dashboard/orders',
     icon: <ShoppingCart size={20} />,
     label: 'Orders',
-    roles: ['Owner', 'Manager', 'Designer', 'Production_Staff', 'Finance_Staff'],
+    roles: ['Owner', 'Manager', 'Designer', 'Production_Staff', 'Finance_Staff', 'Sales'],
   },
   {
     path: '/dashboard/production',
@@ -59,7 +59,7 @@ const menuItems: MenuItem[] = [
     path: '/dashboard/customers',
     icon: <Users size={20} />,
     label: 'Customers',
-    roles: ['Owner', 'Manager', 'Finance_Staff'],
+    roles: ['Owner', 'Manager', 'Finance_Staff', 'Sales'],
   },
   {
     path: '/dashboard/invoices',
