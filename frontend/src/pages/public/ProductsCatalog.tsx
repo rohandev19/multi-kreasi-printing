@@ -10,7 +10,7 @@ interface Product {
   name: string;
   description: string;
   basePrice: number;
-  category: string;
+  category: any;
   imageUrl?: string;
   isActive: boolean;
 }
@@ -32,7 +32,12 @@ export const ProductsCatalog = () => {
     try {
       const response = await api.get('/api/v1/products');
       const data = Array.isArray(response.data) ? response.data : response.data.data || [];
-      const activeProducts = data.filter((p: Product) => p.isActive !== false);
+      const activeProducts = data
+        .filter((p: any) => p.isActive !== false)
+        .map((p: any) => ({
+          ...p,
+          category: typeof p.category === 'object' && p.category !== null ? p.category.name : p.category
+        }));
       setProducts(activeProducts);
       
       const uniqueCategories = Array.from(new Set(activeProducts.map((p: Product) => p.category))) as string[];
