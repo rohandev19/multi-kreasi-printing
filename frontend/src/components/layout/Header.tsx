@@ -14,7 +14,7 @@ export default function Header() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     refreshRole();
-    navigate('/login');
+    navigate('/');
   };
 
   return (

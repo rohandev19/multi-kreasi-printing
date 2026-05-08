@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import api from '../api/axios';
 
 export default function Login() {
@@ -60,8 +61,15 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 font-sans">
-      <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl border border-slate-100">
-        <div className="mb-8 text-center">
+      <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl border border-slate-100 relative">
+        <Link 
+          to="/" 
+          className="absolute top-6 left-6 text-slate-400 hover:text-blue-600 transition-colors flex items-center gap-1 text-sm font-medium"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </Link>
+        <div className="mb-8 mt-6 text-center">
           <h2 className="text-3xl font-extrabold text-slate-800 mb-2 tracking-tight">MK Printing</h2>
           <p className="text-slate-500">Sign in to your account</p>
         </div>
