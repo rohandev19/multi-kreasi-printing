@@ -26,9 +26,9 @@ export class OrderItemDto {
 }
 
 export class CreateOrderDto {
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  customerId!: string;
+  customerId?: string;
 
   @IsArray()
   @ValidateNested({ each: true })

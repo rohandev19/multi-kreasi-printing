@@ -16,10 +16,37 @@ export class CreateOrderUseCase {
     if (dto.items.length === 0)
       throw new BadRequestException('Order must have at least one item');
 
-    const customer = await this.prisma.customer.findUnique({
-      where: { id: dto.customerId },
-    });
-    if (!customer) throw new BadRequestException('Customer tidak ditemukan');
+    let finalCustomerId = dto.customerId;
+
+    if (!finalCustomerId) {
+      // Find current user
+      const currentUser = await this.prisma.user.findUnique({
+        where: { id: currentUserId },
+      });
+      if (!currentUser) throw new BadRequestException('User tidak ditemukan');
+
+      // Check if they have a Customer profile
+      let customer = await this.prisma.customer.findFirst({
+        where: { email: currentUser.email },
+      });
+
+      // If not, create one automatically
+      if (!customer) {
+        customer = await this.prisma.customer.create({
+          data: {
+            companyName: currentUser.fullName || 'Customer Individual',
+            email: currentUser.email,
+            loyaltyTier: 'Bronze',
+          },
+        });
+      }
+      finalCustomerId = customer.id;
+    } else {
+      const customer = await this.prisma.customer.findUnique({
+        where: { id: finalCustomerId },
+      });
+      if (!customer) throw new BadRequestException('Customer tidak ditemukan');
+    }
 
     // Fetch product details for validation and pricing
     const productIds = dto.items.map((i) => i.productId);
@@ -67,7 +94,7 @@ export class CreateOrderUseCase {
       const created = await tx.order.create({
         data: {
           orderNumber,
-          customerId: dto.customerId,
+          customerId: finalCustomerId,
           priority: dto.priority || 'Normal',
           subtotal,
           tax,

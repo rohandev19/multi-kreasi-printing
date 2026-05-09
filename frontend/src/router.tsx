@@ -24,6 +24,8 @@ import { CartPage } from './pages/public/CartPage';
 import { AboutPage } from './pages/public/AboutPage';
 import { ContactPage } from './pages/public/ContactPage';
 import { TermsPage } from './pages/public/TermsPage';
+import { CheckoutPage } from './pages/public/CheckoutPage';
+import { PaymentPage } from './pages/public/PaymentPage';
 
 const Register = lazy(() => import('./pages/public/Register').then(m => ({ default: m.RegisterPage })));
 const VerifyEmail = lazy(() => import('./pages/public/VerifyEmail').then(m => ({ default: m.VerifyEmailPage })));
@@ -202,6 +204,18 @@ export const router = createBrowserRouter([
                   <Users />
                 </Suspense>
               </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'checkout',
+            element: (
+              <CheckoutPage />
+            ),
+          },
+          {
+            path: 'payment/:orderId',
+            element: (
+              <PaymentPage />
             ),
           },
         ],

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, ChevronRight, Filter } from 'lucide-react';
+import { ShoppingBag, ChevronRight, Filter, Plus, Minus } from 'lucide-react';
 import api from '../../api/axios';
 import { useCart } from '../../hooks/useCart';
 import { useToast } from '../../contexts/ToastContext';
@@ -20,6 +20,7 @@ export const ProductsCatalog = () => {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
   
   const { addToCart } = useCart();
   const { success, error } = useToast();
@@ -58,10 +59,16 @@ export const ProductsCatalog = () => {
     }
   };
 
+  const handleQuantityChange = (productId: string, value: number) => {
+    setQuantities(prev => ({ ...prev, [productId]: Math.max(1, value) }));
+  };
+
   const handleAddToCart = async (productId: string) => {
     try {
-      await addToCart(productId, 1);
-      success('Added to Cart', 'Product has been added to your cart.');
+      const qty = quantities[productId] || 1;
+      await addToCart(productId, qty);
+      success('Added to Cart', `${qty} product(s) added to your cart.`);
+      setQuantities(prev => ({ ...prev, [productId]: 1 }));
     } catch (err) {
       error('Failed to Add', 'Could not add product to cart. Please try again.');
     }
@@ -136,13 +143,33 @@ export const ProductsCatalog = () => {
                 <div className="font-bold text-gray-900 tabular-nums">
                   {formatCurrency(product.basePrice)}
                 </div>
-                <button
-                  onClick={() => handleAddToCart(product.id)}
-                  className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-colors"
-                  title="Add to Cart"
-                >
-                  <ShoppingBag className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center border border-gray-200 rounded-lg bg-gray-50 p-1">
+                    <button 
+                      onClick={() => handleQuantityChange(product.id, (quantities[product.id] || 1) - 1)}
+                      disabled={(quantities[product.id] || 1) <= 1}
+                      className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white hover:shadow-sm transition-all disabled:opacity-50 text-gray-500"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </button>
+                    <span className="w-8 text-center font-medium text-sm text-gray-900 tabular-nums">
+                      {quantities[product.id] || 1}
+                    </span>
+                    <button 
+                      onClick={() => handleQuantityChange(product.id, (quantities[product.id] || 1) + 1)}
+                      className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white hover:shadow-sm transition-all text-gray-500"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => handleAddToCart(product.id)}
+                    className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-colors flex-shrink-0 shadow-sm"
+                    title="Add to Cart"
+                  >
+                    <ShoppingBag className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
