@@ -44,7 +44,7 @@ export default function DesignFiles() {
     setPreviewFileId(id);
   };
 
-  const handleDownload = async (id: string) => {
+  const handleDownload = async (_id: string) => {
     // In a real app, this would trigger a file download
     success('Download Started', 'Your file is downloading.');
   };

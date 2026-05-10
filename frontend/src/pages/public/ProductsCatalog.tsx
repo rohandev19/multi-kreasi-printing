@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ShoppingBag, ChevronRight, Filter, Plus, Minus } from 'lucide-react';
+import { ShoppingBag, Filter, Plus, Minus } from 'lucide-react';
 import api from '../../api/axios';
 import { useCart } from '../../hooks/useCart';
 import { useToast } from '../../contexts/ToastContext';

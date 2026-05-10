@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
-import { FileText, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 interface InvoiceDetailModalProps {
   isOpen: boolean;
