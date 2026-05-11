@@ -62,12 +62,12 @@ export const ProductsCatalog = () => {
     setQuantities(prev => ({ ...prev, [productId]: Math.max(1, value) }));
   };
 
-  const handleAddToCart = async (productId: string) => {
+  const handleAddToCart = async (product: Product) => {
     try {
-      const qty = quantities[productId] || 1;
-      await addToCart(productId, qty);
+      const qty = quantities[product.id] || 1;
+      await addToCart(product, qty);
       success('Added to Cart', `${qty} product(s) added to your cart.`);
-      setQuantities(prev => ({ ...prev, [productId]: 1 }));
+      setQuantities(prev => ({ ...prev, [product.id]: 1 }));
     } catch (err) {
       error('Failed to Add', 'Could not add product to cart. Please try again.');
     }
@@ -162,7 +162,7 @@ export const ProductsCatalog = () => {
                     </button>
                   </div>
                   <button
-                    onClick={() => handleAddToCart(product.id)}
+                    onClick={() => handleAddToCart(product)}
                     className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-colors flex-shrink-0 shadow-sm"
                     title="Add to Cart"
                   >
