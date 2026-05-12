@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, Get } from '@nestjs/common';
+import { Controller, Post, Body, Req, Get, Patch, Delete, Param } from '@nestjs/common';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CartMergeService } from './cart-merge.service';
 import { MergeCartDto } from './dto/merge-cart.dto';
@@ -21,5 +21,37 @@ export class CartController {
     const userId = (req as any).user.sub;
     // Calling merge without new items will just fetch and calculate current cart
     return this.cartMergeService.mergeGuestCart(userId, []);
+  }
+
+  @Post('items')
+  @Roles('Customer')
+  async addItem(@Body() body: { productId: string; quantity: number }, @Req() req: Request) {
+    const userId = (req as any).user.sub;
+    return this.cartMergeService.mergeGuestCart(userId, [body]);
+  }
+
+  @Patch('items/:productId')
+  @Roles('Customer')
+  async updateItem(
+    @Param('productId') productId: string,
+    @Body() body: { quantity: number },
+    @Req() req: Request
+  ) {
+    const userId = (req as any).user.sub;
+    return this.cartMergeService.updateItemQuantity(userId, productId, body.quantity);
+  }
+
+  @Delete('items/:productId')
+  @Roles('Customer')
+  async removeItem(@Param('productId') productId: string, @Req() req: Request) {
+    const userId = (req as any).user.sub;
+    return this.cartMergeService.removeItem(userId, productId);
+  }
+
+  @Delete()
+  @Roles('Customer')
+  async clearCart(@Req() req: Request) {
+    const userId = (req as any).user.sub;
+    return this.cartMergeService.clearCart(userId);
   }
 }

@@ -140,4 +140,49 @@ export class CartMergeService {
       totalAmount,
     };
   }
+
+  async updateItemQuantity(userId: string, productId: string, quantity: number): Promise<CartResponseDto> {
+    const cart = await this.prisma.cart.findUnique({
+      where: { userId },
+      include: { items: { include: { product: true } } },
+    });
+
+    if (!cart) throw new NotFoundException('Cart not found');
+
+    const item = cart.items.find(i => i.productId === productId);
+    if (!item) throw new NotFoundException('Item not found in cart');
+
+    const newSubtotal = Number(item.product.basePrice) * quantity;
+
+    await this.prisma.cartItem.update({
+      where: { id: item.id },
+      data: { quantity, subtotal: newSubtotal },
+    });
+
+    return this.mergeGuestCart(userId, []); // Return recalculated cart
+  }
+
+  async removeItem(userId: string, productId: string): Promise<CartResponseDto> {
+    const cart = await this.prisma.cart.findUnique({
+      where: { userId },
+      include: { items: true },
+    });
+
+    if (!cart) throw new NotFoundException('Cart not found');
+
+    const item = cart.items.find(i => i.productId === productId);
+    if (item) {
+      await this.prisma.cartItem.delete({ where: { id: item.id } });
+    }
+
+    return this.mergeGuestCart(userId, []);
+  }
+
+  async clearCart(userId: string): Promise<CartResponseDto> {
+    const cart = await this.prisma.cart.findUnique({ where: { userId } });
+    if (cart) {
+      await this.prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
+    }
+    return this.mergeGuestCart(userId, []);
+  }
 }
