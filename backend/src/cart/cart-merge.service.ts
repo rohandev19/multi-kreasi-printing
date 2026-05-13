@@ -48,7 +48,7 @@ export class CartMergeService {
       for (const guestItem of guestCartItems) {
         // Verify product exists and get its price
         const product = await this.prisma.product.findUnique({
-          where: { id: guestItem.productId, status: 'ACTIVE' },
+          where: { id: guestItem.productId, status: 'Active' },
         });
 
         if (!product) continue; // Skip invalid or inactive products

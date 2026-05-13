@@ -20,32 +20,6 @@ export default function Login() {
       localStorage.setItem('token', response.data.accessToken);
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
-      // Attempt to merge cart if user is Customer
-      if (response.data.user.role === 'Customer') {
-        const localCart = localStorage.getItem('mk_cart');
-        if (localCart) {
-          const parsedCart = JSON.parse(localCart);
-          if (parsedCart.length > 0) {
-            try {
-              // Extract only what's needed for the DTO
-              const guestCartItems = parsedCart.map((item: any) => ({
-                productId: item.productId,
-                quantity: item.quantity
-              }));
-              await api.post('/api/v1/cart/merge', { guestCartItems }, {
-                headers: { Authorization: `Bearer ${response.data.accessToken}` }
-              });
-              // Note: We don't clear localStorage 'mk_cart' here because CartContext 
-              // currently syncs to localStorage. A robust approach for 11.3 would be 
-              // CartContext detecting logged in user and fetching from server instead.
-              // For now, the merge ensures the backend has the cart data.
-            } catch (mergeErr) {
-              console.error('Failed to merge cart on login', mergeErr);
-            }
-          }
-        }
-      }
-
       // Handle redirect parameter
       const params = new URLSearchParams(window.location.search);
       const defaultPath = response.data.user.role === 'Customer' ? '/products' : '/dashboard';

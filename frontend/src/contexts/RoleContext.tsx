@@ -8,7 +8,8 @@ export type UserRole =
   | 'Designer' 
   | 'Production_Staff' 
   | 'Warehouse_Staff' 
-  | 'Finance_Staff' 
+  | 'Finance_Staff'
+  | 'Sales'
   | 'Customer';
 
 export interface User {
@@ -16,6 +17,7 @@ export interface User {
   email: string;
   role: UserRole;
   name?: string;
+  fullName?: string;
 }
 
 interface RoleContextType {
@@ -42,20 +44,22 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(userData);
       setRole(userData.role);
       localStorage.setItem('user', JSON.stringify(userData));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to refresh role context:', error);
-      // The axios interceptor already handles redirecting to login on 401
-      setRole(null);
-      setUser(null);
-      localStorage.removeItem('user');
       
-      // If we are not on a public route, redirect to login
-      const publicRoutes = ['/login', '/register', '/verify-email', '/products', '/cart', '/about', '/contact', '/terms'];
-      const isPublicRoute = window.location.pathname === '/' || publicRoutes.some(route => window.location.pathname.startsWith(route));
-      if (!isPublicRoute) {
-        navigate('/login');
+      // Only clear user data if it's an authentication error (401/403)
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        setRole(null);
+        setUser(null);
+        localStorage.removeItem('user');
+        
+        // If we are not on a public route, redirect to login
+        const publicRoutes = ['/login', '/register', '/verify-email', '/products', '/cart', '/about', '/contact', '/terms'];
+        const isPublicRoute = window.location.pathname === '/' || publicRoutes.some(route => window.location.pathname.startsWith(route));
+        if (!isPublicRoute) {
+          navigate('/login');
+        }
       }
-    }
   };
 
   useEffect(() => {
