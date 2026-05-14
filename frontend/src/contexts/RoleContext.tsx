@@ -60,6 +60,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
           navigate('/login');
         }
       }
+    }
   };
 
   useEffect(() => {
