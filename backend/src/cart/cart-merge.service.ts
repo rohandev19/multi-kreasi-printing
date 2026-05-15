@@ -116,7 +116,7 @@ export class CartMergeService {
       return {
         id: item.id,
         productId: item.productId,
-        name: item.product.name,
+        productName: item.product.name,
         unitPrice: Number(item.unitPrice),
         quantity: item.quantity,
         subtotal: itemSubtotal,
