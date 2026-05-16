@@ -1,7 +1,7 @@
 export class CartItemResponseDto {
   id: string;
   productId: string;
-  name: string;
+  productName: string;
   unitPrice: number;
   quantity: number;
   subtotal: number;
