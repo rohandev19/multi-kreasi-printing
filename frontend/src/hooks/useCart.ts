@@ -38,6 +38,7 @@ export function useCart() {
     newCart.totalAmount = newCart.items.reduce((sum, item) => sum + item.subtotal, 0);
     localStorage.setItem(GUEST_CART_KEY, JSON.stringify(newCart));
     setCart(newCart);
+    window.dispatchEvent(new Event('cart_updated'));
   };
 
   const fetchCart = useCallback(async () => {
@@ -97,6 +98,7 @@ export function useCart() {
     try {
       await axios.post('/api/v1/cart/items', { productId: product.id, quantity });
       await fetchCart();
+      window.dispatchEvent(new Event('cart_updated'));
       setError(null);
     } catch (err) {
       setError('Failed to add to cart');
@@ -118,6 +120,7 @@ export function useCart() {
     try {
       await axios.delete(`/api/v1/cart/items/${productId}`);
       await fetchCart();
+      window.dispatchEvent(new Event('cart_updated'));
       setError(null);
     } catch (err) {
       setError('Failed to remove from cart');
@@ -142,6 +145,7 @@ export function useCart() {
     try {
       await axios.patch(`/api/v1/cart/items/${productId}`, { quantity });
       await fetchCart();
+      window.dispatchEvent(new Event('cart_updated'));
       setError(null);
     } catch (err) {
       setError('Failed to update cart');
@@ -161,6 +165,7 @@ export function useCart() {
     try {
       await axios.delete('/api/v1/cart');
       await fetchCart();
+      window.dispatchEvent(new Event('cart_updated'));
       setError(null);
     } catch (err) {
       setError('Failed to clear cart');
@@ -178,8 +183,17 @@ export function useCart() {
         fetchCart();
       }
     };
+    
+    const handleCustomUpdate = () => {
+      fetchCart();
+    };
+
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('cart_updated', handleCustomUpdate);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('cart_updated', handleCustomUpdate);
+    };
   }, [fetchCart, isAuth]);
 
   const totalItems = cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;

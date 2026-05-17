@@ -39,7 +39,7 @@ export default function Dashboard() {
 
   const fetchPreferences = async () => {
     try {
-      const response = await api.get('/v1/dashboard/preferences');
+      const response = await api.get('/api/v1/dashboard/preferences');
       setEnabledWidgets(response.data.enabledWidgets || []);
       setLayoutOrder(response.data.layoutOrder || []);
     } catch (err) {
@@ -51,16 +51,16 @@ export default function Dashboard() {
     setLoading(true);
     try {
       await fetchPreferences();
-      const response = await api.get(`/v1/dashboard/metrics/${currentRole}`);
+      const response = await api.get(`/api/v1/dashboard/metrics/${currentRole}`);
       let allWidgets = [...(response.data.widgets || [])];
 
       // If Owner or Manager, fetch advanced BI widgets
       if (['owner', 'manager'].includes(currentRole.toLowerCase())) {
         try {
           const [kpiRes, revRes, prodRes] = await Promise.all([
-            api.get('/v1/dashboard/kpis'),
-            api.get('/v1/dashboard/charts/revenue'),
-            api.get('/v1/dashboard/production-status')
+            api.get('/api/v1/dashboard/kpis'),
+            api.get('/api/v1/dashboard/charts/revenue'),
+            api.get('/api/v1/dashboard/production-status')
           ]);
 
           allWidgets.push({
