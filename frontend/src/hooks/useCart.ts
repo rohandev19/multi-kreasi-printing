@@ -58,9 +58,17 @@ export function useCart() {
             quantity: item.quantity
           }))
         };
-        const response = await axios.post('/api/v1/cart/merge', payload);
-        setCart(response.data);
-        localStorage.removeItem(GUEST_CART_KEY); // Clear guest cart after merge
+        try {
+          const response = await axios.post('/api/v1/cart/merge', payload);
+          setCart(response.data);
+          localStorage.removeItem(GUEST_CART_KEY); // Clear guest cart after merge
+        } catch (mergeErr) {
+          console.error("Failed to merge guest cart, clearing corrupt guest cart...", mergeErr);
+          localStorage.removeItem(GUEST_CART_KEY);
+          // Fallback to fetch normal cart
+          const response = await axios.get('/api/v1/cart');
+          setCart(response.data);
+        }
       } else {
         const response = await axios.get('/api/v1/cart');
         setCart(response.data);
