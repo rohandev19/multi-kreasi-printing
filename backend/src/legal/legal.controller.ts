@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 
-@Controller('v1/legal')
+@Controller('api/v1/legal')
 export class LegalController {
   @Get('terms')
   getTermsOfService() {

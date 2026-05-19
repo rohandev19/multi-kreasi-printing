@@ -27,7 +27,7 @@ import { GetSalesMetricsUseCase } from './use-cases/get-sales-metrics.usecase';
 import { Param, ForbiddenException } from '@nestjs/common';
 import { Roles } from '../auth/decorators/roles.decorator';
 
-@Controller('v1/dashboard')
+@Controller('api/v1/dashboard')
 @UseGuards(JwtAuthGuard)
 export class DashboardController {
   private prisma = createPrismaClient();
