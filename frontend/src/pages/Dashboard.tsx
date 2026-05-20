@@ -37,11 +37,23 @@ export default function Dashboard() {
     }
   }, [role, roleLoading]);
 
-  const fetchPreferences = async () => {
+  const fetchPreferences = async (roleStr: string) => {
     try {
       const response = await api.get('/api/v1/dashboard/preferences');
-      setEnabledWidgets(response.data.enabledWidgets || []);
-      setLayoutOrder(response.data.layoutOrder || []);
+      let widgets = response.data.enabledWidgets || [];
+      let layout = response.data.layoutOrder || [];
+
+      // Ensure customer widgets are enabled if they are missing from preferences
+      if (roleStr === 'Customer') {
+        const cw = ['customer-active-orders', 'customer-completed-orders', 'customer-amount-spent', 'customer-cart'];
+        if (!cw.some(w => widgets.includes(w))) {
+          widgets = [...widgets, ...cw];
+          layout = [...layout, ...cw];
+        }
+      }
+
+      setEnabledWidgets(widgets);
+      setLayoutOrder(layout);
     } catch (err) {
       console.error('Failed to load preferences', err);
     }
@@ -50,7 +62,7 @@ export default function Dashboard() {
   const loadDashboard = async (currentRole: string) => {
     setLoading(true);
     try {
-      await fetchPreferences();
+      await fetchPreferences(currentRole);
       const response = await api.get(`/api/v1/dashboard/metrics/${currentRole}`);
       let allWidgets = [...(response.data.widgets || [])];
 

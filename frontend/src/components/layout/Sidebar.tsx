@@ -23,7 +23,7 @@ const menuItems: MenuItem[] = [
     path: '/dashboard',
     icon: <LayoutDashboard size={20} />,
     label: 'Dashboard',
-    roles: ['Owner', 'Manager', 'Designer', 'Production_Staff', 'Warehouse_Staff', 'Finance_Staff', 'Sales'],
+    roles: ['Owner', 'Manager', 'Designer', 'Production_Staff', 'Warehouse_Staff', 'Finance_Staff', 'Sales', 'Customer'],
   },
   {
     path: '/dashboard/orders',
