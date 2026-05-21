@@ -73,12 +73,19 @@ export const PublicLayout = () => {
                 </Link>
                 
                 {user ? (
-                  <Link
-                    to="/dashboard"
-                    className="hidden md:inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
-                  >
-                    Dashboard
-                  </Link>
+                  <div className="hidden md:flex items-center gap-4">
+                    {user.role === 'Customer' && (
+                      <Link to="/dashboard/my-orders" className="text-sm font-medium text-slate-600 hover:text-indigo-600">
+                        My Orders
+                      </Link>
+                    )}
+                    <Link
+                      to="/dashboard"
+                      className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
+                    >
+                      Dashboard
+                    </Link>
+                  </div>
                 ) : (
                   <div className="hidden md:flex items-center gap-2">
                     <Link

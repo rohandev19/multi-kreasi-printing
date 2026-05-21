@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { DashboardMetricsResponse, WidgetType } from '../dto/dashboard-metrics-response.dto';
+import { DashboardMetricsResponse } from '../dto/dashboard-metrics-response.dto';
 
 @Injectable()
 export class GetSalesMetricsUseCase {
@@ -63,7 +63,7 @@ export class GetSalesMetricsUseCase {
         {
           id: 'sales-new-orders',
           title: 'New Orders Today',
-          type: WidgetType.STAT,
+          type: 'stat',
           value: newOrdersToday,
           icon: 'cart',
           color: 'blue',
@@ -71,7 +71,7 @@ export class GetSalesMetricsUseCase {
         {
           id: 'sales-revenue',
           title: 'Revenue This Month',
-          type: WidgetType.STAT,
+          type: 'stat',
           value: `$${Number(revenueThisMonth._sum.totalAmount || 0).toLocaleString()}`,
           icon: 'revenue',
           color: 'emerald',
@@ -79,7 +79,7 @@ export class GetSalesMetricsUseCase {
         {
           id: 'sales-active-customers',
           title: 'Active Customers',
-          type: WidgetType.STAT,
+          type: 'stat',
           value: activeCustomersCount,
           icon: 'users',
           color: 'indigo',
@@ -87,7 +87,7 @@ export class GetSalesMetricsUseCase {
         {
           id: 'sales-pending-orders',
           title: 'Action Needed (Orders)',
-          type: WidgetType.STAT,
+          type: 'stat',
           value: pendingOrders,
           icon: 'alert',
           color: 'amber',

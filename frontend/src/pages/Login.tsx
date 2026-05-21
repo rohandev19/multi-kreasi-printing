@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import api from '../api/axios';
+import { useRoleContext } from '../contexts/RoleContext';
 
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { loginUser } = useRoleContext();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -18,7 +20,7 @@ export default function Login() {
     try {
       const response = await api.post('/api/v1/auth/login', { email, password });
       localStorage.setItem('token', response.data.accessToken);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      loginUser(response.data.user);
 
       // Handle redirect parameter
       const params = new URLSearchParams(window.location.search);

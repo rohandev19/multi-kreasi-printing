@@ -43,7 +43,7 @@ export class OrdersController {
   @Roles('Sales', 'Manager', 'Owner', 'Customer')
   @UseGuards(VerifiedGuard)
   async create(@Body() dto: CreateOrderDto, @Req() req: Request) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     return this.createOrder.execute(dto, userId);
   }
 
@@ -72,7 +72,7 @@ export class OrdersController {
     // If user is Customer, only show their orders
     if (effectiveRole === 'Customer') {
       return this.prisma.order.findMany({
-        where: { customerId: user.id },
+        where: { customer: { email: user.email } },
         include: { customer: { select: { companyName: true, email: true } } },
         orderBy: { createdAt: 'desc' },
         take: 50,
@@ -121,21 +121,21 @@ export class OrdersController {
     @Body() dto: UpdateOrderStatusDto,
     @Req() req: Request,
   ) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     return this.updateOrderStatus.execute(id, dto, userId);
   }
 
   @Post(':id/submit')
   @Roles('Sales', 'Manager', 'Owner')
   async submit(@Param('id') id: string, @Req() req: Request) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     return this.submitOrder.execute(id, userId);
   }
 
   @Post(':id/approve')
   @Roles('Manager', 'Owner')
   async approve(@Param('id') id: string, @Req() req: Request) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     const userRole = (req as any).user.role;
     return this.approveOrder.execute(id, userId, userRole);
   }
@@ -147,7 +147,7 @@ export class OrdersController {
     @Body('reason') reason: string,
     @Req() req: Request,
   ) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     return this.cancelOrder.execute(id, reason, userId);
   }
 
@@ -173,10 +173,11 @@ export class OrdersController {
     const user = (req as any).user;
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
+      include: { customer: true }
     });
     if (!order) return [];
 
-    if (user.role.name === 'Customer' && order.customerId !== user.id) {
+    if (user.role === 'Customer' && order.customer.email !== user.email) {
       return []; // Prevent IDOR, hide existence of order
     }
 

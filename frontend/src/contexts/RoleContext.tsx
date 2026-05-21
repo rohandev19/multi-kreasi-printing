@@ -27,6 +27,7 @@ interface RoleContextType {
   hasAccess: (allowedRoles: UserRole[]) => boolean;
   hasPermission: (permission: string) => boolean;
   refreshRole: () => Promise<void>;
+  loginUser: (userData: User) => void;
 }
 
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
@@ -61,6 +62,14 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     }
+  };
+
+  const loginUser = (userData: User) => {
+    setUser(userData);
+    setRole(userData.role);
+    localStorage.setItem('user', JSON.stringify(userData));
+    // Trigger storage event manually for other components listening to 'storage'
+    window.dispatchEvent(new Event('storage'));
   };
 
   useEffect(() => {
@@ -133,7 +142,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <RoleContext.Provider value={{ role, user, loading, hasAccess, hasPermission, refreshRole }}>
+    <RoleContext.Provider value={{ role, user, loading, hasAccess, hasPermission, refreshRole, loginUser }}>
       {children}
     </RoleContext.Provider>
   );

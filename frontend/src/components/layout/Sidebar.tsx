@@ -7,7 +7,8 @@ import {
   FileText,
   Package,
   Palette,
-  ClipboardList
+  ClipboardList,
+  Store
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -19,6 +20,12 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
+  {
+    path: '/products',
+    icon: <Store size={20} />,
+    label: 'Catalog',
+    roles: ['Customer'],
+  },
   {
     path: '/dashboard',
     icon: <LayoutDashboard size={20} />,

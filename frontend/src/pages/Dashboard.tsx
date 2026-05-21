@@ -113,6 +113,11 @@ export default function Dashboard() {
     w => enabledWidgets.length === 0 || enabledWidgets.includes(w.id)
   ) || [];
 
+  // Fallback: if preferences exist but don't match any fetched widgets (e.g. old defaults), show all
+  if (displayedWidgets.length === 0 && metrics?.widgets && metrics.widgets.length > 0) {
+    displayedWidgets = [...metrics.widgets];
+  }
+
   if (layoutOrder.length > 0) {
     displayedWidgets.sort((a, b) => {
       const idxA = layoutOrder.indexOf(a.id);
