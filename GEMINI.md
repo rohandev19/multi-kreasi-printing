@@ -53,3 +53,10 @@ Detailed standards live in `.agents/skills/`:
 - `security-first/` — condensed, always-available security checklist (IDOR, JWT storage, file upload, secrets)
 
 Consult the relevant skill(s) before and after writing code, not just when something visibly breaks.
+
+## Branching & Deployment Strategy
+
+- **Local Development Only**: All active coding MUST happen on the `develop` branch or a `feature/` branch off `develop`.
+- **Never code on `main` or `staging`**: These branches are exclusively for CI/CD deployment via GitHub Actions.
+- **VPS/Hosting Ignored for Now**: The project is currently in the "Build Phase". Do not attempt to deploy to a VPS, run SSH deployment commands, test CI/CD pipelines, or request live server URLs unless explicitly instructed by the user. Focus entirely on the local development environment (`localhost`).
+- **Workflow**: Checkout `develop` -> Create `feature/...` branch -> Write code locally -> Commit -> Merge back into `develop`.
