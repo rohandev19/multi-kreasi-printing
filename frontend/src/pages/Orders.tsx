@@ -48,8 +48,7 @@ export default function Orders() {
   };
 
   const handleViewOrder = (id: string) => {
-    setSelectedOrderId(id);
-    setIsDetailModalOpen(true);
+    navigate(`/dashboard/orders/${id}`);
   };
 
   const handleEditOrder = (id: string) => {

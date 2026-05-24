@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ShoppingBag, Package, Plus, Minus, SearchX } from 'lucide-react';
 import api from '../../api/axios';
 import { useCart } from '../../hooks/useCart';
@@ -157,7 +158,7 @@ export const ProductsCatalog = () => {
           <div key={product.id} className="group bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-100 overflow-hidden flex flex-col relative">
             
             {/* Image Container */}
-            <div className="aspect-[4/3] bg-gradient-to-br from-slate-50 to-slate-100 relative overflow-hidden flex items-center justify-center border-b border-slate-50">
+            <Link to={`/products/${product.id}`} className="aspect-[4/3] bg-gradient-to-br from-slate-50 to-slate-100 relative overflow-hidden flex items-center justify-center border-b border-slate-50">
               {product.imageUrl ? (
                 <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
               ) : (
@@ -171,13 +172,15 @@ export const ProductsCatalog = () => {
                   {product.category}
                 </span>
               </div>
-            </div>
+            </Link>
             
             {/* Content Container */}
             <div className="p-6 flex flex-col flex-1">
-              <h3 className="font-extrabold text-slate-900 text-lg leading-tight mb-2 group-hover:text-blue-600 transition-colors">
-                {product.name}
-              </h3>
+              <Link to={`/products/${product.id}`}>
+                <h3 className="font-extrabold text-slate-900 text-lg leading-tight mb-2 group-hover:text-blue-600 transition-colors">
+                  {product.name}
+                </h3>
+              </Link>
               <p className="text-sm text-slate-500 line-clamp-2 mb-6 flex-1 font-medium leading-relaxed">
                 {product.description}
               </p>
