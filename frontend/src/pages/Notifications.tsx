@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Bell, Check, Package, CreditCard, AlertCircle, Trash2 } from 'lucide-react';
-import api from '../api/axios';
 
 interface Notification {
   id: string;

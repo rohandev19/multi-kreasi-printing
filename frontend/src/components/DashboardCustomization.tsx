@@ -120,7 +120,7 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
   const fetchPreferences = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/v1/dashboard/preferences');
+      const response = await api.get('/api/v1/dashboard/preferences');
       
       const layoutOrder = response.data.layoutOrder || [];
       const enabledWidgets = response.data.enabledWidgets || [];
@@ -203,7 +203,7 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
       : orderedWidgets.map(w => w.id);
       
     try {
-      await api.patch('/v1/dashboard/preferences', {
+      await api.patch('/api/v1/dashboard/preferences', {
         layoutOrder: currentOrder,
         enabledWidgets: preferences.enabledWidgets.length === 0 ? availableWidgets.map(w => w.id) : preferences.enabledWidgets,
       });

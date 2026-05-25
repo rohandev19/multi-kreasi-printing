@@ -4,7 +4,7 @@ import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
 import { OrdersTable } from '../components/tables/OrdersTable';
 import { CreateOrderModal } from '../components/modals/CreateOrderModal';
-import { OrderDetailsModal } from '../components/OrderDetailsModal';
+
 export default function Orders() {
   const { role, loading: roleLoading } = useRoleContext();
   const navigate = useNavigate();
@@ -14,8 +14,6 @@ export default function Orders() {
   
   // Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [editOrderId, setEditOrderId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -109,12 +107,6 @@ export default function Orders() {
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={handleModalSuccess}
         orderId={editOrderId}
-      />
-
-      <OrderDetailsModal
-        isOpen={isDetailModalOpen}
-        onClose={() => setIsDetailModalOpen(false)}
-        orderId={selectedOrderId}
       />
     </div>
   );

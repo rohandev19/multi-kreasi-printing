@@ -2,8 +2,9 @@ import React from 'react';
 import { 
   CircleDollarSign, Package, Clock, AlertTriangle, Settings, 
   Users, CheckCircle2, Palette, Server, Inbox, Truck, 
-  FileText, ShoppingCart, BarChart3, LucideIcon
+  FileText, ShoppingCart, BarChart3
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface MetricCardProps {
   title: string;

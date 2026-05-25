@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Printer, Package, Truck, ShieldCheck, Star } from 'lucide-react';
+import { ArrowRight, Printer, Package, Truck, Star } from 'lucide-react';
 
 export const HomePage = () => {
   return (
