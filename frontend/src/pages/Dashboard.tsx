@@ -4,7 +4,7 @@ import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
 import { MetricCard } from '../components/MetricCard';
 import { DashboardCustomization } from '../components/DashboardCustomization';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Sliders, Check, X } from 'lucide-react';
 
 export default function Dashboard() {
