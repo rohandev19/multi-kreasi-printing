@@ -24,7 +24,7 @@ export default function Production() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
-  const { success, error: toastError } = useToast();
+  const { success } = useToast();
   
   // View states
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('kanban');

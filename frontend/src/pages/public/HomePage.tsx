@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Printer, Package, Truck, Star } from 'lucide-react';
+import { ArrowRight, Printer, Package, Truck, Star, ShieldCheck, Clock, BadgePercent, Headphones } from 'lucide-react';
 
 export const HomePage = () => {
   return (
@@ -108,6 +108,65 @@ export const HomePage = () => {
                 </div>
                 <h3 className="text-xl font-extrabold text-slate-900 mb-3">{step.title}</h3>
                 <p className="text-slate-600 font-medium leading-relaxed">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Why Choose MK Printing</h2>
+            <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium">Built for scale, quality, and reliability.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              { title: 'Quality Guarantee', desc: 'Premium materials and strict quality control on every order.', icon: ShieldCheck, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+              { title: 'Fast Turnaround', desc: 'Optimized production lines to meet your tight deadlines.', icon: Clock, color: 'text-blue-600', bg: 'bg-blue-50' },
+              { title: 'Competitive Pricing', desc: 'Volume discounts and transparent pricing for B2B clients.', icon: BadgePercent, color: 'text-amber-600', bg: 'bg-amber-50' },
+              { title: 'Dedicated Support', desc: 'A dedicated account manager for your enterprise needs.', icon: Headphones, color: 'text-purple-600', bg: 'bg-purple-50' },
+            ].map((feature, i) => (
+              <div key={i} className="group bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                <div className={`w-14 h-14 rounded-2xl ${feature.bg} ${feature.color} flex items-center justify-center mb-5`}>
+                  <feature.icon className="w-7 h-7" />
+                </div>
+                <h3 className="text-lg font-extrabold text-slate-900 mb-2">{feature.title}</h3>
+                <p className="text-slate-600 text-sm font-medium leading-relaxed">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-24 bg-slate-50 border-y border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Trusted by Industry Leaders</h2>
+            <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium">See what our corporate partners say about us.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { quote: "MK Printing has been our reliable partner for over 3 years. Their ability to deliver high-quality marketing materials on tight deadlines is unmatched.", name: "Budi Santoso", role: "Marketing Director", company: "PT Mega Nusantara" },
+              { quote: "The transition to their B2B portal streamlined our procurement process significantly. We save hours every week on print orders.", name: "Siti Rahma", role: "Procurement Head", company: "Retailindo Group" },
+              { quote: "Exceptional quality for our large format banners. Their attention to detail and color accuracy is exactly what our brand needs.", name: "Andi Wijaya", role: "Creative Lead", company: "Studio Kreasi" },
+            ].map((testimonial, i) => (
+              <div key={i} className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm flex flex-col h-full">
+                <div className="flex gap-1 mb-6 text-amber-400">
+                  {[1,2,3,4,5].map(s => <Star key={s} className="w-4 h-4 fill-current" />)}
+                </div>
+                <p className="text-slate-600 italic font-medium leading-relaxed mb-8 flex-1">"{testimonial.quote}"</p>
+                <div className="flex items-center gap-4 mt-auto">
+                  <div className="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-lg border border-indigo-200">
+                    {testimonial.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-slate-900 text-sm">{testimonial.name}</h4>
+                    <p className="text-xs text-slate-500 font-medium">{testimonial.role}, {testimonial.company}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
