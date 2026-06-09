@@ -34,6 +34,9 @@ import { ProductDetail } from './pages/public/ProductDetail';
 
 const Register = lazy(() => import('./pages/public/Register').then(m => ({ default: m.RegisterPage })));
 const VerifyEmail = lazy(() => import('./pages/public/VerifyEmail').then(m => ({ default: m.VerifyEmailPage })));
+const ForgotPassword = lazy(() => import('./pages/public/ForgotPassword').then(m => ({ default: m.ForgotPassword })));
+const ResetPassword = lazy(() => import('./pages/public/ResetPassword').then(m => ({ default: m.ResetPassword })));
+import { FaqPage } from './pages/public/FaqPage';
 
 const LoadingSpinner = () => (
   <div className="flex h-full items-center justify-center">
@@ -85,6 +88,10 @@ export const router = createBrowserRouter([
             path: 'terms',
             element: <TermsPage />,
           },
+          {
+            path: 'faq',
+            element: <FaqPage />,
+          },
         ],
       },
       {
@@ -108,6 +115,22 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingSpinner />}>
             <VerifyEmail />
+          </Suspense>
+        ),
+      },
+      {
+        path: '/forgot-password',
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ForgotPassword />
+          </Suspense>
+        ),
+      },
+      {
+        path: '/reset-password/:token',
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ResetPassword />
           </Suspense>
         ),
       },
