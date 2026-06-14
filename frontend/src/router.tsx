@@ -15,6 +15,10 @@ const OrderDetail = lazy(() => import('./pages/OrderDetail').then(m => ({ defaul
 const Notifications = lazy(() => import('./pages/Notifications').then(m => ({ default: m.Notifications })));
 const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
 const Users = lazy(() => import('./pages/Users'));
+const Settings = lazy(() => import('./pages/Settings'));
+const AuditLog = lazy(() => import('./pages/AuditLog'));
+const Reports = lazy(() => import('./pages/Reports'));
+const Quotations = lazy(() => import('./pages/Quotations'));
 const Login = lazy(() => import('./pages/Login'));
 const Profile = lazy(() => import('./pages/Profile'));
 import { RoleProvider } from './contexts/RoleContext';
@@ -244,6 +248,46 @@ export const router = createBrowserRouter([
               <ProtectedRoute allowedRoles={['Owner', 'Manager']}>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Users />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'settings',
+            element: (
+              <ProtectedRoute allowedRoles={['Owner']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Settings />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'audit-log',
+            element: (
+              <ProtectedRoute allowedRoles={['Owner', 'Manager']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AuditLog />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'reports',
+            element: (
+              <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Finance_Staff']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Reports />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'quotations',
+            element: (
+              <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Sales']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Quotations />
                 </Suspense>
               </ProtectedRoute>
             ),
