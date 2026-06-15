@@ -76,7 +76,7 @@ export class DesignFilesController {
   ) {
     if (!orderId) throw new BadRequestException('orderId harus disertakan');
     if (!file) throw new BadRequestException('File tidak ditemukan');
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     return this.uploadDesignFile.execute(orderId, file, notes, userId);
   }
 
@@ -84,14 +84,14 @@ export class DesignFilesController {
   @Roles('Customer', 'Production', 'Sales', 'Manager', 'Owner')
   async getDetails(@Param('id') id: string, @Req() req: Request) {
     const user = (req as any).user;
-    return this.getDesignFile.execute(id, user.id, user.role.name);
+    return this.getDesignFile.execute(id, user);
   }
 
   @Get(':id/download')
   @Roles('Customer', 'Production', 'Sales', 'Manager', 'Owner')
   async download(@Param('id') id: string, @Req() req: Request) {
     const user = (req as any).user;
-    return this.downloadDesignFile.execute(id, user.id, user.role.name);
+    return this.downloadDesignFile.execute(id, user);
   }
 
   @Patch(':id/approve')
@@ -101,7 +101,7 @@ export class DesignFilesController {
     @Body() dto: { notes?: string },
     @Req() req: Request,
   ) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     return this.reviewDesignFile.execute(
       id,
       { status: DesignFileStatus.Approved, notes: dto.notes },
@@ -116,7 +116,7 @@ export class DesignFilesController {
     @Body() dto: { notes: string },
     @Req() req: Request,
   ) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     return this.reviewDesignFile.execute(
       id,
       { status: DesignFileStatus.Rejected, notes: dto.notes },
@@ -131,7 +131,7 @@ export class DesignFilesController {
     @Body() dto: { notes: string },
     @Req() req: Request,
   ) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     return this.reviewDesignFile.execute(
       id,
       { status: DesignFileStatus.Revision_Required, notes: dto.notes },

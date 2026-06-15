@@ -15,18 +15,17 @@ export class DownloadDesignFileUseCase {
 
   async execute(
     fileId: string,
-    currentUserId: string,
-    currentUserRole: string,
+    user: { sub?: string; role?: string; email?: string },
   ) {
     const file = await this.prisma.designFile.findUnique({
       where: { id: fileId },
-      include: { order: true },
+      include: { order: { include: { customer: true } } },
     });
     if (!file) throw new NotFoundException('File desain tidak ditemukan');
 
     if (
-      currentUserRole === 'Customer' &&
-      file.order.customerId !== currentUserId
+      user.role === 'Customer' &&
+      file.order.customer?.email !== user.email
     ) {
       throw new ForbiddenException('Akses ditolak');
     }

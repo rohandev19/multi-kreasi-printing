@@ -11,7 +11,14 @@ const Invoices = lazy(() => import('./pages/Invoices'));
 const DesignFiles = lazy(() => import('./pages/DesignFiles'));
 const Warehouse = lazy(() => import('./pages/Warehouse'));
 const MyOrders = lazy(() => import('./pages/MyOrders'));
+const OrderDetail = lazy(() => import('./pages/OrderDetail').then(m => ({ default: m.OrderDetail })));
+const Notifications = lazy(() => import('./pages/Notifications').then(m => ({ default: m.Notifications })));
+const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
 const Users = lazy(() => import('./pages/Users'));
+const Settings = lazy(() => import('./pages/Settings'));
+const AuditLog = lazy(() => import('./pages/AuditLog'));
+const Reports = lazy(() => import('./pages/Reports'));
+const Quotations = lazy(() => import('./pages/Quotations'));
 const Login = lazy(() => import('./pages/Login'));
 const Profile = lazy(() => import('./pages/Profile'));
 import { RoleProvider } from './contexts/RoleContext';
@@ -19,6 +26,7 @@ import { ToastProvider } from './contexts/ToastContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import { PublicLayout } from './components/layout/public/PublicLayout';
+import { HomePage } from './pages/public/HomePage';
 import { ProductsCatalog } from './pages/public/ProductsCatalog';
 import { CartPage } from './pages/public/CartPage';
 import { AboutPage } from './pages/public/AboutPage';
@@ -26,9 +34,13 @@ import { ContactPage } from './pages/public/ContactPage';
 import { TermsPage } from './pages/public/TermsPage';
 import { CheckoutPage } from './pages/public/CheckoutPage';
 import { PaymentPage } from './pages/public/PaymentPage';
+import { ProductDetail } from './pages/public/ProductDetail';
 
 const Register = lazy(() => import('./pages/public/Register').then(m => ({ default: m.RegisterPage })));
 const VerifyEmail = lazy(() => import('./pages/public/VerifyEmail').then(m => ({ default: m.VerifyEmailPage })));
+const ForgotPassword = lazy(() => import('./pages/public/ForgotPassword').then(m => ({ default: m.ForgotPassword })));
+const ResetPassword = lazy(() => import('./pages/public/ResetPassword').then(m => ({ default: m.ResetPassword })));
+import { FaqPage } from './pages/public/FaqPage';
 
 const LoadingSpinner = () => (
   <div className="flex h-full items-center justify-center">
@@ -54,11 +66,15 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <ProductsCatalog />,
+            element: <HomePage />,
           },
           {
             path: 'products',
             element: <ProductsCatalog />,
+          },
+          {
+            path: 'products/:id',
+            element: <ProductDetail />,
           },
           {
             path: 'cart',
@@ -75,6 +91,10 @@ export const router = createBrowserRouter([
           {
             path: 'terms',
             element: <TermsPage />,
+          },
+          {
+            path: 'faq',
+            element: <FaqPage />,
           },
         ],
       },
@@ -99,6 +119,22 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingSpinner />}>
             <VerifyEmail />
+          </Suspense>
+        ),
+      },
+      {
+        path: '/forgot-password',
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ForgotPassword />
+          </Suspense>
+        ),
+      },
+      {
+        path: '/reset-password/:token',
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ResetPassword />
           </Suspense>
         ),
       },
@@ -132,6 +168,16 @@ export const router = createBrowserRouter([
               <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Designer', 'Production_Staff', 'Finance_Staff', 'Sales']}>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Orders />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'orders/:id',
+            element: (
+              <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Designer', 'Production_Staff', 'Finance_Staff', 'Sales']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <OrderDetail />
                 </Suspense>
               </ProtectedRoute>
             ),
@@ -207,6 +253,46 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            path: 'settings',
+            element: (
+              <ProtectedRoute allowedRoles={['Owner']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Settings />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'audit-log',
+            element: (
+              <ProtectedRoute allowedRoles={['Owner', 'Manager']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AuditLog />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'reports',
+            element: (
+              <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Finance_Staff']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Reports />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'quotations',
+            element: (
+              <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Sales']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Quotations />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
             path: 'checkout',
             element: (
               <CheckoutPage />
@@ -218,7 +304,25 @@ export const router = createBrowserRouter([
               <PaymentPage />
             ),
           },
+          {
+            path: 'notifications',
+            element: (
+              <ProtectedRoute>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Notifications />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
         ],
+      },
+      {
+        path: '*',
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <NotFound />
+          </Suspense>
+        ),
       },
     ],
   },

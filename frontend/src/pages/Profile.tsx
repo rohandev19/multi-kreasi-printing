@@ -1,10 +1,8 @@
-import { useState } from 'react';
 import { useRoleAccess } from '../hooks/useRoleAccess';
 import { User, Mail, Shield, Key } from 'lucide-react';
 
 export default function Profile() {
   const { user, roleName } = useRoleAccess();
-  const [isEditing, setIsEditing] = useState(false);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

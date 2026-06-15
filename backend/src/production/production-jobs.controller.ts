@@ -92,7 +92,7 @@ export class ProductionJobsController {
     @Body() dto: AssignProductionJobDto,
     @Req() req: Request,
   ) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     return this.assignProductionJob.execute(
       id,
       dto.machineId,
@@ -104,7 +104,7 @@ export class ProductionJobsController {
   @Patch(':id/start')
   @Roles('Production', 'Manager', 'Owner')
   async startJob(@Param('id') id: string, @Req() req: Request) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     return this.startProduction.execute(id, userId);
   }
 
@@ -115,7 +115,7 @@ export class ProductionJobsController {
     @Body() dto: CompleteProductionDto,
     @Req() req: Request,
   ) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     return this.completeProduction.execute(
       id,
       userId,
@@ -131,7 +131,7 @@ export class ProductionJobsController {
     @Body() dto: RecordMaterialConsumptionDto,
     @Req() req: Request,
   ) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     return this.recordMaterialConsumption.execute(
       id,
       dto.productId,
@@ -148,7 +148,7 @@ export class ProductionJobsController {
     @Body() dto: CreateReworkJobDto,
     @Req() req: Request,
   ) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.sub;
     return this.createReworkJob.execute(id, userId, dto.reason);
   }
 }

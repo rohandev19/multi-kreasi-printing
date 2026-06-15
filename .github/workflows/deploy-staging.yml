@@ -1,0 +1,41 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          # Jika menggunakan password, buka komentar di bawah ini:
+          # password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            # Pindah ke direktori Staging di VPS (Sesuaikan path ini dengan folder di server Anda)
+            cd /var/www/multikreasiprinting-staging
+            
+            # Tarik kode terbaru dari GitHub branch staging
+            git pull origin staging
+            
+            # Update & Build Backend
+            cd backend
+            npm install
+            npm run build
+            
+            # Restart backend server di PM2 (Sesuaikan nama aplikasi PM2)
+            pm2 restart mkp-backend-staging
+            
+            # Kembali ke folder frontend & Build
+            cd ../frontend
+            npm install
+            npm run build
+            
+            echo "✅ Deployment ke Staging selesai!"

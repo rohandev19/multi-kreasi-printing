@@ -12,6 +12,7 @@ import { CalculateOutstandingBalanceUseCase } from './use-cases/calculate-outsta
 import { SendInvoiceUseCase } from './use-cases/send-invoice.usecase';
 import { SendPaymentReminderUseCase } from './use-cases/send-payment-reminder.usecase';
 import { PdfGenerationProcessor } from './jobs/pdf-generation.processor';
+import { OrderApprovedListener } from './listeners/order-approved.listener';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { PdfGenerationProcessor } from './jobs/pdf-generation.processor';
     SendInvoiceUseCase,
     SendPaymentReminderUseCase,
     PdfGenerationProcessor,
+    OrderApprovedListener,
   ],
   exports: [GenerateInvoiceUseCase],
 })

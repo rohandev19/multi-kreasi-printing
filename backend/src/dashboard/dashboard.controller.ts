@@ -121,22 +121,8 @@ export class DashboardController {
       pref = await this.prisma.widgetPreference.create({
         data: {
           userId,
-          layoutOrder: [
-            'revenue',
-            'orders',
-            'kpis',
-            'chart',
-            'production',
-            'low_stock',
-          ],
-          enabledWidgets: [
-            'revenue',
-            'orders',
-            'kpis',
-            'chart',
-            'production',
-            'low_stock',
-          ],
+          layoutOrder: [],
+          enabledWidgets: [],
         },
       });
     }

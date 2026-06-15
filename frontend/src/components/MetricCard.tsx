@@ -1,4 +1,10 @@
 import React from 'react';
+import { 
+  CircleDollarSign, Package, Clock, AlertTriangle, Settings, 
+  Users, CheckCircle2, Palette, Server, Inbox, Truck, 
+  FileText, ShoppingCart, BarChart3
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface MetricCardProps {
   title: string;
@@ -46,20 +52,20 @@ const colorMap = {
   },
 };
 
-const iconMap: Record<string, string> = {
-  revenue: '💰',
-  orders: '📦',
-  clock: '⏳',
-  alert: '⚠️',
-  cogs: '⚙️',
-  users: '👥',
-  check: '✅',
-  palette: '🎨',
-  server: '🖥️',
-  inbox: '📥',
-  truck: '🚚',
-  document: '📄',
-  cart: '🛒',
+const iconMap: Record<string, LucideIcon> = {
+  revenue: CircleDollarSign,
+  orders: Package,
+  clock: Clock,
+  alert: AlertTriangle,
+  cogs: Settings,
+  users: Users,
+  check: CheckCircle2,
+  palette: Palette,
+  server: Server,
+  inbox: Inbox,
+  truck: Truck,
+  document: FileText,
+  cart: ShoppingCart,
 };
 
 export const MetricCard: React.FC<MetricCardProps> = ({
@@ -71,7 +77,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   loading = false,
 }) => {
   const styles = colorMap[color];
-  const iconEmoji = iconMap[icon] || '📊';
+  const IconComponent = iconMap[icon] || BarChart3;
 
   if (loading) {
     return (
@@ -108,7 +114,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
           {title}
         </h3>
         <div className={`w-10 h-10 ${styles.bg} rounded-lg flex items-center justify-center`}>
-          <span className={`text-xl ${styles.text}`}>{iconEmoji}</span>
+          <IconComponent className={`w-5 h-5 ${styles.text}`} />
         </div>
       </div>
       <p className={`text-3xl font-bold tabular-nums ${styles.text}`}>

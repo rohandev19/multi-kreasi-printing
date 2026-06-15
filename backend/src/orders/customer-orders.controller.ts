@@ -28,7 +28,7 @@ export class CustomerOrdersController {
     const user = (req as any).user;
 
     const orders = await this.prisma.order.findMany({
-      where: { customerId: user.id },
+      where: { customer: { email: user.email } },
       include: {
         items: true,
       },
@@ -72,7 +72,7 @@ export class CustomerOrdersController {
       throw new NotFoundException('Order not found');
     }
 
-    if (order.customerId !== user.id) {
+    if (order.customer.email !== user.email) {
       throw new ForbiddenException('Access denied');
     }
 

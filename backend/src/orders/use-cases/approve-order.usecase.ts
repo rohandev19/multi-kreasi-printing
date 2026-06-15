@@ -4,6 +4,7 @@ import {
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../audit/audit.service';
 import { WorkflowService } from '../workflow.service';
@@ -14,6 +15,7 @@ export class ApproveOrderUseCase {
     private prisma: PrismaService,
     private audit: AuditService,
     private workflow: WorkflowService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async execute(
@@ -76,6 +78,8 @@ export class ApproveOrderUseCase {
       oldValue: { status: order.status },
       newValue: { status: updated.status },
     });
+
+    this.eventEmitter.emit('order.approved', { orderId: updated.id });
 
     return updated;
   }
