@@ -49,8 +49,8 @@ export default function Orders() {
         orderNumber: o.orderNumber,
         status: o.status,
         customer: o.customer,
-        items: o.items?.length || Math.floor(Math.random() * 5) + 1, // Fallback if no items array
-        priority: ['Normal', 'High', 'Urgent'][Math.floor(Math.random() * 3)] as any, // Mock priority
+        items: o.items?.length || 0,
+        priority: o.priority || 'Normal',
         totalAmount: o.totalAmount,
         paymentStatus: o.paymentStatus,
         createdAt: o.createdAt,
@@ -58,8 +58,7 @@ export default function Orders() {
       setOrders(mappedOrders);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load orders');
-      // Set empty array on error, but we'll inject mock data for the UI demonstration
-      setOrders([]); 
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -80,19 +79,7 @@ export default function Orders() {
     setIsCreateModalOpen(true);
   };
 
-  // Mock Data generation if empty (for previewing the new design)
-  useEffect(() => {
-    if (!loading && orders.length === 0 && !error) {
-       // Only inject if it successfully fetched but was empty, just to show the UI
-       const mockOrders: Order[] = [
-         { id: '1', orderNumber: 'ORD-2023-089', customer: { name: 'PT Digital Solusi', email: '' }, items: 3, priority: 'Normal', status: 'Pending_Approval', totalAmount: 2500000, paymentStatus: 'Unpaid', createdAt: new Date().toISOString() },
-         { id: '2', orderNumber: 'ORD-2023-090', customer: { name: 'CV Maju Jaya', email: '' }, items: 1, priority: 'High', status: 'In_Production', totalAmount: 1200000, paymentStatus: 'Paid', createdAt: new Date(Date.now() - 86400000).toISOString() },
-         { id: '3', orderNumber: 'ORD-2023-091', customer: { name: 'Warung Kopi Kita', email: '' }, items: 5, priority: 'Urgent', status: 'Quality_Check', totalAmount: 750000, paymentStatus: 'Paid', createdAt: new Date(Date.now() - 86400000 * 2).toISOString() },
-         { id: '4', orderNumber: 'ORD-2023-092', customer: { name: 'Studio Kreatif', email: '' }, items: 2, priority: 'Normal', status: 'Delivered', totalAmount: 4500000, paymentStatus: 'Paid', createdAt: new Date(Date.now() - 86400000 * 5).toISOString() },
-       ];
-       setOrders(mockOrders);
-    }
-  }, [loading, orders.length, error]);
+
 
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) || 
