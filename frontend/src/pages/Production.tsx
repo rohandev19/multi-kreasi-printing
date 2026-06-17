@@ -65,24 +65,13 @@ export default function Production() {
       }));
       setJobs(mappedJobs);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load production jobs');
-      setJobs([]); 
+      setJobs([]);
     } finally {
       setLoading(false);
     }
   };
   
-  // Inject mock data for demonstration
-  useEffect(() => {
-    if (!loading && jobs.length === 0 && !error) {
-      setJobs([
-        { id: 'JOB-992', orderNumber: 'ORD-2023-089', product: '500x Business Cards', machine: 'Offset Press A', material: 'Art Carton 260gsm', status: 'In Progress', priority: 'High', progress: 45 },
-        { id: 'JOB-993', orderNumber: 'ORD-2023-090', product: '2x Roll Up Banner', machine: 'Large Format Printer', material: 'Albatross 5m', status: 'Queued', priority: 'Urgent', progress: 0 },
-        { id: 'JOB-994', orderNumber: 'ORD-2023-091', product: '1000x Flyers A5', machine: 'Offset Press B', material: 'Art Paper 150gsm', status: 'Quality Check', priority: 'Normal', progress: 95 },
-        { id: 'JOB-995', orderNumber: 'ORD-2023-092', product: '50x Hardcover Books', machine: 'Binding Station', material: 'Board & Glue', status: 'Completed', priority: 'Normal', progress: 100 },
-      ]);
-    }
-  }, [loading, jobs.length, error]);
+
 
   // Actions
   const handleStartJob = async (id: string) => {
