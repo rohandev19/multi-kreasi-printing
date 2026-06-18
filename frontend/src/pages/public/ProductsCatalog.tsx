@@ -53,22 +53,8 @@ export const ProductsCatalog = () => {
       setCategories(['All', ...uniqueCategories]);
     } catch (err) {
       console.error('Failed to fetch products', err);
-      // Fallback for demo purposes
-      const fallbackProducts: Product[] = [
-        { id: '1', name: 'Premium Business Cards', description: '300gsm matte finish with double-sided printing. Perfect for networking.', basePrice: 150000, category: 'Business Cards', isActive: true, isNew: true },
-        { id: '2', name: 'Indoor Vinyl Banner', description: 'High-resolution indoor banner. Price per square meter. Durable and vibrant.', basePrice: 85000, category: 'Banners', isActive: true },
-        { id: '3', name: 'Corporate Brochure', description: 'A4 tri-fold brochure on glossy paper. Great for company profiles.', basePrice: 25000, category: 'Flyers', isActive: true, isNew: true },
-        { id: '4', name: 'Custom Stickers', description: 'Die-cut vinyl stickers. Minimum order 100.', basePrice: 1500, category: 'Stickers', isActive: true },
-        { id: '5', name: 'Corrugated Packaging Box', description: 'Custom printed corrugated boxes for safe shipping.', basePrice: 12000, category: 'Packaging', isActive: true },
-        { id: '6', name: 'A3 Wall Poster', description: 'High quality A3 posters on 210gsm art carton.', basePrice: 15000, category: 'Posters', isActive: true },
-        { id: '7', name: 'Company Profile Book', description: 'Perfect binding company profile, 20 pages min.', basePrice: 45000, category: 'Books', isActive: true },
-        { id: '8', name: 'Event ID Card', description: 'PVC ID Card with custom lanyard printing.', basePrice: 25000, category: 'Custom', isActive: true },
-        { id: '9', name: 'X-Banner Stand', description: 'Complete X-Banner set with stand and print.', basePrice: 125000, category: 'Banners', isActive: true },
-        { id: '10', name: 'Folded Leaflet', description: 'A5 folded leaflet, 150gsm art paper.', basePrice: 3500, category: 'Flyers', isActive: true },
-      ];
-      setProducts(fallbackProducts);
-      // Fixed categories for filter bar
-      setCategories(['All', 'Business Cards', 'Flyers', 'Banners', 'Packaging', 'Stickers', 'Posters', 'Custom']);
+      setProducts([]);
+      setCategories(['All']);
     } finally {
       setLoading(false);
     }
