@@ -20,13 +20,7 @@ interface Material {
   status: 'In_Stock' | 'Low_Stock' | 'Out_of_Stock';
 }
 
-const fallbackMaterials: Material[] = [
-  { id: '1', name: 'A4 Paper 80gsm', sku: 'PPR-A4-80', quantity: 5000, unit: 'sheets', minStock: 1000, category: 'Paper', status: 'In_Stock' },
-  { id: '2', name: 'Vinyl Banner Material', sku: 'VNL-BNR-01', quantity: 250, unit: 'm²', minStock: 500, category: 'Vinyl', status: 'Low_Stock' },
-  { id: '3', name: 'Inkjet Ink Cyan', sku: 'INK-CYN-01', quantity: 0, unit: 'liters', minStock: 5, category: 'Ink', status: 'Out_of_Stock' },
-  { id: '4', name: 'Laminating Film', sku: 'LAM-FLM-01', quantity: 1200, unit: 'm²', minStock: 300, category: 'Laminate', status: 'In_Stock' },
-  { id: '5', name: 'Cardstock 300gsm', sku: 'CRD-300', quantity: 800, unit: 'sheets', minStock: 1000, category: 'Paper', status: 'Low_Stock' },
-];
+
 
 export default function Warehouse() {
   const { role, loading: roleLoading } = useRoleContext();
@@ -50,10 +44,10 @@ export default function Warehouse() {
       const materialData = Array.isArray(response.data) 
         ? response.data 
         : response.data.data || [];
-      setMaterials(materialData.length > 0 ? materialData : fallbackMaterials);
+      setMaterials(materialData);
     } catch (err: any) {
       console.error(err);
-      setMaterials(fallbackMaterials);
+      setMaterials([]);
     } finally {
       setLoading(false);
     }
