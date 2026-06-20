@@ -13,6 +13,8 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [metrics, setMetrics] = useState<any>(null);
+  const [dashboardOrders, setDashboardOrders] = useState<any[]>([]);
+  const [dashboardJobs, setDashboardJobs] = useState<any[]>([]);
 
   useEffect(() => {
     if (role && !roleLoading) {
@@ -24,11 +26,15 @@ export default function Dashboard() {
     setLoading(true);
     try {
       if (['Owner', 'Manager'].includes(currentRole)) {
-        const [kpiRes, revRes] = await Promise.all([
+        const [kpiRes, revRes, ordersRes, jobsRes] = await Promise.all([
           api.get('/api/v1/dashboard/kpis').catch(() => ({ data: {} })),
-          api.get('/api/v1/dashboard/charts/revenue').catch(() => ({ data: [] }))
+          api.get('/api/v1/dashboard/charts/revenue').catch(() => ({ data: [] })),
+          api.get('/api/v1/orders').catch(() => ({ data: [] })),
+          api.get('/api/v1/production-jobs').catch(() => ({ data: [] }))
         ]);
         setMetrics({ kpis: kpiRes.data, revenue: revRes.data });
+        setDashboardOrders(Array.isArray(ordersRes.data) ? ordersRes.data : ordersRes.data?.data || []);
+        setDashboardJobs(Array.isArray(jobsRes.data) ? jobsRes.data : jobsRes.data?.data || []);
       } else {
         // Fallback to legacy metrics
         const res = await api.get(`/api/v1/dashboard/metrics/${currentRole.toLowerCase()}`).catch(() => ({ data: { widgets: [] } }));
@@ -66,23 +72,37 @@ export default function Dashboard() {
 
   // --- ROLE: OWNER / MANAGER ---
   if (role === 'Owner' || role === 'Manager') {
-    // Mocks for tables specified in redesign.md
-    const pendingApprovals = [
-      { id: 'ORD-2023-089', customer: 'PT Digital Solusi', items: '500x Brochures, 2x Banners', value: 2500000, date: 'Today, 09:30 AM' },
-      { id: 'ORD-2023-090', customer: 'CV Maju Jaya', items: '1000x Business Cards', value: 3100000, date: 'Today, 10:15 AM' },
-    ];
+    const pendingApprovals = dashboardOrders
+      .filter(o => o.status === 'Pending_Approval')
+      .slice(0, 5)
+      .map(o => ({
+        id: o.orderNumber,
+        customer: o.customer?.companyName || 'Unknown',
+        items: `${o.items?.length || 0} items`,
+        value: o.totalAmount,
+        date: new Date(o.createdAt).toLocaleDateString()
+      }));
 
-    const activeJobs = [
-      { id: 'JOB-992', machine: 'Offset Press A', progress: 75, status: 'In Progress' },
-      { id: 'JOB-993', machine: 'Digital Printer B', progress: 90, status: 'QC' },
-      { id: 'JOB-994', machine: 'Binding Station', progress: 30, status: 'In Progress' },
-    ];
+    const activeJobs = dashboardJobs
+      .filter(j => j.status === 'In_Progress' || j.status === 'QC')
+      .slice(0, 5)
+      .map(j => ({
+        id: j.jobNumber || j.id.slice(0,8),
+        machine: j.machineId || 'Assigned Machine',
+        progress: j.status === 'In_Progress' ? 50 : 90,
+        status: j.status === 'QC' ? 'QC' : 'In Progress'
+      }));
 
-    const recentOrders = [
-      { id: 'ORD-2023-088', customer: 'Global Tech', items: 3, status: 'Completed', total: 4500000, date: 'Yesterday' },
-      { id: 'ORD-2023-087', customer: 'Studio Kreatif', items: 1, status: 'In Production', total: 1200000, date: 'Yesterday' },
-      { id: 'ORD-2023-086', customer: 'Warung Kopi Kita', items: 2, status: 'Delivered', total: 800000, date: 'Oct 12' },
-    ];
+    const recentOrders = dashboardOrders
+      .slice(0, 5)
+      .map(o => ({
+        id: o.orderNumber,
+        customer: o.customer?.companyName || 'Unknown',
+        items: o.items?.length || 0,
+        status: o.status,
+        total: o.totalAmount,
+        date: new Date(o.createdAt).toLocaleDateString()
+      }));
 
     return (
       <div className="space-y-6 max-w-7xl mx-auto animate-fade-in">
