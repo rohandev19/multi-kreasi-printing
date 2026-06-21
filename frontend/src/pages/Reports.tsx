@@ -1,10 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Download, DollarSign, ShoppingBag, TrendingUp, Users, Printer, ChevronDown, XCircle, ArrowRight, AlertCircle, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import api from '../api/axios';
 
 export default function Reports() {
   const [dateRange, setDateRange] = useState('This Month');
   const [revenueTab, setRevenueTab] = useState('Monthly');
+  const [kpis, setKpis] = useState<any>(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const res = await api.get('/api/v1/dashboard/kpis');
+      setKpis(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -74,14 +89,14 @@ export default function Reports() {
             <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600">
               <DollarSign size={20} />
             </div>
-            <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
-              <TrendingUp size={12} />
-              +15.3%
+            <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md ${kpis?.totalRevenue?.trend?.isPositive ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'}`}>
+              <TrendingUp size={12} className={!kpis?.totalRevenue?.trend?.isPositive ? 'rotate-180' : ''} />
+              {kpis?.totalRevenue?.trend?.value || 0}%
             </span>
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500 mb-1">Total Revenue</p>
-            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">{formatCurrency(1250000000)}</h3>
+            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">{formatCurrency(kpis?.totalRevenue?.value || 0)}</h3>
           </div>
         </div>
 
@@ -90,14 +105,14 @@ export default function Reports() {
             <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600">
               <ShoppingBag size={20} />
             </div>
-            <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
-              <TrendingUp size={12} />
-              +8.2%
+            <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md ${kpis?.grossProfit?.trend?.isPositive ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'}`}>
+              <TrendingUp size={12} className={!kpis?.grossProfit?.trend?.isPositive ? 'rotate-180' : ''} />
+              {kpis?.grossProfit?.trend?.value || 0}%
             </span>
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500 mb-1">Total Orders</p>
-            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">342</h3>
+            <p className="text-sm font-medium text-slate-500 mb-1">Gross Profit</p>
+            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">{formatCurrency(kpis?.grossProfit?.value || 0)}</h3>
           </div>
         </div>
 
@@ -106,14 +121,14 @@ export default function Reports() {
             <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
               <TrendingUp size={20} />
             </div>
-            <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
-              <TrendingUp size={12} />
-              +2.4%
+            <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md ${kpis?.conversionRate?.trend?.isPositive ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'}`}>
+              <TrendingUp size={12} className={!kpis?.conversionRate?.trend?.isPositive ? 'rotate-180' : ''} />
+              {kpis?.conversionRate?.trend?.value || 0}%
             </span>
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500 mb-1">Average Order Value</p>
-            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">{formatCurrency(3650000)}</h3>
+            <p className="text-sm font-medium text-slate-500 mb-1">Conversion Rate</p>
+            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">{kpis?.conversionRate?.value || 0}%</h3>
           </div>
         </div>
 
@@ -122,14 +137,14 @@ export default function Reports() {
             <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600">
               <Users size={20} />
             </div>
-            <span className="inline-flex items-center gap-1 text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-md">
-              <TrendingUp size={12} className="rotate-180" />
-              -1.2%
+            <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md ${kpis?.customerAcquisitionCost?.trend?.isPositive ? 'text-red-600 bg-red-50' : 'text-emerald-600 bg-emerald-50'}`}>
+              <TrendingUp size={12} className={kpis?.customerAcquisitionCost?.trend?.isPositive ? '' : 'rotate-180'} />
+              {kpis?.customerAcquisitionCost?.trend?.value || 0}%
             </span>
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500 mb-1">Customer Retention Rate</p>
-            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">87.5%</h3>
+            <p className="text-sm font-medium text-slate-500 mb-1">CAC</p>
+            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">{formatCurrency(kpis?.customerAcquisitionCost?.value || 0)}</h3>
           </div>
         </div>
 
@@ -582,3 +597,4 @@ export default function Reports() {
     </div>
   );
 
+}
