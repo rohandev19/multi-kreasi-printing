@@ -6,7 +6,7 @@ let prismaInstance: PrismaClient | null = null;
 
 export function createPrismaClient(): PrismaClient {
   if (prismaInstance) return prismaInstance;
-  
+
   // Direct connection config to avoid URL parsing issues with special characters
   const pool = new Pool({
     host: 'localhost',

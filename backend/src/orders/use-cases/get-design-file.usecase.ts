@@ -20,10 +20,7 @@ export class GetDesignFileUseCase {
     if (!file) throw new NotFoundException('File desain tidak ditemukan');
 
     // IDOR Prevention
-    if (
-      user.role === 'Customer' &&
-      file.order.customer?.email !== user.email
-    ) {
+    if (user.role === 'Customer' && file.order.customer?.email !== user.email) {
       throw new ForbiddenException('Akses ditolak');
     }
 

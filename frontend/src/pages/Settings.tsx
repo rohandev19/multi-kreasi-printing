@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Save, Building2, CreditCard, Bell, Palette, Settings as SettingsIcon, Link2, Plus, Trash2, MessageCircle, Mail } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
-// import { ConfirmDialog } from '../components/modals/ConfirmDialog';
+import api from '../api/axios';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('General');
   const [isDirty, setIsDirty] = useState(false);
   const { success } = useToast();
 
-  // Mock settings state
-  const [settings, setSettings] = useState({
+  const defaultSettings = {
     general: {
       appName: 'Multi Kreasi Printing',
       timezone: 'Asia/Jakarta',
@@ -67,9 +66,27 @@ export default function Settings() {
       whatsapp: { enabled: false, apiKey: '' },
       emailProvider: 'SMTP'
     }
-  });
+  };
 
-  const [dirtyState, setDirtyState] = useState(settings);
+  const [settings, setSettings] = useState(defaultSettings);
+  const [dirtyState, setDirtyState] = useState(defaultSettings);
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const res = await api.get('/api/v1/settings/app_settings');
+      if (res.data && res.data.value) {
+        setSettings(res.data.value);
+        setDirtyState(res.data.value);
+      }
+    } catch (err) {
+      console.error(err);
+      // Fallback to default if not found
+    }
+  };
 
   useEffect(() => {
     // Check if dirtyState differs from settings to enable/disable Save button
@@ -77,13 +94,18 @@ export default function Settings() {
     setIsDirty(isDifferent);
   }, [dirtyState, settings]);
 
-  const handleSave = () => {
-    // Simulate API call
-    setTimeout(() => {
+  const handleSave = async () => {
+    try {
+      await api.put('/api/v1/settings/app_settings', {
+        value: dirtyState,
+        description: 'Global application settings'
+      });
       setSettings(dirtyState);
       setIsDirty(false);
       success('Settings saved', 'Your configuration has been updated successfully.');
-    }, 800);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleGeneralChange = (field: string, value: any) => {

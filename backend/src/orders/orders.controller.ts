@@ -173,7 +173,7 @@ export class OrdersController {
     const user = (req as any).user;
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
-      include: { customer: true }
+      include: { customer: true },
     });
     if (!order) return [];
 

@@ -23,6 +23,8 @@ import { InventoryModule } from './inventory/inventory.module';
 import { BullModule } from '@nestjs/bullmq';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { QuotationsModule } from './quotations/quotations.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -56,6 +58,8 @@ import { APP_GUARD } from '@nestjs/core';
         limit: 100, // 100 requests per minute
       },
     ]),
+    QuotationsModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [

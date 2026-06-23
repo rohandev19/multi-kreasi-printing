@@ -28,7 +28,7 @@ export class GetRevenueChartDataUseCase {
 
     // Map database result to an easily accessible dictionary
     const dataMap = new Map<string, number>();
-    rawData.forEach(row => {
+    rawData.forEach((row) => {
       const dateStr = row.date.toISOString().split('T')[0];
       dataMap.set(dateStr, Number(row.total || 0));
     });
@@ -39,7 +39,7 @@ export class GetRevenueChartDataUseCase {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().split('T')[0];
-      
+
       chartData.push({
         date: dateStr,
         total: dataMap.get(dateStr) || 0,

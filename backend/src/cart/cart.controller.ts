@@ -1,4 +1,13 @@
-import { Controller, Post, Body, Req, Get, Patch, Delete, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Req,
+  Get,
+  Patch,
+  Delete,
+  Param,
+} from '@nestjs/common';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CartMergeService } from './cart-merge.service';
 import { MergeCartDto } from './dto/merge-cart.dto';
@@ -25,7 +34,10 @@ export class CartController {
 
   @Post('items')
   @Roles('Customer')
-  async addItem(@Body() body: { productId: string; quantity: number }, @Req() req: Request) {
+  async addItem(
+    @Body() body: { productId: string; quantity: number },
+    @Req() req: Request,
+  ) {
     const userId = (req as any).user.sub;
     return this.cartMergeService.mergeGuestCart(userId, [body]);
   }
@@ -35,10 +47,14 @@ export class CartController {
   async updateItem(
     @Param('productId') productId: string,
     @Body() body: { quantity: number },
-    @Req() req: Request
+    @Req() req: Request,
   ) {
     const userId = (req as any).user.sub;
-    return this.cartMergeService.updateItemQuantity(userId, productId, body.quantity);
+    return this.cartMergeService.updateItemQuantity(
+      userId,
+      productId,
+      body.quantity,
+    );
   }
 
   @Delete('items/:productId')

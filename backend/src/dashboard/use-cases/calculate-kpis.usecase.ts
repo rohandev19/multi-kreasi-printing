@@ -19,9 +19,14 @@ export class CalculateKPIsUseCase {
 
     // Helper to calculate trend
     const calcTrend = (current: number, previous: number) => {
-      if (previous === 0) return { value: 100, isPositive: current >= 0, label: 'vs last month' };
+      if (previous === 0)
+        return { value: 100, isPositive: current >= 0, label: 'vs last month' };
       const change = ((current - previous) / previous) * 100;
-      return { value: parseFloat(Math.abs(change).toFixed(1)), isPositive: change >= 0, label: 'vs last month' };
+      return {
+        value: parseFloat(Math.abs(change).toFixed(1)),
+        isPositive: change >= 0,
+        label: 'vs last month',
+      };
     };
 
     // Revenue
@@ -31,7 +36,10 @@ export class CalculateKPIsUseCase {
     });
     const prevCompletedInvoices = await this.prisma.invoice.aggregate({
       _sum: { amount: true },
-      where: { status: 'Fully_Paid', createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
+      where: {
+        status: 'Fully_Paid',
+        createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo },
+      },
     });
 
     const totalRevenue = completedInvoices._sum.amount?.toNumber() || 0;
@@ -42,45 +50,59 @@ export class CalculateKPIsUseCase {
     const prevGrossProfit = prevRevenue * 0.3;
 
     // Conversion Rate: Completed Orders / Total Orders
-    const totalOrders = await this.prisma.order.count({ where: { createdAt: { gte: thirtyDaysAgo } } });
+    const totalOrders = await this.prisma.order.count({
+      where: { createdAt: { gte: thirtyDaysAgo } },
+    });
     const approvedOrders = await this.prisma.order.count({
       where: { status: 'Completed', createdAt: { gte: thirtyDaysAgo } },
     });
-    const conversionRate = totalOrders > 0 ? (approvedOrders / totalOrders) * 100 : 0;
+    const conversionRate =
+      totalOrders > 0 ? (approvedOrders / totalOrders) * 100 : 0;
 
-    const prevTotalOrders = await this.prisma.order.count({ where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } } });
-    const prevApprovedOrders = await this.prisma.order.count({
-      where: { status: 'Completed', createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
+    const prevTotalOrders = await this.prisma.order.count({
+      where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
     });
-    const prevConversionRate = prevTotalOrders > 0 ? (prevApprovedOrders / prevTotalOrders) * 100 : 0;
+    const prevApprovedOrders = await this.prisma.order.count({
+      where: {
+        status: 'Completed',
+        createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo },
+      },
+    });
+    const prevConversionRate =
+      prevTotalOrders > 0 ? (prevApprovedOrders / prevTotalOrders) * 100 : 0;
 
     // Customer Acquisition Cost (CAC) -> Marketing spend / New customers (Mock marketing spend to 10% of revenue)
-    const newCustomers = await this.prisma.customer.count({ where: { createdAt: { gte: thirtyDaysAgo } } });
-    const prevNewCustomers = await this.prisma.customer.count({ where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } } });
-    
+    const newCustomers = await this.prisma.customer.count({
+      where: { createdAt: { gte: thirtyDaysAgo } },
+    });
+    const prevNewCustomers = await this.prisma.customer.count({
+      where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
+    });
+
     const marketingSpend = totalRevenue * 0.1;
     const prevMarketingSpend = prevRevenue * 0.1;
 
     const cac = newCustomers > 0 ? marketingSpend / newCustomers : 0;
-    const prevCac = prevNewCustomers > 0 ? prevMarketingSpend / prevNewCustomers : 0;
+    const prevCac =
+      prevNewCustomers > 0 ? prevMarketingSpend / prevNewCustomers : 0;
 
     return {
       totalRevenue: {
         value: totalRevenue,
-        trend: calcTrend(totalRevenue, prevRevenue)
+        trend: calcTrend(totalRevenue, prevRevenue),
       },
       grossProfit: {
         value: grossProfit,
-        trend: calcTrend(grossProfit, prevGrossProfit)
+        trend: calcTrend(grossProfit, prevGrossProfit),
       },
       conversionRate: {
         value: parseFloat(conversionRate.toFixed(2)),
-        trend: calcTrend(conversionRate, prevConversionRate)
+        trend: calcTrend(conversionRate, prevConversionRate),
       },
       customerAcquisitionCost: {
         value: parseFloat(cac.toFixed(2)),
-        trend: calcTrend(cac, prevCac)
-      }
+        trend: calcTrend(cac, prevCac),
+      },
     };
   }
 }

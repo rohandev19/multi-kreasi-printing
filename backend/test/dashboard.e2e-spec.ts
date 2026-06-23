@@ -20,7 +20,7 @@ describe('DashboardController (e2e)', () => {
     const loginRes = await request(app.getHttpServer())
       .post('/v1/auth/login')
       .send({ email: 'owner@mkp.com', password: 'password' });
-    
+
     jwtToken = loginRes.body.access_token;
   });
 
@@ -59,8 +59,8 @@ describe('DashboardController (e2e)', () => {
       .expect((res) => {
         expect(Array.isArray(res.body)).toBeTruthy();
         if (res.body.length > 0) {
-           expect(res.body[0].date).toBeDefined();
-           expect(res.body[0].total).toBeDefined();
+          expect(res.body[0].date).toBeDefined();
+          expect(res.body[0].total).toBeDefined();
         }
       });
   });

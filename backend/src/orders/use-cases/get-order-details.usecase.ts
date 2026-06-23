@@ -9,7 +9,10 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class GetOrderDetailsUseCase {
   constructor(private prisma: PrismaService) {}
 
-  async execute(orderId: string, user?: { id: string; role: string; email?: string; sub?: string }) {
+  async execute(
+    orderId: string,
+    user?: { id: string; role: string; email?: string; sub?: string },
+  ) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: {
@@ -22,7 +25,11 @@ export class GetOrderDetailsUseCase {
 
     if (!order) throw new NotFoundException('Pesanan tidak ditemukan');
 
-    if (user && user.role === 'Customer' && order.customer.email !== user.email) {
+    if (
+      user &&
+      user.role === 'Customer' &&
+      order.customer.email !== user.email
+    ) {
       throw new ForbiddenException(
         'You do not have permission to view this order',
       );

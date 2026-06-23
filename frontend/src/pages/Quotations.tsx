@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Search, Filter, Calendar, FileText, CheckCircle, TrendingUp, ChevronDown, ChevronLeft, ChevronRight, Eye, Pencil, Send, Copy, Trash2, Clock, XCircle, ShoppingBag, Download, Users } from 'lucide-react';
 import CreateQuotationModal from '../components/modals/CreateQuotationModal';
 import QuotationDetailModal from '../components/modals/QuotationDetailModal';
 import { ConfirmDialog } from '../components/modals/ConfirmDialog';
+import api from '../api/axios';
 
 export default function Quotations() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -38,68 +39,32 @@ export default function Quotations() {
     }
   };
 
-  const mockQuotations = [
-    {
-      id: 'QUO-2026-0001',
-      customer: 'PT Sukses Makmur',
-      contact: 'Andi Setiawan',
-      itemsSummary: 'Business Cards × 5000, Flyers × 2000, +1 more',
-      total: 12500000,
-      validUntil: 'Expires in 5 days',
-      status: 'Accepted',
-      createdBy: 'Sarah Manager'
-    },
-    {
-      id: 'QUO-2026-0002',
-      customer: 'CV Karya Abadi',
-      contact: 'Budi Santoso',
-      itemsSummary: 'Company Profile Booklet × 500',
-      total: 8500000,
-      validUntil: 'Expires in 12 days',
-      status: 'Sent',
-      createdBy: 'John Sales'
-    },
-    {
-      id: 'QUO-2026-0003',
-      customer: 'PT Global Indo',
-      contact: 'Citra Lestari',
-      itemsSummary: 'Banner 3x2m × 10, X-Banner × 5',
-      total: 4200000,
-      validUntil: 'Expires in 2 days',
-      status: 'Viewed',
-      createdBy: 'John Sales'
-    },
-    {
-      id: 'QUO-2026-0004',
-      customer: 'Toko Buku Maju',
-      contact: 'Dewi Sartika',
-      itemsSummary: 'Paper Bag Custom × 1000',
-      total: 3500000,
-      validUntil: 'Expires in 15 days',
-      status: 'Draft',
-      createdBy: 'Sarah Manager'
-    },
-    {
-      id: 'QUO-2026-0005',
-      customer: 'PT Maju Bersama',
-      contact: 'Eko Pranoto',
-      itemsSummary: 'Sticker Label × 10000',
-      total: 1800000,
-      validUntil: 'Expired',
-      status: 'Expired',
-      createdBy: 'John Sales'
-    },
-    {
-      id: 'QUO-2026-0006',
-      customer: 'Cafe Senja',
-      contact: 'Fajar Hidayat',
-      itemsSummary: 'Menu Book Leather × 50',
-      total: 7500000,
-      validUntil: 'Expires in 8 days',
-      status: 'Declined',
-      createdBy: 'Sarah Manager'
-    },
-  ];
+  const [quotations, setQuotations] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchQuotations();
+  }, []);
+
+  const fetchQuotations = async () => {
+    try {
+      const res = await api.get('/api/v1/quotations');
+      setQuotations(res.data);
+    } catch (err) {
+      console.error(err);
+      setQuotations([]);
+    }
+  };
+
+  const getItemsSummary = (items: any[]) => {
+    if (!items || items.length === 0) return 'No items';
+    const firstItem = items[0];
+    const name = firstItem.product?.name || 'Item';
+    const qty = firstItem.quantity || 0;
+    if (items.length > 1) {
+      return `${name} × ${qty}, +${items.length - 1} more`;
+    }
+    return `${name} × ${qty}`;
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 animate-fade-in pb-12">
@@ -231,28 +196,28 @@ export default function Quotations() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-slate-100">
-              {mockQuotations.map((quo) => (
+              {quotations.map((quo) => (
                 <tr key={quo.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm font-mono font-bold text-indigo-600 hover:underline cursor-pointer" onClick={() => { setSelectedQuotation(quo.id); setIsDetailModalOpen(true); }}>
-                      {quo.id}
+                      {quo.quotationNumber}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-bold text-slate-900">{quo.customer}</div>
-                    <div className="text-xs text-slate-500">{quo.contact}</div>
+                    <div className="text-sm font-bold text-slate-900">{quo.customer?.companyName || 'Unknown'}</div>
+                    <div className="text-xs text-slate-500">{quo.customer?.email}</div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 hidden md:table-cell truncate max-w-[200px]" title={quo.itemsSummary}>
-                    {quo.itemsSummary}
+                  <td className="px-6 py-4 text-sm text-slate-600 hidden md:table-cell truncate max-w-[200px]" title={getItemsSummary(quo.items)}>
+                    {getItemsSummary(quo.items)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <span className={`text-sm font-mono font-bold ${quo.status === 'Expired' ? 'text-slate-400 line-through' : 'text-slate-900'}`}>
-                      {formatCurrency(quo.total)}
+                      {formatCurrency(quo.totalAmount)}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className={`${quo.validUntil.includes('Expires in 2') ? 'text-amber-600 font-bold' : quo.validUntil === 'Expired' ? 'text-red-600 font-bold' : 'text-slate-600'}`}>
-                      {quo.validUntil}
+                    <span className={`text-slate-600`}>
+                      {quo.validUntil ? new Date(quo.validUntil).toLocaleDateString() : '-'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
