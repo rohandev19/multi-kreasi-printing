@@ -22,7 +22,7 @@ export default function Production() {
   const { role, loading: roleLoading } = useRoleContext();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error] = useState('');
   
   const { success } = useToast();
   

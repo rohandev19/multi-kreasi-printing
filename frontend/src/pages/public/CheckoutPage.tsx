@@ -53,12 +53,17 @@ export const CheckoutPage = () => {
         quantity: item.quantity,
       }));
 
+      let combinedNotes = notes;
+      if (deliveryMethod !== 'pickup') {
+        combinedNotes = `[Delivery Method: ${deliveryMethod}]\n[Delivery Address: ${deliveryAddress}]\n\n${notes}`;
+      } else {
+        combinedNotes = `[Delivery Method: Pickup]\n\n${notes}`;
+      }
+
       const payload = {
         items: orderItems,
-        notes,
+        notes: combinedNotes,
         priority,
-        deliveryMethod,
-        ...(deliveryMethod !== 'pickup' ? { deliveryAddress } : {}),
         ...(estimatedDelivery ? { estimatedDeliveryDate: new Date(estimatedDelivery).toISOString() } : {}),
       };
 

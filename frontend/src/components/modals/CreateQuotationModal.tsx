@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Search, Plus, Send, Save } from 'lucide-react';
-import Modal from './Modal';
+import { Modal } from '../ui/Modal';
 import { useToast } from '../../contexts/ToastContext';
 
 interface Props {

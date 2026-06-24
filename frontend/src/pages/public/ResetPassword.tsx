@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
 import api from '../../api/axios';
 
 export const ResetPassword = () => {
-  const { token } = useParams();
-  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

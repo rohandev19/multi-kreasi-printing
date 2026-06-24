@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
-import { OrdersTable, Order } from '../components/tables/OrdersTable';
+import { OrdersTable } from '../components/tables/OrdersTable';
+import type { Order } from '../components/tables/OrdersTable';
 import { CreateOrderModal } from '../components/modals/CreateOrderModal';
 import { Plus, Search, Filter, Download, Calendar } from 'lucide-react';
 

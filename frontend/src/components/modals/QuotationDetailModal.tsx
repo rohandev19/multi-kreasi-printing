@@ -1,8 +1,8 @@
-import { Download, Printer, Send, ShoppingBag, Pencil, FileText, CheckCircle, Clock } from 'lucide-react';
-import Modal from './Modal';
+import { Download, Printer, Send, ShoppingBag, Pencil, CheckCircle, Clock } from 'lucide-react';
+import { Modal } from '../ui/Modal';
 import { useToast } from '../../contexts/ToastContext';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useState } from 'react';
-import { ConfirmDialog } from './ConfirmDialog';
 
 interface Props {
   isOpen: boolean;
@@ -262,11 +262,11 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
         isOpen={isConvertModalOpen}
         title="Convert to Order"
         message={`This will create a new order based on Quotation ${quotation.id} for ${quotation.customer.company}. Total: ${formatCurrency(quotation.grandTotal)}. Proceed?`}
-        confirmText="Convert to Order"
-        cancelText="Cancel"
+        confirmLabel="Yes, convert to order"
+        cancelLabel="Cancel"
         onConfirm={handleConvert}
         onCancel={() => setIsConvertModalOpen(false)}
-        variant="primary"
+        variant="info"
       />
 
       {/* Send Email Mock Dialog */}
@@ -274,11 +274,11 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
         isOpen={isSendModalOpen}
         title="Send Quotation"
         message={`Are you sure you want to send this quotation to ${quotation.customer.email}?`}
-        confirmText="Send Quotation"
-        cancelText="Cancel"
+        confirmLabel="Send Email"
+        cancelLabel="Cancel"
         onConfirm={handleSend}
         onCancel={() => setIsSendModalOpen(false)}
-        variant="primary"
+        variant="info"
       />
 
     </Modal>

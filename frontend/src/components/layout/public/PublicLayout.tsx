@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../../../hooks/useCart';
-import { ShoppingCart, Menu, X, Facebook, Instagram, Linkedin, User as UserIcon, LogOut, LayoutDashboard, Package } from 'lucide-react';
+import { ShoppingCart, Menu, X, Globe, Mail, Link as LinkIcon, User as UserIcon, LogOut, LayoutDashboard, Package } from 'lucide-react';
 import { useRoleContext } from '../../../contexts/RoleContext';
 
 export const PublicLayout = () => {
@@ -263,13 +263,13 @@ export const PublicLayout = () => {
               </p>
               <div className="flex items-center gap-4">
                 <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                  <Instagram size={20} />
+                  <Globe size={20} />
                 </a>
                 <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                  <Facebook size={20} />
+                  <Mail size={20} />
                 </a>
                 <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                  <Linkedin size={20} />
+                  <LinkIcon size={20} />
                 </a>
               </div>
             </div>

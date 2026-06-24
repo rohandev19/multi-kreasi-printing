@@ -76,18 +76,18 @@ export default function Dashboard() {
       .filter(o => o.status === 'Pending_Approval')
       .slice(0, 5)
       .map(o => ({
-        id: o.orderNumber,
+        id: o.orderNumber || 'N/A',
         customer: o.customer?.companyName || 'Unknown',
         items: `${o.items?.length || 0} items`,
-        value: o.totalAmount,
-        date: new Date(o.createdAt).toLocaleDateString()
+        value: Number(o.totalAmount) || 0,
+        date: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '-'
       }));
 
     const activeJobs = dashboardJobs
       .filter(j => j.status === 'In_Progress' || j.status === 'QC')
       .slice(0, 5)
       .map(j => ({
-        id: j.jobNumber || j.id.slice(0,8),
+        id: j.jobNumber || (j.id ? j.id.slice(0,8) : 'N/A'),
         machine: j.machineId || 'Assigned Machine',
         progress: j.status === 'In_Progress' ? 50 : 90,
         status: j.status === 'QC' ? 'QC' : 'In Progress'
@@ -96,12 +96,12 @@ export default function Dashboard() {
     const recentOrders = dashboardOrders
       .slice(0, 5)
       .map(o => ({
-        id: o.orderNumber,
+        id: o.orderNumber || 'N/A',
         customer: o.customer?.companyName || 'Unknown',
         items: o.items?.length || 0,
-        status: o.status,
-        total: o.totalAmount,
-        date: new Date(o.createdAt).toLocaleDateString()
+        status: o.status || 'Unknown',
+        total: Number(o.totalAmount) || 0,
+        date: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '-'
       }));
 
     return (
@@ -193,7 +193,7 @@ export default function Dashboard() {
                         <p className="font-semibold text-slate-800">{order.customer}</p>
                         <p className="text-xs text-slate-500 truncate max-w-[200px]">{order.items}</p>
                       </td>
-                      <td className="px-5 py-3 font-medium text-slate-700">Rp {order.value.toLocaleString('id-ID')}</td>
+                      <td className="px-5 py-3 font-medium text-slate-700">Rp {Number(order.value).toLocaleString('id-ID')}</td>
                       <td className="px-5 py-3">
                         <div className="flex justify-end gap-2">
                           <button className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors" title="Approve">
@@ -252,7 +252,18 @@ export default function Dashboard() {
                   <LineChart data={metrics.revenue}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis dataKey="date" tick={{fontSize: 12, fill: '#64748b'}} tickFormatter={(v) => v.slice(5)} axisLine={false} tickLine={false} />
-                    <YAxis tick={{fontSize: 12, fill: '#64748b'}} axisLine={false} tickLine={false} tickFormatter={(v) => `${v/1000000}M`} />
+                    <YAxis 
+                      tick={{fontSize: 12, fill: '#64748b'}} 
+                      axisLine={false} 
+                      tickLine={false} 
+                      allowDecimals={false}
+                      domain={[0, (dataMax: number) => (dataMax === 0 ? 1000000 : dataMax)]}
+                      tickFormatter={(v) => {
+                        if (v >= 1000000) return `Rp ${(v/1000000).toFixed(1)}M`;
+                        if (v >= 1000) return `Rp ${(v/1000).toFixed(0)}K`;
+                        return `Rp ${v}`;
+                      }} 
+                    />
                     <Tooltip 
                       formatter={(value: any) => [`Rp ${Number(value).toLocaleString('id-ID')}`, 'Revenue']} 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
@@ -300,7 +311,7 @@ export default function Dashboard() {
                         </span>
                       </td>
                       <td className="px-5 py-3 font-medium text-slate-700 text-right">
-                        Rp {order.total.toLocaleString('id-ID')}
+                        Rp {Number(order.total).toLocaleString('id-ID')}
                       </td>
                     </tr>
                   ))}

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Search, Filter, Calendar, FileText, CheckCircle, TrendingUp, ChevronDown, ChevronLeft, ChevronRight, Eye, Pencil, Send, Copy, Trash2, Clock, XCircle, ShoppingBag, Download, Users } from 'lucide-react';
 import CreateQuotationModal from '../components/modals/CreateQuotationModal';
 import QuotationDetailModal from '../components/modals/QuotationDetailModal';
-import { ConfirmDialog } from '../components/modals/ConfirmDialog';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import api from '../api/axios';
 
 export default function Quotations() {
@@ -320,8 +320,8 @@ export default function Quotations() {
         isOpen={isDeleteModalOpen}
         title="Delete Quotation"
         message="Are you sure you want to delete this draft quotation? This action cannot be undone."
-        confirmText="Delete Quotation"
-        cancelText="Cancel"
+        confirmLabel="Yes, Delete"
+        cancelLabel="Cancel"
         onConfirm={() => setIsDeleteModalOpen(false)}
         onCancel={() => setIsDeleteModalOpen(false)}
         variant="danger"
