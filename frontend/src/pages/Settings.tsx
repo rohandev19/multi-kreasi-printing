@@ -2,6 +2,18 @@ import { useState, useEffect } from 'react';
 import { Save, Building2, CreditCard, Bell, Palette, Settings as SettingsIcon, Link2, Plus, Trash2, MessageCircle, Mail } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 import api from '../api/axios';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const bankSchema = z.object({
+  name: z.string().min(1, 'Bank name is required'),
+  accountName: z.string().min(1, 'Account name is required'),
+  accountNo: z.string().min(1, 'Account number is required'),
+  branch: z.string().min(1, 'Branch is required'),
+});
+
+type BankFormValues = z.infer<typeof bankSchema>;
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('General');
@@ -70,6 +82,11 @@ export default function Settings() {
 
   const [settings, setSettings] = useState(defaultSettings);
   const [dirtyState, setDirtyState] = useState(defaultSettings);
+  const [isBankModalOpen, setIsBankModalOpen] = useState(false);
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<BankFormValues>({
+    resolver: zodResolver(bankSchema)
+  });
 
   useEffect(() => {
     fetchSettings();
@@ -82,7 +99,7 @@ export default function Settings() {
         setSettings(res.data.value);
         setDirtyState(res.data.value);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       // Fallback to default if not found
     }
@@ -103,54 +120,54 @@ export default function Settings() {
       setSettings(dirtyState);
       setIsDirty(false);
       success('Settings saved', 'Your configuration has been updated successfully.');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
     }
   };
 
-  const handleGeneralChange = (field: string, value: any) => {
+  const handleGeneralChange = (field: string, value: string | boolean | number) => {
     setDirtyState(prev => ({
       ...prev,
       general: { ...prev.general, [field]: value }
     }));
   };
 
-  const handleBusinessChange = (field: string, value: any) => {
+  const handleBusinessChange = (field: string, value: string | boolean | number) => {
     setDirtyState(prev => ({
       ...prev,
       business: { ...prev.business, [field]: value }
     }));
   };
 
-  const handlePaymentChange = (field: string, value: any) => {
+  const handlePaymentChange = (field: string, value: string | boolean | number) => {
     setDirtyState(prev => ({
       ...prev,
       payment: { ...prev.payment, [field]: value }
     }));
   };
 
-  const handlePaymentMethodChange = (field: string, value: any) => {
+  const handlePaymentMethodChange = (field: string, value: string | boolean | number) => {
     setDirtyState(prev => ({
       ...prev,
       payment: { ...prev.payment, methods: { ...prev.payment.methods, [field]: value } }
     }));
   };
 
-  const handleNotificationChange = (field: string, value: any) => {
+  const handleNotificationChange = (field: string, value: string | boolean | number) => {
     setDirtyState(prev => ({
       ...prev,
       notifications: { ...prev.notifications, email: { ...prev.notifications.email, [field]: value } }
     }));
   };
 
-  const handleBrandingChange = (field: string, value: any) => {
+  const handleBrandingChange = (field: string, value: string | boolean | number) => {
     setDirtyState(prev => ({
       ...prev,
       branding: { ...prev.branding, [field]: value }
     }));
   };
 
-  const handleIntegrationChange = (field: string, value: any) => {
+  const handleIntegrationChange = (field: string, value: string | boolean | number) => {
     setDirtyState(prev => ({
       ...prev,
       integrations: { ...prev.integrations, [field]: value }
@@ -165,6 +182,30 @@ export default function Settings() {
     { id: 'Branding', icon: Palette },
     { id: 'Integrations', icon: Link2 },
   ];
+
+  const handleAddBank = (data: BankFormValues) => {
+    const newBank = { ...data, id: Date.now() };
+    setDirtyState(prev => ({
+      ...prev,
+      payment: {
+        ...prev.payment,
+        banks: [...prev.payment.banks, newBank]
+      }
+    }));
+    setIsBankModalOpen(false);
+    reset();
+  };
+
+  const handleDeleteBank = (bankId: number) => {
+    if (!window.confirm('Are you sure you want to remove this bank account?')) return;
+    setDirtyState(prev => ({
+      ...prev,
+      payment: {
+        ...prev.payment,
+        banks: prev.payment.banks.filter((b: any) => b.id !== bankId)
+      }
+    }));
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -472,13 +513,13 @@ export default function Settings() {
                           <button className="p-2 text-slate-400 hover:text-indigo-600 bg-white rounded-lg border border-slate-200 shadow-sm">
                             Edit
                           </button>
-                          <button className="p-2 text-slate-400 hover:text-red-600 bg-white rounded-lg border border-slate-200 shadow-sm">
+                          <button onClick={() => handleDeleteBank(bank.id)} className="p-2 text-slate-400 hover:text-red-600 bg-white rounded-lg border border-slate-200 shadow-sm">
                             <Trash2 size={16} />
                           </button>
                         </div>
                       </div>
                     ))}
-                    <button className="w-full py-4 border-2 border-dashed border-slate-200 rounded-xl text-indigo-600 font-bold hover:bg-indigo-50 transition-colors flex justify-center items-center gap-2">
+                    <button onClick={() => setIsBankModalOpen(true)} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-xl text-indigo-600 font-bold hover:bg-indigo-50 transition-colors flex justify-center items-center gap-2">
                       <Plus size={18} />
                       Add Bank Account
                     </button>
@@ -730,6 +771,80 @@ export default function Settings() {
           </div>
         </div>
       </div>
+      {/* ADD BANK MODAL */}
+      {isBankModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h2 className="text-lg font-bold text-slate-900">Add Bank Account</h2>
+              <button onClick={() => setIsBankModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                <Trash2 size={20} className="hidden" /> {/* Using Trash2 as a placeholder just to keep imports happy, but actually just rendering an X manually */}
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmit(handleAddBank)} className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Bank Name</label>
+                  <input
+                    {...register('name')}
+                    placeholder="e.g. Bank Central Asia (BCA)"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                  />
+                  {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Account Number</label>
+                  <input
+                    {...register('accountNo')}
+                    placeholder="e.g. 1234567890"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm font-mono"
+                  />
+                  {errors.accountNo && <p className="mt-1 text-sm text-red-600">{errors.accountNo.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Account Name</label>
+                  <input
+                    {...register('accountName')}
+                    placeholder="e.g. PT Multi Kreasi Printing"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                  />
+                  {errors.accountName && <p className="mt-1 text-sm text-red-600">{errors.accountName.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Branch</label>
+                  <input
+                    {...register('branch')}
+                    placeholder="e.g. Sudirman"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                  />
+                  {errors.branch && <p className="mt-1 text-sm text-red-600">{errors.branch.message}</p>}
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsBankModalOpen(false)}
+                  className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg shadow-sm hover:bg-indigo-700 transition-colors"
+                >
+                  Add Account
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
