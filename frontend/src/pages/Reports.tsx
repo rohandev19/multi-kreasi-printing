@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Download, DollarSign, ShoppingBag, TrendingUp, Users, Printer, ChevronDown, XCircle, ArrowRight, AlertCircle, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../api/axios';
+import { exportToCSV } from '../utils/exportUtils';
 
 export default function Reports() {
   const [dateRange, setDateRange] = useState('This Month');
   const [revenueTab, setRevenueTab] = useState('Monthly');
   const [kpis, setKpis] = useState<any>(null);
+  const [reportsData, setReportsData] = useState<any>(null);
+  const [revenueData, setRevenueData] = useState<any[]>([]);
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -14,9 +19,21 @@ export default function Reports() {
 
   const fetchData = async () => {
     try {
-      const res = await api.get('/api/v1/dashboard/kpis');
-      setKpis(res.data);
-    } catch (err) {
+      const [kpiRes, reportsRes, revenueRes] = await Promise.all([
+        api.get('/api/v1/dashboard/kpis'),
+        api.get('/api/v1/dashboard/reports/metrics'),
+        api.get('/api/v1/dashboard/charts/revenue')
+      ]);
+      setKpis(kpiRes.data);
+      setReportsData(reportsRes.data);
+      
+      const mappedRevenue = revenueRes.data.map((d: any) => ({
+        name: d.name,
+        Revenue: d.revenue,
+        Expenses: d.expenses || 0,
+      }));
+      setRevenueData(mappedRevenue);
+    } catch (err: any) {
       console.error(err);
     }
   };
@@ -31,6 +48,13 @@ export default function Reports() {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleExportCSV = () => {
+    if (reportsData?.topCustomers) {
+      exportToCSV(reportsData.topCustomers, 'top_customers_report');
+    }
+    setIsExportMenuOpen(false);
   };
 
   return (
@@ -66,16 +90,20 @@ export default function Reports() {
             </button>
             
             <div className="relative group w-full sm:w-auto">
-              <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm hover:bg-slate-50 transition-colors">
+              <button 
+                onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm hover:bg-slate-50 transition-colors"
+              >
                 <Download size={16} />
                 Export Report
                 <ChevronDown size={14} className="text-slate-400" />
               </button>
-              <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 py-1">
-                <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 font-medium">Export as PDF</button>
-                <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 font-medium">Export as CSV</button>
-                <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 font-medium">Export as Excel</button>
-              </div>
+              {isExportMenuOpen && (
+                <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-lg transition-all z-10 py-1">
+                  <button onClick={() => { setIsExportMenuOpen(false); handlePrint(); }} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 font-medium">Export as PDF (Print)</button>
+                  <button onClick={handleExportCSV} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 font-medium">Export as CSV</button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -167,10 +195,36 @@ export default function Reports() {
           </div>
         </div>
 
-        <div className="h-80 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400">
-          <TrendingUp size={48} className="mb-2 opacity-20" />
-          <p className="font-medium text-sm">Revenue chart placeholder</p>
-          <p className="text-xs">Implement with Recharts/Chart.js</p>
+        <div className="h-80 w-full mt-6">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={revenueData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#cbd5e1" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#cbd5e1" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+              <YAxis 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fontSize: 12, fill: '#64748b' }}
+                tickFormatter={(value) => `Rp${(value/1000000).toFixed(0)}M`}
+                dx={-10}
+              />
+              <Tooltip 
+                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                formatter={(value: number) => formatCurrency(value)}
+              />
+              <Area type="monotone" dataKey="Expenses" stroke="#cbd5e1" strokeWidth={3} fillOpacity={1} fill="url(#colorExpenses)" />
+              <Area type="monotone" dataKey="Revenue" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
 
         <div className="mt-4 flex items-center justify-center gap-6">
@@ -205,110 +259,56 @@ export default function Reports() {
             </div>
 
             <div className="flex-1 w-full space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-                  <span className="text-slate-600">Completed</span>
-                </div>
-                <div className="flex gap-4">
-                  <span className="font-bold text-slate-900">145</span>
-                  <span className="text-slate-500 font-mono">42%</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-indigo-500"></div>
-                  <span className="text-slate-600">In Production</span>
-                </div>
-                <div className="flex gap-4">
-                  <span className="font-bold text-slate-900">102</span>
-                  <span className="text-slate-500 font-mono">30%</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                  <span className="text-slate-600">Approved</span>
-                </div>
-                <div className="flex gap-4">
-                  <span className="font-bold text-slate-900">55</span>
-                  <span className="text-slate-500 font-mono">16%</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-                  <span className="text-slate-600">Pending</span>
-                </div>
-                <div className="flex gap-4">
-                  <span className="font-bold text-slate-900">28</span>
-                  <span className="text-slate-500 font-mono">8%</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <span className="text-slate-600">Cancelled</span>
-                </div>
-                <div className="flex gap-4">
-                  <span className="font-bold text-slate-900">12</span>
-                  <span className="text-slate-500 font-mono">4%</span>
-                </div>
-              </div>
+              {(reportsData?.ordersByStatus || []).map((status: any, index: number) => {
+                const colors = ['bg-emerald-500', 'bg-indigo-500', 'bg-blue-500', 'bg-amber-500', 'bg-red-500', 'bg-purple-500', 'bg-slate-500'];
+                const totalOrders = (reportsData?.ordersByStatus || []).reduce((acc: number, cur: any) => acc + cur.value, 0);
+                const percent = totalOrders === 0 ? 0 : Math.round((status.value / totalOrders) * 100);
+                
+                return (
+                  <div key={status.name} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${colors[index % colors.length]}`}></div>
+                      <span className="text-slate-600 capitalize">{status.name}</span>
+                    </div>
+                    <div className="flex gap-4">
+                      <span className="font-bold text-slate-900">{status.value}</span>
+                      <span className="text-slate-500 font-mono w-8 text-right">{percent}%</span>
+                    </div>
+                  </div>
+                );
+              })}
+              {(!reportsData?.ordersByStatus || reportsData.ordersByStatus.length === 0) && (
+                <div className="text-sm text-slate-500">No data available</div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Orders by Category */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <h2 className="text-lg font-bold text-slate-900 mb-6">Orders by Category</h2>
+          <h2 className="text-lg font-bold text-slate-900 mb-6">Orders by Priority</h2>
           
           <div className="space-y-5">
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="font-medium text-slate-700">Packaging & Boxes</span>
-                <span className="font-bold text-slate-900">124 <span className="text-slate-400 font-normal ml-1">(36%)</span></span>
-              </div>
-              <div className="w-full bg-slate-100 rounded-full h-2.5">
-                <div className="bg-indigo-600 h-2.5 rounded-full" style={{ width: '36%' }}></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="font-medium text-slate-700">Business Cards</span>
-                <span className="font-bold text-slate-900">86 <span className="text-slate-400 font-normal ml-1">(25%)</span></span>
-              </div>
-              <div className="w-full bg-slate-100 rounded-full h-2.5">
-                <div className="bg-indigo-600 h-2.5 rounded-full opacity-90" style={{ width: '25%' }}></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="font-medium text-slate-700">Brochures & Flyers</span>
-                <span className="font-bold text-slate-900">65 <span className="text-slate-400 font-normal ml-1">(19%)</span></span>
-              </div>
-              <div className="w-full bg-slate-100 rounded-full h-2.5">
-                <div className="bg-indigo-600 h-2.5 rounded-full opacity-80" style={{ width: '19%' }}></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="font-medium text-slate-700">Banners & Signage</span>
-                <span className="font-bold text-slate-900">42 <span className="text-slate-400 font-normal ml-1">(12%)</span></span>
-              </div>
-              <div className="w-full bg-slate-100 rounded-full h-2.5">
-                <div className="bg-indigo-600 h-2.5 rounded-full opacity-70" style={{ width: '12%' }}></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="font-medium text-slate-700">Others</span>
-                <span className="font-bold text-slate-900">25 <span className="text-slate-400 font-normal ml-1">(8%)</span></span>
-              </div>
-              <div className="w-full bg-slate-100 rounded-full h-2.5">
-                <div className="bg-indigo-600 h-2.5 rounded-full opacity-60" style={{ width: '8%' }}></div>
-              </div>
-            </div>
+            {(reportsData?.ordersByPriority || []).map((priority: any, index: number) => {
+              const totalOrders = (reportsData?.ordersByPriority || []).reduce((acc: number, cur: any) => acc + cur.value, 0);
+              const percent = totalOrders === 0 ? 0 : Math.round((priority.value / totalOrders) * 100);
+              const opacities = ['', 'opacity-90', 'opacity-80', 'opacity-70'];
+
+              return (
+                <div key={priority.name}>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="font-medium text-slate-700 capitalize">{priority.name}</span>
+                    <span className="font-bold text-slate-900">{priority.value} <span className="text-slate-400 font-normal ml-1">({percent}%)</span></span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2.5">
+                    <div className={`bg-indigo-600 h-2.5 rounded-full ${opacities[index % opacities.length]}`} style={{ width: `${percent}%` }}></div>
+                  </div>
+                </div>
+              );
+            })}
+            {(!reportsData?.ordersByPriority || reportsData.ordersByPriority.length === 0) && (
+              <div className="text-sm text-slate-500">No data available</div>
+            )}
           </div>
         </div>
 
@@ -333,45 +333,25 @@ export default function Reports() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-slate-100">
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <div className="w-8 h-8 rounded-full bg-amber-100 border border-amber-300 text-amber-700 font-black flex items-center justify-center shadow-sm">1</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="font-bold text-slate-900">PT Sukses Makmur</div>
-                  <div className="text-xs text-slate-500">Andi Setiawan</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center font-medium">12</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-600">{formatCurrency(12500000)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right font-mono font-bold text-emerald-600">{formatCurrency(150000000)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-500">2 days ago</td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 text-slate-600 font-black flex items-center justify-center shadow-sm">2</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="font-bold text-slate-900">CV Karya Abadi</div>
-                  <div className="text-xs text-slate-500">Budi Santoso</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center font-medium">8</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-600">{formatCurrency(10625000)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right font-mono font-bold text-emerald-600">{formatCurrency(85000000)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-500">1 week ago</td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 text-amber-800 font-black flex items-center justify-center shadow-sm">3</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="font-bold text-slate-900">PT Global Indo</div>
-                  <div className="text-xs text-slate-500">Citra Lestari</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center font-medium">5</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-600">{formatCurrency(14400000)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right font-mono font-bold text-emerald-600">{formatCurrency(72000000)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-500">3 weeks ago</td>
-              </tr>
+              {(reportsData?.topCustomers || []).map((customer: any, index: number) => (
+                <tr key={customer.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 text-slate-600 font-black flex items-center justify-center shadow-sm">{index + 1}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="font-bold text-slate-900">{customer.companyName}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center font-medium">{customer.orders}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-600">{formatCurrency(customer.revenue / (customer.orders || 1))}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right font-mono font-bold text-emerald-600">{formatCurrency(customer.revenue)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-500">-</td>
+                </tr>
+              ))}
+              {(!reportsData?.topCustomers || reportsData.topCustomers.length === 0) && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-8 text-center text-sm text-slate-500">No customer data available</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -586,9 +566,9 @@ export default function Reports() {
               <option>Customer Report</option>
               <option>Production Report</option>
             </select>
-            <button className="flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-xl shadow-md hover:bg-slate-800 transition-colors active:scale-95">
+            <button onClick={handleExportCSV} className="flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-xl shadow-md hover:bg-slate-800 transition-colors active:scale-95">
               <FileText size={18} />
-              Generate Report
+              Generate CSV
             </button>
           </div>
         </div>

@@ -13,6 +13,7 @@ import { GetDashboardMetricsUseCase } from './use-cases/get-dashboard-metrics.us
 import { CalculateKPIsUseCase } from './use-cases/calculate-kpis.usecase';
 import { GetRevenueChartDataUseCase } from './use-cases/get-revenue-chart-data.usecase';
 import { GetProductionStatusUseCase } from './use-cases/get-production-status.usecase';
+import { GetReportsMetricsUseCase } from './use-cases/get-reports-metrics.usecase';
 import { createPrismaClient } from '../prisma/prisma-client.helper';
 import { UpdateWidgetPreferenceDto } from './dto/widget-preference.dto';
 
@@ -45,6 +46,7 @@ export class DashboardController {
     private readonly calculateKpis: CalculateKPIsUseCase,
     private readonly getRevenueChart: GetRevenueChartDataUseCase,
     private readonly getProductionStatus: GetProductionStatusUseCase,
+    private readonly getReportsMetrics: GetReportsMetricsUseCase,
   ) {}
 
   @Get('metrics')
@@ -101,6 +103,11 @@ export class DashboardController {
   @CacheTTL(1800000) // 30 minutes
   async getRevenueChartData() {
     return this.getRevenueChart.execute();
+  }
+
+  @Get('reports/metrics')
+  async getReportsMetricsData() {
+    return this.getReportsMetrics.execute();
   }
 
   @Get('production-status')

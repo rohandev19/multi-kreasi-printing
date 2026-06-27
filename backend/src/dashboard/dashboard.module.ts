@@ -7,6 +7,7 @@ import { GetProductionStatusUseCase } from './use-cases/get-production-status.us
 import { CalculateKPIsUseCase } from './use-cases/calculate-kpis.usecase';
 import { DashboardCacheInvalidationListener } from './listeners/dashboard-cache-invalidation.listener';
 import { AuthModule } from '../auth/auth.module';
+import { GetReportsMetricsUseCase } from './use-cases/get-reports-metrics.usecase';
 
 import { GetOwnerMetricsUseCase } from './use-cases/get-owner-metrics.usecase';
 import { GetManagerMetricsUseCase } from './use-cases/get-manager-metrics.usecase';
@@ -40,6 +41,7 @@ import { GetSalesMetricsUseCase } from './use-cases/get-sales-metrics.usecase';
     GetRevenueChartDataUseCase,
     GetProductionStatusUseCase,
     CalculateKPIsUseCase,
+    GetReportsMetricsUseCase,
     DashboardCacheInvalidationListener,
   ],
 })
