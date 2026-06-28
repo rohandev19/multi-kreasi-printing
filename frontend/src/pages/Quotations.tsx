@@ -3,12 +3,17 @@ import { Plus, Search, Filter, Calendar, FileText, CheckCircle, TrendingUp, Chev
 import CreateQuotationModal from '../components/modals/CreateQuotationModal';
 import QuotationDetailModal from '../components/modals/QuotationDetailModal';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { useToast } from '../contexts/ToastContext';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
 export default function Quotations() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isConverting, setIsConverting] = useState(false);
+  const { success, error: showError } = useToast();
+  const navigate = useNavigate();
   
   const [selectedQuotation, setSelectedQuotation] = useState<any>(null);
 
@@ -40,6 +45,8 @@ export default function Quotations() {
   };
 
   const [quotations, setQuotations] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchQuotations();
@@ -49,13 +56,13 @@ export default function Quotations() {
     try {
       const res = await api.get('/api/v1/quotations');
       setQuotations(res.data);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       setQuotations([]);
     }
   };
 
-  const getItemsSummary = (items: any[]) => {
+  const getItemsSummary = (items: { product?: { name?: string }; quantity?: number }[]) => {
     if (!items || items.length === 0) return 'No items';
     const firstItem = items[0];
     const name = firstItem.product?.name || 'Item';
@@ -64,6 +71,28 @@ export default function Quotations() {
       return `${name} × ${qty}, +${items.length - 1} more`;
     }
     return `${name} × ${qty}`;
+  };
+
+  const totalPages = Math.ceil(quotations.length / itemsPerPage);
+  const paginatedQuotations = quotations.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleConvertToOrder = async (id: string) => {
+    if (!window.confirm('Are you sure you want to convert this quotation into a real order?')) return;
+    setIsConverting(true);
+    try {
+      const res = await api.post(`/api/v1/quotations/${id}/convert`);
+      success('Converted', 'Quotation successfully converted to an order');
+      fetchQuotations(); // Refresh list
+      // Optionally navigate to the new order
+      navigate(`/dashboard/orders/${res.data.id}`);
+    } catch (err: any) {
+      showError('Conversion Failed', err.response?.data?.message || 'Could not convert quotation');
+    } finally {
+      setIsConverting(false);
+    }
   };
 
   return (
@@ -196,7 +225,7 @@ export default function Quotations() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-slate-100">
-              {quotations.map((quo) => (
+              {paginatedQuotations.map((quo) => (
                 <tr key={quo.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm font-mono font-bold text-indigo-600 hover:underline cursor-pointer" onClick={() => { setSelectedQuotation(quo.id); setIsDetailModalOpen(true); }}>
@@ -260,7 +289,9 @@ export default function Quotations() {
 
                       {quo.status === 'Accepted' && (
                         <button 
-                          className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                          onClick={() => handleConvertToOrder(quo.id)}
+                          disabled={isConverting}
+                          className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors disabled:opacity-50"
                           title="Convert to Order"
                         >
                           <ShoppingBag size={18} />
@@ -291,13 +322,21 @@ export default function Quotations() {
         {/* PAGINATION */}
         <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex items-center justify-between">
           <p className="text-sm text-slate-500">
-            Showing <span className="font-bold text-slate-900">1</span> to <span className="font-bold text-slate-900">6</span> of <span className="font-bold text-slate-900">24</span> quotations
+            Showing <span className="font-bold text-slate-900">{quotations.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-bold text-slate-900">{Math.min(currentPage * itemsPerPage, quotations.length)}</span> of <span className="font-bold text-slate-900">{quotations.length}</span> quotations
           </p>
           <div className="flex gap-2">
-            <button className="p-2 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-slate-700 disabled:opacity-50 transition-colors">
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-slate-700 disabled:opacity-50 transition-colors"
+            >
               <ChevronLeft size={18} />
             </button>
-            <button className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-slate-900 transition-colors">
+            <button 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-slate-900 transition-colors disabled:opacity-50"
+            >
               <ChevronRight size={18} />
             </button>
           </div>
