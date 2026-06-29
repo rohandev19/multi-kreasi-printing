@@ -50,6 +50,19 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const fetchOrderDetails = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const response = await api.get(`/api/v1/orders/${orderId}`);
+        setOrder(response.data);
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Failed to load order details');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (isOpen && orderId) {
       fetchOrderDetails();
     } else {
@@ -57,19 +70,6 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
       setError('');
     }
   }, [isOpen, orderId]);
-
-  const fetchOrderDetails = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const response = await api.get(`/api/v1/orders/${orderId}`);
-      setOrder(response.data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load order details');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {

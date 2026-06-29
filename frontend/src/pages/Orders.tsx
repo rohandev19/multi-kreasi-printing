@@ -2,17 +2,21 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
+import { useToast } from '../contexts/ToastContext';
 import { OrdersTable } from '../components/tables/OrdersTable';
 import type { Order } from '../components/tables/OrdersTable';
+import { exportToCSV } from '../utils/exportUtils';
 import { CreateOrderModal } from '../components/modals/CreateOrderModal';
 import { Plus, Search, Filter, Download, Calendar } from 'lucide-react';
 
 export default function Orders() {
   const { role, loading: roleLoading } = useRoleContext();
+  const { success, error: showError } = useToast();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isApproving, setIsApproving] = useState(false);
   
   // Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -45,7 +49,7 @@ export default function Orders() {
         ? response.data 
         : response.data.data || [];
         
-      const mappedOrders: Order[] = orderData.map((o: any) => ({
+      const mappedOrders: Order[] = orderData.map((o: unknown) => ({
         id: o.id,
         orderNumber: o.orderNumber,
         status: o.status,
@@ -78,6 +82,41 @@ export default function Orders() {
   const handleOpenCreateNew = () => {
     setEditOrderId(null);
     setIsCreateModalOpen(true);
+  };
+
+  const handleExport = (exportOrders: Order[], filename: string) => {
+    if (!exportOrders.length) return;
+    const data = exportOrders.map(o => ({
+      OrderNumber: o.orderNumber,
+      Customer: o.customer?.name || 'Unknown',
+      Status: o.status,
+      Priority: o.priority,
+      Items: o.items,
+      TotalAmount: o.totalAmount,
+      PaymentStatus: o.paymentStatus,
+      CreatedAt: o.createdAt
+    }));
+    exportToCSV(data, filename);
+  };
+
+  const handleBulkApprove = async () => {
+    if (!selectedIds.length) return;
+    if (!window.confirm(`Are you sure you want to approve ${selectedIds.length} orders?`)) return;
+    
+    setIsApproving(true);
+    try {
+      await Promise.all(selectedIds.map(id => 
+        api.patch(`/api/v1/orders/${id}/status`, { status: 'Approved' })
+      ));
+      success('Bulk Action Complete', `${selectedIds.length} orders have been approved.`);
+      setSelectedIds([]);
+      if (role) fetchOrders(role);
+    } catch (err: any) {
+      showError('Action Failed', 'Failed to bulk approve orders.');
+      console.error(err);
+    } finally {
+      setIsApproving(false);
+    }
   };
 
 
@@ -176,7 +215,10 @@ export default function Orders() {
             <Calendar size={16} />
             <span className="hidden sm:inline">Date Range</span>
           </button>
-          <button className="flex items-center justify-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors w-full sm:w-auto">
+          <button 
+            onClick={() => handleExport(filteredOrders, 'orders_export')}
+            className="flex items-center justify-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors w-full sm:w-auto"
+          >
             <Download size={16} />
             <span className="hidden sm:inline">Export CSV</span>
           </button>
@@ -200,11 +242,18 @@ export default function Orders() {
             {selectedIds.length} order{selectedIds.length > 1 ? 's' : ''} selected
           </div>
           <div className="flex items-center gap-3">
-            <button className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors">
+            <button 
+              onClick={() => handleExport(filteredOrders.filter(o => selectedIds.includes(o.id)), 'orders_selected_export')}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
+            >
               Export Selected
             </button>
-            <button className="px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-bold shadow-sm transition-colors">
-              Approve All
+            <button 
+              onClick={handleBulkApprove}
+              disabled={isApproving}
+              className="px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-bold shadow-sm transition-colors disabled:opacity-50"
+            >
+              {isApproving ? 'Approving...' : 'Approve All'}
             </button>
           </div>
         </div>

@@ -30,9 +30,7 @@ export class GetOrderDetailsUseCase {
       user.role === 'Customer' &&
       order.customer.email !== user.email
     ) {
-      throw new ForbiddenException(
-        'You do not have permission to view this order',
-      );
+      throw new NotFoundException('Pesanan tidak ditemukan');
     }
 
     return order;

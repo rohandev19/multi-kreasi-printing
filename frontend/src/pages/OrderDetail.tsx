@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, Clock, Package, CreditCard, FileText } from 'lucide-react';
 import api from '../api/axios';
@@ -12,22 +12,22 @@ export const OrderDetail = () => {
 
   useEffect(() => {
     fetchOrderDetails();
-  }, [id]);
+  }, [fetchOrderDetails]);
 
-  const fetchOrderDetails = async () => {
+  const fetchOrderDetails = useCallback(async () => {
     try {
       // Use the generic orders endpoint for now and find the order
       // In a real app this would be a specific GET /api/v1/orders/:id
       const response = await api.get('/api/v1/orders', { params: { role } });
       const ordersData = Array.isArray(response.data) ? response.data : response.data.data || [];
-      const foundOrder = ordersData.find((o: any) => o.id === id);
+      const foundOrder = ordersData.find((o: unknown) => o.id === id);
       setOrder(foundOrder || null);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load order details', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, role]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -151,7 +151,7 @@ export const OrderDetail = () => {
               </h3>
             </div>
             <div className="divide-y divide-slate-100">
-              {order.items?.map((item: any) => (
+              {order.items?.map((item: { id: string; product: { name: string }; quantity: number; unitPrice: number; notes: string }) => (
                 <div key={item.id} className="p-6 flex items-start gap-4">
                   <div className="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100 text-slate-400">
                     <Package size={24} />

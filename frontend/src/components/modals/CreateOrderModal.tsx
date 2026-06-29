@@ -3,12 +3,15 @@ import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
 import { useToast } from '../../contexts/ToastContext';
 import { Plus, Trash2 } from 'lucide-react';
+import { z } from 'zod';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 interface CreateOrderModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  orderId?: string | null; // If provided, modal acts as Edit mode
+  orderId?: string | null;
 }
 
 interface Product {
@@ -23,12 +26,20 @@ interface Customer {
   email: string;
 }
 
-interface OrderItemInput {
-  productId: string;
-  quantity: number;
-  notes?: string;
-  price?: number; // Pre-filled from product but editable
-}
+const orderItemSchema = z.object({
+  productId: z.string().min(1, 'Product is required'),
+  quantity: z.coerce.number().min(1, 'Quantity must be at least 1'),
+  price: z.coerce.number().min(0, 'Price cannot be negative'),
+});
+
+const orderSchema = z.object({
+  customerId: z.string().min(1, 'Customer is required'),
+  status: z.enum(['Draft', 'Pending_Approval', 'Approved', 'In_Production', 'Completed']).default('Pending_Approval'),
+  paymentStatus: z.enum(['Unpaid', 'Partial', 'Paid']).default('Unpaid'),
+  items: z.array(orderItemSchema).min(1, 'At least one item is required'),
+});
+
+type OrderFormValues = z.infer<typeof orderSchema>;
 
 export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
   isOpen,
@@ -42,78 +53,90 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
   
-  // Form State
-  const [customerId, setCustomerId] = useState('');
-  const [items, setItems] = useState<OrderItemInput[]>([
-    { productId: '', quantity: 1, price: 0 }
-  ]);
-  const [status, setStatus] = useState('Pending');
-  const [paymentStatus, setPaymentStatus] = useState('Unpaid');
-  
-  // Dropdown Data
   const [products, setProducts] = useState<Product[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
 
+  const {
+    register,
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors }
+  } = useForm<OrderFormValues>({
+    resolver: zodResolver(orderSchema),
+    defaultValues: {
+      customerId: '',
+      status: 'Draft',
+      paymentStatus: 'Unpaid',
+      items: [{ productId: '', quantity: 1, price: 0 }]
+    }
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'items'
+  });
+
+  const watchItems = watch('items');
+
   useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const [productsRes, customersRes] = await Promise.all([
+          api.get('/api/v1/products').catch(() => ({ data: { data: getMockProducts() } })),
+          api.get('/api/v1/customers').catch(() => ({ data: { data: getMockCustomers() } }))
+        ]);
+        
+        setProducts(Array.isArray(productsRes.data) ? productsRes.data : productsRes.data.data || getMockProducts());
+        setCustomers(Array.isArray(customersRes.data) ? customersRes.data : customersRes.data.data || getMockCustomers());
+      } catch {
+        console.error('Error fetching dropdown data', _err);
+      }
+    };
+
+    const fetchOrderDetails = async () => {
+      setFetchingData(true);
+      try {
+        const response = await api.get(`/api/v1/orders/${orderId}`);
+        const order = response.data;
+        
+        reset({
+          customerId: order.customerId || '',
+          status: order.status || 'Draft',
+          paymentStatus: order.paymentStatus || 'Unpaid',
+          items: order.items && order.items.length > 0 
+            ? order.items.map((item: any) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                price: item.unitPrice
+              }))
+            : [{ productId: '', quantity: 1, price: 0 }]
+        });
+      } catch {
+        error('Error', 'Failed to load order details');
+        onClose();
+      } finally {
+        setFetchingData(false);
+      }
+    };
+
     if (isOpen) {
       fetchInitialData();
       if (isEditMode) {
         fetchOrderDetails();
       } else {
-        resetForm();
+        reset({
+          customerId: '',
+          status: 'Draft',
+          paymentStatus: 'Unpaid',
+          items: [{ productId: '', quantity: 1, price: 0 }]
+        });
       }
     }
-  }, [isOpen, orderId]);
+  }, [isOpen, orderId, isEditMode, reset, error, onClose]);
 
-  const fetchInitialData = async () => {
-    try {
-      // In a real app, we'd fetch products and customers from the API
-      // For now, we simulate fetching dropdown data
-      const [productsRes, customersRes] = await Promise.all([
-        api.get('/api/v1/products').catch(() => ({ data: { data: getMockProducts() } })),
-        api.get('/api/v1/customers').catch(() => ({ data: { data: getMockCustomers() } }))
-      ]);
-      
-      setProducts(Array.isArray(productsRes.data) ? productsRes.data : productsRes.data.data || getMockProducts());
-      setCustomers(Array.isArray(customersRes.data) ? customersRes.data : customersRes.data.data || getMockCustomers());
-    } catch (err) {
-      console.error('Error fetching dropdown data', err);
-    }
-  };
-
-  const fetchOrderDetails = async () => {
-    setFetchingData(true);
-    try {
-      const response = await api.get(`/api/v1/orders/${orderId}`);
-      const order = response.data;
-      
-      setCustomerId(order.customerId || '');
-      setStatus(order.status);
-      setPaymentStatus(order.paymentStatus);
-      
-      if (order.items && order.items.length > 0) {
-        setItems(order.items.map((item: any) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.unitPrice,
-        })));
-      }
-    } catch (err) {
-      error('Error', 'Failed to load order details');
-      onClose();
-    } finally {
-      setFetchingData(false);
-    }
-  };
-
-  const resetForm = () => {
-    setCustomerId('');
-    setItems([{ productId: '', quantity: 1, price: 0 }]);
-    setStatus('Pending');
-    setPaymentStatus('Unpaid');
-  };
-
-  // Mock data fallbacks if endpoints don't exist yet
   const getMockProducts = () => [
     { id: '1', name: 'Business Cards (1 Box)', basePrice: 50000 },
     { id: '2', name: 'A4 Flyer (1 Rim)', basePrice: 150000 },
@@ -125,34 +148,8 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
     { id: '2', name: 'Siti Aminah', email: 'siti@example.com' },
   ];
 
-  const handleProductChange = (index: number, productId: string) => {
-    const product = products.find(p => p.id === productId);
-    const newItems = [...items];
-    newItems[index].productId = productId;
-    newItems[index].price = product ? product.basePrice : 0;
-    setItems(newItems);
-  };
-
-  const updateItemQty = (index: number, qty: number) => {
-    const newItems = [...items];
-    newItems[index].quantity = Math.max(1, qty);
-    setItems(newItems);
-  };
-
-  const addItem = () => {
-    setItems([...items, { productId: '', quantity: 1, price: 0 }]);
-  };
-
-  const removeItem = (index: number) => {
-    if (items.length > 1) {
-      const newItems = [...items];
-      newItems.splice(index, 1);
-      setItems(newItems);
-    }
-  };
-
   const calculateTotal = () => {
-    return items.reduce((total, item) => total + (item.price || 0) * item.quantity, 0);
+    return watchItems.reduce((total, item) => total + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
   };
 
   const formatCurrency = (amount: number) => {
@@ -163,27 +160,14 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
     }).format(amount);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validation
-    if (!customerId) {
-      error('Validation Error', 'Please select a customer');
-      return;
-    }
-    
-    if (items.some(item => !item.productId)) {
-      error('Validation Error', 'Please select a product for all items');
-      return;
-    }
-
+  const onSubmit = async (data: OrderFormValues) => {
     setLoading(true);
     try {
       const payload = {
-        customerId,
-        status,
-        paymentStatus,
-        items: items.map(item => ({
+        customerId: data.customerId,
+        status: data.status,
+        paymentStatus: data.paymentStatus,
+        items: data.items.map(item => ({
           productId: item.productId,
           quantity: item.quantity,
           unitPrice: item.price
@@ -219,7 +203,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="flex flex-col max-h-[80vh]">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[80vh]">
           <div className="p-6 overflow-y-auto space-y-6">
             
             {/* General Info */}
@@ -227,25 +211,23 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Customer <span className="text-red-500">*</span></label>
                 <select
-                  value={customerId}
-                  onChange={(e) => setCustomerId(e.target.value)}
-                  className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  required
+                  {...register('customerId')}
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.customerId ? 'border-red-500' : ''}`}
                 >
                   <option value="">Select a customer...</option>
                   {customers.map(c => (
                     <option key={c.id} value={c.id}>{c.name} ({c.email})</option>
                   ))}
                 </select>
+                {errors.customerId && <p className="text-red-500 text-xs mt-1">{errors.customerId.message}</p>}
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Order Status</label>
                   <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    {...register('status')}
+                    className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.status ? 'border-red-500' : ''}`}
                   >
                     <option value="Draft">Draft</option>
                     <option value="Pending_Approval">Pending Approval</option>
@@ -253,18 +235,19 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                     <option value="In_Production">In Production</option>
                     <option value="Completed">Completed</option>
                   </select>
+                  {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status.message}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Payment</label>
                   <select
-                    value={paymentStatus}
-                    onChange={(e) => setPaymentStatus(e.target.value)}
-                    className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    {...register('paymentStatus')}
+                    className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.paymentStatus ? 'border-red-500' : ''}`}
                   >
                     <option value="Unpaid">Unpaid</option>
                     <option value="Partial">Partial</option>
                     <option value="Paid">Paid</option>
                   </select>
+                  {errors.paymentStatus && <p className="text-red-500 text-xs mt-1">{errors.paymentStatus.message}</p>}
                 </div>
               </div>
             </div>
@@ -277,7 +260,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                 <h3 className="text-sm font-bold text-slate-800">Order Items <span className="text-red-500">*</span></h3>
                 <button
                   type="button"
-                  onClick={addItem}
+                  onClick={() => append({ productId: '', quantity: 1, price: 0 })}
                   className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
                 >
                   <Plus size={16} /> Add Item
@@ -285,22 +268,29 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
               </div>
               
               <div className="space-y-3">
-                {items.map((item, index) => (
-                  <div key={index} className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl relative group transition-colors hover:border-slate-300">
+                {fields.map((item, index) => (
+                  <div key={item.id} className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl relative group transition-colors hover:border-slate-300">
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4">
                       <div className="md:col-span-6">
                         <label className="block text-xs font-medium text-slate-500 mb-1">Product</label>
                         <select
-                          value={item.productId}
-                          onChange={(e) => handleProductChange(index, e.target.value)}
-                          className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                          required
+                          {...register(`items.${index}.productId` as const)}
+                          onChange={(e) => {
+                            const productId = e.target.value;
+                            setValue(`items.${index}.productId` as const, productId);
+                            const product = products.find(p => p.id === productId);
+                            if (product) {
+                              setValue(`items.${index}.price` as const, product.basePrice);
+                            }
+                          }}
+                          className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.items?.[index]?.productId ? 'border-red-500' : ''}`}
                         >
                           <option value="">Select product...</option>
                           {products.map(p => (
                             <option key={p.id} value={p.id}>{p.name}</option>
                           ))}
                         </select>
+                        {errors.items?.[index]?.productId && <p className="text-red-500 text-xs mt-1">{errors.items[index]?.productId?.message}</p>}
                       </div>
                       
                       <div className="md:col-span-3">
@@ -312,15 +302,11 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                           <input
                             type="number"
                             min="0"
-                            value={item.price}
-                            onChange={(e) => {
-                              const newItems = [...items];
-                              newItems[index].price = Number(e.target.value);
-                              setItems(newItems);
-                            }}
-                            className="w-full pl-9 border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            {...register(`items.${index}.price` as const)}
+                            className={`w-full pl-9 border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.items?.[index]?.price ? 'border-red-500' : ''}`}
                           />
                         </div>
+                        {errors.items?.[index]?.price && <p className="text-red-500 text-xs mt-1">{errors.items[index]?.price?.message}</p>}
                       </div>
 
                       <div className="md:col-span-3">
@@ -328,17 +314,17 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                         <input
                           type="number"
                           min="1"
-                          value={item.quantity}
-                          onChange={(e) => updateItemQty(index, parseInt(e.target.value) || 1)}
-                          className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          {...register(`items.${index}.quantity` as const)}
+                          className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.items?.[index]?.quantity ? 'border-red-500' : ''}`}
                         />
+                        {errors.items?.[index]?.quantity && <p className="text-red-500 text-xs mt-1">{errors.items[index]?.quantity?.message}</p>}
                       </div>
                     </div>
                     
-                    {items.length > 1 && (
+                    {fields.length > 1 && (
                       <button
                         type="button"
-                        onClick={() => removeItem(index)}
+                        onClick={() => remove(index)}
                         className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors mt-5"
                         title="Remove item"
                       >
@@ -347,6 +333,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                     )}
                   </div>
                 ))}
+                {errors.items?.root && <p className="text-red-500 text-sm mt-2">{errors.items.root.message}</p>}
               </div>
             </div>
 
