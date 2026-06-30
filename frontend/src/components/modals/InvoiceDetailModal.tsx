@@ -19,6 +19,19 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const fetchInvoice = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const response = await api.get(`/api/v1/invoices/${invoiceId}`);
+        setInvoice(response.data);
+      } catch {
+        setError(_err.response?.data?.message || 'Failed to load invoice details');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (isOpen && invoiceId) {
       fetchInvoice();
     } else {
@@ -26,19 +39,6 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
       setError('');
     }
   }, [isOpen, invoiceId]);
-
-  const fetchInvoice = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const response = await api.get(`/api/v1/invoices/${invoiceId}`);
-      setInvoice(response.data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load invoice details');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {

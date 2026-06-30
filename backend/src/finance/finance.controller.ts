@@ -7,7 +7,7 @@ import {
   Query,
   UseGuards,
   Req,
-  ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -67,10 +67,10 @@ export class FinanceController {
       include: { payments: true },
     });
 
-    if (!invoice) throw new ForbiddenException('Invoice not found');
+    if (!invoice) throw new NotFoundException('Invoice not found');
 
     if (user.role === 'Customer' && invoice.customerId !== user.userId) {
-      throw new ForbiddenException('Access denied');
+      throw new NotFoundException('Invoice not found');
     }
 
     const outstandingInfo =
@@ -106,10 +106,10 @@ export class FinanceController {
       where: { id },
     });
 
-    if (!invoice) throw new ForbiddenException('Invoice not found');
+    if (!invoice) throw new NotFoundException('Invoice not found');
 
     if (user.role === 'Customer' && invoice.customerId !== user.userId) {
-      throw new ForbiddenException('Access denied');
+      throw new NotFoundException('Invoice not found');
     }
 
     if (!invoice.pdfUrl) {

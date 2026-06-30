@@ -19,6 +19,27 @@ export const PaymentHistoryModal: React.FC<PaymentHistoryModalProps> = ({
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const fetchPaymentHistory = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        // Assuming endpoint is like /api/v1/customers/:id/payments or similar
+        // Or we filter invoices by customer
+        const response = await api.get(`/api/v1/customers/${customerId}/payments`).catch(() => ({
+          // Mock fallback if backend isn't ready
+          data: { data: [
+            { id: '1', date: new Date().toISOString(), amount: 1500000, method: 'Bank Transfer', status: 'Completed', invoiceNumber: 'INV-2026-001' },
+            { id: '2', date: new Date(Date.now() - 86400000).toISOString(), amount: 500000, method: 'Cash', status: 'Completed', invoiceNumber: 'INV-2026-002' },
+          ]}
+        }));
+        setPayments(Array.isArray(response.data) ? response.data : response.data.data || []);
+      } catch {
+        setError(_err.response?.data?.message || 'Failed to load payment history');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (isOpen && customerId) {
       fetchPaymentHistory();
     } else {
@@ -26,27 +47,6 @@ export const PaymentHistoryModal: React.FC<PaymentHistoryModalProps> = ({
       setError('');
     }
   }, [isOpen, customerId]);
-
-  const fetchPaymentHistory = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      // Assuming endpoint is like /api/v1/customers/:id/payments or similar
-      // Or we filter invoices by customer
-      const response = await api.get(`/api/v1/customers/${customerId}/payments`).catch(() => ({
-        // Mock fallback if backend isn't ready
-        data: { data: [
-          { id: '1', date: new Date().toISOString(), amount: 1500000, method: 'Bank Transfer', status: 'Completed', invoiceNumber: 'INV-2026-001' },
-          { id: '2', date: new Date(Date.now() - 86400000).toISOString(), amount: 500000, method: 'Cash', status: 'Completed', invoiceNumber: 'INV-2026-002' },
-        ]}
-      }));
-      setPayments(Array.isArray(response.data) ? response.data : response.data.data || []);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load payment history');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {

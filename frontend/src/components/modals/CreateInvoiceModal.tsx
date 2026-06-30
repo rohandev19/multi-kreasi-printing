@@ -2,12 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
 import { useToast } from '../../contexts/ToastContext';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 interface CreateInvoiceModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
+
+const invoiceSchema = z.object({
+  orderId: z.string().min(1, 'Order is required'),
+  dueDate: z.string().min(1, 'Due date is required'),
+});
+
+type InvoiceFormValues = z.infer<typeof invoiceSchema>;
 
 export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
   isOpen,
@@ -17,18 +27,31 @@ export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
   const [loading, setLoading] = useState(false);
   const { success, error } = useToast();
   
-  const [orderId, setOrderId] = useState('');
-  const [dueDate, setDueDate] = useState('');
   const [orders, setOrders] = useState<any[]>([]);
   const [fetchingOrders, setFetchingOrders] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm<InvoiceFormValues>({
+    resolver: zodResolver(invoiceSchema),
+    defaultValues: {
+      orderId: '',
+      dueDate: '',
+    }
+  });
 
   useEffect(() => {
     if (isOpen) {
       fetchEligibleOrders();
-      setOrderId('');
-      setDueDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]); // 7 days from now
+      reset({
+        orderId: '',
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      });
     }
-  }, [isOpen]);
+  }, [isOpen, reset]);
 
   const fetchEligibleOrders = async () => {
     setFetchingOrders(true);
@@ -38,7 +61,7 @@ export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
         data: { data: [{ id: '1', orderNumber: 'ORD-2026-001', customer: { name: 'Budi Santoso' }, totalAmount: 1500000 }] }
       }));
       setOrders(Array.isArray(response.data) ? response.data : response.data.data || []);
-    } catch (err) {
+    } catch {
       console.error('Failed to fetch orders');
     } finally {
       setFetchingOrders(false);
@@ -53,13 +76,10 @@ export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
     }).format(amount);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!orderId || !dueDate) return;
-
+  const onSubmit = async (data: InvoiceFormValues) => {
     setLoading(true);
     try {
-      await api.post('/api/v1/invoices', { orderId, dueDate });
+      await api.post('/api/v1/invoices', data);
       success('Invoice Created', 'New invoice has been generated successfully.');
       onSuccess();
       onClose();
@@ -72,7 +92,7 @@ export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Create Invoice" size="md">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -84,19 +104,18 @@ export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
               </div>
             ) : (
               <select
-                value={orderId}
-                onChange={(e) => setOrderId(e.target.value)}
-                className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                required
+                {...register('orderId')}
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.orderId ? 'border-red-500' : ''}`}
               >
                 <option value="">Select an order to invoice...</option>
                 {orders.map(o => (
                   <option key={o.id} value={o.id}>
-                    {o.orderNumber} - {o.customer?.name} ({formatCurrency(o.totalAmount)})
+                    {o.orderNumber} - {o.customer?.name} ({formatCurrency(o.totalAmount || 0)})
                   </option>
                 ))}
               </select>
             )}
+            {errors.orderId && <p className="text-red-500 text-xs mt-1">{errors.orderId.message}</p>}
           </div>
           
           <div>
@@ -105,11 +124,10 @@ export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
             </label>
             <input
               type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              required
+              {...register('dueDate')}
+              className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.dueDate ? 'border-red-500' : ''}`}
             />
+            {errors.dueDate && <p className="text-red-500 text-xs mt-1">{errors.dueDate.message}</p>}
           </div>
         </div>
         <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 rounded-b-xl">
@@ -123,7 +141,7 @@ export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
           </button>
           <button
             type="submit"
-            disabled={loading || !orderId || fetchingOrders}
+            disabled={loading || fetchingOrders}
             className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
             {loading ? 'Creating...' : 'Generate Invoice'}
