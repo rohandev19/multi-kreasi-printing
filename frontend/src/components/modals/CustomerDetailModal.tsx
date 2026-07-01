@@ -19,6 +19,19 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const fetchCustomer = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const response = await api.get(`/api/v1/customers/${customerId}`);
+        setCustomer(response.data);
+      } catch {
+        setError(_err.response?.data?.message || 'Failed to load customer details');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (isOpen && customerId) {
       fetchCustomer();
     } else {
@@ -26,19 +39,6 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
       setError('');
     }
   }, [isOpen, customerId]);
-
-  const fetchCustomer = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const response = await api.get(`/api/v1/customers/${customerId}`);
-      setCustomer(response.data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load customer details');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {

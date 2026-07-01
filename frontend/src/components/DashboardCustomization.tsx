@@ -110,43 +110,43 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
   );
 
   useEffect(() => {
+    const fetchPreferences = async () => {
+      setLoading(true);
+      try {
+        const response = await api.get('/api/v1/dashboard/preferences');
+        
+        const layoutOrder = response.data.layoutOrder || [];
+        const enabledWidgets = response.data.enabledWidgets || [];
+        
+        setPreferences({ layoutOrder, enabledWidgets });
+
+        // Build initial ordered list
+        let initialOrder = [...availableWidgets];
+        if (layoutOrder.length > 0) {
+          // Sort available widgets based on layoutOrder
+          initialOrder.sort((a, b) => {
+            const indexA = layoutOrder.indexOf(a.id);
+            const indexB = layoutOrder.indexOf(b.id);
+            if (indexA === -1 && indexB === -1) return 0;
+            if (indexA === -1) return 1;
+            if (indexB === -1) return -1;
+            return indexA - indexB;
+          });
+        }
+        setOrderedWidgets(initialOrder);
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Failed to load preferences');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (isOpen) {
       fetchPreferences();
       setSuccess(false);
       setError('');
     }
   }, [isOpen, availableWidgets]);
-
-  const fetchPreferences = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get('/api/v1/dashboard/preferences');
-      
-      const layoutOrder = response.data.layoutOrder || [];
-      const enabledWidgets = response.data.enabledWidgets || [];
-      
-      setPreferences({ layoutOrder, enabledWidgets });
-
-      // Build initial ordered list
-      let initialOrder = [...availableWidgets];
-      if (layoutOrder.length > 0) {
-        // Sort available widgets based on layoutOrder
-        initialOrder.sort((a, b) => {
-          const indexA = layoutOrder.indexOf(a.id);
-          const indexB = layoutOrder.indexOf(b.id);
-          if (indexA === -1 && indexB === -1) return 0;
-          if (indexA === -1) return 1;
-          if (indexB === -1) return -1;
-          return indexA - indexB;
-        });
-      }
-      setOrderedWidgets(initialOrder);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load preferences');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleToggleWidget = (widgetId: string) => {
     setPreferences((prev) => {

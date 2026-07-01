@@ -10,7 +10,7 @@ interface Customer {
   totalOrders: number;
   totalRevenue?: number;
   outstandingBalance?: number;
-  paymentHistory?: any[]; // Simplified for now
+  paymentHistory?: unknown[]; // Simplified for now
 }
 
 interface CustomersTableProps {

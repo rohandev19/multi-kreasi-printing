@@ -47,7 +47,7 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
         data: { data: [{ id: '1', orderNumber: 'ORD-2026-001', customer: { name: 'Budi Santoso' } }] }
       }));
       setOrders(Array.isArray(response.data) ? response.data : response.data.data || []);
-    } catch (err) {
+    } catch {
       console.error('Failed to fetch orders');
     } finally {
       setFetchingOrders(false);

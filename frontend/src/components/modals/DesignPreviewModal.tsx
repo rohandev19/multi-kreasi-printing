@@ -19,6 +19,19 @@ export const DesignPreviewModal: React.FC<DesignPreviewModalProps> = ({
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const fetchFileDetails = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const response = await api.get(`/api/v1/design-files/${fileId}`);
+        setFile(response.data);
+      } catch {
+        setError(_err.response?.data?.message || 'Failed to load design file');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (isOpen && fileId) {
       fetchFileDetails();
     } else {
@@ -26,19 +39,6 @@ export const DesignPreviewModal: React.FC<DesignPreviewModalProps> = ({
       setError('');
     }
   }, [isOpen, fileId]);
-
-  const fetchFileDetails = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const response = await api.get(`/api/v1/design-files/${fileId}`);
-      setFile(response.data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load design file');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Design Preview" size="2xl">

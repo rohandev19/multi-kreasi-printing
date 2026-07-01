@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
 import { useToast } from '../../contexts/ToastContext';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 interface MaterialFormModalProps {
   isOpen: boolean;
@@ -9,6 +12,16 @@ interface MaterialFormModalProps {
   onSuccess: () => void;
   materialId?: string | null;
 }
+
+const materialSchema = z.object({
+  name: z.string().min(1, 'Material Name is required'),
+  sku: z.string().min(1, 'SKU is required'),
+  category: z.enum(['Paper', 'Ink', 'Vinyl', 'Laminate', 'Packaging', 'Other']).default('Paper'),
+  unit: z.enum(['sheets', 'm²', 'liters', 'kg', 'pieces', 'boxes']).default('sheets'),
+  minStock: z.coerce.number().min(0, 'Minimum stock cannot be negative'),
+});
+
+type MaterialFormValues = z.infer<typeof materialSchema>;
 
 export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
   isOpen,
@@ -22,68 +35,69 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
   
-  const [name, setName] = useState('');
-  const [sku, setSku] = useState('');
-  const [category, setCategory] = useState('Paper');
-  const [unit, setUnit] = useState('sheets');
-  const [minStock, setMinStock] = useState<number | ''>('');
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm<MaterialFormValues>({
+    resolver: zodResolver(materialSchema),
+    defaultValues: {
+      name: '',
+      sku: '',
+      category: 'Paper',
+      unit: 'sheets',
+      minStock: 0,
+    }
+  });
 
   useEffect(() => {
+    const fetchMaterialDetails = async () => {
+      setFetchingData(true);
+      try {
+        const response = await api.get(`/api/v1/inventory/${materialId}`);
+        const material = response.data;
+        
+        reset({
+          name: material.name || '',
+          sku: material.sku || '',
+          category: material.category || 'Paper',
+          unit: material.unit || 'sheets',
+          minStock: material.minStock || 0,
+        });
+      } catch {
+        error('Error', 'Failed to load material details');
+        onClose();
+      } finally {
+        setFetchingData(false);
+      }
+    };
+
     if (isOpen) {
       if (isEditMode) {
         fetchMaterialDetails();
       } else {
-        resetForm();
+        reset({
+          name: '',
+          sku: '',
+          category: 'Paper',
+          unit: 'sheets',
+          minStock: 0,
+        });
       }
     }
-  }, [isOpen, materialId]);
+  }, [isOpen, materialId, isEditMode, error, onClose, reset]);
 
-  const fetchMaterialDetails = async () => {
-    setFetchingData(true);
-    try {
-      const response = await api.get(`/api/v1/inventory/${materialId}`);
-      const material = response.data;
-      
-      setName(material.name || '');
-      setSku(material.sku || '');
-      setCategory(material.category || 'Paper');
-      setUnit(material.unit || 'sheets');
-      setMinStock(material.minStock || 0);
-    } catch (err) {
-      error('Error', 'Failed to load material details');
-      onClose();
-    } finally {
-      setFetchingData(false);
-    }
-  };
-
-  const resetForm = () => {
-    setName('');
-    setSku('');
-    setCategory('Paper');
-    setUnit('sheets');
-    setMinStock('');
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: MaterialFormValues) => {
     setLoading(true);
-
-    const payload = {
-      name,
-      sku,
-      category,
-      unit,
-      minStock: Number(minStock)
-    };
 
     try {
       if (isEditMode) {
-        await api.put(`/api/v1/inventory/${materialId}`, payload);
-        success('Material Updated', `${name} has been updated successfully.`);
+        await api.put(`/api/v1/inventory/${materialId}`, data);
+        success('Material Updated', `${data.name} has been updated successfully.`);
       } else {
-        await api.post('/api/v1/inventory', payload);
-        success('Material Added', `${name} has been added to inventory.`);
+        await api.post('/api/v1/inventory', data);
+        success('Material Added', `${data.name} has been added to inventory.`);
       }
       
       onSuccess();
@@ -107,18 +121,17 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Material Name <span className="text-red-500">*</span></label>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                {...register('name')}
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.name ? 'border-red-500' : ''}`}
                 placeholder="e.g., A4 Paper 80gsm"
-                required
               />
+              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -126,19 +139,17 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
                 <label className="block text-sm font-medium text-slate-700 mb-1">SKU <span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  value={sku}
-                  onChange={(e) => setSku(e.target.value)}
-                  className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  {...register('sku')}
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.sku ? 'border-red-500' : ''}`}
                   placeholder="e.g., PPR-A4-80"
-                  required
                 />
+                {errors.sku && <p className="text-red-500 text-xs mt-1">{errors.sku.message}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
                 <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  {...register('category')}
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.category ? 'border-red-500' : ''}`}
                 >
                   <option value="Paper">Paper</option>
                   <option value="Ink">Ink</option>
@@ -147,6 +158,7 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
                   <option value="Packaging">Packaging</option>
                   <option value="Other">Other</option>
                 </select>
+                {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category.message}</p>}
               </div>
             </div>
 
@@ -154,9 +166,8 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Unit of Measure <span className="text-red-500">*</span></label>
                 <select
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value)}
-                  className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  {...register('unit')}
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.unit ? 'border-red-500' : ''}`}
                 >
                   <option value="sheets">Sheets</option>
                   <option value="m²">Square Meters (m²)</option>
@@ -165,18 +176,18 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
                   <option value="pieces">Pieces</option>
                   <option value="boxes">Boxes</option>
                 </select>
+                {errors.unit && <p className="text-red-500 text-xs mt-1">{errors.unit.message}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Min. Stock Alert <span className="text-red-500">*</span></label>
                 <input
                   type="number"
                   min="0"
-                  value={minStock}
-                  onChange={(e) => setMinStock(Number(e.target.value))}
-                  className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  {...register('minStock')}
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.minStock ? 'border-red-500' : ''}`}
                   placeholder="e.g., 1000"
-                  required
                 />
+                {errors.minStock && <p className="text-red-500 text-xs mt-1">{errors.minStock.message}</p>}
               </div>
             </div>
           </div>

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
 import { useToast } from '../../contexts/ToastContext';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 interface ReassignJobModalProps {
   isOpen: boolean;
@@ -10,23 +13,41 @@ interface ReassignJobModalProps {
   jobId: string | null;
 }
 
+const reassignSchema = z.object({
+  assignedTo: z.string().min(1, 'Please select a staff member'),
+});
+
+type ReassignFormValues = z.infer<typeof reassignSchema>;
+
 export const ReassignJobModal: React.FC<ReassignJobModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
   jobId
 }) => {
-  const [assignedTo, setAssignedTo] = useState('');
   const [staff, setStaff] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetchingStaff, setFetchingStaff] = useState(false);
   const { success, error } = useToast();
 
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm<ReassignFormValues>({
+    resolver: zodResolver(reassignSchema),
+    defaultValues: {
+      assignedTo: ''
+    }
+  });
+
   useEffect(() => {
     if (isOpen) {
       fetchStaff();
+      reset({ assignedTo: '' });
     }
-  }, [isOpen]);
+  }, [isOpen, reset]);
 
   const fetchStaff = async () => {
     setFetchingStaff(true);
@@ -36,24 +57,20 @@ export const ReassignJobModal: React.FC<ReassignJobModalProps> = ({
         data: { data: [{ id: '1', name: 'Andi (Operator A)' }, { id: '2', name: 'Budi (Operator B)' }] }
       }));
       setStaff(Array.isArray(response.data) ? response.data : response.data.data || []);
-    } catch (err) {
+    } catch {
       console.error('Failed to fetch staff');
     } finally {
       setFetchingStaff(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!assignedTo) return;
-
+  const onSubmit = async (data: ReassignFormValues) => {
     setLoading(true);
     try {
-      await api.patch(`/api/v1/production-jobs/${jobId}/reassign`, { assignedTo });
+      await api.patch(`/api/v1/production-jobs/${jobId}/reassign`, data);
       success('Job Reassigned', `Job #${jobId} has been reassigned successfully.`);
       onSuccess();
       onClose();
-      setAssignedTo('');
     } catch (err: any) {
       error('Reassignment Failed', err.response?.data?.message || 'Please try again later.');
     } finally {
@@ -63,7 +80,7 @@ export const ReassignJobModal: React.FC<ReassignJobModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Reassign Production Job" size="md">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-6">
           <p className="text-sm text-slate-600 mb-4">
             Select a new staff member to take over this production job.
@@ -79,10 +96,8 @@ export const ReassignJobModal: React.FC<ReassignJobModalProps> = ({
               </div>
             ) : (
               <select
-                value={assignedTo}
-                onChange={(e) => setAssignedTo(e.target.value)}
-                className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                required
+                {...register('assignedTo')}
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.assignedTo ? 'border-red-500' : ''}`}
               >
                 <option value="">Select staff member...</option>
                 {staff.map(s => (
@@ -90,6 +105,7 @@ export const ReassignJobModal: React.FC<ReassignJobModalProps> = ({
                 ))}
               </select>
             )}
+            {errors.assignedTo && <p className="text-red-500 text-xs mt-1">{errors.assignedTo.message}</p>}
           </div>
         </div>
         <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 rounded-b-xl">
@@ -103,7 +119,7 @@ export const ReassignJobModal: React.FC<ReassignJobModalProps> = ({
           </button>
           <button
             type="submit"
-            disabled={loading || !assignedTo || fetchingStaff}
+            disabled={loading || fetchingStaff}
             className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
             {loading ? 'Reassigning...' : 'Confirm Reassign'}

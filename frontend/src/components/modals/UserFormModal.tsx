@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
 import { useToast } from '../../contexts/ToastContext';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 interface UserFormModalProps {
   isOpen: boolean;
@@ -9,6 +12,19 @@ interface UserFormModalProps {
   onSuccess: () => void;
   userId?: string | null;
 }
+
+const getUserSchema = (isEditMode: boolean) => z.object({
+  fullName: z.string().min(1, 'Full name is required'),
+  email: z.string().email('Invalid email address'),
+  password: isEditMode 
+    ? z.string().optional().or(z.literal('')) 
+    : z.string().min(8, 'Password must be at least 8 characters'),
+  phone: z.string().optional(),
+  roleId: z.string().min(1, 'Role is required'),
+  status: z.enum(['Active', 'Inactive', 'Suspended']).default('Active'),
+});
+
+type UserFormValues = z.infer<ReturnType<typeof getUserSchema>>;
 
 export const UserFormModal: React.FC<UserFormModalProps> = ({
   isOpen,
@@ -21,97 +37,105 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
   
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
-  
-  // Form State
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
-  const [roleId, setRoleId] = useState('');
-  const [status, setStatus] = useState('Active');
-  
   const [roles, setRoles] = useState<{id: string, displayName: string}[]>([]);
 
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors }
+  } = useForm<UserFormValues>({
+    resolver: zodResolver(getUserSchema(isEditMode)),
+    defaultValues: {
+      fullName: '',
+      email: '',
+      password: '',
+      phone: '',
+      roleId: '',
+      status: 'Active',
+    }
+  });
+
   useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await api.get('/api/v1/users/roles');
+        const filteredRoles = (response.data.data || []).filter(
+          (r: { name: string; displayName: string }) => r.name !== 'Customer' && r.displayName !== 'Customer'
+        );
+        
+        setRoles(filteredRoles);
+        
+        if (!isEditMode && filteredRoles.length > 0) {
+          setValue('roleId', filteredRoles[0].id);
+        }
+      } catch (err: any) {
+        console.error('Failed to load roles', err);
+      }
+    };
+
+    const fetchUserDetails = async () => {
+      setFetchingData(true);
+      try {
+        const response = await api.get(`/api/v1/users/${userId}`);
+        const user = response.data.data || response.data;
+        
+        reset({
+          fullName: user.fullName || '',
+          email: user.email || '',
+          phone: user.phone || '',
+          roleId: user.roleId || '',
+          status: user.status || 'Active',
+          password: '',
+        });
+      } catch {
+        error('Error', 'Failed to load user details');
+        onClose();
+      } finally {
+        setFetchingData(false);
+      }
+    };
+
     if (isOpen) {
       fetchRoles();
       if (isEditMode) {
         fetchUserDetails();
       } else {
-        resetForm();
+        reset({
+          fullName: '',
+          email: '',
+          password: '',
+          phone: '',
+          roleId: roles.length > 0 ? roles[0].id : '',
+          status: 'Active',
+        });
       }
     }
-  }, [isOpen, userId]);
+  }, [isOpen, userId, isEditMode, error, onClose, reset, setValue, roles]); // Need to be careful with roles dependency here
 
-  const fetchRoles = async () => {
-    try {
-      const response = await api.get('/api/v1/users/roles');
-      const filteredRoles = (response.data.data || []).filter(
-        (r: any) => r.name !== 'Customer' && r.displayName !== 'Customer'
-      );
-      
-      setRoles(filteredRoles);
-      
-      if (!isEditMode && filteredRoles.length > 0) {
-        setRoleId(filteredRoles[0].id);
-      }
-    } catch (err) {
-      console.error('Failed to load roles', err);
-    }
-  };
-
-  const fetchUserDetails = async () => {
-    setFetchingData(true);
-    try {
-      const response = await api.get(`/api/v1/users/${userId}`);
-      const user = response.data.data || response.data;
-      
-      setFullName(user.fullName || '');
-      setEmail(user.email || '');
-      setPhone(user.phone || '');
-      setRoleId(user.roleId || '');
-      setStatus(user.status || 'Active');
-      setPassword(''); // Don't show password
-    } catch (err) {
-      error('Error', 'Failed to load user details');
-      onClose();
-    } finally {
-      setFetchingData(false);
-    }
-  };
-
-  const resetForm = () => {
-    setFullName('');
-    setEmail('');
-    setPassword('');
-    setPhone('');
-    setStatus('Active');
-    if (roles.length > 0) setRoleId(roles[0].id);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: UserFormValues) => {
     setLoading(true);
 
-    const payload: any = {
-      fullName,
-      email,
-      phone: phone || undefined,
-      roleId,
-      status
+    const payload: Record<string, string | undefined> = {
+      fullName: data.fullName,
+      email: data.email,
+      phone: data.phone || undefined,
+      roleId: data.roleId,
+      status: data.status
     };
 
-    if (password) {
-      payload.password = password;
+    if (data.password) {
+      payload.password = data.password;
     }
 
     try {
       if (isEditMode) {
         await api.patch(`/api/v1/users/${userId}`, payload);
-        success('User Updated', `${fullName} has been updated successfully.`);
+        success('User Updated', `${data.fullName} has been updated successfully.`);
       } else {
         await api.post('/api/v1/users', payload);
-        success('User Added', `${fullName} has been added successfully.`);
+        success('User Added', `${data.fullName} has been added successfully.`);
       }
       
       onSuccess();
@@ -135,29 +159,27 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
             <input
               type="text"
-              required
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              {...register('fullName')}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${errors.fullName ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="e.g. John Doe"
             />
+            {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
               type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              {...register('email')}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="john@example.com"
             />
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
           </div>
 
           <div>
@@ -166,60 +188,53 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
             </label>
             <input
               type="password"
-              required={!isEditMode}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              {...register('password')}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
               placeholder={isEditMode ? '••••••••' : 'Enter password (min 8 chars)'}
-              minLength={8}
             />
+            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number (Optional)</label>
             <input
               type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              {...register('phone')}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="+62 812-3456-7890"
             />
+            {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
               <select
-                required
-                value={roleId}
-                onChange={(e) => setRoleId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                {...register('roleId')}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors bg-white ${errors.roleId ? 'border-red-500' : 'border-gray-300'}`}
               >
-                {roles.length === 0 ? (
-                  <option value="" disabled>Loading roles...</option>
-                ) : (
-                  roles.map(role => (
-                    <option key={role.id} value={role.id}>
-                      {role.displayName}
-                    </option>
-                  ))
-                )}
+                <option value="" disabled>Select a role...</option>
+                {roles.map(role => (
+                  <option key={role.id} value={role.id}>
+                    {role.displayName}
+                  </option>
+                ))}
               </select>
+              {errors.roleId && <p className="text-red-500 text-xs mt-1">{errors.roleId.message}</p>}
             </div>
 
             {isEditMode && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select
-                  required
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                  {...register('status')}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors bg-white ${errors.status ? 'border-red-500' : 'border-gray-300'}`}
                 >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                   <option value="Suspended">Suspended</option>
                 </select>
+                {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status.message}</p>}
               </div>
             )}
           </div>
