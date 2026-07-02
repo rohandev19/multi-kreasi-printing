@@ -265,7 +265,7 @@ export default function Dashboard() {
                       }} 
                     />
                     <Tooltip 
-                      formatter={(value: any) => [`Rp ${Number(value).toLocaleString('id-ID')}`, 'Revenue']} 
+                      formatter={(value: number) => [`Rp ${Number(value).toLocaleString('id-ID')}`, 'Revenue']} 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                     />
                     <Line type="monotone" dataKey="total" stroke="#4f46e5" strokeWidth={3} dot={{r: 4, fill: '#4f46e5', strokeWidth: 2, stroke: '#fff'}} activeDot={{r: 6}} />
@@ -345,7 +345,7 @@ export default function Dashboard() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
-        {metrics?.widgets?.map((widget: any) => {
+        {metrics?.widgets?.map((widget: unknown) => {
           if (widget.type === 'stat') {
             return (
               <MetricCard

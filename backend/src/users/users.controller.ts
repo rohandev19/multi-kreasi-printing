@@ -66,12 +66,14 @@ export class UsersController {
   // so any logged-in user can delete/export their own data. But for this MVP, we place them here.
   // We can override the role requirement for these specific endpoints if needed by NestJS roles mechanisms.
   @Get('me/export')
+  @Roles()
   async exportData(@Req() req: Request) {
     const userId = (req as any).user.sub;
     return this.exportUserDataUseCase.execute(userId);
   }
 
   @Delete('me')
+  @Roles()
   async deleteAccount(@Req() req: Request) {
     const userId = (req as any).user.sub;
     return this.deleteUserAccountUseCase.execute(userId);

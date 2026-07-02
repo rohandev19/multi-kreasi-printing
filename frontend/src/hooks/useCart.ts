@@ -28,7 +28,7 @@ export function useCart() {
     try {
       const stored = localStorage.getItem(GUEST_CART_KEY);
       if (stored) return JSON.parse(stored);
-    } catch (e) {}
+    } catch {}
     
     return { id: 'guest-cart', items: [], totalAmount: 0 };
   };
@@ -74,14 +74,14 @@ export function useCart() {
         setCart(response.data);
       }
       setError(null);
-    } catch (err) {
+    } catch {
       setError('Failed to fetch cart');
     } finally {
       setLoading(false);
     }
   }, [isAuth]);
 
-  const addToCart = async (product: any, quantity: number) => {
+  const addToCart = async (product: { id: string; name: string; basePrice?: number; price?: number }, quantity: number) => {
     if (!isAuth) {
       const guestCart = getGuestCart();
       const existingIdx = guestCart.items.findIndex(i => i.productId === product.id);
@@ -108,7 +108,7 @@ export function useCart() {
       await fetchCart();
       window.dispatchEvent(new Event('cart_updated'));
       setError(null);
-    } catch (err) {
+    } catch (err: any) {
       setError('Failed to add to cart');
       throw err; // throw so caller can see error
     } finally {
@@ -130,7 +130,7 @@ export function useCart() {
       await fetchCart();
       window.dispatchEvent(new Event('cart_updated'));
       setError(null);
-    } catch (err) {
+    } catch {
       setError('Failed to remove from cart');
     } finally {
       setLoading(false);
@@ -155,7 +155,7 @@ export function useCart() {
       await fetchCart();
       window.dispatchEvent(new Event('cart_updated'));
       setError(null);
-    } catch (err) {
+    } catch {
       setError('Failed to update cart');
     } finally {
       setLoading(false);
@@ -175,7 +175,7 @@ export function useCart() {
       await fetchCart();
       window.dispatchEvent(new Event('cart_updated'));
       setError(null);
-    } catch (err) {
+    } catch {
       setError('Failed to clear cart');
     } finally {
       setLoading(false);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Plus, Minus, Package, ShieldCheck, Truck, RefreshCw, UploadCloud, X, Star, ArrowRight } from 'lucide-react';
 import api from '../../api/axios';
@@ -10,7 +10,7 @@ interface Product {
   name: string;
   description: string;
   basePrice: number;
-  category: any;
+  category: string;
   imageUrl?: string;
   isActive: boolean;
   minOrderQuantity?: number;
@@ -36,9 +36,9 @@ export const ProductDetail = () => {
 
   useEffect(() => {
     fetchProduct();
-  }, [id]);
+  }, [fetchProduct]);
 
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       const response = await api.get(`/api/v1/products/${id}`);
       const data = response.data.data || response.data;
@@ -50,7 +50,7 @@ export const ProductDetail = () => {
       
       setProduct(p);
       setQuantity(p.minOrderQuantity || 1);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to fetch product details', err);
       // Fallback for demo
       const fallbackProducts: Product[] = [
@@ -69,7 +69,7 @@ export const ProductDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
 
   const handleQuantityChange = (newQty: number) => {
     const min = product?.minOrderQuantity || 1;
@@ -97,7 +97,7 @@ export const ProductDetail = () => {
       await addToCart(product, quantity);
       success('Added to Cart', `${quantity} ${product.name} added to your cart.`);
       navigate('/cart');
-    } catch (err) {
+    } catch {
       error('Failed to Add', 'Could not add product to cart. Please try again.');
     }
   };

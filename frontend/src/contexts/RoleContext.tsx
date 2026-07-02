@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -38,14 +38,14 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const refreshRole = async () => {
+  const refreshRole = useCallback(async () => {
     try {
       const response = await api.get('/api/v1/auth/me'); // Using the /me endpoint
       const userData = response.data;
       setUser(userData);
       setRole(userData.role);
       localStorage.setItem('user', JSON.stringify(userData));
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to refresh role context:', error);
       
       // Only clear user data if it's an authentication error (401/403)
@@ -62,7 +62,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     }
-  };
+  }, [navigate]);
 
   const loginUser = (userData: User) => {
     setUser(userData);
@@ -88,7 +88,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const storedUser = JSON.parse(storedUserStr);
           setUser(storedUser);
           setRole(storedUser.role);
-        } catch (e) {
+        } catch (e: any) {
           console.error('Failed to parse stored user in RoleContext', e);
         }
       }
@@ -129,7 +129,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, [navigate]);
+  }, [navigate, refreshRole]);
 
   const hasAccess = (allowedRoles: UserRole[]) => {
     if (!role) return false;
@@ -148,6 +148,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useRoleContext = () => {
   const context = useContext(RoleContext);
   if (context === undefined) {

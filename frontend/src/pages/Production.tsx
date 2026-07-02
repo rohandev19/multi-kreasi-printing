@@ -51,7 +51,7 @@ export default function Production() {
         : response.data.data || [];
         
       // Mock parsing for new schema
-      const mappedJobs: Job[] = jobData.map((j: any) => ({
+      const mappedJobs: Job[] = jobData.map((j: unknown) => ({
         id: j.id,
         orderNumber: j.orderNumber || 'ORD-UNKNOWN',
         product: 'Business Cards',
@@ -64,7 +64,7 @@ export default function Production() {
         progress: j.status === 'Completed' ? 100 : j.status === 'QC' ? 90 : j.status === 'In_Progress' ? 45 : 0
       }));
       setJobs(mappedJobs);
-    } catch (err: any) {
+    } catch {
       setJobs([]);
     } finally {
       setLoading(false);

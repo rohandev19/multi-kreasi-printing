@@ -10,7 +10,7 @@ interface Product {
   name: string;
   description: string;
   basePrice: number;
-  category: any;
+  category: string;
   imageUrl?: string;
   isActive: boolean;
   isNew?: boolean;
@@ -41,8 +41,8 @@ export const ProductsCatalog = () => {
       const response = await api.get('/api/v1/products');
       const data = Array.isArray(response.data) ? response.data : response.data.data || [];
       const activeProducts = data
-        .filter((p: any) => p.isActive !== false)
-        .map((p: any, index: number) => ({
+        .filter((p: unknown) => p.isActive !== false)
+        .map((p: unknown, index: number) => ({
           ...p,
           category: typeof p.category === 'object' && p.category !== null ? p.category.name : p.category,
           isNew: index < 2 // Mock new badge for first two products
@@ -51,7 +51,7 @@ export const ProductsCatalog = () => {
       
       const uniqueCategories = Array.from(new Set(activeProducts.map((p: Product) => p.category))) as string[];
       setCategories(['All', ...uniqueCategories]);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to fetch products', err);
       setProducts([]);
       setCategories(['All']);
@@ -64,7 +64,7 @@ export const ProductsCatalog = () => {
     try {
       await addToCart(product, 1);
       success('Added to Cart', `1x ${product.name} added to your cart.`);
-    } catch (err) {
+    } catch {
       error('Failed to Add', 'Could not add product to cart. Please try again.');
     }
   };
