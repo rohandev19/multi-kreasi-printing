@@ -27,6 +27,8 @@ export default function Orders() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   useEffect(() => {
     if (!roleLoading) {
@@ -36,13 +38,18 @@ export default function Orders() {
         fetchOrders(role);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role, roleLoading, navigate]);
 
   const fetchOrders = async (currentRole: string) => {
     setLoading(true);
     try {
       const response = await api.get('/api/v1/orders', {
-        params: { role: currentRole }
+        params: { 
+          role: currentRole,
+          ...(startDate ? { startDate } : {}),
+          ...(endDate ? { endDate } : {})
+        }
       });
       // Map API data to our new table interface
       const orderData = Array.isArray(response.data) 
@@ -68,6 +75,13 @@ export default function Orders() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (role && !roleLoading) {
+      fetchOrders(role);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startDate, endDate]);
 
   const handleViewOrder = (id: string) => {
     navigate(`/dashboard/orders/${id}`);
@@ -211,10 +225,23 @@ export default function Orders() {
         </div>
         
         <div className="flex items-center gap-3 w-full lg:w-auto">
-          <button className="flex items-center justify-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors w-full sm:w-auto">
-            <Calendar size={16} />
-            <span className="hidden sm:inline">Date Range</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <input 
+              type="date" 
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50 focus:bg-white transition-all w-full sm:w-auto"
+              title="Start Date"
+            />
+            <span className="text-slate-400 hidden sm:inline">-</span>
+            <input 
+              type="date" 
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50 focus:bg-white transition-all w-full sm:w-auto"
+              title="End Date"
+            />
+          </div>
           <button 
             onClick={() => handleExport(filteredOrders, 'orders_export')}
             className="flex items-center justify-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors w-full sm:w-auto"

@@ -100,7 +100,20 @@ export class OrdersController {
       };
     }
 
-    // For Finance_Staff, Owner, Manager, return all (whereClause remains {})
+    const startDate = req.query.startDate as string;
+    const endDate = req.query.endDate as string;
+
+    if (startDate || endDate) {
+      whereClause.createdAt = {};
+      if (startDate) {
+        whereClause.createdAt.gte = new Date(startDate);
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        whereClause.createdAt.lte = end;
+      }
+    }
 
     return this.prisma.order.findMany({
       where: whereClause,
