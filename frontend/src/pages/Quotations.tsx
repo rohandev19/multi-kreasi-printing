@@ -362,7 +362,7 @@ export default function Quotations() {
         confirmLabel="Yes, Delete"
         cancelLabel="Cancel"
         onConfirm={() => setIsDeleteModalOpen(false)}
-        onCancel={() => setIsDeleteModalOpen(false)}
+        onClose={() => setIsDeleteModalOpen(false)}
         variant="danger"
       />
 

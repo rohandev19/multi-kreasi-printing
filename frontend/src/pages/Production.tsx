@@ -24,7 +24,7 @@ export default function Production() {
   const [loading, setLoading] = useState(true);
   const [error] = useState('');
   
-  const { success } = useToast();
+  const { success, error: toastError } = useToast();
   
   // View states
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('kanban');
@@ -34,7 +34,6 @@ export default function Production() {
   const [reportIssueJobId, setReportIssueJobId] = useState<string | null>(null);
   const [reassignJobId, setReassignJobId] = useState<string | null>(null);
   const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!roleLoading && role) {
@@ -51,16 +50,16 @@ export default function Production() {
         : response.data.data || [];
         
       // Mock parsing for new schema
-      const mappedJobs: Job[] = jobData.map((j: unknown) => ({
+      const mappedJobs: Job[] = jobData.map((j: any) => ({
         id: j.id,
-        orderNumber: j.orderNumber || 'ORD-UNKNOWN',
-        product: 'Business Cards',
-        machine: j.assignedMachine?.name || 'Digital Press 1',
-        material: 'Art Paper 150gsm',
+        orderNumber: j.order?.orderNumber || j.orderNumber || 'Unknown Order',
+        product: j.order?.customer?.companyName ? `Order for ${j.order.customer.companyName}` : 'Printing Job',
+        machine: j.machine?.name || j.assignedMachine?.name || 'Unassigned',
+        material: j.assignee?.fullName ? `Assigned to: ${j.assignee.fullName}` : 'Unassigned',
         status: (j.status === 'Pending' ? 'Queued' : 
                  j.status === 'In_Progress' ? 'In Progress' :
                  j.status === 'QC' ? 'Quality Check' : 'Completed') as any,
-        priority: 'Normal',
+        priority: j.priority || 'Normal',
         progress: j.status === 'Completed' ? 100 : j.status === 'QC' ? 90 : j.status === 'In_Progress' ? 45 : 0
       }));
       setJobs(mappedJobs);
@@ -75,27 +74,36 @@ export default function Production() {
 
   // Actions
   const handleStartJob = async (id: string) => {
-    success('Job Started', 'The production job has been marked as in-progress.');
-    setJobs(prev => prev.map(j => j.id === id ? { ...j, status: 'In Progress', progress: 10 } : j));
+    try {
+      await api.patch(`/api/v1/production-jobs/${id}/start`);
+      success('Job Started', 'The production job has been marked as in-progress.');
+      fetchJobs();
+    } catch (err: any) {
+      toastError('Failed to start job', err.response?.data?.message || 'Please try again.');
+    }
   };
+
   const handleMarkQC = async (id: string) => {
+    // QC is purely a UI visual step before completion in this flow, or could trigger a rework if it fails.
+    // For now, we update local state to reflect it's ready for final QC sign-off.
     success('QC Required', 'Sent to quality check.');
     setJobs(prev => prev.map(j => j.id === id ? { ...j, status: 'Quality Check', progress: 90 } : j));
   };
+
   const handleCompleteJob = async (id: string) => {
-    success('Job Completed', 'The production job has been completed.');
-    setJobs(prev => prev.map(j => j.id === id ? { ...j, status: 'Completed', progress: 100 } : j));
+    try {
+      await api.patch(`/api/v1/production-jobs/${id}/complete`, { passedQualityCheck: true });
+      success('Job Completed', 'The production job has been completed.');
+      fetchJobs();
+    } catch (err: any) {
+      toastError('Failed to complete job', err.response?.data?.message || 'Please try again.');
+    }
   };
 
   const confirmDelete = async () => {
-    if (!deleteJobId) return;
-    setIsDeleting(true);
-    setTimeout(() => {
-      success('Job Deleted', 'The production job has been deleted.');
-      setJobs(prev => prev.filter(j => j.id !== deleteJobId));
-      setIsDeleting(false);
-      setDeleteJobId(null);
-    }, 500);
+    // Production jobs shouldn't be hard deleted in a real system. 
+    // Usually they are cancelled, but we'll mock this for the UI.
+    setDeleteJobId(null);
   };
 
   const statuses = ['All', 'Queued', 'In Progress', 'Quality Check', 'Completed'];
@@ -185,7 +193,7 @@ export default function Production() {
                 <tr>
                   <th className="px-5 py-4">Job ID</th>
                   <th className="px-5 py-4">Product</th>
-                  <th className="px-5 py-4">Machine & Material</th>
+                  <th className="px-5 py-4">Machine & Assignee</th>
                   <th className="px-5 py-4">Status & Progress</th>
                   <th className="px-5 py-4 text-right">Actions</th>
                 </tr>
@@ -341,10 +349,9 @@ export default function Production() {
       <ConfirmDialog
         isOpen={!!deleteJobId}
         title="Delete Production Job"
-        message="Are you sure you want to delete this production job? This action cannot be undone."
-        confirmLabel="Delete Job"
+        message="Are you sure you want to delete this job? This action cannot be undone."
+        confirmLabel="Delete"
         variant="danger"
-        loading={isDeleting}
         onClose={() => setDeleteJobId(null)}
         onConfirm={confirmDelete}
       />

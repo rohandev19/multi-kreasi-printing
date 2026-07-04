@@ -43,9 +43,7 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
   const fetchEligibleOrders = async () => {
     setFetchingOrders(true);
     try {
-      const response = await api.get('/api/v1/orders').catch(() => ({
-        data: { data: [{ id: '1', orderNumber: 'ORD-2026-001', customer: { name: 'Budi Santoso' } }] }
-      }));
+      const response = await api.get('/api/v1/orders');
       setOrders(Array.isArray(response.data) ? response.data : response.data.data || []);
     } catch {
       console.error('Failed to fetch orders');
@@ -69,21 +67,14 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
 
     setLoading(true);
     try {
-      // In a real app, this would use FormData for file upload
-      // const formData = new FormData();
-      // formData.append('orderId', orderId);
-      // formData.append('file', file);
-      // formData.append('version', version.toString());
-      // formData.append('notes', notes);
-      // await api.post('/api/v1/design-files', formData, { headers: { 'Content-Type': 'multipart/form-data' }});
-      
-      // Simulating API call since backend might not support multipart yet
-      await api.post('/api/v1/design-files', {
-        orderId,
-        fileName: file.name,
-        fileUrl: `https://storage.example.com/${file.name}`, // Mock URL
-        version,
-        notes
+      const formData = new FormData();
+      formData.append('orderId', orderId);
+      formData.append('file', file);
+      formData.append('version', version.toString());
+      if (notes) formData.append('notes', notes);
+
+      await api.post('/api/v1/design-files/upload', formData, { 
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
       
       success('Upload Successful', `Design file ${file.name} uploaded successfully.`);

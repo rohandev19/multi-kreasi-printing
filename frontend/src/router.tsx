@@ -41,6 +41,7 @@ const VerifyEmail = lazy(() => import('./pages/public/VerifyEmail').then(m => ({
 const ForgotPassword = lazy(() => import('./pages/public/ForgotPassword').then(m => ({ default: m.ForgotPassword })));
 const ResetPassword = lazy(() => import('./pages/public/ResetPassword').then(m => ({ default: m.ResetPassword })));
 import { FaqPage } from './pages/public/FaqPage';
+import { PrivacyPolicyPage } from './pages/public/PrivacyPolicy';
 
 const LoadingSpinner = () => (
   <div className="flex h-full items-center justify-center">
@@ -95,6 +96,10 @@ export const router = createBrowserRouter([
           {
             path: 'faq',
             element: <FaqPage />,
+          },
+          {
+            path: 'privacy-policy',
+            element: <PrivacyPolicyPage />,
           },
         ],
       },

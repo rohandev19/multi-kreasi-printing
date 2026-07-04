@@ -25,8 +25,8 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
       try {
         const response = await api.get(`/api/v1/customers/${customerId}`);
         setCustomer(response.data);
-      } catch {
-        setError(_err.response?.data?.message || 'Failed to load customer details');
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Failed to load customer details');
       } finally {
         setLoading(false);
       }

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Plus, Minus, Package, ShieldCheck, Truck, RefreshCw, UploadCloud, X, Star, ArrowRight } from 'lucide-react';

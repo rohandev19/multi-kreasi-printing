@@ -1,100 +1,58 @@
 import React, { useState } from 'react';
 import { Search, Download, Calendar, Activity, List, ChevronDown, Filter, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
+import api from '../api/axios';
 
 export default function AuditLog() {
   const [viewMode, setViewMode] = useState<'table' | 'timeline'>('table');
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
-  // Mock Data
-  const logs = [
-    {
-      id: 'log-1',
-      timestamp: '2026-08-08 14:30:22 WIB',
-      user: { name: 'Admin User', role: 'Owner', initials: 'AU', color: 'bg-indigo-100 text-indigo-700' },
-      action: 'Approved',
-      resourceType: 'Order',
-      resourceId: 'ORD-2026-0089',
-      description: 'Approved order for PT Sukses Makmur',
-      ip: '192.168.1.104',
-      changes: [
-        { field: 'status', old: 'Pending', new: 'Approved' },
-        { field: 'approvedBy', old: 'null', new: 'Admin User' }
-      ]
-    },
-    {
-      id: 'log-2',
-      timestamp: '2026-08-08 13:15:05 WIB',
-      user: { name: 'Sarah Manager', role: 'Manager', initials: 'SM', color: 'bg-emerald-100 text-emerald-700' },
-      action: 'Updated',
-      resourceType: 'Settings',
-      resourceId: 'App Config',
-      description: 'Changed auto-approve limit from Rp 1.000.000 to Rp 2.000.000',
-      ip: '192.168.1.112',
-      changes: [
-        { field: 'autoApproveLimit', old: '1000000', new: '2000000' }
-      ]
-    },
-    {
-      id: 'log-3',
-      timestamp: '2026-08-08 11:45:30 WIB',
-      user: { name: 'John Sales', role: 'Sales', initials: 'JS', color: 'bg-blue-100 text-blue-700' },
-      action: 'Created',
-      resourceType: 'Customer',
-      resourceId: 'CUST-0892',
-      description: 'Created Customer PT Maju Bersama',
-      ip: '114.120.45.89',
-      changes: []
-    },
-    {
-      id: 'log-4',
-      timestamp: '2026-08-08 09:20:11 WIB',
-      user: { name: 'Budi Finance', role: 'Finance_Staff', initials: 'BF', color: 'bg-amber-100 text-amber-700' },
-      action: 'Payment_Recorded',
-      resourceType: 'Invoice',
-      resourceId: 'INV-2026-0145',
-      description: 'Recorded partial payment Rp 5.000.000 via Bank Transfer',
-      ip: '192.168.1.200',
-      changes: [
-        { field: 'paidAmount', old: '0', new: '5000000' },
-        { field: 'status', old: 'Unpaid', new: 'Partial' }
-      ]
-    },
-    {
-      id: 'log-5',
-      timestamp: '2026-08-07 16:55:40 WIB',
-      user: { name: 'System', role: 'System', initials: 'SYS', color: 'bg-slate-200 text-slate-700' },
-      action: 'Status_Changed',
-      resourceType: 'Order',
-      resourceId: 'ORD-2026-0085',
-      description: 'Auto-updated status to In Production (design approved)',
-      ip: '127.0.0.1',
-      changes: [
-        { field: 'status', old: 'Pending Design', new: 'In Production' }
-      ]
-    },
-    {
-      id: 'log-6',
-      timestamp: '2026-08-07 14:10:00 WIB',
-      user: { name: 'Admin User', role: 'Owner', initials: 'AU', color: 'bg-indigo-100 text-indigo-700' },
-      action: 'Deleted',
-      resourceType: 'Product',
-      resourceId: 'PROD-004',
-      description: 'Deleted deprecated product "Standard Flyer 2024"',
-      ip: '192.168.1.104',
-      changes: []
-    },
-    {
-      id: 'log-7',
-      timestamp: '2026-08-07 08:30:15 WIB',
-      user: { name: 'Admin User', role: 'Owner', initials: 'AU', color: 'bg-indigo-100 text-indigo-700' },
-      action: 'Login',
-      resourceType: 'Auth',
-      resourceId: 'Session',
-      description: 'Successful login',
-      ip: '192.168.1.104',
-      changes: []
-    }
-  ];
+  const [logs, setLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  React.useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        setLoading(true);
+        // We'll import api from axios at the top
+        const response = await api.get('/api/v1/audit?limit=50');
+        
+        // Transform backend logs to match UI expected format if needed
+        const formattedLogs = (response.data.data || response.data).map((log: any) => ({
+          id: log.id,
+          timestamp: new Date(log.createdAt).toLocaleString('id-ID', {
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+          }) + ' WIB',
+          user: {
+            name: log.user?.fullName || 'System',
+            role: log.user?.role?.name || 'System',
+            initials: log.user?.fullName ? log.user.fullName.substring(0, 2).toUpperCase() : 'SY',
+            color: 'bg-slate-100 text-slate-700'
+          },
+          action: log.action,
+          resourceType: log.entityType,
+          resourceId: log.entityId,
+          description: `Action on ${log.entityType} (${log.entityId})`,
+          ip: log.ipAddress || 'Unknown',
+          changes: log.details && typeof log.details === 'object' 
+            ? Object.keys(log.details).map(k => ({
+                field: k,
+                old: String(log.details[k]?.old || '-'),
+                new: String(log.details[k]?.new || log.details[k])
+              }))
+            : []
+        }));
+        setLogs(formattedLogs);
+      } catch (err) {
+        setError('Failed to load audit logs.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLogs();
+  }, []);
 
   const getActionBadgeColor = (action: string) => {
     switch (action) {
@@ -232,9 +190,16 @@ export default function AuditLog() {
       </div>
 
       {/* CONTENT AREA */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        
-        {viewMode === 'table' ? (
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[400px]">
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          </div>
+        ) : error ? (
+          <div className="p-8 text-center text-red-600 bg-red-50">
+            {error}
+          </div>
+        ) : viewMode === 'table' ? (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-50">
@@ -301,7 +266,7 @@ export default function AuditLog() {
                                 <div className="bg-white rounded-lg p-3 border border-slate-200 overflow-x-auto">
                                   <table className="min-w-full text-sm font-mono">
                                     <tbody>
-                                      {log.changes.map((change, idx) => (
+                                      {log.changes.map((change: any, idx: number) => (
                                         <tr key={idx} className={idx !== log.changes.length - 1 ? "border-b border-slate-100" : ""}>
                                           <td className="py-2 pr-4 font-bold text-slate-700">{change.field}:</td>
                                           <td className="py-2 pr-4 text-red-500 line-through decoration-red-300">{change.old}</td>

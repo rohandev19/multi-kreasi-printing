@@ -2,7 +2,8 @@ import { Download, Printer, Send, ShoppingBag, Pencil, CheckCircle, Clock } from
 import { Modal } from '../ui/Modal';
 import { useToast } from '../../contexts/ToastContext';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import api from '../../api/axios';
 
 interface Props {
   isOpen: boolean;
@@ -11,9 +12,33 @@ interface Props {
 }
 
 export default function QuotationDetailModal({ isOpen, onClose, quotationId }: Props) {
-  const { success } = useToast();
+  const { success, error } = useToast();
   const [isConvertModalOpen, setIsConvertModalOpen] = useState(false);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
+  
+  const [quotation, setQuotation] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && quotationId) {
+      fetchQuotation();
+    } else {
+      setQuotation(null);
+    }
+  }, [isOpen, quotationId]);
+
+  const fetchQuotation = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get(`/api/v1/quotations/${quotationId}`);
+      setQuotation(res.data);
+    } catch (err: any) {
+      error('Failed to load', err.response?.data?.message || 'Could not load quotation details.');
+      onClose();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -23,51 +48,33 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
     }).format(amount);
   };
 
-  // Mock data for the detailed view
-  const quotation = {
-    id: quotationId || 'QUO-2026-0001',
-    date: 'August 08, 2026',
-    validUntil: 'September 07, 2026',
-    status: 'Accepted', // Could be Draft, Sent, Viewed, Accepted, Declined, Expired
-    customer: {
-      company: 'PT Sukses Makmur',
-      contact: 'Andi Setiawan',
-      email: 'andi@suksesmakmur.com',
-      phone: '+62 812 3456 7890',
-      address: 'Jl. Sudirman Kav 45, Jakarta Pusat'
-    },
-    items: [
-      { id: 1, product: 'Business Cards', specs: 'Art Carton 260gsm, Matte Lamination, 2 Sided', qty: 5000, price: 500, discount: 0, amount: 2500000 },
-      { id: 2, product: 'Flyers & Brochures', specs: 'A4, Art Paper 150gsm, Full Color 2 Sided', qty: 2000, price: 2500, discount: 500000, amount: 4500000 },
-      { id: 3, product: 'Banners', specs: '3x2m, Flexi China 280gsm', qty: 10, price: 150000, discount: 0, amount: 1500000 }
-    ],
-    subtotal: 8500000,
-    totalDiscount: 0,
-    tax: 935000,
-    grandTotal: 9435000,
-    terms: "1. Prices valid for 30 days\n2. 50% downpayment required\n3. Balance due before delivery\n4. Production starts after design approval",
-    timeline: [
-      { date: 'Aug 05, 2026 10:30', user: 'Sarah Manager', action: 'Created draft' },
-      { date: 'Aug 05, 2026 11:15', user: 'Sarah Manager', action: 'Sent to customer' },
-      { date: 'Aug 06, 2026 09:20', user: 'Andi Setiawan', action: 'Viewed quotation' },
-      { date: 'Aug 08, 2026 14:30', user: 'Andi Setiawan', action: 'Accepted quotation' }
-    ]
-  };
-
-  const handleConvert = () => {
-    setIsConvertModalOpen(false);
-    success('Order Created', `Order #ORD-2026-0089 created from Quotation ${quotation.id}`);
-    onClose();
+  const handleConvert = async () => {
+    try {
+      await api.post(`/api/v1/quotations/${quotationId}/convert`);
+      setIsConvertModalOpen(false);
+      success('Order Created', `Order created from Quotation ${quotationId}`);
+      onClose();
+    } catch (err: any) {
+      error('Convert Failed', err.response?.data?.message || 'Please try again.');
+    }
   };
 
   const handleSend = () => {
     setIsSendModalOpen(false);
-    success('Quotation Sent', `Quotation ${quotation.id} has been sent to ${quotation.customer.email}`);
+    success('Quotation Sent', `Quotation ${quotationId} has been sent.`);
   };
+
+
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Quotation Details`} size="2xl">
-      <div className="flex flex-col h-[calc(100vh-200px)]">
+      {loading || !quotation ? (
+        <div className="p-12 flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        </div>
+      ) : (
+      <>
+        <div className="flex flex-col h-[calc(100vh-200px)]">
         
         {/* Printable Area */}
         <div className="flex-1 overflow-y-auto custom-scrollbar p-0 bg-white">
@@ -112,10 +119,10 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
             <div className="mb-8">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Quotation For</h3>
               <div className="text-sm">
-                <p className="font-bold text-slate-900 text-base">{quotation.customer.company}</p>
-                <p className="text-slate-700 font-medium mt-1">Attn: {quotation.customer.contact}</p>
-                <p className="text-slate-600 mt-1">{quotation.customer.address}</p>
-                <p className="text-slate-600 mt-1">{quotation.customer.email} • {quotation.customer.phone}</p>
+                <p className="font-bold text-slate-900 text-base">{quotation.customer?.companyName || quotation.customer?.name}</p>
+                <p className="text-slate-700 font-medium mt-1">Attn: {quotation.customer?.name}</p>
+                <p className="text-slate-600 mt-1">{quotation.customer?.address || 'No address provided'}</p>
+                <p className="text-slate-600 mt-1">{quotation.customer?.email} • {quotation.customer?.phone}</p>
               </div>
             </div>
 
@@ -133,17 +140,17 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-100">
-                  {quotation.items.map((item, idx) => (
+                  {quotation.items?.map((item: any, idx: number) => (
                     <tr key={item.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50 print:bg-white'}>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-500">{idx + 1}</td>
                       <td className="px-4 py-3">
-                        <div className="text-sm font-bold text-slate-900">{item.product}</div>
-                        <div className="text-xs text-slate-500">{item.specs}</div>
+                        <div className="text-sm font-bold text-slate-900">{item.product?.name || 'Custom Product'}</div>
+                        <div className="text-xs text-slate-500">{item.product?.description || 'Standard specs'}</div>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-700 text-center">{item.qty}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-700 text-right font-mono">{formatCurrency(item.price)}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-red-600 text-right font-mono">{item.discount > 0 ? `-${formatCurrency(item.discount)}` : '-'}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-900 font-bold text-right font-mono">{formatCurrency(item.amount)}</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-700 text-center">{item.quantity}</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-700 text-right font-mono">{formatCurrency(item.unitPrice)}</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-red-600 text-right font-mono">-</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-900 font-bold text-right font-mono">{formatCurrency(item.unitPrice * item.quantity)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -164,21 +171,15 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between items-center">
                       <span className="text-slate-600 font-medium">Subtotal</span>
-                      <span className="font-mono text-slate-900 font-bold">{formatCurrency(quotation.subtotal)}</span>
+                      <span className="font-mono text-slate-900 font-bold">{formatCurrency(quotation.totalAmount)}</span>
                     </div>
-                    {quotation.totalDiscount > 0 && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-red-600 font-medium">Discount</span>
-                        <span className="font-mono text-red-600 font-bold">-{formatCurrency(quotation.totalDiscount)}</span>
-                      </div>
-                    )}
                     <div className="flex justify-between items-center">
                       <span className="text-slate-600 font-medium">Tax (11%)</span>
-                      <span className="font-mono text-slate-900">{formatCurrency(quotation.tax)}</span>
+                      <span className="font-mono text-slate-900">{formatCurrency(quotation.totalAmount * 0.11)}</span>
                     </div>
                     <div className="pt-3 mt-3 border-t border-slate-200 flex justify-between items-center">
                       <span className="font-bold text-slate-900 text-base">Grand Total</span>
-                      <span className="text-2xl font-extrabold text-indigo-600 tracking-tight font-mono">{formatCurrency(quotation.grandTotal)}</span>
+                      <span className="text-2xl font-extrabold text-indigo-600 tracking-tight font-mono">{formatCurrency(quotation.totalAmount * 1.11)}</span>
                     </div>
                   </div>
                 </div>
@@ -192,17 +193,20 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
                 Quotation Timeline
               </h3>
               <div className="relative border-l-2 border-slate-200 ml-2 space-y-4 py-2">
-                {quotation.timeline.map((event, idx) => (
-                  <div key={idx} className="relative pl-6">
-                    <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-slate-400"></div>
-                    <div className="text-sm">
-                      <span className="font-bold text-slate-700">{event.action}</span>
-                      <span className="text-slate-500 mx-1">by</span>
-                      <span className="font-medium text-slate-900">{event.user}</span>
-                    </div>
-                    <div className="text-xs font-mono text-slate-400 mt-0.5">{event.date}</div>
+                <div className="relative pl-6">
+                  <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-slate-400"></div>
+                  <div className="text-sm">
+                    <span className="font-bold text-slate-700">Created</span>
                   </div>
-                ))}
+                  <div className="text-xs font-mono text-slate-400 mt-0.5">{new Date(quotation.createdAt).toLocaleString()}</div>
+                </div>
+                <div className="relative pl-6">
+                  <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-slate-400"></div>
+                  <div className="text-sm">
+                    <span className="font-bold text-slate-700">Last Updated</span>
+                  </div>
+                  <div className="text-xs font-mono text-slate-400 mt-0.5">{new Date(quotation.updatedAt).toLocaleString()}</div>
+                </div>
               </div>
             </div>
 
@@ -258,29 +262,30 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
         </div>
       </div>
 
-      <ConfirmDialog
-        isOpen={isConvertModalOpen}
-        title="Convert to Order"
-        message={`This will create a new order based on Quotation ${quotation.id} for ${quotation.customer.company}. Total: ${formatCurrency(quotation.grandTotal)}. Proceed?`}
-        confirmLabel="Yes, convert to order"
-        cancelLabel="Cancel"
-        onConfirm={handleConvert}
-        onCancel={() => setIsConvertModalOpen(false)}
-        variant="info"
-      />
+        <ConfirmDialog
+          isOpen={isConvertModalOpen}
+          title="Convert to Order"
+          message={`This will create a new order based on Quotation ${quotation.id}. Proceed?`}
+          confirmLabel="Yes, convert to order"
+          cancelLabel="Cancel"
+          onConfirm={handleConvert}
+          onClose={() => setIsConvertModalOpen(false)}
+          variant="info"
+        />
 
-      {/* Send Email Mock Dialog */}
-      <ConfirmDialog
-        isOpen={isSendModalOpen}
-        title="Send Quotation"
-        message={`Are you sure you want to send this quotation to ${quotation.customer.email}?`}
-        confirmLabel="Send Email"
-        cancelLabel="Cancel"
-        onConfirm={handleSend}
-        onCancel={() => setIsSendModalOpen(false)}
-        variant="info"
-      />
-
+        {/* Send Email Mock Dialog */}
+        <ConfirmDialog
+          isOpen={isSendModalOpen}
+          title="Send Quotation"
+          message={`Are you sure you want to send this quotation to the customer?`}
+          confirmLabel="Send Email"
+          cancelLabel="Cancel"
+          onConfirm={handleSend}
+          onClose={() => setIsSendModalOpen(false)}
+          variant="info"
+        />
+      </>
+      )}
     </Modal>
   );
 }

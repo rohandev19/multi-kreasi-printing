@@ -25,16 +25,10 @@ export const PaymentHistoryModal: React.FC<PaymentHistoryModalProps> = ({
       try {
         // Assuming endpoint is like /api/v1/customers/:id/payments or similar
         // Or we filter invoices by customer
-        const response = await api.get(`/api/v1/customers/${customerId}/payments`).catch(() => ({
-          // Mock fallback if backend isn't ready
-          data: { data: [
-            { id: '1', date: new Date().toISOString(), amount: 1500000, method: 'Bank Transfer', status: 'Completed', invoiceNumber: 'INV-2026-001' },
-            { id: '2', date: new Date(Date.now() - 86400000).toISOString(), amount: 500000, method: 'Cash', status: 'Completed', invoiceNumber: 'INV-2026-002' },
-          ]}
-        }));
+        const response = await api.get(`/api/v1/customers/${customerId}/payments`);
         setPayments(Array.isArray(response.data) ? response.data : response.data.data || []);
-      } catch {
-        setError(_err.response?.data?.message || 'Failed to load payment history');
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Failed to load payment history');
       } finally {
         setLoading(false);
       }

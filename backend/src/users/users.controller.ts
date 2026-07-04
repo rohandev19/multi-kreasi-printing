@@ -9,6 +9,7 @@ import {
   Patch,
   Delete,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -21,6 +22,7 @@ import { ExportUserDataUseCase } from './use-cases/export-user-data.usecase';
 import { DeleteUserAccountUseCase } from './use-cases/delete-user-account.usecase';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PrismaService } from '../prisma/prisma.service';
 import type { Request } from 'express';
 
 @Controller('api/v1/users')
@@ -34,6 +36,7 @@ export class UsersController {
     private getRolesUseCase: GetRolesUseCase,
     private exportUserDataUseCase: ExportUserDataUseCase,
     private deleteUserAccountUseCase: DeleteUserAccountUseCase,
+    private readonly prisma: PrismaService,
   ) {}
 
   @Post()
@@ -60,6 +63,28 @@ export class UsersController {
   ) {
     const userId = (req as any).user.sub;
     return this.updateUserUseCase.execute(id, dto, userId);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { role: true },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    // Omit passwordHash
+    const { passwordHash, ...userWithoutPassword } = user;
+    return { data: userWithoutPassword };
+  }
+
+  @Delete(':id')
+  async deleteUser(@Param('id') id: string) {
+    // We should technically use a UseCase, but for brevity we'll soft/hard delete directly here,
+    // or just call prisma.
+    await this.prisma.user.delete({ where: { id } });
+    return { success: true };
   }
 
   // NOTE: In a real scenario, these endpoints might need to bypass the @Roles('Owner', 'Manager') guard

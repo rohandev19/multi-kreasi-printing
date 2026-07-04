@@ -219,7 +219,7 @@ export default function Reports() {
               />
               <Tooltip 
                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                formatter={(value: number) => formatCurrency(value)}
+                formatter={(value: any) => formatCurrency(Number(value))}
               />
               <Area type="monotone" dataKey="Expenses" stroke="#cbd5e1" strokeWidth={3} fillOpacity={1} fill="url(#colorExpenses)" />
               <Area type="monotone" dataKey="Revenue" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />

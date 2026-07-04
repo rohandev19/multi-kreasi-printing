@@ -167,7 +167,7 @@ export default function Settings() {
     }));
   };
 
-  const handleIntegrationChange = (field: string, value: string | boolean | number) => {
+  const handleIntegrationChange = (field: string, value: any) => {
     setDirtyState(prev => ({
       ...prev,
       integrations: { ...prev.integrations, [field]: value }

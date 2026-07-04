@@ -7,7 +7,7 @@ import { OrdersTable } from '../components/tables/OrdersTable';
 import type { Order } from '../components/tables/OrdersTable';
 import { exportToCSV } from '../utils/exportUtils';
 import { CreateOrderModal } from '../components/modals/CreateOrderModal';
-import { Plus, Search, Filter, Download, Calendar } from 'lucide-react';
+import { Plus, Search, Filter, Download } from 'lucide-react';
 
 export default function Orders() {
   const { role, loading: roleLoading } = useRoleContext();
@@ -56,7 +56,7 @@ export default function Orders() {
         ? response.data 
         : response.data.data || [];
         
-      const mappedOrders: Order[] = orderData.map((o: unknown) => ({
+      const mappedOrders: Order[] = orderData.map((o: any) => ({
         id: o.id,
         orderNumber: o.orderNumber,
         status: o.status,

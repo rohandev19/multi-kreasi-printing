@@ -25,8 +25,8 @@ export const DesignPreviewModal: React.FC<DesignPreviewModalProps> = ({
       try {
         const response = await api.get(`/api/v1/design-files/${fileId}`);
         setFile(response.data);
-      } catch {
-        setError(_err.response?.data?.message || 'Failed to load design file');
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Failed to load design file');
       } finally {
         setLoading(false);
       }

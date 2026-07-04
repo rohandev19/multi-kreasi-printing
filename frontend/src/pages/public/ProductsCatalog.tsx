@@ -41,8 +41,8 @@ export const ProductsCatalog = () => {
       const response = await api.get('/api/v1/products');
       const data = Array.isArray(response.data) ? response.data : response.data.data || [];
       const activeProducts = data
-        .filter((p: unknown) => p.isActive !== false)
-        .map((p: unknown, index: number) => ({
+        .filter((p: any) => p.isActive !== false)
+        .map((p: any, index: number) => ({
           ...p,
           category: typeof p.category === 'object' && p.category !== null ? p.category.name : p.category,
           isNew: index < 2 // Mock new badge for first two products

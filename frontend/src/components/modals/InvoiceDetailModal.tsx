@@ -25,8 +25,8 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
       try {
         const response = await api.get(`/api/v1/invoices/${invoiceId}`);
         setInvoice(response.data);
-      } catch {
-        setError(_err.response?.data?.message || 'Failed to load invoice details');
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Failed to load invoice details');
       } finally {
         setLoading(false);
       }

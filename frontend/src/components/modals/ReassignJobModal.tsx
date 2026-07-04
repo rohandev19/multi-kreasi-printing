@@ -52,11 +52,11 @@ export const ReassignJobModal: React.FC<ReassignJobModalProps> = ({
   const fetchStaff = async () => {
     setFetchingStaff(true);
     try {
-      // Ideally an endpoint like /api/v1/users?role=Production_Staff
-      const response = await api.get('/api/v1/users').catch(() => ({ 
-        data: { data: [{ id: '1', name: 'Andi (Operator A)' }, { id: '2', name: 'Budi (Operator B)' }] }
-      }));
-      setStaff(Array.isArray(response.data) ? response.data : response.data.data || []);
+      const response = await api.get('/api/v1/users');
+      // Filter production staff locally if the API doesn't support query params yet
+      const allUsers = Array.isArray(response.data) ? response.data : response.data.data || [];
+      const prodStaff = allUsers.filter((u: any) => u.role === 'Production_Staff' || u.role === 'Production');
+      setStaff(prodStaff.length > 0 ? prodStaff : allUsers);
     } catch {
       console.error('Failed to fetch staff');
     } finally {
@@ -67,7 +67,7 @@ export const ReassignJobModal: React.FC<ReassignJobModalProps> = ({
   const onSubmit = async (data: ReassignFormValues) => {
     setLoading(true);
     try {
-      await api.patch(`/api/v1/production-jobs/${jobId}/reassign`, data);
+      await api.patch(`/api/v1/production-jobs/${jobId}/assign`, { assigneeId: data.assignedTo });
       success('Job Reassigned', `Job #${jobId} has been reassigned successfully.`);
       onSuccess();
       onClose();
