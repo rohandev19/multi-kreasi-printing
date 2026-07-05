@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   Search, 
   Bell, 
@@ -18,8 +18,7 @@ import { useCart } from '../../hooks/useCart';
 
 export default function Header() {
   const { totalItems } = useCart();
-  const { role, user } = useRoleContext();
-  const navigate = useNavigate();
+  const { role, user, logoutUser } = useRoleContext();
   const location = useLocation();
   
   const [showSearch, setShowSearch] = useState(false);
@@ -49,10 +48,7 @@ export default function Header() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.dispatchEvent(new Event('storage'));
-    navigate('/login');
+    logoutUser();
   };
 
   // Generate breadcrumb from pathname

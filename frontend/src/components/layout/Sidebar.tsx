@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   ShoppingCart, 
@@ -117,8 +117,7 @@ const menuItems: MenuItem[] = [
 
 export default function Sidebar() {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { role: userRole, user } = useRoleContext();
+  const { role: userRole, user, logoutUser } = useRoleContext();
   const [collapsed, setCollapsed] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -128,10 +127,7 @@ export default function Sidebar() {
   );
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.dispatchEvent(new Event('storage'));
-    navigate('/login');
+    logoutUser();
   };
 
   const getLinkClass = (path: string) => {

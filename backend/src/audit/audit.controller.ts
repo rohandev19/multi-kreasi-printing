@@ -17,11 +17,6 @@ export class AuditController {
     const logs = await this.prisma.auditLog.findMany({
       orderBy: { timestamp: 'desc' },
       take: limit,
-      include: {
-        user: {
-          select: { id: true, fullName: true, email: true },
-        },
-      },
     });
 
     return { data: logs };

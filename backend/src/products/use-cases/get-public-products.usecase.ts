@@ -16,7 +16,7 @@ export class GetPublicProductsUseCase {
     const skip = (page - 1) * limit;
 
     const where: Prisma.ProductWhereInput = {
-      status: 'ACTIVE',
+      status: { in: ['ACTIVE', 'Active'] },
     };
 
     if (categoryId) {

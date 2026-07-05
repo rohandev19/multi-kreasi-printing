@@ -1,14 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useCart } from '../../../hooks/useCart';
 import { ShoppingCart, Menu, X, Globe, Mail, Link as LinkIcon, User as UserIcon, LogOut, LayoutDashboard, Package } from 'lucide-react';
 import { useRoleContext } from '../../../contexts/RoleContext';
 
 export const PublicLayout = () => {
   const { totalItems } = useCart();
-  const { user, role } = useRoleContext();
+  const { user, role, logoutUser } = useRoleContext();
   const location = useLocation();
-  const navigate = useNavigate();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -25,10 +24,7 @@ export const PublicLayout = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.dispatchEvent(new Event('storage'));
-    navigate('/login');
+    logoutUser();
   };
 
   const navLinks = [

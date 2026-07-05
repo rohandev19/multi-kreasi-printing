@@ -35,18 +35,18 @@ export const ProductDetail = () => {
   const { addToCart } = useCart();
   const { success, error } = useToast();
 
-  useEffect(() => {
-    fetchProduct();
-  }, [fetchProduct]);
-
   const fetchProduct = useCallback(async () => {
     try {
-      const response = await api.get(`/api/v1/products/${id}`);
-      const data = response.data.data || response.data;
+      const response = await api.get(`/api/v1/public/products/${id}`);
+      const responseData = response.data.data || response.data;
+      const productData = responseData.product || responseData;
+      
+      const primaryImage = productData.images?.find((img: any) => img.isPrimary);
       
       const p = {
-        ...data,
-        category: typeof data.category === 'object' && data.category !== null ? data.category.name : data.category
+        ...productData,
+        category: productData.categoryName || productData.category,
+        imageUrl: primaryImage?.url || productData.imageUrl
       };
       
       setProduct(p);
@@ -71,6 +71,10 @@ export const ProductDetail = () => {
       setLoading(false);
     }
   }, [id, navigate]);
+
+  useEffect(() => {
+    fetchProduct();
+  }, [fetchProduct]);
 
   const handleQuantityChange = (newQty: number) => {
     const min = product?.minOrderQuantity || 1;

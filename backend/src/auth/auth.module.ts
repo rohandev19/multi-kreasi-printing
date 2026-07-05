@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtService } from './jwt.service';
 import { AuthController } from './auth.controller';
@@ -10,6 +10,7 @@ import { EmailVerificationService } from './services/email-verification.service'
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 
+@Global()
 @Module({
   controllers: [AuthController],
   providers: [

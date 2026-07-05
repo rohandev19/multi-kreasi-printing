@@ -38,15 +38,19 @@ export const ProductsCatalog = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await api.get('/api/v1/products');
+      const response = await api.get('/api/v1/public/products');
       const data = Array.isArray(response.data) ? response.data : response.data.data || [];
       const activeProducts = data
-        .filter((p: any) => p.isActive !== false)
-        .map((p: any, index: number) => ({
-          ...p,
-          category: typeof p.category === 'object' && p.category !== null ? p.category.name : p.category,
-          isNew: index < 2 // Mock new badge for first two products
-        }));
+        .filter((p: any) => p.status === 'ACTIVE' || p.isActive !== false) // Backward compatibility
+        .map((p: any, index: number) => {
+          const primaryImage = p.images?.find((img: any) => img.isPrimary);
+          return {
+            ...p,
+            category: p.categoryName || (typeof p.category === 'object' && p.category !== null ? p.category.name : p.category),
+            imageUrl: primaryImage?.url || p.imageUrl,
+            isNew: index < 2 // Mock new badge for first two products
+          };
+        });
       setProducts(activeProducts);
       
       const uniqueCategories = Array.from(new Set(activeProducts.map((p: Product) => p.category))) as string[];

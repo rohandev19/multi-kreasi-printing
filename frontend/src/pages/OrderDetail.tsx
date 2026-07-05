@@ -11,10 +11,6 @@ export const OrderDetail = () => {
   const [loading, setLoading] = useState(true);
   const { role } = useRoleContext();
 
-  useEffect(() => {
-    fetchOrderDetails();
-  }, [fetchOrderDetails]);
-
   const fetchOrderDetails = useCallback(async () => {
     try {
       // Use the generic orders endpoint for now and find the order
@@ -29,6 +25,10 @@ export const OrderDetail = () => {
       setLoading(false);
     }
   }, [id, role]);
+
+  useEffect(() => {
+    fetchOrderDetails();
+  }, [fetchOrderDetails]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

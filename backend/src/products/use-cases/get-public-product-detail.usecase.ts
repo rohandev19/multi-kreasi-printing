@@ -7,10 +7,10 @@ export class GetPublicProductDetailUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(id: string): Promise<ProductDetailResponseDto> {
-    const product = await this.prisma.product.findUnique({
+    const product = await this.prisma.product.findFirst({
       where: {
         id,
-        status: 'ACTIVE',
+        status: { in: ['ACTIVE', 'Active'] },
       },
       include: {
         category: true,
