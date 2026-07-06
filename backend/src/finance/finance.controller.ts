@@ -8,6 +8,7 @@ import {
   UseGuards,
   Req,
   NotFoundException,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -18,6 +19,7 @@ import { RecordPaymentUseCase } from './use-cases/record-payment.usecase';
 import { SendInvoiceUseCase } from './use-cases/send-invoice.usecase';
 import { StorageService } from '../storage/storage.service';
 import { CalculateOutstandingBalanceUseCase } from './use-cases/calculate-outstanding-balance.usecase';
+import { IdempotencyInterceptor } from '../common/interceptors/idempotency.interceptor';
 
 @Controller('api/v1/invoices')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -83,6 +85,7 @@ export class FinanceController {
   }
 
   @Post(':id/payment')
+  @UseInterceptors(IdempotencyInterceptor)
   @Roles('Finance_Staff', 'Owner', 'Manager')
   async recordPayment(
     @Param('id') id: string,
