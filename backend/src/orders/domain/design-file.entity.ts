@@ -36,16 +36,38 @@ export class DesignFileLogic {
     return transitions[currentStatus]?.includes(nextStatus) || false;
   }
 
-  static isValidFileType(mimeType: string): boolean {
+  static isValidFileType(mimeType: string, buffer?: Buffer): boolean {
     const allowed = [
       'image/vnd.adobe.photoshop', // PSD
       'application/postscript', // AI
       'application/pdf', // PDF
       'image/jpeg', // JPG
       'image/png', // PNG
-      // SVG removed per security Option A
     ];
-    return allowed.includes(mimeType);
+
+    if (!allowed.includes(mimeType)) {
+      return false;
+    }
+
+    if (buffer && buffer.length >= 4) {
+      const hex = buffer.toString('hex', 0, 4).toUpperCase();
+      
+      // Magic Bytes definitions
+      const magicBytes: Record<string, string[]> = {
+        'image/jpeg': ['FFD8FF'],
+        'image/png': ['89504E47'],
+        'application/pdf': ['25504446'], // %PDF
+        'image/vnd.adobe.photoshop': ['38425053'], // 8BPS
+        'application/postscript': ['25215053', '25504446', 'C5D0D3C6'], // %!PS, %PDF, or EPS header
+      };
+
+      const allowedSignatures = magicBytes[mimeType];
+      if (allowedSignatures) {
+        return allowedSignatures.some(sig => hex.startsWith(sig));
+      }
+    }
+
+    return true;
   }
 
   static isValidFileSize(sizeBytes: number): boolean {

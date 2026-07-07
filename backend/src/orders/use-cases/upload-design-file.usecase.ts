@@ -40,9 +40,9 @@ export class UploadDesignFileUseCase {
       );
     }
 
-    if (!DesignFileLogic.isValidFileType(file.mimetype)) {
+    if (!DesignFileLogic.isValidFileType(file.mimetype, file.buffer)) {
       throw new BadRequestException(
-        'Tipe file tidak diizinkan. Gunakan PSD, AI, PDF, JPG, atau PNG.',
+        'Tipe file tidak valid atau isi file dimanipulasi. Gunakan PSD, AI, PDF, JPG, atau PNG asli.',
       );
     }
 

@@ -8,15 +8,17 @@ import {
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
-import { Request } from 'express';
 
 @Injectable()
 export class IdempotencyInterceptor implements NestInterceptor {
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  // Use 'any' type for cacheManager to avoid TS1272 decorator metadata error with interfaces
+  constructor(@Inject(CACHE_MANAGER) private cacheManager: any) {}
 
-  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
-    const request = context.switchToHttp().getRequest<Request>();
+  async intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Promise<Observable<any>> {
+    const request = context.switchToHttp().getRequest<any>();
     const idempotencyKey = request.headers['idempotency-key'] as string;
 
     if (!idempotencyKey) {
@@ -24,8 +26,9 @@ export class IdempotencyInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    const cacheKey = `idempotency:${request.user?.['userId'] || 'guest'}:${idempotencyKey}`;
-    
+    const userId = request.user?.userId || 'guest';
+    const cacheKey = `idempotency:${userId}:${idempotencyKey}`;
+
     // Check if we have a cached response
     const cachedResponse = await this.cacheManager.get(cacheKey);
     if (cachedResponse) {
