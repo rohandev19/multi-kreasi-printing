@@ -24,6 +24,7 @@ const Profile = lazy(() => import('./pages/Profile'));
 import { RoleProvider } from './contexts/RoleContext';
 import { ToastProvider } from './contexts/ToastContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import { GlobalErrorBoundary } from './components/GlobalErrorBoundary';
 
 import { PublicLayout } from './components/layout/public/PublicLayout';
 import { HomePage } from './pages/public/HomePage';
@@ -60,6 +61,7 @@ const AppProviders = ({ children }: { children: React.ReactNode }) => (
 export const router = createBrowserRouter([
   {
     element: <AppProviders><Outlet /></AppProviders>,
+    errorElement: <GlobalErrorBoundary />,
     children: [
       {
         path: '/',
