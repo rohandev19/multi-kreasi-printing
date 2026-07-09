@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SearchUsersDto } from '../dto/search-users.dto';
 
@@ -10,7 +11,7 @@ export class SearchUsersUseCase {
     const { page = 1, limit = 10, search, roleId, status } = dto;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.UserWhereInput = {};
     if (search) {
       where.OR = [
         { fullName: { contains: search, mode: 'insensitive' } },
@@ -32,6 +33,7 @@ export class SearchUsersUseCase {
     ]);
 
     const users = items.map((u) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { passwordHash, ...rest } = u;
       return rest;
     });

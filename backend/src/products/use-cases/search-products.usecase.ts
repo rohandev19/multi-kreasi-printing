@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SearchProductsDto } from '../dto/search-products.dto';
 
@@ -10,7 +11,7 @@ export class SearchProductsUseCase {
     const { page = 1, limit = 10, search, categoryId, status } = dto;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.ProductWhereInput = {};
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },

@@ -38,6 +38,7 @@ export class CreateUserUseCase {
       newValue: { email: user.email, roleId: user.roleId },
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash: _, ...result } = user;
     return result;
   }

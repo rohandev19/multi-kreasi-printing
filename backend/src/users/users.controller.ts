@@ -25,6 +25,10 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import type { Request } from 'express';
 
+export interface AuthenticatedRequest extends Request {
+  user: { sub: string };
+}
+
 @Controller('api/v1/users')
 @UseGuards(JwtAuthGuard)
 @Roles('Owner', 'Manager')
@@ -40,8 +44,8 @@ export class UsersController {
   ) {}
 
   @Post()
-  async create(@Body() dto: CreateUserDto, @Req() req: Request) {
-    const userId = (req as any).user.sub;
+  async create(@Body() dto: CreateUserDto, @Req() req: AuthenticatedRequest) {
+    const userId = req.user.sub;
     return this.createUserUseCase.execute(dto, userId);
   }
 
@@ -59,9 +63,9 @@ export class UsersController {
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateUserDto,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.updateUserUseCase.execute(id, dto, userId);
   }
 
@@ -92,15 +96,15 @@ export class UsersController {
   // We can override the role requirement for these specific endpoints if needed by NestJS roles mechanisms.
   @Get('me/export')
   @Roles()
-  async exportData(@Req() req: Request) {
-    const userId = (req as any).user.sub;
+  async exportData(@Req() req: AuthenticatedRequest) {
+    const userId = req.user.sub;
     return this.exportUserDataUseCase.execute(userId);
   }
 
   @Delete('me')
   @Roles()
-  async deleteAccount(@Req() req: Request) {
-    const userId = (req as any).user.sub;
+  async deleteAccount(@Req() req: AuthenticatedRequest) {
+    const userId = req.user.sub;
     return this.deleteUserAccountUseCase.execute(userId);
   }
 }
