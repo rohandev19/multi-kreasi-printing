@@ -79,6 +79,7 @@ export class UsersController {
       throw new NotFoundException('User not found');
     }
     // Omit passwordHash
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash, ...userWithoutPassword } = user;
     return { data: userWithoutPassword };
   }

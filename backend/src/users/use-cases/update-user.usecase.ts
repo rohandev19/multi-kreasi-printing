@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { AuditService } from '../../audit/audit.service';
@@ -15,10 +16,10 @@ export class UpdateUserUseCase {
     const existing = await this.prisma.user.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('Pengguna tidak ditemukan');
 
-    const updateData: any = { ...dto };
-    if (dto.password) {
-      updateData.passwordHash = await bcrypt.hash(dto.password, 10);
-      delete updateData.password;
+    const { password, ...rest } = dto;
+    const updateData: Prisma.UserUpdateInput = { ...rest };
+    if (password) {
+      updateData.passwordHash = await bcrypt.hash(password, 10);
     }
 
     const updatedUser = await this.prisma.user.update({
@@ -35,6 +36,7 @@ export class UpdateUserUseCase {
       newValue: { roleId: updatedUser.roleId, status: updatedUser.status },
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash: _, ...result } = updatedUser;
     return result;
   }

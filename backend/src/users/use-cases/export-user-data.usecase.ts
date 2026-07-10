@@ -24,6 +24,7 @@ export class ExportUserDataUseCase {
     }
 
     // Map to a generic structure that respects privacy and removes sensitive fields like passwordHash
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash, ...safeUserData } = user;
 
     // Structure the JSON export payload
