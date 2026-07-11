@@ -26,6 +26,15 @@ import { VerifiedGuard } from '../auth/guards/verified.guard';
 import { UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
 
+export interface AuthenticatedUser {
+  sub: string;
+  role: string;
+  email: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user: AuthenticatedUser;
+}
 @Controller('api/v1/orders')
 export class OrdersController {
   constructor(
@@ -42,8 +51,8 @@ export class OrdersController {
   @Post()
   @Roles('Sales', 'Manager', 'Owner', 'Customer')
   @UseGuards(VerifiedGuard)
-  async create(@Body() dto: CreateOrderDto, @Req() req: Request) {
-    const userId = (req as any).user.sub;
+  async create(@Body() dto: CreateOrderDto, @Req() req: AuthenticatedRequest) {
+    const userId = req.user.sub;
     return this.createOrder.execute(dto, userId);
   }
 
@@ -58,8 +67,8 @@ export class OrdersController {
     'Finance_Staff',
     'Customer',
   )
-  async list(@Req() req: Request) {
-    const user = (req as any).user;
+  async list(@Req() req: AuthenticatedRequest) {
+    const user = req.user;
 
     // Determine which role context to use (either query param or actual user role)
     // Only Owner/Manager can view as other roles
@@ -79,7 +88,7 @@ export class OrdersController {
       });
     }
 
-    const whereClause: any = {};
+    const whereClause: import('@prisma/client').Prisma.OrderWhereInput = {};
 
     if (effectiveRole === 'Designer') {
       whereClause.status = {
@@ -132,24 +141,24 @@ export class OrdersController {
   async updateStatus(
     @Param('id') id: string,
     @Body() dto: UpdateOrderStatusDto,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.updateOrderStatus.execute(id, dto, userId);
   }
 
   @Post(':id/submit')
   @Roles('Sales', 'Manager', 'Owner')
-  async submit(@Param('id') id: string, @Req() req: Request) {
-    const userId = (req as any).user.sub;
+  async submit(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    const userId = req.user.sub;
     return this.submitOrder.execute(id, userId);
   }
 
   @Post(':id/approve')
   @Roles('Manager', 'Owner')
-  async approve(@Param('id') id: string, @Req() req: Request) {
-    const userId = (req as any).user.sub;
-    const userRole = (req as any).user.role;
+  async approve(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    const userId = req.user.sub;
+    const userRole = req.user.role;
     return this.approveOrder.execute(id, userId, userRole);
   }
 
@@ -158,9 +167,9 @@ export class OrdersController {
   async cancel(
     @Param('id') id: string,
     @Body('reason') reason: string,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.cancelOrder.execute(id, reason, userId);
   }
 
@@ -172,8 +181,8 @@ export class OrdersController {
 
   @Get(':id')
   @Roles('Production', 'Sales', 'Manager', 'Owner', 'Customer')
-  async getDetails(@Param('id') id: string, @Req() req: Request) {
-    const user = (req as any).user;
+  async getDetails(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    const user = req.user;
     return this.getOrderDetails.execute(id, user);
   }
 
@@ -181,9 +190,9 @@ export class OrdersController {
   @Roles('Customer', 'Production', 'Sales', 'Manager', 'Owner')
   async getOrderDesignFiles(
     @Param('orderId') orderId: string,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const user = (req as any).user;
+    const user = req.user;
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: { customer: true },

@@ -14,6 +14,15 @@ import { VerifiedGuard } from '../auth/guards/verified.guard';
 import { GetOrderDetailsUseCase } from './use-cases/get-order-details.usecase';
 import type { Request, Response } from 'express';
 
+export interface AuthenticatedUser {
+  sub: string;
+  role: string;
+  email: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user: AuthenticatedUser;
+}
 @Controller('api/v1/my-orders')
 @UseGuards(VerifiedGuard)
 export class CustomerOrdersController {
@@ -24,8 +33,8 @@ export class CustomerOrdersController {
 
   @Get()
   @Roles('Customer')
-  async getMyOrders(@Req() req: Request) {
-    const user = (req as any).user;
+  async getMyOrders(@Req() req: AuthenticatedRequest) {
+    const user = req.user;
 
     const orders = await this.prisma.order.findMany({
       where: { customer: { email: user.email } },
@@ -40,8 +49,8 @@ export class CustomerOrdersController {
 
   @Get(':id')
   @Roles('Customer')
-  async getMyOrderDetails(@Param('id') id: string, @Req() req: Request) {
-    const user = (req as any).user;
+  async getMyOrderDetails(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    const user = req.user;
 
     // The getOrderDetails use case already has IDOR protection for Customer role
     return this.getOrderDetails.execute(id, user);
@@ -51,10 +60,10 @@ export class CustomerOrdersController {
   @Roles('Customer')
   async downloadInvoice(
     @Param('id') id: string,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
     @Res() res: Response,
   ) {
-    const user = (req as any).user;
+    const user = req.user;
 
     const order = await this.prisma.order.findUnique({
       where: { id },
