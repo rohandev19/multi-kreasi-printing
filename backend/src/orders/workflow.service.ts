@@ -7,7 +7,7 @@ export class WorkflowService {
 
   constructor(private prisma: PrismaService) {}
 
-  async determineApprovalRequired(totalAmount: number): Promise<string> {
+  determineApprovalRequired(totalAmount: number): string {
     if (totalAmount < 2000000) {
       return 'Auto_Approved';
     } else if (totalAmount <= 10000000) {
@@ -20,14 +20,14 @@ export class WorkflowService {
   async processOrderApproval(
     orderId: string,
     currentUserId: string,
-  ): Promise<any> {
+  ): Promise<import('@prisma/client').Order> {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
     });
     if (!order) throw new Error('Order not found');
 
     const amount = Number(order.totalAmount);
-    const requiredRole = await this.determineApprovalRequired(amount);
+    const requiredRole = this.determineApprovalRequired(amount);
 
     if (requiredRole === 'Auto_Approved') {
       return this.prisma.$transaction(async (tx) => {

@@ -6,11 +6,7 @@ import {
   Post,
   Req,
   Get,
-  UseInterceptors,
-  UploadedFile,
-  BadRequestException,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateOrderUseCase } from './use-cases/create-order.usecase';
 import { UpdateOrderStatusUseCase } from './use-cases/update-order-status.usecase';
 import { CreateOrderDto } from './dto/create-order.dto';

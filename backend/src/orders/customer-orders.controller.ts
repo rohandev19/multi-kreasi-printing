@@ -108,9 +108,9 @@ Customer: ${order.customer.companyName}
 Email: ${order.customer.email}
 
 Items:
-${order.items.map((item) => `- ${item.product.name} (x${item.quantity}): Rp ${item.subtotal}`).join('\n')}
+${order.items.map((item) => `- ${item.product.name} (x${item.quantity}): Rp ${item.subtotal.toString()}`).join('\n')}
 
-Total Amount: Rp ${order.totalAmount}
+Total Amount: Rp ${order.totalAmount.toString()}
 =========================================
 Thank you for your business!
     `;

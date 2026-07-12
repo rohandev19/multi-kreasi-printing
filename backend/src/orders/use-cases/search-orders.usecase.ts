@@ -1,12 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
+
+export interface SearchOrdersQuery {
+  status?: string;
+  customerId?: string;
+  priority?: string;
+  startDate?: string;
+  endDate?: string;
+}
 
 @Injectable()
 export class SearchOrdersUseCase {
   constructor(private prisma: PrismaService) {}
 
-  async execute(query: any) {
-    const where: any = {};
+  async execute(query: SearchOrdersQuery) {
+    const where: Prisma.OrderWhereInput = {};
     if (query.status) where.status = query.status;
     if (query.customerId) where.customerId = query.customerId;
     if (query.priority) where.priority = query.priority;
