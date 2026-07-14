@@ -26,7 +26,7 @@ export class CreateReworkJobUseCase {
     });
     if (!job) throw new NotFoundException('Production job not found');
 
-    if (job.status !== ProductionJobStatus.Failed) {
+    if ((job.status as ProductionJobStatus) !== ProductionJobStatus.Failed) {
       throw new BadRequestException('Can only create rework for failed jobs');
     }
 

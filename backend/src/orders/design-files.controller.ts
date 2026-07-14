@@ -15,10 +15,19 @@ import { UploadDesignFileUseCase } from './use-cases/upload-design-file.usecase'
 import { ReviewDesignFileUseCase } from './use-cases/review-design-file.usecase';
 import { GetDesignFileUseCase } from './use-cases/get-design-file.usecase';
 import { DownloadDesignFileUseCase } from './use-cases/download-design-file.usecase';
-import { ReviewDesignFileDto } from './dto/review-design-file.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { PrismaService } from '../prisma/prisma.service';
 import type { Request } from 'express';
+
+export interface AuthenticatedUser {
+  sub: string;
+  role: string;
+  email: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user: AuthenticatedUser;
+}
 import { DesignFileStatus } from './domain/design-file.entity';
 
 @Controller('api/v1/design-files')
@@ -33,8 +42,8 @@ export class DesignFilesController {
 
   @Get()
   @Roles('Designer', 'Production', 'Manager', 'Owner')
-  async list(@Req() req: Request) {
-    const user = (req as any).user;
+  async list(@Req() req: AuthenticatedRequest) {
+    const user = req.user;
     let whereClause = {};
 
     if (user.role === 'Designer') {
@@ -72,25 +81,25 @@ export class DesignFilesController {
     @Body('orderId') orderId: string,
     @UploadedFile() file: Express.Multer.File,
     @Body('notes') notes: string,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
     if (!orderId) throw new BadRequestException('orderId harus disertakan');
     if (!file) throw new BadRequestException('File tidak ditemukan');
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.uploadDesignFile.execute(orderId, file, notes, userId);
   }
 
   @Get(':id')
   @Roles('Customer', 'Production', 'Sales', 'Manager', 'Owner')
-  async getDetails(@Param('id') id: string, @Req() req: Request) {
-    const user = (req as any).user;
+  async getDetails(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    const user = req.user;
     return this.getDesignFile.execute(id, user);
   }
 
   @Get(':id/download')
   @Roles('Customer', 'Production', 'Sales', 'Manager', 'Owner')
-  async download(@Param('id') id: string, @Req() req: Request) {
-    const user = (req as any).user;
+  async download(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    const user = req.user;
     return this.downloadDesignFile.execute(id, user);
   }
 
@@ -99,9 +108,9 @@ export class DesignFilesController {
   async approveDesign(
     @Param('id') id: string,
     @Body() dto: { notes?: string },
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.reviewDesignFile.execute(
       id,
       { status: DesignFileStatus.Approved, notes: dto.notes },
@@ -114,9 +123,9 @@ export class DesignFilesController {
   async rejectDesign(
     @Param('id') id: string,
     @Body() dto: { notes: string },
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.reviewDesignFile.execute(
       id,
       { status: DesignFileStatus.Rejected, notes: dto.notes },
@@ -129,9 +138,9 @@ export class DesignFilesController {
   async requestRevision(
     @Param('id') id: string,
     @Body() dto: { notes: string },
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.reviewDesignFile.execute(
       id,
       { status: DesignFileStatus.Revision_Required, notes: dto.notes },

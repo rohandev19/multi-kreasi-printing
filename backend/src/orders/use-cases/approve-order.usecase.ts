@@ -34,7 +34,7 @@ export class ApproveOrderUseCase {
       );
     }
 
-    const requiredRole = await this.workflow.determineApprovalRequired(
+    const requiredRole = this.workflow.determineApprovalRequired(
       Number(order.totalAmount),
     );
     if (requiredRole === 'Owner' && currentUserRole !== 'Owner') {

@@ -46,7 +46,7 @@ export class ManageMachineUseCase {
     if (!machine) throw new NotFoundException('Machine not found');
 
     if (
-      machine.status === MachineStatus.In_Use &&
+      (machine.status as MachineStatus) === MachineStatus.In_Use &&
       status !== MachineStatus.Available
     ) {
       throw new BadRequestException(
