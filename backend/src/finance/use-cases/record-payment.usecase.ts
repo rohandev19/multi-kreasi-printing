@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { InvoiceLogic, InvoiceStatus } from '../domain/invoice.entity';
+import { InvoiceLogic } from '../domain/invoice.entity';
 import { AuditService } from '../../audit/audit.service';
 
 @Injectable()
@@ -37,7 +37,7 @@ export class RecordPaymentUseCase {
         data: {
           invoiceId,
           amount,
-          paymentMethod: paymentMethod as any,
+          paymentMethod: paymentMethod as import('@prisma/client').PaymentMethod,
           referenceNumber,
         },
       });

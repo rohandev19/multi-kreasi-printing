@@ -26,6 +26,16 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import type { Request } from 'express';
 
+export interface AuthenticatedUser {
+  sub: string;
+  role: string;
+  email: string;
+  id?: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user: AuthenticatedUser;
+}
 @Controller('api/v1/production-jobs')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ProductionJobsController {
@@ -41,8 +51,8 @@ export class ProductionJobsController {
 
   @Get()
   @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
-  async list(@Req() req: Request) {
-    const user = (req as any).user;
+  async list(@Req() req: AuthenticatedRequest) {
+    const user = req.user;
     let whereClause = {};
 
     if (user.role === 'Production_Staff') {
@@ -90,9 +100,9 @@ export class ProductionJobsController {
   async assignJob(
     @Param('id') id: string,
     @Body() dto: AssignProductionJobDto,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.assignProductionJob.execute(
       id,
       dto.machineId,
@@ -103,8 +113,8 @@ export class ProductionJobsController {
 
   @Patch(':id/start')
   @Roles('Production', 'Manager', 'Owner')
-  async startJob(@Param('id') id: string, @Req() req: Request) {
-    const userId = (req as any).user.sub;
+  async startJob(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    const userId = req.user.sub;
     return this.startProduction.execute(id, userId);
   }
 
@@ -113,9 +123,9 @@ export class ProductionJobsController {
   async completeJob(
     @Param('id') id: string,
     @Body() dto: CompleteProductionDto,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.completeProduction.execute(
       id,
       userId,
@@ -129,9 +139,9 @@ export class ProductionJobsController {
   async recordMaterial(
     @Param('id') id: string,
     @Body() dto: RecordMaterialConsumptionDto,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.recordMaterialConsumption.execute(
       id,
       dto.productId,
@@ -146,9 +156,9 @@ export class ProductionJobsController {
   async reworkJob(
     @Param('id') id: string,
     @Body() dto: CreateReworkJobDto,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.createReworkJob.execute(id, userId, dto.reason);
   }
 }

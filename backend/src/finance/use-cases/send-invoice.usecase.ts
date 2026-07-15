@@ -26,7 +26,7 @@ export class SendInvoiceUseCase {
     });
 
     // Update status to Sent if it's currently Draft
-    if (invoice.status === InvoiceStatus.Draft) {
+    if ((invoice.status as InvoiceStatus) === InvoiceStatus.Draft) {
       await this.prisma.invoice.update({
         where: { id: invoiceId },
         data: { status: InvoiceStatus.Sent },

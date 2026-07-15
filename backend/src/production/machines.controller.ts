@@ -19,6 +19,16 @@ import {
 } from './dto/production.dto';
 import type { Request } from 'express';
 
+export interface AuthenticatedUser {
+  sub: string;
+  role: string;
+  email: string;
+  id?: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user: AuthenticatedUser;
+}
 @Controller('api/v1/machines')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class MachinesController {
@@ -26,8 +36,8 @@ export class MachinesController {
 
   @Post()
   @Roles('Manager', 'Owner')
-  async createMachine(@Body() dto: CreateMachineDto, @Req() req: Request) {
-    const userId = (req as any).user.sub;
+  async createMachine(@Body() dto: CreateMachineDto, @Req() req: AuthenticatedRequest) {
+    const userId = req.user.sub;
     return this.manageMachine.createMachine(dto.name, dto.type, userId);
   }
 
@@ -36,9 +46,9 @@ export class MachinesController {
   async updateStatus(
     @Param('id') id: string,
     @Body() dto: UpdateMachineStatusDto,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.manageMachine.updateStatus(id, dto.status, userId);
   }
 
@@ -47,9 +57,9 @@ export class MachinesController {
   async scheduleMaintenance(
     @Param('id') id: string,
     @Body() dto: ScheduleMaintenanceDto,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.manageMachine.scheduleMaintenance(
       id,
       dto.maintenanceDate,

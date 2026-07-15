@@ -20,7 +20,18 @@ import { SendInvoiceUseCase } from './use-cases/send-invoice.usecase';
 import { StorageService } from '../storage/storage.service';
 import { CalculateOutstandingBalanceUseCase } from './use-cases/calculate-outstanding-balance.usecase';
 import { IdempotencyInterceptor } from '../common/interceptors/idempotency.interceptor';
+import type { Request } from 'express';
 
+export interface AuthenticatedUser {
+  sub: string;
+  role: string;
+  email: string;
+  userId?: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user: AuthenticatedUser;
+}
 @Controller('api/v1/invoices')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class FinanceController {
@@ -34,7 +45,7 @@ export class FinanceController {
 
   @Get()
   @Roles('Customer', 'Finance_Staff', 'Owner', 'Manager')
-  async getInvoices(@Query() filters: InvoiceFilterDto, @Req() req: any) {
+  async getInvoices(@Query() filters: InvoiceFilterDto, @Req() req: AuthenticatedRequest) {
     const user = req.user;
 
     const where: any = {};
@@ -62,7 +73,7 @@ export class FinanceController {
 
   @Get(':id')
   @Roles('Customer', 'Finance_Staff', 'Owner', 'Manager')
-  async getInvoice(@Param('id') id: string, @Req() req: any) {
+  async getInvoice(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const user = req.user;
     const invoice = await this.prisma.invoice.findUnique({
       where: { id },
@@ -90,7 +101,7 @@ export class FinanceController {
   async recordPayment(
     @Param('id') id: string,
     @Body() dto: RecordPaymentDto,
-    @Req() req: any,
+    @Req() req: AuthenticatedRequest,
   ) {
     return this.recordPaymentUseCase.execute(
       id,
@@ -103,7 +114,7 @@ export class FinanceController {
 
   @Get(':id/pdf')
   @Roles('Customer', 'Finance_Staff', 'Owner', 'Manager')
-  async getInvoicePdf(@Param('id') id: string, @Req() req: any) {
+  async getInvoicePdf(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const user = req.user;
     const invoice = await this.prisma.invoice.findUnique({
       where: { id },
@@ -127,7 +138,7 @@ export class FinanceController {
 
   @Post(':id/send')
   @Roles('Finance_Staff', 'Owner', 'Manager')
-  async sendInvoice(@Param('id') id: string, @Req() req: any) {
+  async sendInvoice(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.sendInvoiceUseCase.execute(id, req.user.userId);
   }
 }

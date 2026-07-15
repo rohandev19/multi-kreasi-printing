@@ -4,6 +4,17 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import type { Request } from 'express';
 
+export interface AuthenticatedUser {
+  sub: string;
+  role: string;
+  email: string;
+  userId?: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user: AuthenticatedUser;
+}
+
 @Controller('api/v1/inventory')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class InventoryController {
@@ -62,8 +73,8 @@ export class InventoryController {
 
   @Get()
   @Roles('Owner', 'Manager', 'Warehouse_Staff')
-  getInventory(@Req() req: Request) {
-    const user = (req as any).user;
+  getInventory(@Req() req: AuthenticatedRequest) {
+    const user = req.user;
 
     // For Warehouse_Staff: return stock management fields only
     // For Owner/Manager: return all fields including supplier info
