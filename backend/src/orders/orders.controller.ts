@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Param,
-  Patch,
-  Post,
-  Req,
-  Get,
-} from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post, Req, Get } from '@nestjs/common';
 import { CreateOrderUseCase } from './use-cases/create-order.usecase';
 import { UpdateOrderStatusUseCase } from './use-cases/update-order-status.usecase';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -14,7 +6,7 @@ import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { SubmitOrderUseCase } from './use-cases/submit-order.usecase';
 import { ApproveOrderUseCase } from './use-cases/approve-order.usecase';
 import { CancelOrderUseCase } from './use-cases/cancel-order.usecase';
-import { SearchOrdersUseCase } from './use-cases/search-orders.usecase';
+import { SearchOrdersUseCase, SearchOrdersQuery } from './use-cases/search-orders.usecase';
 import { GetOrderDetailsUseCase } from './use-cases/get-order-details.usecase';
 import { PrismaService } from '../prisma/prisma.service';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -171,7 +163,7 @@ export class OrdersController {
 
   @Post('search')
   @Roles('Production', 'Sales', 'Manager', 'Owner')
-  async search(@Body() query: any) {
+  async search(@Body() query: SearchOrdersQuery) {
     return this.searchOrders.execute(query);
   }
 

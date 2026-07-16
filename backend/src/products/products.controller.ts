@@ -23,6 +23,17 @@ import { ManageProductImagesUseCase } from './use-cases/manage-product-images.us
 import { Roles } from '../auth/decorators/roles.decorator';
 import type { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
+
+export interface AuthenticatedUser {
+  sub: string;
+  role: string;
+  email: string;
+  id?: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user: AuthenticatedUser;
+}
 import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('api/v1/products')
@@ -37,8 +48,8 @@ export class ProductsController {
 
   @Post()
   @Roles('Owner', 'Manager')
-  async create(@Body() dto: CreateProductDto, @Req() req: Request) {
-    const userId = (req as any).user.sub;
+  async create(@Body() dto: CreateProductDto, @Req() req: AuthenticatedRequest) {
+    const userId = req.user.sub;
     return this.createProductUseCase.execute(dto, userId);
   }
 
@@ -53,9 +64,9 @@ export class ProductsController {
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateProductDto,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.updateProductUseCase.execute(id, dto, userId);
   }
 
@@ -64,9 +75,9 @@ export class ProductsController {
   async setPricingTiers(
     @Param('id') id: string,
     @Body() dto: SetPricingTiersDto,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     return this.setPricingTiersUseCase.execute(id, dto, userId);
   }
 
@@ -77,10 +88,10 @@ export class ProductsController {
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
     @Body('isPrimary') isPrimary: string,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
     if (!file) throw new BadRequestException('File gambar tidak ditemukan');
-    const userId = (req as any).user.sub;
+    const userId = req.user.sub;
     const isPrimaryBool = isPrimary === 'true';
     return this.manageProductImagesUseCase.uploadImage(
       id,

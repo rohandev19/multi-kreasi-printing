@@ -69,14 +69,14 @@ export class GetPublicProductsUseCase {
     ]);
 
     return {
-      data: products.map((p: any) => ({
+      data: products.map((p) => ({
         id: p.id,
         name: p.name,
         description: p.description || '',
         basePrice: Number(p.basePrice),
         categoryId: p.categoryId,
         categoryName: p.category?.name,
-        images: p.images.map((img: any) => ({
+        images: p.images.map((img) => ({
           url: img.url,
           isPrimary: img.isPrimary,
         })),
@@ -87,7 +87,7 @@ export class GetPublicProductsUseCase {
         limit,
         totalPages: Math.ceil(total / limit),
       },
-      categories: categoriesData.map((c: any) => ({ id: c.id, name: c.name })),
+      categories: categoriesData.map((c) => ({ id: c.id, name: c.name })),
     };
   }
 }

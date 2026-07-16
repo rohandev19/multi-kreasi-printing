@@ -51,7 +51,7 @@ export class DesignFileLogic {
 
     if (buffer && buffer.length >= 4) {
       const hex = buffer.toString('hex', 0, 4).toUpperCase();
-      
+
       // Magic Bytes definitions
       const magicBytes: Record<string, string[]> = {
         'image/jpeg': ['FFD8FF'],
@@ -63,7 +63,7 @@ export class DesignFileLogic {
 
       const allowedSignatures = magicBytes[mimeType];
       if (allowedSignatures) {
-        return allowedSignatures.some(sig => hex.startsWith(sig));
+        return allowedSignatures.some((sig) => hex.startsWith(sig));
       }
     }
 

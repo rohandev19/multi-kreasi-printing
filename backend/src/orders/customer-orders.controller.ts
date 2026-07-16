@@ -49,7 +49,10 @@ export class CustomerOrdersController {
 
   @Get(':id')
   @Roles('Customer')
-  async getMyOrderDetails(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async getMyOrderDetails(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const user = req.user;
 
     // The getOrderDetails use case already has IDOR protection for Customer role

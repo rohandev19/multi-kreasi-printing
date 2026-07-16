@@ -81,7 +81,7 @@ export class PdfGenerationProcessor extends WorkerHost {
       // Convert stream to buffer
       const chunks: Buffer[] = [];
       const buffer = await new Promise<Buffer>((resolve, reject) => {
-        passThrough.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+        passThrough.on('data', (chunk: string | Buffer) => chunks.push(Buffer.from(chunk)));
         passThrough.on('error', (err) => reject(err));
         passThrough.on('end', () => resolve(Buffer.concat(chunks)));
       });
