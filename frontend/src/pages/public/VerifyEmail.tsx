@@ -1,94 +1,89 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import api from '../../api/axios';
-import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
+import { useParams, Link } from 'react-router-dom';
+import { CheckCircle2, XCircle } from 'lucide-react';
+import api from '../../../api/axios';
 
 export const VerifyEmailPage = () => {
   const { token } = useParams<{ token: string }>();
-  const navigate = useNavigate();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [countdown, setCountdown] = useState(5);
-  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    const verifyToken = async () => {
+    const verifyEmail = async () => {
+      if (!token) {
+        setStatus('error');
+        setErrorMessage('Invalid verification token.');
+        return;
+      }
+      
       try {
         await api.get(`/api/v1/auth/verify-email/${token}`);
         setStatus('success');
       } catch (err: any) {
         setStatus('error');
-        setMessage(err.response?.data?.message || 'Verification failed. The token may be invalid or expired.');
+        setErrorMessage(err.response?.data?.message || 'This link may have expired or already been used.');
       }
     };
-    if (token) {
-      verifyToken();
-    } else {
-      setStatus('error');
-      setMessage('No verification token provided.');
-    }
+
+    verifyEmail();
   }, [token]);
 
-  useEffect(() => {
-    let timer: ReturnType<typeof setInterval>;
-    if (status === 'success') {
-      timer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            navigate('/login');
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [status, navigate]);
-
   return (
-    <div className="min-h-[60vh] flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-sm border border-gray-100 text-center">
-        {status === 'loading' && (
+    <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 font-sans p-4">
+      <div className="w-full max-w-md bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center">
+        
+        {status === 'verifying' && (
           <div className="flex flex-col items-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mb-4"></div>
-            <h2 className="text-2xl font-bold text-gray-900">Verifying Email...</h2>
-            <p className="text-gray-500 mt-2">Please wait while we verify your email address.</p>
+            <div className="animate-spin h-16 w-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full mb-6"></div>
+            <h2 className="text-xl font-bold text-slate-900">Verifying your email...</h2>
+            <p className="text-slate-500 mt-2 text-sm">Please wait while we confirm your email address.</p>
           </div>
         )}
 
         {status === 'success' && (
           <div className="flex flex-col items-center">
-            <CheckCircleIcon className="h-16 w-16 text-green-500 mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900">Email Verified!</h2>
-            <p className="text-gray-500 mt-2">Your account has been successfully verified.</p>
-            <p className="text-indigo-600 font-medium mt-6">
-              Redirecting to login in {countdown} seconds...
+            <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
+              <CheckCircle2 size={48} className="text-emerald-600" />
+            </div>
+            <h2 className="text-2xl font-extrabold text-slate-900 mb-3">Email Verified!</h2>
+            <p className="text-slate-500 text-sm mb-8">
+              Your account is now active. You can log in to start placing orders.
             </p>
-            <Link
+            <Link 
               to="/login"
-              className="mt-6 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+              className="w-full h-12 bg-indigo-600 text-white rounded-xl font-semibold flex items-center justify-center hover:bg-indigo-700 transition-colors"
             >
-              Go to Login Now
+              Go to Login
             </Link>
           </div>
         )}
 
         {status === 'error' && (
           <div className="flex flex-col items-center">
-            <XCircleIcon className="h-16 w-16 text-red-500 mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900">Verification Failed</h2>
-            <p className="text-gray-500 mt-2">{message}</p>
-            <div className="mt-8 flex flex-col space-y-3 w-full">
-              <Link
-                to="/login"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
+              <XCircle size={48} className="text-red-600" />
+            </div>
+            <h2 className="text-2xl font-extrabold text-slate-900 mb-3">Verification Failed</h2>
+            <p className="text-slate-500 text-sm mb-8">
+              {errorMessage}
+            </p>
+            <div className="flex flex-col w-full gap-4">
+              <button 
+                onClick={() => window.location.reload()}
+                className="w-full h-12 bg-indigo-600 text-white rounded-xl font-semibold flex items-center justify-center hover:bg-indigo-700 transition-colors"
               >
-                Go to Login
+                Try Again
+              </button>
+              <Link 
+                to="/"
+                className="text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
+              >
+                Back to Home
               </Link>
-              {/* Optional: Add a button to request a new verification email if we implement that endpoint */}
             </div>
           </div>
         )}
+        
       </div>
     </div>
   );
