@@ -1,93 +1,20 @@
-// @ts-nocheck
-import { useEffect, useState, useCallback } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Plus, Minus, Package, ShieldCheck, Truck, RefreshCw, UploadCloud, X, Star, ArrowRight } from 'lucide-react';
-import api from '../../api/axios';
-import { useCart } from '../../hooks/useCart';
-import { useToast } from '../../contexts/ToastContext';
+import React, { useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { Star, UploadCloud, ShoppingCart, ArrowRight, ShieldCheck, Truck, RefreshCw, X, Minus, Plus, CheckCircle2 } from 'lucide-react';
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  basePrice: number;
-  category: string;
-  imageUrl?: string;
-  isActive: boolean;
-  minOrderQuantity?: number;
-  maxOrderQuantity?: number;
-}
-
-export const ProductDetail = () => {
+export const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
   
-  // Configuration State
-  const [quantity, setQuantity] = useState<number>(1);
+  // Mock State
+  const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
+  const [quantity, setQuantity] = useState(1);
   const [paperType, setPaperType] = useState('Art Paper 150gsm');
   const [finishing, setFinishing] = useState<string[]>([]);
   const [size, setSize] = useState('A4');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [activeTab, setActiveTab] = useState('description');
 
-  const { addToCart } = useCart();
-  const { success, error } = useToast();
-
-  const fetchProduct = useCallback(async () => {
-    try {
-      const response = await api.get(`/api/v1/public/products/${id}`);
-      const responseData = response.data.data || response.data;
-      const productData = responseData.product || responseData;
-      
-      const primaryImage = productData.images?.find((img: any) => img.isPrimary);
-      
-      const p = {
-        ...productData,
-        category: productData.categoryName || productData.category,
-        imageUrl: primaryImage?.url || productData.imageUrl
-      };
-      
-      setProduct(p);
-      setQuantity(p.minOrderQuantity || 1);
-    } catch (err: any) {
-      console.error('Failed to fetch product details', err);
-      // Fallback for demo
-      const fallbackProducts: Product[] = [
-        { id: '1', name: 'Premium Business Cards', description: '300gsm matte finish with double-sided printing. Perfect for leaving a lasting impression on your clients.', basePrice: 150000, category: 'Business Cards', isActive: true, minOrderQuantity: 1 },
-        { id: '2', name: 'Indoor Vinyl Banner', description: 'High-resolution indoor banner. Price per square meter. Vibrant colors and durable material suitable for any indoor event.', basePrice: 85000, category: 'Banners', isActive: true, minOrderQuantity: 1 },
-        { id: '3', name: 'Corporate Brochure', description: 'A4 tri-fold brochure on glossy paper. Excellent for marketing materials and product showcases.', basePrice: 25000, category: 'Marketing', isActive: true, minOrderQuantity: 50 },
-        { id: '4', name: 'Custom Stickers', description: 'Die-cut vinyl stickers. Minimum order 100. Weather resistant and highly customizable.', basePrice: 1500, category: 'Stickers', isActive: true, minOrderQuantity: 100 },
-      ];
-      const p = fallbackProducts.find(p => p.id === id);
-      if (p) {
-        setProduct(p);
-        setQuantity(p.minOrderQuantity || 1);
-      } else {
-        navigate('/404');
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [id, navigate]);
-
-  useEffect(() => {
-    fetchProduct();
-  }, [fetchProduct]);
-
-  const handleQuantityChange = (newQty: number) => {
-    const min = product?.minOrderQuantity || 1;
-    const max = product?.maxOrderQuantity || 99999;
-    
-    if (newQty >= min && newQty <= max) {
-      setQuantity(newQty);
-    }
-  };
-
-  const toggleFinishing = (f: string) => {
-    setFinishing(prev => prev.includes(f) ? prev.filter(item => item !== f) : [...prev, f]);
-  };
+  const basePrice = 150000;
+  const formatIDR = (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -95,191 +22,171 @@ export const ProductDetail = () => {
     }
   };
 
-  const handleAddToCart = async () => {
-    if (!product) return;
-    
-    try {
-      await addToCart(product, quantity);
-      success('Added to Cart', `${quantity} ${product.name} added to your cart.`);
-      navigate('/cart');
-    } catch {
-      error('Failed to Add', 'Could not add product to cart. Please try again.');
-    }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const finishingSurcharge = finishing.length * 5000;
-  const totalPrice = (product ? product.basePrice + finishingSurcharge : 0) * quantity;
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
+  const toggleFinishing = (item: string) => {
+    setFinishing(prev => 
+      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
     );
-  }
+  };
 
-  if (!product) return null;
+  const calculateTotal = () => {
+    let total = basePrice;
+    if (finishing.includes('Glossy Lamination')) total += 50000;
+    if (finishing.includes('Matte Lamination')) total += 50000;
+    return total * quantity;
+  };
 
   return (
-    <div className="bg-white min-h-screen pb-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 animate-fade-in">
+    <div className="w-full bg-slate-50 min-h-screen pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* TOP SECTION: 2-column layout */}
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
+        {/* Breadcrumb */}
+        <div className="text-sm text-slate-500 font-medium mb-8">
+          <Link to="/" className="hover:text-indigo-600">Home</Link> <span className="mx-2">&gt;</span> 
+          <Link to="/products" className="hover:text-indigo-600">Products</Link> <span className="mx-2">&gt;</span> 
+          <span className="text-slate-900">Flyers</span>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-12">
           
           {/* LEFT COLUMN: Images */}
-          <div className="w-full lg:w-1/2 flex flex-col gap-4">
-            <div className="aspect-square bg-slate-100 rounded-2xl overflow-hidden relative group">
-              {product.imageUrl ? (
-                <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500 cursor-zoom-in" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Package className="w-32 h-32 text-slate-300 stroke-1" />
-                </div>
-              )}
+          <div className="lg:w-1/2 flex flex-col gap-4">
+            <div className="aspect-square bg-slate-100 rounded-2xl overflow-hidden group cursor-zoom-in relative border border-slate-200">
+              <img 
+                src="https://images.unsplash.com/photo-1563209259-ea16b9b3cc03?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
+                alt="Product" 
+                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+              />
+              <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-indigo-600 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">
+                Hover to zoom
+              </span>
             </div>
             
             {/* Thumbnail Gallery */}
-            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className={`w-20 h-20 rounded-xl border-2 cursor-pointer flex-shrink-0 flex items-center justify-center bg-slate-50 transition-colors ${i === 1 ? 'border-indigo-600' : 'border-slate-200 hover:border-slate-300'}`}>
-                   {product.imageUrl ? (
-                     <img src={product.imageUrl} alt="Thumbnail" className="w-full h-full object-cover rounded-lg" />
-                   ) : (
-                     <Package className="w-8 h-8 text-slate-300" />
-                   )}
-                </div>
-              ))}
+            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+              <div className="w-20 h-20 shrink-0 rounded-xl border-2 border-indigo-600 overflow-hidden cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1563209259-ea16b9b3cc03?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" className="w-full h-full object-cover" />
+              </div>
+              <div className="w-20 h-20 shrink-0 rounded-xl border-2 border-slate-200 hover:border-slate-300 overflow-hidden cursor-pointer transition-colors">
+                <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">IMG 2</div>
+              </div>
+              <div className="w-20 h-20 shrink-0 rounded-xl border-2 border-slate-200 hover:border-slate-300 overflow-hidden cursor-pointer transition-colors">
+                <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">IMG 3</div>
+              </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Product Info & Config */}
-          <div className="w-full lg:w-1/2 flex flex-col">
-            
-            {/* 1. Breadcrumb */}
-            <nav className="flex items-center text-sm font-medium text-slate-500 mb-6">
-              <Link to="/" className="hover:text-indigo-600 transition-colors">Home</Link>
-              <span className="mx-2 text-slate-300">/</span>
-              <Link to="/products" className="hover:text-indigo-600 transition-colors">Products</Link>
-              <span className="mx-2 text-slate-300">/</span>
-              <Link to={`/products?category=${product.category}`} className="hover:text-indigo-600 transition-colors">{product.category}</Link>
-              <span className="mx-2 text-slate-300">/</span>
-              <span className="text-slate-900 line-clamp-1">{product.name}</span>
-            </nav>
-
-            {/* 2. Category badge & 3. Title */}
-            <div className="mb-4">
-              <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wider block mb-2">{product.category}</span>
-              <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight leading-[1.1]">{product.name}</h1>
-            </div>
-
-            {/* 4. Rating */}
-            <div className="flex items-center gap-4 mb-4">
-              <div className="flex text-amber-400">
-                {[1,2,3,4,5].map(s => <Star key={s} className="w-5 h-5 fill-current" />)}
+          {/* RIGHT COLUMN: Configuration */}
+          <div className="lg:w-1/2">
+            <div className="mb-6">
+              <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2 block">Flyers & Leaflets</span>
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">Premium A5 Flyers</h1>
+              
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-center gap-1 text-amber-400">
+                  <Star size={18} fill="currentColor" />
+                  <Star size={18} fill="currentColor" />
+                  <Star size={18} fill="currentColor" />
+                  <Star size={18} fill="currentColor" />
+                  <Star size={18} fill="currentColor" className="text-slate-200" />
+                </div>
+                <span className="text-sm font-medium text-slate-600">4.8 (124 reviews)</span>
+                <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                <button className="text-sm font-medium text-indigo-600 hover:text-indigo-700">Write a review</button>
               </div>
-              <span className="text-sm font-medium text-slate-600">12 Reviews</span>
-              <span className="text-slate-300">|</span>
-              <button className="text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:underline">Write a review</button>
+
+              <div className="flex items-end gap-2 mb-4">
+                <span className="text-4xl font-extrabold text-slate-900">{formatIDR(basePrice)}</span>
+                <span className="text-slate-500 font-medium mb-1">/ 100 pcs (1 box)</span>
+              </div>
+              
+              <p className="text-slate-600 leading-relaxed">
+                High-quality custom printed flyers perfect for marketing campaigns, event promotions, and product catalogs. Available in multiple paper types and premium finishes.
+              </p>
             </div>
 
-            {/* 5. Price */}
-            <div className="mb-4 flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold text-slate-900 tracking-tight tabular-nums">
-                {formatCurrency(product.basePrice)}
-              </span>
-              <span className="text-sm font-medium text-slate-400">/ unit</span>
-            </div>
+            <div className="border-t border-slate-200 my-8"></div>
 
-            {/* 6. Short description */}
-            <p className="text-slate-600 leading-relaxed font-medium">
-              {product.description}
-            </p>
-
-            {/* 7. Divider */}
-            <hr className="border-slate-200 my-8" />
-
-            {/* 8. CONFIGURATION FORM */}
+            {/* Configuration Form */}
             <div className="space-y-8">
               
               {/* Paper Type */}
               <div>
-                <h3 className="text-sm font-bold text-slate-900 mb-3">Paper Type</h3>
+                <label className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-bold text-slate-900">Paper Material</span>
+                </label>
                 <div className="grid grid-cols-2 gap-3">
-                  {['Art Paper 150gsm', 'Art Carton 260gsm', 'HVS 80gsm', 'Linen 220gsm'].map(type => (
-                    <div 
+                  {['Art Paper 120gsm', 'Art Paper 150gsm', 'Art Carton 210gsm', 'Art Carton 260gsm'].map(type => (
+                    <button
                       key={type}
                       onClick={() => setPaperType(type)}
-                      className={`border rounded-xl p-3 cursor-pointer transition-colors ${paperType === type ? 'border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600 ring-offset-1' : 'border-slate-200 hover:border-indigo-300 bg-white'}`}
+                      className={`p-3 text-left border rounded-xl transition-all ${
+                        paperType === type 
+                          ? 'border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600/20' 
+                          : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
+                      }`}
                     >
-                      <span className={`text-sm font-semibold ${paperType === type ? 'text-indigo-900' : 'text-slate-700'}`}>{type}</span>
-                    </div>
+                      <span className={`block text-sm font-semibold ${paperType === type ? 'text-indigo-900' : 'text-slate-700'}`}>{type}</span>
+                    </button>
                   ))}
                 </div>
               </div>
 
-              {/* Finishing */}
+              {/* Finishing Options */}
               <div>
-                <h3 className="text-sm font-bold text-slate-900 mb-3">Finishing Options <span className="text-xs font-normal text-slate-500">(Optional)</span></h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {['Glossy Lam', 'Matte Lam', 'Spot UV', 'Emboss'].map(opt => {
-                    const isSelected = finishing.includes(opt);
-                    return (
-                      <div 
-                        key={opt}
-                        onClick={() => toggleFinishing(opt)}
-                        className={`border rounded-xl p-3 cursor-pointer text-center transition-colors ${isSelected ? 'border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600 ring-offset-1' : 'border-slate-200 hover:border-indigo-300 bg-white'}`}
-                      >
-                        <span className={`text-sm font-semibold ${isSelected ? 'text-indigo-900' : 'text-slate-700'}`}>{opt}</span>
-                      </div>
-                    );
-                  })}
+                <label className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-bold text-slate-900">Finishing Options (Optional)</span>
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {['Glossy Lamination', 'Matte Lamination', 'Spot UV', 'Fold Creasing'].map(opt => (
+                    <button
+                      key={opt}
+                      onClick={() => toggleFinishing(opt)}
+                      className={`p-3 text-left border rounded-xl transition-all flex items-center justify-between ${
+                        finishing.includes(opt)
+                          ? 'border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600/20' 
+                          : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      <span className={`block text-sm font-semibold ${finishing.includes(opt) ? 'text-indigo-900' : 'text-slate-700'}`}>{opt}</span>
+                      {finishing.includes(opt) && <CheckCircle2 size={16} className="text-indigo-600" />}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Size & Quantity */}
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <h3 className="text-sm font-bold text-slate-900 mb-3">Size</h3>
+              {/* Size & Quantity Row */}
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-bold text-slate-900 mb-3">Size</label>
                   <select 
                     value={size}
-                    onChange={(e) => setSize(e.target.value)}
-                    className="w-full h-12 px-4 border border-slate-200 rounded-xl bg-white text-slate-900 text-sm font-semibold focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 outline-none appearance-none"
+                    onChange={e => setSize(e.target.value)}
+                    className="w-full px-4 h-12 border border-slate-200 rounded-xl bg-white text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none"
                   >
-                    <option value="A4">A4 (210 x 297 mm)</option>
-                    <option value="A5">A5 (148 x 210 mm)</option>
-                    <option value="A3">A3 (297 x 420 mm)</option>
-                    <option value="Custom">Custom Size</option>
+                    <option value="A4">A4 (21 x 29.7 cm)</option>
+                    <option value="A5">A5 (14.8 x 21 cm)</option>
+                    <option value="A6">A6 (10.5 x 14.8 cm)</option>
+                    <option value="DL">DL (9.9 x 21 cm)</option>
                   </select>
                 </div>
-                
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 mb-3">Quantity</h3>
-                  <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden h-12">
+                  <label className="block text-sm font-bold text-slate-900 mb-3">Quantity (Boxes of 100)</label>
+                  <div className="flex items-center h-12 border border-slate-200 rounded-xl overflow-hidden bg-white">
                     <button 
-                      onClick={() => handleQuantityChange(quantity - 1)}
-                      disabled={quantity <= (product.minOrderQuantity || 1)}
-                      className="w-12 h-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold transition-colors disabled:opacity-50 disabled:hover:bg-slate-50"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="w-12 h-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"
                     >
                       <Minus size={18} />
                     </button>
                     <input 
-                      type="text" 
+                      type="number" 
                       value={quantity}
-                      readOnly
-                      className="w-16 h-full text-center border-x border-slate-200 font-bold text-slate-900 outline-none"
+                      onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="flex-1 h-full text-center border-x border-slate-200 font-bold text-slate-900 outline-none"
                     />
                     <button 
-                      onClick={() => handleQuantityChange(quantity + 1)}
-                      className="w-12 h-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold transition-colors"
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="w-12 h-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"
                     >
                       <Plus size={18} />
                     </button>
@@ -289,181 +196,142 @@ export const ProductDetail = () => {
 
               {/* Upload Design */}
               <div>
-                <h3 className="text-sm font-bold text-slate-900 mb-3">Design File <span className="text-xs font-normal text-slate-500">(Optional - can provide later)</span></h3>
+                <label className="block text-sm font-bold text-slate-900 mb-3">Upload Design File</label>
                 {!uploadedFile ? (
-                  <label className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-indigo-400 hover:bg-indigo-50/50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-2 group">
+                  <label className="block border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-indigo-400 hover:bg-indigo-50/50 transition-colors cursor-pointer group">
                     <input type="file" className="hidden" onChange={handleFileUpload} accept=".pdf,.ai,.psd,.zip" />
-                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
-                      <UploadCloud className="w-6 h-6 text-slate-400 group-hover:text-indigo-600" />
-                    </div>
-                    <span className="text-sm font-bold text-slate-700">Drag & drop or click to upload</span>
-                    <span className="text-xs text-slate-500">PDF, AI, PSD (Max 50MB)</span>
+                    <UploadCloud size={36} className="mx-auto text-slate-400 group-hover:text-indigo-500 mb-3 transition-colors" />
+                    <p className="text-sm font-bold text-slate-700 mb-1">Drag & drop or click to upload</p>
+                    <p className="text-xs text-slate-500">PDF, AI, PSD, or ZIP (Max 50MB)</p>
                   </label>
                 ) : (
-                  <div className="flex items-center justify-between p-4 border border-indigo-200 bg-indigo-50 rounded-xl">
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center shrink-0">
+                  <div className="flex items-center justify-between p-4 border border-slate-200 rounded-xl bg-slate-50">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
                         <UploadCloud size={20} />
                       </div>
-                      <div className="truncate">
-                        <p className="text-sm font-bold text-indigo-900 truncate">{uploadedFile.name}</p>
-                        <p className="text-xs text-indigo-600/70">Ready for print</p>
+                      <div>
+                        <p className="text-sm font-bold text-slate-900 truncate max-w-[200px]">{uploadedFile.name}</p>
+                        <p className="text-xs text-slate-500">{(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
                     </div>
-                    <button onClick={() => setUploadedFile(null)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                      <X size={20} />
+                    <button 
+                      onClick={() => setUploadedFile(null)}
+                      className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <X size={18} />
                     </button>
                   </div>
                 )}
               </div>
 
-              {/* 9. PRICE SUMMARY */}
-              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 mt-8">
-                <div className="space-y-3 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500 font-medium">Base Price ({quantity}x)</span>
-                    <span className="font-semibold text-slate-900">{formatCurrency(product.basePrice * quantity)}</span>
-                  </div>
-                  {finishing.length > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-500 font-medium">Finishing ({finishing.join(', ')})</span>
-                      <span className="font-semibold text-slate-900">{formatCurrency(finishingSurcharge * quantity)}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center justify-between pt-4 border-t border-slate-200/60">
-                  <span className="text-sm font-bold text-slate-900">Total</span>
-                  <span className="text-2xl font-extrabold text-indigo-600 tracking-tight tabular-nums">
-                    {formatCurrency(totalPrice)}
-                  </span>
-                </div>
-              </div>
+            </div>
 
-              {/* 10. ACTION BUTTONS */}
+            {/* Price Summary & Actions */}
+            <div className="mt-8 bg-slate-50 border border-slate-200 rounded-2xl p-6">
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-slate-600 font-medium">Estimated Total:</span>
+                <span className="text-3xl font-extrabold text-indigo-600">{formatIDR(calculateTotal())}</span>
+              </div>
+              
               <div className="flex flex-col gap-3">
-                <button
-                  onClick={handleAddToCart}
-                  className="w-full h-14 bg-indigo-600 text-white text-lg font-bold rounded-xl hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
-                >
-                  <ShoppingCart size={20} />
-                  Add to Cart
+                <button className="w-full h-14 bg-indigo-600 text-white text-lg font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2">
+                  <ShoppingCart size={20} /> Add to Cart
                 </button>
-                <button
-                  className="w-full h-14 bg-slate-900 text-white text-lg font-bold rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
-                >
-                  Buy Now
-                  <ArrowRight size={20} />
+                <button className="w-full h-14 bg-slate-900 text-white text-lg font-bold rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+                  Buy Now <ArrowRight size={20} />
                 </button>
               </div>
-
-              {/* 11. TRUST INDICATORS */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-6 text-sm text-slate-500 font-medium">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={18} className="text-emerald-500" />
-                  Quality Guaranteed
-                </div>
-                <div className="flex items-center gap-2">
-                  <Truck size={18} className="text-blue-500" />
-                  Free Delivery &gt;Rp 500K
-                </div>
-                <div className="flex items-center gap-2">
-                  <RefreshCw size={18} className="text-indigo-500" />
-                  Easy Revision
-                </div>
-              </div>
-
             </div>
+
+            {/* Trust Indicators */}
+            <div className="grid grid-cols-3 gap-4 mt-8">
+              <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
+                <ShieldCheck size={18} className="text-emerald-500" /> Quality Guaranteed
+              </div>
+              <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
+                <Truck size={18} className="text-blue-500" /> Free Delivery &gt;Rp 500K
+              </div>
+              <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
+                <RefreshCw size={18} className="text-indigo-500" /> Easy Revision
+              </div>
+            </div>
+
           </div>
         </div>
-      </div>
 
-      {/* BELOW FOLD: TABS & RELATED */}
-      <div className="border-t border-slate-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          
-          {/* 12. PRODUCT TABS */}
-          <div className="mb-16">
-            <div className="flex border-b border-slate-200 gap-8 mb-8 overflow-x-auto scrollbar-hide">
-              {[
-                { id: 'description', label: 'Description' },
-                { id: 'specifications', label: 'Specifications' },
-                { id: 'reviews', label: 'Reviews (12)' }
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`pb-4 text-base font-bold transition-colors whitespace-nowrap border-b-2 ${activeTab === tab.id ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+        {/* BELOW FOLD: Tabs */}
+        <div className="mt-24 border-t border-slate-200 pt-16">
+          <div className="flex gap-8 border-b border-slate-200 mb-8 overflow-x-auto no-scrollbar">
+            <button 
+              onClick={() => setActiveTab('description')}
+              className={`pb-4 text-base font-bold whitespace-nowrap transition-colors ${activeTab === 'description' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}
+            >
+              Description
+            </button>
+            <button 
+              onClick={() => setActiveTab('specs')}
+              className={`pb-4 text-base font-bold whitespace-nowrap transition-colors ${activeTab === 'specs' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}
+            >
+              Specifications
+            </button>
+            <button 
+              onClick={() => setActiveTab('reviews')}
+              className={`pb-4 text-base font-bold whitespace-nowrap transition-colors ${activeTab === 'reviews' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}
+            >
+              Reviews (124)
+            </button>
+          </div>
 
-            <div className="prose prose-slate max-w-none">
-              {activeTab === 'description' && (
-                <div className="text-slate-600 leading-relaxed max-w-3xl font-medium space-y-4">
-                  <p>Our {product.name.toLowerCase()} are printed using state-of-the-art commercial offset presses and the highest quality materials to ensure vibrant colors and crisp details.</p>
-                  <p>Ideal for corporate networking, marketing campaigns, and brand building. We offer a wide range of paper types and finishing options to match your exact brand requirements.</p>
-                  <ul className="list-disc pl-5 space-y-2 mt-4 text-slate-700">
-                    <li>Full color CMYK printing</li>
-                    <li>High quality commercial grade materials</li>
-                    <li>Precision trimming and finishing</li>
-                    <li>Fast turnaround times</li>
-                  </ul>
-                </div>
-              )}
-              {activeTab === 'specifications' && (
-                <div className="max-w-3xl">
-                  <table className="w-full text-sm text-left text-slate-600 font-medium">
-                    <tbody className="divide-y divide-slate-200">
-                      <tr><th className="py-4 pr-6 text-slate-900 w-1/3">Standard Material</th><td className="py-4">Art Carton 260gsm</td></tr>
-                      <tr><th className="py-4 pr-6 text-slate-900">Print Method</th><td className="py-4">Offset Printing</td></tr>
-                      <tr><th className="py-4 pr-6 text-slate-900">Color Mode</th><td className="py-4">CMYK (Full Color)</td></tr>
-                      <tr><th className="py-4 pr-6 text-slate-900">Resolution</th><td className="py-4">300 DPI minimum required</td></tr>
-                      <tr><th className="py-4 pr-6 text-slate-900">Bleed Size</th><td className="py-4">2mm on all sides</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-              )}
-              {activeTab === 'reviews' && (
-                <div className="space-y-6 max-w-3xl">
-                  {[1,2,3].map(i => (
-                    <div key={i} className="border-b border-slate-100 pb-6 mb-6 last:border-0">
-                      <div className="flex items-center gap-1 text-amber-400 mb-2">
-                        {[1,2,3,4,5].map(s => <Star key={s} className="w-4 h-4 fill-current" />)}
+          <div className="max-w-3xl">
+            {activeTab === 'description' && (
+              <div className="prose prose-slate prose-indigo max-w-none">
+                <p>Maximize your marketing reach with our premium full-color flyers and leaflets. Printed on state-of-the-art offset presses, we ensure vibrant colors and crisp texts that command attention.</p>
+                <ul>
+                  <li>Available in various standard sizes (A4, A5, A6, DL).</li>
+                  <li>Choice of matte or glossy paper finishes.</li>
+                  <li>Fast turnaround times for urgent campaigns.</li>
+                  <li>Environmentally friendly inks and sustainably sourced paper options.</li>
+                </ul>
+              </div>
+            )}
+            
+            {activeTab === 'specs' && (
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                <table className="w-full text-sm text-left">
+                  <tbody className="divide-y divide-slate-100">
+                    <tr><th className="py-3 px-4 bg-slate-50 text-slate-700 w-1/3">Print Method</th><td className="py-3 px-4 text-slate-600">Offset Printing / Digital Press (varies by quantity)</td></tr>
+                    <tr><th className="py-3 px-4 bg-slate-50 text-slate-700">Resolution</th><td className="py-3 px-4 text-slate-600">2400 x 2400 dpi</td></tr>
+                    <tr><th className="py-3 px-4 bg-slate-50 text-slate-700">Color Mode</th><td className="py-3 px-4 text-slate-600">CMYK Full Color (4/0 or 4/4)</td></tr>
+                    <tr><th className="py-3 px-4 bg-slate-50 text-slate-700">Production Time</th><td className="py-3 px-4 text-slate-600">2-3 Business Days (Standard)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {activeTab === 'reviews' && (
+              <div className="space-y-6">
+                {[1,2,3].map(i => (
+                  <div key={i} className="pb-6 border-b border-slate-100 last:border-0">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500">JD</div>
+                        <div>
+                          <p className="font-bold text-slate-900 text-sm">John Doe {i}</p>
+                          <div className="flex text-amber-400 gap-0.5"><Star size={12} fill="currentColor"/><Star size={12} fill="currentColor"/><Star size={12} fill="currentColor"/><Star size={12} fill="currentColor"/><Star size={12} fill="currentColor"/></div>
+                        </div>
                       </div>
-                      <h4 className="font-bold text-slate-900 text-sm mb-1">Excellent Quality</h4>
-                      <p className="text-slate-600 text-sm font-medium mb-3">"The print quality is exactly what we needed for our corporate event. Highly recommended!"</p>
-                      <div className="text-xs text-slate-400 font-medium">By John Doe on Oct 12, 2023</div>
+                      <span className="text-xs text-slate-400">2 days ago</span>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* 13. RELATED PRODUCTS */}
-          <div>
-            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-8">You might also like</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="group bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col hover:shadow-xl hover:shadow-indigo-900/5 transition-all duration-300 cursor-pointer">
-                  <div className="aspect-[4/3] bg-slate-100 flex items-center justify-center">
-                    <Package className="w-12 h-12 text-slate-300 stroke-1" />
+                    <p className="text-slate-600 text-sm">The print quality is fantastic and the colors are exactly as they appeared in my design file. Will definitely order again!</p>
                   </div>
-                  <div className="p-5">
-                    <h3 className="text-sm font-bold text-slate-900 mb-1 group-hover:text-indigo-600 transition-colors">Related Product {i}</h3>
-                    <p className="text-xs text-slate-500 mb-3">Premium quality printing</p>
-                    <div className="font-extrabold text-slate-900">Rp 50.000</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
-          
         </div>
+
       </div>
-      
     </div>
   );
 };
