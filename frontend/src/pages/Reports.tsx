@@ -146,7 +146,7 @@ export default function Reports() {
 
         <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
           <div className="flex justify-between items-start mb-4">
-            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+            <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600">
               <TrendingUp size={20} />
             </div>
             <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md ${kpis?.conversionRate?.trend?.isPositive ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'}`}>
@@ -250,7 +250,7 @@ export default function Reports() {
             <div className="h-48 w-48 shrink-0 bg-slate-50 rounded-full border-[16px] border-indigo-100 relative flex items-center justify-center">
               {/* Fake Donut Chart Segments */}
               <div className="absolute inset-0 rounded-full border-[16px] border-emerald-500 clip-half right-0 transform rotate-45"></div>
-              <div className="absolute inset-0 rounded-full border-[16px] border-blue-500 clip-half bottom-0 transform -rotate-45"></div>
+              <div className="absolute inset-0 rounded-full border-[16px] border-indigo-500 clip-half bottom-0 transform -rotate-45"></div>
               
               <div className="text-center">
                 <span className="block text-2xl font-extrabold text-slate-900">342</span>
@@ -260,7 +260,7 @@ export default function Reports() {
 
             <div className="flex-1 w-full space-y-3">
               {(reportsData?.ordersByStatus || []).map((status: any, index: number) => {
-                const colors = ['bg-emerald-500', 'bg-indigo-500', 'bg-blue-500', 'bg-amber-500', 'bg-red-500', 'bg-purple-500', 'bg-slate-500'];
+                const colors = ['bg-emerald-500', 'bg-indigo-500', 'bg-indigo-500', 'bg-amber-500', 'bg-red-500', 'bg-purple-500', 'bg-slate-500'];
                 const totalOrders = (reportsData?.ordersByStatus || []).reduce((acc: number, cur: any) => acc + cur.value, 0);
                 const percent = totalOrders === 0 ? 0 : Math.round((status.value / totalOrders) * 100);
                 

@@ -33,7 +33,7 @@ export const OrderDetail = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Pending': return 'bg-amber-100 text-amber-700';
-      case 'Approved': return 'bg-blue-100 text-blue-700';
+      case 'Approved': return 'bg-indigo-100 text-indigo-700';
       case 'In_Production': return 'bg-indigo-100 text-indigo-700';
       case 'Completed': return 'bg-emerald-100 text-emerald-700';
       default: return 'bg-slate-100 text-slate-700';

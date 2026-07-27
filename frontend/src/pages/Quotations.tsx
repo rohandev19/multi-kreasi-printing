@@ -30,7 +30,7 @@ export default function Quotations() {
       case 'Draft':
         return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600"><Pencil size={12} /> Draft</span>;
       case 'Sent':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700"><Send size={12} /> Sent</span>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700"><Send size={12} /> Sent</span>;
       case 'Viewed':
         return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700"><Eye size={12} /> Viewed</span>;
       case 'Accepted':
@@ -140,7 +140,7 @@ export default function Quotations() {
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
             <TrendingUp size={24} />
           </div>
           <div>
@@ -265,7 +265,7 @@ export default function Quotations() {
                       {quo.status === 'Draft' && (
                         <>
                           <button 
-                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                             title="Edit"
                             onClick={() => { setSelectedQuotation(quo.id); setIsCreateModalOpen(true); }}
                           >

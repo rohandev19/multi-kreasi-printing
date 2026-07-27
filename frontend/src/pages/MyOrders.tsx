@@ -20,7 +20,7 @@ interface Order {
 const statusColors: Record<string, string> = {
   Draft: 'bg-gray-100 text-gray-700',
   Pending_Approval: 'bg-amber-100 text-amber-700',
-  Approved: 'bg-blue-100 text-blue-700',
+  Approved: 'bg-indigo-100 text-indigo-700',
   In_Production: 'bg-purple-100 text-purple-700',
   Quality_Check: 'bg-indigo-100 text-indigo-700',
   Completed: 'bg-emerald-100 text-emerald-700',
@@ -69,7 +69,7 @@ export default function MyOrders() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
@@ -88,7 +88,7 @@ export default function MyOrders() {
         <h2 className="text-2xl font-bold text-slate-800">My Orders</h2>
         <button 
           onClick={() => navigate('/products')}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
+          className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2"
         >
           <ShoppingBag size={18} />
           New Order
@@ -102,7 +102,7 @@ export default function MyOrders() {
           <p className="text-slate-500 mb-6">Create your first order to get started with MK Printing</p>
           <button 
             onClick={() => navigate('/products')}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
           >
             Create Order
           </button>
@@ -165,7 +165,7 @@ export default function MyOrders() {
                 </button>
                 <button 
                   onClick={() => navigate('/dashboard/invoices')}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <FileText size={16} />
                   View Invoice
