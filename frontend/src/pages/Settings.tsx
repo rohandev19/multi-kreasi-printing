@@ -739,8 +739,8 @@ export default function Settings() {
 
                   <div className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex gap-4">
-                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
-                        <Mail className="w-6 h-6 text-blue-600" />
+                      <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
+                        <Mail className="w-6 h-6 text-indigo-600" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2 mb-1">

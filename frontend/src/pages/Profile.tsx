@@ -7,10 +7,10 @@ export default function Profile() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="h-32 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+        <div className="h-32 bg-gradient-to-r from-indigo-500 to-indigo-600"></div>
         <div className="px-8 flex flex-col md:flex-row items-center md:items-end -mt-12 mb-6 gap-6">
           <div className="w-24 h-24 bg-white rounded-full p-1 shadow-md">
-            <div className="w-full h-full bg-blue-100 text-blue-600 flex items-center justify-center rounded-full text-3xl font-bold uppercase">
+            <div className="w-full h-full bg-indigo-100 text-indigo-600 flex items-center justify-center rounded-full text-3xl font-bold uppercase">
               {(user?.fullName || user?.name || 'G').charAt(0)}
             </div>
           </div>
@@ -21,7 +21,7 @@ export default function Profile() {
             </p>
           </div>
           <div>
-            <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold flex items-center gap-2">
+            <span className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-full text-sm font-semibold flex items-center gap-2">
               <Shield className="w-4 h-4" />
               {roleName.replace('_', ' ')}
             </span>

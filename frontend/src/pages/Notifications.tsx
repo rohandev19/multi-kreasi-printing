@@ -61,7 +61,7 @@ export const Notifications = () => {
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'order': return <Package className="text-blue-500" size={20} />;
+      case 'order': return <Package className="text-indigo-500" size={20} />;
       case 'payment': return <CreditCard className="text-emerald-500" size={20} />;
       case 'alert': return <AlertCircle className="text-amber-500" size={20} />;
       default: return <Bell className="text-slate-500" size={20} />;

@@ -57,7 +57,7 @@ export default function AuditLog() {
   const getActionBadgeColor = (action: string) => {
     switch (action) {
       case 'Created': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
-      case 'Updated': return 'bg-blue-100 text-blue-700 border border-blue-200';
+      case 'Updated': return 'bg-indigo-100 text-indigo-700 border border-indigo-200';
       case 'Deleted': return 'bg-red-100 text-red-700 border border-red-200';
       case 'Approved': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
       case 'Rejected': return 'bg-red-100 text-red-700 border border-red-200';
