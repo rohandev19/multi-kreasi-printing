@@ -250,7 +250,7 @@ export const ProductDetail: React.FC = () => {
                 <ShieldCheck size={18} className="text-emerald-500" /> Quality Guaranteed
               </div>
               <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
-                <Truck size={18} className="text-blue-500" /> Free Delivery &gt;Rp 500K
+                <Truck size={18} className="text-indigo-500" /> Free Delivery &gt;Rp 500K
               </div>
               <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
                 <RefreshCw size={18} className="text-indigo-500" /> Easy Revision

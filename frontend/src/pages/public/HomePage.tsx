@@ -75,7 +75,7 @@ export const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="group bg-slate-50 p-8 rounded-3xl border border-slate-200 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-900/5 transition-all duration-300">
-              <div className="w-16 h-16 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <Package size={32} />
               </div>
               <h3 className="text-xl font-extrabold text-slate-900 mb-3">Corporate Identity</h3>
@@ -159,7 +159,7 @@ export const HomePage: React.FC = () => {
               <p className="text-slate-500 text-sm leading-relaxed">Strict quality control on every single batch before it leaves our facility.</p>
             </div>
             <div className="p-6 group hover:-translate-y-1 transition-transform duration-300">
-              <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4">
                 <Clock size={24} />
               </div>
               <h3 className="text-lg font-bold text-slate-900 mb-2">Fast Turnaround</h3>

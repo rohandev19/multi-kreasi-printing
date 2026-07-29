@@ -60,7 +60,7 @@ export default function Login() {
       <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl border border-slate-100 relative">
         <Link 
           to="/" 
-          className="absolute top-6 left-6 text-slate-400 hover:text-blue-600 transition-colors flex items-center gap-1 text-sm font-medium"
+          className="absolute top-6 left-6 text-slate-400 hover:text-indigo-600 transition-colors flex items-center gap-1 text-sm font-medium"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
@@ -82,7 +82,7 @@ export default function Login() {
             <input 
               type="email" 
               {...register('email')}
-              className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${errors.email ? 'border-red-500' : 'border-slate-300'}`} 
+              className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all ${errors.email ? 'border-red-500' : 'border-slate-300'}`} 
               placeholder="admin@mkprinting.com" 
               disabled={loading}
             />
@@ -94,7 +94,7 @@ export default function Login() {
               <input 
                 type={showPassword ? "text" : "password"}
                 {...register('password')}
-                className={`w-full p-3 pr-10 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${errors.password ? 'border-red-500' : 'border-slate-300'}`} 
+                className={`w-full p-3 pr-10 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all ${errors.password ? 'border-red-500' : 'border-slate-300'}`} 
                 disabled={loading}
               />
               <button
@@ -111,7 +111,7 @@ export default function Login() {
 
           <div className="flex items-center justify-between">
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500" />
+              <input type="checkbox" className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500" />
               <span className="text-sm text-slate-600">Remember me</span>
             </label>
             <Link to="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-500 font-medium transition-colors">
@@ -122,7 +122,7 @@ export default function Login() {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold shadow-md hover:bg-blue-700 hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+            className="w-full bg-indigo-600 text-white p-3 rounded-lg font-bold shadow-md hover:bg-indigo-700 hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mt-2"
           >
             {loading ? 'Logging in...' : 'Log In'}
           </button>
