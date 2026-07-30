@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { createPrismaClient } from '../../prisma/prisma-client.helper';
 
 @Injectable()
@@ -18,7 +22,9 @@ export class ConvertQuotationToOrderUseCase {
     }
 
     if (quotation.status !== 'Accepted') {
-      throw new BadRequestException('Only accepted quotations can be converted to orders');
+      throw new BadRequestException(
+        'Only accepted quotations can be converted to orders',
+      );
     }
 
     // Generate Order Number
@@ -38,18 +44,18 @@ export class ConvertQuotationToOrderUseCase {
         totalAmount: quotation.totalAmount,
         notes: `Converted from Quotation ${quotation.quotationNumber}`,
         items: {
-          create: quotation.items.map(item => ({
+          create: quotation.items.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
             unitPrice: item.unitPrice,
             subtotal: item.subtotal,
             notes: item.notes,
-          }))
-        }
+          })),
+        },
       },
       include: {
         items: true,
-      }
+      },
     });
 
     // Update quotation status

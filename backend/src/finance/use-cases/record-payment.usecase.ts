@@ -37,7 +37,8 @@ export class RecordPaymentUseCase {
         data: {
           invoiceId,
           amount,
-          paymentMethod: paymentMethod as import('@prisma/client').PaymentMethod,
+          paymentMethod:
+            paymentMethod as import('@prisma/client').PaymentMethod,
           referenceNumber,
         },
       });

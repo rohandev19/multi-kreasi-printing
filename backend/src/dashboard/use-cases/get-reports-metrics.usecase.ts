@@ -56,7 +56,7 @@ export class GetReportsMetricsUseCase {
     });
 
     const topCustomers = topCustomersRaw.map((tc: any) => {
-      const customer = customersInfo.find(c => c.id === tc.customerId);
+      const customer = customersInfo.find((c) => c.id === tc.customerId);
       return {
         id: tc.customerId,
         companyName: customer?.companyName || 'Unknown Customer',

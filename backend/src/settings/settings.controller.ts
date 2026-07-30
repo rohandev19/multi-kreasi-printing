@@ -23,10 +23,7 @@ export class SettingsController {
 
   @Put(':key')
   @Roles('Manager', 'Owner')
-  update(
-    @Param('key') key: string,
-    @Body() dto: UpdateSettingDto,
-  ) {
+  update(@Param('key') key: string, @Body() dto: UpdateSettingDto) {
     // If it's the main app_settings, we can theoretically add extra validation here
     // but the DTO handles basic validation of the incoming structure.
     return this.settingsService.update(key, dto.value, dto.description);

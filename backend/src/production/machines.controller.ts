@@ -36,7 +36,10 @@ export class MachinesController {
 
   @Post()
   @Roles('Manager', 'Owner')
-  async createMachine(@Body() dto: CreateMachineDto, @Req() req: AuthenticatedRequest) {
+  async createMachine(
+    @Body() dto: CreateMachineDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const userId = req.user.sub;
     return this.manageMachine.createMachine(dto.name, dto.type, userId);
   }

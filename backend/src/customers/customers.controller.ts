@@ -90,8 +90,8 @@ export class CustomersController {
       where: { customerId: id },
       include: { payments: true },
     });
-    
-    const payments = invoices.flatMap((inv) => 
+
+    const payments = invoices.flatMap((inv) =>
       inv.payments.map((p) => ({
         id: p.id,
         date: p.date,
@@ -99,7 +99,7 @@ export class CustomersController {
         method: p.paymentMethod,
         status: 'Completed', // All recorded payments are completed
         invoiceNumber: inv.invoiceNumber,
-      }))
+      })),
     );
 
     // Sort by date descending

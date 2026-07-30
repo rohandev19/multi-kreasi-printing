@@ -31,7 +31,7 @@ interface RoleContextType {
   logoutUser: () => void;
 }
 
-const RoleContext = createContext<RoleContextType | undefined>(undefined);
+export const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [role, setRole] = useState<UserRole | null>(null);

@@ -45,7 +45,10 @@ export class FinanceController {
 
   @Get()
   @Roles('Customer', 'Finance_Staff', 'Owner', 'Manager')
-  async getInvoices(@Query() filters: InvoiceFilterDto, @Req() req: AuthenticatedRequest) {
+  async getInvoices(
+    @Query() filters: InvoiceFilterDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const user = req.user;
 
     const where: any = {};
@@ -114,7 +117,10 @@ export class FinanceController {
 
   @Get(':id/pdf')
   @Roles('Customer', 'Finance_Staff', 'Owner', 'Manager')
-  async getInvoicePdf(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async getInvoicePdf(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const user = req.user;
     const invoice = await this.prisma.invoice.findUnique({
       where: { id },
