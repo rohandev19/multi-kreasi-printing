@@ -6,8 +6,10 @@ import { CreateQuotationDto, UpdateQuotationDto } from './dto/quotation.dto';
 export class QuotationsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(customerId?: string) {
+    const where = customerId ? { customerId } : {};
     return this.prisma.quotation.findMany({
+      where,
       include: {
         customer: true,
         items: true,
