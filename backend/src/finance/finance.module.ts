@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
+import { CacheModule } from '@nestjs/cache-manager';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuditModule } from '../audit/audit.module';
 import { StorageModule } from '../storage/storage.module';
@@ -16,6 +17,7 @@ import { OrderApprovedListener } from './listeners/order-approved.listener';
 
 @Module({
   imports: [
+    CacheModule.register(),
     PrismaModule,
     AuditModule,
     StorageModule,

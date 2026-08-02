@@ -20,13 +20,21 @@ export class LoginUseCase {
       include: { role: true },
     });
 
-    if (!user || user.status !== 'ACTIVE') {
+    if (!user) {
       await this.auditService.log({
         action: 'LOGIN_FAILED_NOT_FOUND',
         entityType: 'User',
         newValue: { email: dto.email },
       });
       throw new UnauthorizedException('Email atau password salah');
+    }
+
+    if (user.status === 'Unverified') {
+      throw new UnauthorizedException('Akun belum diverifikasi. Silakan cek email Anda untuk verifikasi.');
+    }
+
+    if (user.status !== 'ACTIVE') {
+      throw new UnauthorizedException('Akun Anda tidak aktif atau diblokir.');
     }
 
     const isPasswordValid = await bcrypt.compare(

@@ -1,5 +1,4 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Job } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
 import { StorageService } from '../../storage/storage.service';
 import PDFDocument from 'pdfkit';
@@ -17,7 +16,7 @@ export class PdfGenerationProcessor extends WorkerHost {
     super();
   }
 
-  async process(job: Job): Promise<any> {
+  async process(job: any, token?: string): Promise<any> {
     if (job.name === 'generate-invoice-pdf') {
       const { invoiceId } = job.data;
       this.logger.log(`Generating PDF for invoice ${invoiceId}`);

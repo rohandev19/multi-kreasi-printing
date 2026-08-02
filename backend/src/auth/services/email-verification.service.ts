@@ -114,7 +114,7 @@ export class EmailVerificationService {
         where: { id: verificationToken.userId },
         data: {
           emailVerified: true,
-          status: 'Active',
+          status: 'ACTIVE',
         },
       });
     });

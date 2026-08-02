@@ -111,7 +111,7 @@ export class FinanceController {
       dto.amount,
       dto.paymentMethod,
       dto.referenceNumber,
-      req.user.userId,
+      req.user.userId || req.user.sub,
     );
   }
 
@@ -145,6 +145,6 @@ export class FinanceController {
   @Post(':id/send')
   @Roles('Finance_Staff', 'Owner', 'Manager')
   async sendInvoice(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
-    return this.sendInvoiceUseCase.execute(id, req.user.userId);
+    return this.sendInvoiceUseCase.execute(id, req.user.userId || req.user.sub);
   }
 }

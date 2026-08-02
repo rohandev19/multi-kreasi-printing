@@ -18,6 +18,7 @@ export interface AuthenticatedUser {
   sub: string;
   role: string;
   email: string;
+  id: string;
 }
 
 export interface AuthenticatedRequest extends Request {

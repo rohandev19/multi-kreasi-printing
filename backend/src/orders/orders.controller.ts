@@ -6,7 +6,8 @@ import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { SubmitOrderUseCase } from './use-cases/submit-order.usecase';
 import { ApproveOrderUseCase } from './use-cases/approve-order.usecase';
 import { CancelOrderUseCase } from './use-cases/cancel-order.usecase';
-import { SearchOrdersUseCase, SearchOrdersQuery } from './use-cases/search-orders.usecase';
+import { SearchOrdersUseCase } from './use-cases/search-orders.usecase';
+import type { SearchOrdersQuery } from './use-cases/search-orders.usecase';
 import { GetOrderDetailsUseCase } from './use-cases/get-order-details.usecase';
 import { PrismaService } from '../prisma/prisma.service';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -18,6 +19,7 @@ export interface AuthenticatedUser {
   sub: string;
   role: string;
   email: string;
+  id: string;
 }
 
 export interface AuthenticatedRequest extends Request {
