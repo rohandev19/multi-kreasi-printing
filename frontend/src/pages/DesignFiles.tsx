@@ -31,7 +31,50 @@ export default function DesignFiles() {
       const fileData = Array.isArray(response.data) 
         ? response.data 
         : response.data.data || [];
-      setFiles(fileData);
+        
+      if (fileData.length === 0) {
+        // Fallback to dummy data if empty for demonstration
+        setFiles([
+          {
+            id: 'df-1',
+            originalName: 'banner_promo_merdeka.pdf',
+            status: 'Approved',
+            version: 2,
+            order: { orderNumber: 'ORD-2026-0801', customer: { companyName: 'PT. Maju Mundur' } },
+            fileSize: 15420000, // ~15 MB
+            createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+          },
+          {
+            id: 'df-2',
+            originalName: 'kartu_nama_direktur_v3.ai',
+            status: 'Manual_Review',
+            version: 3,
+            order: { orderNumber: 'ORD-2026-0805', customer: { companyName: 'CV. Karya Abadi' } },
+            fileSize: 2560000, // ~2.5 MB
+            createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
+          },
+          {
+            id: 'df-3',
+            originalName: 'brosur_lipat_3.pdf',
+            status: 'Revision_Required',
+            version: 1,
+            order: { orderNumber: 'ORD-2026-0810', customer: { companyName: 'Startup Digital Nusantara' } },
+            fileSize: 4500000, // 4.5 MB
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: 'df-4',
+            originalName: 'stiker_packaging_box.psd',
+            status: 'Uploaded',
+            version: 1,
+            order: { orderNumber: 'ORD-2026-0812', customer: { companyName: 'UMKM Kopi Lokal' } },
+            fileSize: 12500000, // 12.5 MB
+            createdAt: new Date().toISOString(),
+          }
+        ]);
+      } else {
+        setFiles(fileData);
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load design files');
       setFiles([]);

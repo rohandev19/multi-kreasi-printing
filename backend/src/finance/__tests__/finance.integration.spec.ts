@@ -104,7 +104,7 @@ describe('FinanceController Integration', () => {
       (prisma.invoice.findMany as Mock).mockResolvedValue(mockInvoices);
 
       const filters = { status: 'PENDING' };
-      const result = await controller.getInvoices(filters as any, mockReq);
+      const result = await controller.getInvoices(filters, mockReq);
 
       expect(prisma.invoice.findMany).toHaveBeenCalledWith({
         where: { status: 'PENDING' },
@@ -145,9 +145,7 @@ describe('FinanceController Integration', () => {
         payments: [],
       });
 
-      (
-        calculateOutstandingBalanceUseCase.execute as Mock
-      ).mockResolvedValue({
+      (calculateOutstandingBalanceUseCase.execute as Mock).mockResolvedValue({
         outstandingBalance: 1000,
       });
 
@@ -175,9 +173,7 @@ describe('FinanceController Integration', () => {
       } as any;
 
       const expectedResult = { id: 'payment-1' };
-      (recordPaymentUseCase.execute as Mock).mockResolvedValue(
-        expectedResult,
-      );
+      (recordPaymentUseCase.execute as Mock).mockResolvedValue(expectedResult);
 
       const result = await controller.recordPayment('inv-1', dto, mockReq);
 

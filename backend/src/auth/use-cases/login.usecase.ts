@@ -30,7 +30,9 @@ export class LoginUseCase {
     }
 
     if (user.status === 'Unverified') {
-      throw new UnauthorizedException('Akun belum diverifikasi. Silakan cek email Anda untuk verifikasi.');
+      throw new UnauthorizedException(
+        'Akun belum diverifikasi. Silakan cek email Anda untuk verifikasi.',
+      );
     }
 
     if (user.status !== 'ACTIVE') {

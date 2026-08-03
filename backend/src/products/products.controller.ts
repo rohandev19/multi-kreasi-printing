@@ -48,7 +48,10 @@ export class ProductsController {
 
   @Post()
   @Roles('Owner', 'Manager')
-  async create(@Body() dto: CreateProductDto, @Req() req: AuthenticatedRequest) {
+  async create(
+    @Body() dto: CreateProductDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const userId = req.user.sub;
     return this.createProductUseCase.execute(dto, userId);
   }

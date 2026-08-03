@@ -47,8 +47,13 @@ export class QuotationsController {
   @Roles('Sales', 'Manager', 'Owner', 'Customer')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const quotation = await this.quotationsService.findOne(id);
-    if (req.user.role === 'Customer' && quotation.customerId !== req.user.customerId) {
-      throw new ForbiddenException('You do not have permission to view this quotation');
+    if (
+      req.user.role === 'Customer' &&
+      quotation.customerId !== req.user.customerId
+    ) {
+      throw new ForbiddenException(
+        'You do not have permission to view this quotation',
+      );
     }
     return quotation;
   }
@@ -70,10 +75,18 @@ export class QuotationsController {
 
   @Post(':id/convert')
   @Roles('Sales', 'Manager', 'Owner', 'Customer')
-  async convertToOrder(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async convertToOrder(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const quotation = await this.quotationsService.findOne(id);
-    if (req.user.role === 'Customer' && quotation.customerId !== req.user.customerId) {
-      throw new ForbiddenException('You do not have permission to convert this quotation');
+    if (
+      req.user.role === 'Customer' &&
+      quotation.customerId !== req.user.customerId
+    ) {
+      throw new ForbiddenException(
+        'You do not have permission to convert this quotation',
+      );
     }
     return this.convertQuotation.execute(id);
   }

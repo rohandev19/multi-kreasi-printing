@@ -19,11 +19,24 @@ export const DesignPreviewModal: React.FC<DesignPreviewModalProps> = ({
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchFileDetails = async () => {
+    const fetchFileDetails = async (id: string) => {
       setLoading(true);
       setError('');
       try {
-        const response = await api.get(`/api/v1/design-files/${fileId}`);
+        if (id.startsWith('df-')) {
+          // Return mock data for dummy IDs
+          setFile({
+            id: id,
+            fileName: id === 'df-1' ? 'banner_promo_merdeka.pdf' : 
+                     id === 'df-2' ? 'kartu_nama_direktur_v3.ai' : 
+                     id === 'df-3' ? 'brosur_lipat_3.pdf' : 'stiker_packaging_box.psd',
+            version: id === 'df-2' ? 3 : id === 'df-1' ? 2 : 1,
+            order: { orderNumber: `ORD-2026-08${id.split('-')[1]}0` },
+            notes: 'These are dummy design files for preview purposes. No actual file exists on the server.',
+          });
+          return;
+        }
+        const response = await api.get(`/api/v1/design-files/${id}`);
         setFile(response.data);
       } catch (err: any) {
         setError(err.response?.data?.message || 'Failed to load design file');
@@ -33,7 +46,7 @@ export const DesignPreviewModal: React.FC<DesignPreviewModalProps> = ({
     };
 
     if (isOpen && fileId) {
-      fetchFileDetails();
+      fetchFileDetails(fileId);
     } else {
       setFile(null);
       setError('');

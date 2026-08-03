@@ -103,6 +103,14 @@ export const router = createBrowserRouter([
             path: 'privacy-policy',
             element: <PrivacyPolicyPage />,
           },
+          {
+            path: 'checkout',
+            element: <CheckoutPage />,
+          },
+          {
+            path: 'payment/:orderId',
+            element: <PaymentPage />,
+          },
         ],
       },
       {
@@ -299,18 +307,7 @@ export const router = createBrowserRouter([
               </ProtectedRoute>
             ),
           },
-          {
-            path: 'checkout',
-            element: (
-              <CheckoutPage />
-            ),
-          },
-          {
-            path: 'payment/:orderId',
-            element: (
-              <PaymentPage />
-            ),
-          },
+
           {
             path: 'notifications',
             element: (
