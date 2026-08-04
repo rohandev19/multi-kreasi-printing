@@ -6,7 +6,39 @@ on:
       - main
 
 jobs:
+  # ── Stage 1: Test & Build ────────────────────────────────
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Run linter
+        run: npm run lint
+        working-directory: backend
+
+      - name: Run tests
+        run: npm run test
+        working-directory: backend
+
+      - name: Build backend
+        run: npm run build
+        working-directory: backend
+
+  # ── Stage 2: Deploy (only if tests pass) ─────────────────
   deploy:
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
@@ -17,23 +49,41 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            # Pindah ke direktori Production di VPS
-            cd /var/www/multikreasiprinting-production
-            
-            # Tarik kode terbaru dari GitHub branch main
+            # --- Backend ---
+            cd /var/www/multikreasiprinting-production/backend
             git pull origin main
-            
-            # Update & Build Backend
-            cd backend
-            npm install
+            npm ci --omit=dev
             npm run build
-            
-            # Restart backend server di PM2
-            pm2 restart mkp-backend-prod
-            
-            # Kembali ke folder frontend & Build
+
+            # Zero-downtime restart via PM2 ecosystem config
+            # reload = graceful (restarts workers one-by-one)
+            # restart = hard (kills all at once, causes downtime)
+            pm2 reload ecosystem.config.js --env production
+
+            # --- Frontend ---
             cd ../frontend
-            npm install
+            npm ci
             npm run build
-            
+
             echo "✅ Deployment ke Production selesai!"
+
+  # ── Stage 3: Post-Deploy Health Check ────────────────────
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Wait for server to stabilize
+        run: sleep 15
+
+      - name: Health Check
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            https://${{ secrets.VPS_HOST }}/api/v1/health)
+          
+          if [ "$response" = "200" ]; then
+            echo "✅ Health check passed (HTTP $response)"
+          else
+            echo "❌ Health check failed (HTTP $response)"
+            exit 1
+          fi

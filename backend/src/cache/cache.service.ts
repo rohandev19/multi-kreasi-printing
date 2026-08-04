@@ -18,30 +18,45 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
         port: parseInt(process.env.REDIS_PORT || '6379', 10),
         password: process.env.REDIS_PASSWORD,
         maxRetriesPerRequest: 1,
-        retryStrategy: () => null, // Don't retry on failure
-        lazyConnect: true, // Don't connect immediately
+        // In production, we want to retry connection if it fails since Redis is mandatory
+        retryStrategy: (times) => {
+          if (process.env.NODE_ENV === 'production') {
+            return Math.min(times * 50, 2000); // Reconnect in prod
+          }
+          return null; // Don't retry in dev
+        },
+        lazyConnect: process.env.NODE_ENV !== 'production', // Connect immediately in prod
       });
 
-      // Try to connect asynchronously
-      this.redisClient.connect().catch((err) => {
-        this.logger.warn(`Redis unavailable (optional): ${err.message}`);
-        this.redisClient = null; // Set to null if connection fails
-      });
+      // Handle async connection specifically for development fallback
+      if (process.env.NODE_ENV !== 'production') {
+        this.redisClient.connect().catch((err) => {
+          this.logger.warn(`Redis unavailable in development: ${err.message}. Bypassing cache.`);
+          this.redisClient = null;
+        });
+      } else {
+         // In production, catch error events but don't set client to null
+         // because we want it to reconnect using the retryStrategy
+      }
 
       this.redisClient.on('connect', () => {
-        this.logger.log(
-          'Connected to Redis (Support for Memurai/Native Redis)',
-        );
+        this.logger.log('Connected to Redis successfully');
       });
 
       this.redisClient.on('error', (err) => {
-        this.logger.warn(`Redis connection error (optional): ${err.message}`);
+        if (process.env.NODE_ENV === 'production') {
+           this.logger.error(`Redis connection error (MANDATORY IN PROD): ${err.message}`);
+        } else {
+           this.logger.warn(`Redis connection error: ${err.message}`);
+        }
       });
     } catch (err) {
-      this.logger.warn(
-        `Redis initialization failed (optional): ${err.message}`,
-      );
-      this.redisClient = null;
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error(`CRITICAL: Failed to initialize Redis which is mandatory in production. Error: ${err.message}`);
+      } else {
+        this.logger.warn(`Redis initialization failed: ${err.message}`);
+        this.redisClient = null;
+      }
     }
   }
 

@@ -7,17 +7,17 @@ let prismaInstance: PrismaClient | null = null;
 export function createPrismaClient(): PrismaClient {
   if (prismaInstance) return prismaInstance;
 
-  // Direct connection config to avoid URL parsing issues with special characters
   const pool = new Pool({
-    host: 'localhost',
-    port: 5432,
-    user: 'postgres',
-    password: '17210535Rohan',
-    database: 'mkprinting',
-    max: 20,
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432', 10),
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME || 'mkprinting',
+    max: parseInt(process.env.DB_POOL_MAX || '20', 10),
     idleTimeoutMillis: 30000,
   });
   const adapter = new PrismaPg(pool);
   prismaInstance = new PrismaClient({ adapter });
   return prismaInstance;
 }
+

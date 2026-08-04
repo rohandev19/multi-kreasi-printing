@@ -3,9 +3,12 @@ import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { loggerConfig } from './common/logger/logger.config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: loggerConfig,
+  });
 
   // Security Headers with Strict CSP
   app.use(
@@ -67,6 +70,17 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
-  await app.listen(process.env.PORT ?? 3000);
+  // Enable graceful shutdown hooks (required for PM2 cluster reload)
+  // When PM2 sends SIGINT, NestJS will:
+  //   1. Stop accepting new connections
+  //   2. Wait for in-flight requests to finish
+  //   3. Call onModuleDestroy() on all services (disconnects DB, Redis)
+  //   4. Exit cleanly
+  app.enableShutdownHooks();
+
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port);
+
+  console.log(`🚀 Server running on port ${port} (PID: ${process.pid})`);
 }
 bootstrap();

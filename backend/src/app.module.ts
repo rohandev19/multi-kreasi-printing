@@ -22,6 +22,7 @@ import { CartModule } from './cart/cart.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { BullModule } from '@nestjs/bullmq';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { APP_GUARD } from '@nestjs/core';
 import { QuotationsModule } from './quotations/quotations.module';
 import { SettingsModule } from './settings/settings.module';
@@ -52,12 +53,21 @@ import { SettingsModule } from './settings/settings.module';
         port: parseInt(process.env.REDIS_PORT || '6379', 10),
       },
     }),
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60000, // 1 minute
-        limit: 100, // 100 requests per minute
-      },
-    ]),
+    ThrottlerModule.forRootAsync({
+      useFactory: () => ({
+        throttlers: [
+          {
+            ttl: parseInt(process.env.RATE_LIMIT_TTL || '60000', 10), // default 1 minute
+            limit: parseInt(process.env.RATE_LIMIT_MAX || '100', 10), // default 100 requests
+          },
+        ],
+        storage: new ThrottlerStorageRedisService({
+          host: process.env.REDIS_HOST || '127.0.0.1',
+          port: parseInt(process.env.REDIS_PORT || '6379', 10),
+          password: process.env.REDIS_PASSWORD,
+        }),
+      }),
+    }),
     QuotationsModule,
     SettingsModule,
   ],
