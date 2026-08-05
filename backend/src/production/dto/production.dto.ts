@@ -29,7 +29,7 @@ export class CompleteProductionDto {
 
 export class RecordMaterialConsumptionDto {
   @IsUUID()
-  productId: string;
+  materialId: string;
 
   @IsInt()
   quantity: number;

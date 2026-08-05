@@ -41,19 +41,23 @@ export class CustomersController {
     const result = await this.searchCustomersUseCase.execute(query);
     const user = (req as any).user;
 
-    // Inject financial data for authorized roles
+    let metrics: Record<string, { totalRevenue: number, outstandingBalance: number, totalOrders: number }> = {};
+    if (
+      user.role === 'Owner' ||
+      user.role === 'Manager' ||
+      user.role === 'Finance_Staff'
+    ) {
+      const customerIds = result.data.map((c) => c.id);
+      metrics = await this.getFinancialMetrics(customerIds);
+    }
+
     const data = result.data.map((customer) => {
       const baseCustomer = { ...customer };
-      if (
-        user.role === 'Owner' ||
-        user.role === 'Manager' ||
-        user.role === 'Finance_Staff'
-      ) {
-        // Mock financial data since it's not in the DB yet
+      if (metrics[customer.id]) {
         return {
           ...baseCustomer,
-          totalRevenue: Math.floor(Math.random() * 10000000),
-          outstandingBalance: Math.floor(Math.random() * 2000000),
+          totalRevenue: metrics[customer.id].totalRevenue,
+          outstandingBalance: metrics[customer.id].outstandingBalance,
         };
       }
       return baseCustomer;
@@ -74,12 +78,18 @@ export class CustomersController {
     if (!customer) {
       throw new NotFoundException('Customer not found');
     }
-    // Mock financial data
+    const metrics = await this.getFinancialMetrics([customer.id]);
+    const customerMetrics = metrics[customer.id] || {
+      totalOrders: 0,
+      totalRevenue: 0,
+      outstandingBalance: 0,
+    };
+
     return {
       ...customer,
-      totalOrders: Math.floor(Math.random() * 50),
-      totalRevenue: Math.floor(Math.random() * 10000000),
-      outstandingBalance: Math.floor(Math.random() * 2000000),
+      totalOrders: customerMetrics.totalOrders,
+      totalRevenue: customerMetrics.totalRevenue,
+      outstandingBalance: customerMetrics.outstandingBalance,
     };
   }
 
@@ -115,5 +125,41 @@ export class CustomersController {
   ) {
     const userId = (req as any).user.sub;
     return this.updateCustomerUseCase.execute(id, dto, userId);
+  }
+
+  private async getFinancialMetrics(customerIds: string[]) {
+    if (!customerIds.length) return {};
+
+    const invoices = await this.prisma.invoice.findMany({
+      where: { customerId: { in: customerIds } },
+      include: { payments: true },
+    });
+
+    const metrics: Record<
+      string,
+      { totalRevenue: number; outstandingBalance: number; totalOrders: number }
+    > = {};
+    for (const id of customerIds) {
+      metrics[id] = { totalRevenue: 0, outstandingBalance: 0, totalOrders: 0 };
+    }
+
+    for (const inv of invoices) {
+      const amount = Number(inv.amount);
+      const paid = inv.payments.reduce((sum, p) => sum + Number(p.amount), 0);
+      metrics[inv.customerId].totalRevenue += paid;
+      metrics[inv.customerId].outstandingBalance += Math.max(0, amount - paid);
+    }
+
+    const orders = await this.prisma.order.groupBy({
+      by: ['customerId'],
+      where: { customerId: { in: customerIds } },
+      _count: { _all: true },
+    });
+
+    for (const o of orders) {
+      metrics[o.customerId].totalOrders = o._count._all;
+    }
+
+    return metrics;
   }
 }

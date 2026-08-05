@@ -144,7 +144,7 @@ export class ProductionJobsController {
     const userId = req.user.sub;
     return this.recordMaterialConsumption.execute(
       id,
-      dto.productId,
+      dto.materialId,
       dto.quantity,
       dto.notes,
       userId,

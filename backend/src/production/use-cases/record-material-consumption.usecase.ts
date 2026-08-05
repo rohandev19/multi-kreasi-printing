@@ -11,7 +11,7 @@ export class RecordMaterialConsumptionUseCase {
 
   async execute(
     jobId: string,
-    productId: string,
+    materialId: string,
     quantity: number,
     notes: string | undefined,
     currentUserId: string,
@@ -21,15 +21,15 @@ export class RecordMaterialConsumptionUseCase {
     });
     if (!job) throw new NotFoundException('Production job not found');
 
-    const product = await this.prisma.product.findUnique({
-      where: { id: productId },
+    const material = await this.prisma.material.findUnique({
+      where: { id: materialId },
     });
-    if (!product) throw new NotFoundException('Material/Product not found');
+    if (!material) throw new NotFoundException('Material not found');
 
     const consumption = await this.prisma.materialConsumption.create({
       data: {
         jobId,
-        productId,
+        materialId,
         quantity,
         notes,
       },
@@ -41,7 +41,7 @@ export class RecordMaterialConsumptionUseCase {
       entityType: 'ProductionJob',
       entityId: jobId,
       oldValue: null,
-      newValue: { productId, quantity, consumptionId: consumption.id },
+      newValue: { materialId, quantity, consumptionId: consumption.id },
     });
 
     return consumption;

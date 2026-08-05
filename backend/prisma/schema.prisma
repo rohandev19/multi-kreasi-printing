@@ -41,6 +41,7 @@ model User {
   notifications           Notification[]
   orderTimelines          OrderTimeline[]
   productionJobs          ProductionJob[]
+  stockMovements          StockMovement[]
   role                    Role                     @relation(fields: [roleId], references: [id])
   widgetPreference        WidgetPreference?
 
@@ -116,6 +117,7 @@ model Category {
   parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryHierarchy")
   products    Product[]
+  materials   Material[]
 
   @@map("categories")
 }
@@ -132,7 +134,6 @@ model Product {
   createdAt      DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime              @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   cartItems      CartItem[]
-  consumptions   MaterialConsumption[]
   orderItems     OrderItem[]
   pricingTiers   PricingTier[]
   images         ProductImage[]
@@ -295,17 +296,17 @@ model ProductionJob {
 }
 
 model MaterialConsumption {
-  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  jobId     String        @map("job_id") @db.Uuid
-  productId String        @map("product_id") @db.Uuid
-  quantity  Int
-  notes     String?
-  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-  job       ProductionJob @relation(fields: [jobId], references: [id])
-  product   Product       @relation(fields: [productId], references: [id])
+  id         String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  jobId      String        @map("job_id") @db.Uuid
+  materialId String        @map("material_id") @db.Uuid
+  quantity   Int
+  notes      String?
+  createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  job        ProductionJob @relation(fields: [jobId], references: [id])
+  material   Material      @relation(fields: [materialId], references: [id])
 
   @@index([jobId])
-  @@index([productId])
+  @@index([materialId])
   @@map("material_consumption")
 }
 
@@ -492,4 +493,62 @@ enum PaymentMethod {
   Credit_Card
   Debit_Card
   E_Wallet
+}
+
+model Supplier {
+  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String     @db.VarChar(255)
+  contactPerson String?    @map("contact_person") @db.VarChar(255)
+  email         String?    @db.VarChar(255)
+  phone         String?    @db.VarChar(50)
+  address       String?
+  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt     DateTime?  @map("deleted_at") @db.Timestamptz(6)
+  materials     Material[]
+
+  @@map("suppliers")
+}
+
+model Material {
+  id            String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sku           String                @unique @db.VarChar(100)
+  name          String                @db.VarChar(255)
+  description   String?
+  categoryId    String?               @map("category_id") @db.Uuid
+  supplierId    String?               @map("supplier_id") @db.Uuid
+  currentStock  Int                   @default(0) @map("current_stock")
+  minStockLevel Int                   @default(0) @map("min_stock_level")
+  unitOfMeasure String                @map("unit_of_measure") @db.VarChar(50)
+  costPrice     Decimal               @default(0) @map("cost_price") @db.Decimal(12, 2)
+  status        String                @default("Active") @db.VarChar(50)
+  createdAt     DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime              @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  category      Category?             @relation(fields: [categoryId], references: [id])
+  supplier      Supplier?             @relation(fields: [supplierId], references: [id])
+  movements     StockMovement[]
+  consumptions  MaterialConsumption[]
+
+  @@index([sku])
+  @@index([categoryId])
+  @@index([supplierId])
+  @@map("materials")
+}
+
+model StockMovement {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  materialId  String   @map("material_id") @db.Uuid
+  type        String   @db.VarChar(50)
+  quantity    Int
+  reason      String?
+  referenceId String?  @map("reference_id") @db.Uuid
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  material    Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [createdBy], references: [id])
+
+  @@index([materialId])
+  @@index([type])
+  @@index([createdBy])
+  @@map("stock_movements")
 }

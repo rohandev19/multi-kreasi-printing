@@ -1,7 +1,19 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Body,
+  Param,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { InventoryService } from './inventory.service';
+import { CreateMaterialDto } from './dto/create-material.dto';
+import { AdjustStockDto } from './dto/adjust-stock.dto';
 import type { Request } from 'express';
 
 export interface AuthenticatedUser {
@@ -18,82 +30,47 @@ export interface AuthenticatedRequest extends Request {
 @Controller('api/v1/inventory')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class InventoryController {
-  private fallbackMaterials = [
-    {
-      id: '1',
-      name: 'A4 Paper 80gsm',
-      sku: 'PPR-A4-80',
-      quantity: 5000,
-      unit: 'sheets',
-      minStock: 1000,
-      category: 'Paper',
-      status: 'In_Stock',
-    },
-    {
-      id: '2',
-      name: 'Vinyl Banner Material',
-      sku: 'VNL-BNR-01',
-      quantity: 250,
-      unit: 'm²',
-      minStock: 500,
-      category: 'Vinyl',
-      status: 'Low_Stock',
-    },
-    {
-      id: '3',
-      name: 'Inkjet Ink Cyan',
-      sku: 'INK-CYN-01',
-      quantity: 0,
-      unit: 'liters',
-      minStock: 5,
-      category: 'Ink',
-      status: 'Out_of_Stock',
-    },
-    {
-      id: '4',
-      name: 'Laminating Film',
-      sku: 'LAM-FLM-01',
-      quantity: 1200,
-      unit: 'm²',
-      minStock: 300,
-      category: 'Laminate',
-      status: 'In_Stock',
-    },
-    {
-      id: '5',
-      name: 'Cardstock 300gsm',
-      sku: 'CRD-300',
-      quantity: 800,
-      unit: 'sheets',
-      minStock: 1000,
-      category: 'Paper',
-      status: 'Low_Stock',
-    },
-  ];
+  constructor(private readonly inventoryService: InventoryService) {}
 
   @Get()
   @Roles('Owner', 'Manager', 'Warehouse_Staff')
-  getInventory(@Req() req: AuthenticatedRequest) {
+  async getInventory(@Req() req: AuthenticatedRequest) {
     const user = req.user;
+    return this.inventoryService.getMaterials(user.role);
+  }
 
-    // For Warehouse_Staff: return stock management fields only
-    // For Owner/Manager: return all fields including supplier info
-    if (user.role === 'Warehouse_Staff') {
-      return this.fallbackMaterials.map((m) => ({
-        id: m.id,
-        name: m.name,
-        sku: m.sku,
-        quantity: m.quantity,
-        unit: m.unit,
-        minStock: m.minStock,
-        status: m.status,
-      }));
-    }
+  @Get(':id')
+  @Roles('Owner', 'Manager', 'Warehouse_Staff')
+  async getMaterialById(@Param('id') id: string) {
+    return this.inventoryService.getMaterialById(id);
+  }
 
-    // Return all (mocking supplier info since it doesn't exist in dummy data yet)
-    return this.fallbackMaterials.map((m) => ({
-      ...m,
-      supplierInfo: 'Mock Supplier Inc',
-    }));
+  @Post()
+  @Roles('Owner', 'Manager')
+  async createMaterial(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: CreateMaterialDto,
+  ) {
+    return this.inventoryService.createMaterial(dto, req.user.sub);
+  }
+
+  @Put(':id')
+  @Roles('Owner', 'Manager')
+  async updateMaterial(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: Partial<CreateMaterialDto>,
+  ) {
+    return this.inventoryService.updateMaterial(id, dto, req.user.sub);
+  }
+
+  @Post(':id/adjust')
+  @Roles('Owner', 'Manager', 'Warehouse_Staff')
+  async adjustStock(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: AdjustStockDto,
+  ) {
+    return this.inventoryService.adjustStock(id, dto, req.user.sub);
   }
 }
