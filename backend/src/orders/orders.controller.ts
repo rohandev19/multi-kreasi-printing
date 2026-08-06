@@ -59,6 +59,9 @@ export class OrdersController {
   )
   async list(@Req() req: AuthenticatedRequest) {
     const user = req.user;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const skip = (page - 1) * limit;
 
     // Determine which role context to use (either query param or actual user role)
     // Only Owner/Manager can view as other roles
@@ -68,14 +71,22 @@ export class OrdersController {
         ? queryRole
         : user.role;
 
-    // If user is Customer, only show their orders
     if (effectiveRole === 'Customer') {
-      return this.prisma.order.findMany({
-        where: { customer: { email: user.email } },
-        include: { customer: { select: { companyName: true, email: true } } },
-        orderBy: { createdAt: 'desc' },
-        take: 50,
-      });
+      const where = { customer: { email: user.email } };
+      const [total, data] = await Promise.all([
+        this.prisma.order.count({ where }),
+        this.prisma.order.findMany({
+          where,
+          include: { customer: { select: { companyName: true, email: true } } },
+          orderBy: { createdAt: 'desc' },
+          take: limit,
+          skip,
+        }),
+      ]);
+      return {
+        data,
+        meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+      };
     }
 
     const whereClause: import('@prisma/client').Prisma.OrderWhereInput = {};
@@ -114,16 +125,25 @@ export class OrdersController {
       }
     }
 
-    return this.prisma.order.findMany({
-      where: whereClause,
-      include: {
-        customer: {
-          select: { companyName: true, email: true },
+    const [total, data] = await Promise.all([
+      this.prisma.order.count({ where: whereClause }),
+      this.prisma.order.findMany({
+        where: whereClause,
+        include: {
+          customer: {
+            select: { companyName: true, email: true },
+          },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 50,
-    });
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip,
+      }),
+    ]);
+
+    return {
+      data,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   @Patch(':id/status')
@@ -161,6 +181,18 @@ export class OrdersController {
   ) {
     const userId = req.user.sub;
     return this.cancelOrder.execute(id, reason, userId);
+  }
+
+  @Post(':id/reject')
+  @Roles('Manager', 'Owner', 'Sales')
+  async reject(
+    @Param('id') id: string,
+    @Body('reason') reason: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user.sub;
+    // We update status to 'Rejected'
+    return this.updateOrderStatus.execute(id, { status: 'Rejected' }, userId);
   }
 
   @Post('search')

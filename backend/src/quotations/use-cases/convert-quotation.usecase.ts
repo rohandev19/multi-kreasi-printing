@@ -3,11 +3,11 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { createPrismaClient } from '../../prisma/prisma-client.helper';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class ConvertQuotationToOrderUseCase {
-  private prisma = createPrismaClient();
+  constructor(private prisma: PrismaService) {}
 
   async execute(quotationId: string) {
     const quotation = await this.prisma.quotation.findUnique({

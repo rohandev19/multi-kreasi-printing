@@ -53,13 +53,19 @@ export class ProductionJobsController {
   @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
   async list(@Req() req: AuthenticatedRequest) {
     const user = req.user;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const skip = (page - 1) * limit;
+
     let whereClause = {};
 
     if (user.role === 'Production_Staff') {
       whereClause = { assigneeId: user.id };
     }
 
-    return this.prisma.productionJob.findMany({
+    const [total, data] = await Promise.all([
+      this.prisma.productionJob.count({ where: whereClause }),
+      this.prisma.productionJob.findMany({
       where: whereClause,
       include: {
         order: {
@@ -85,8 +91,12 @@ export class ProductionJobsController {
         },
       },
       orderBy: { createdAt: 'desc' },
-      take: 50,
-    });
+      take: limit,
+      skip,
+    })
+  ]);
+
+    return { data, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
   }
 
   @Post('from-order/:orderId')

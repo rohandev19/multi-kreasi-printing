@@ -19,6 +19,7 @@ import { RecordPaymentUseCase } from './use-cases/record-payment.usecase';
 import { SendInvoiceUseCase } from './use-cases/send-invoice.usecase';
 import { StorageService } from '../storage/storage.service';
 import { CalculateOutstandingBalanceUseCase } from './use-cases/calculate-outstanding-balance.usecase';
+import { GenerateInvoiceUseCase } from './use-cases/generate-invoice.usecase';
 import { IdempotencyInterceptor } from '../common/interceptors/idempotency.interceptor';
 import type { Request } from 'express';
 
@@ -40,6 +41,7 @@ export class FinanceController {
     private readonly recordPaymentUseCase: RecordPaymentUseCase,
     private readonly sendInvoiceUseCase: SendInvoiceUseCase,
     private readonly calculateOutstandingBalanceUseCase: CalculateOutstandingBalanceUseCase,
+    private readonly generateInvoiceUseCase: GenerateInvoiceUseCase,
     private readonly storageService: StorageService,
   ) {}
 
@@ -61,7 +63,13 @@ export class FinanceController {
       where.customerId = filters.customerId;
     }
 
-    const invoices = await this.prisma.invoice.findMany({
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const skip = (page - 1) * limit;
+
+    const [total, data] = await Promise.all([
+      this.prisma.invoice.count({ where }),
+      this.prisma.invoice.findMany({
       where,
       include: {
         customer: {
@@ -69,9 +77,12 @@ export class FinanceController {
         },
       },
       orderBy: { createdAt: 'desc' },
-    });
+      take: limit,
+      skip,
+    })
+  ]);
 
-    return invoices;
+    return { data, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
   }
 
   @Get(':id')
@@ -146,5 +157,23 @@ export class FinanceController {
   @Roles('Finance_Staff', 'Owner', 'Manager')
   async sendInvoice(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.sendInvoiceUseCase.execute(id, req.user.userId || req.user.sub);
+  }
+
+  @Post()
+  @Roles('Finance_Staff', 'Owner', 'Manager')
+  async createInvoice(@Body('orderId') orderId: string) {
+    if (!orderId) throw new NotFoundException('orderId is required');
+    await this.generateInvoiceUseCase.execute(orderId);
+    return { success: true };
+  }
+
+  @Patch(':id/cancel')
+  @Roles('Finance_Staff', 'Owner', 'Manager')
+  async cancelInvoice(@Param('id') id: string) {
+    const invoice = await this.prisma.invoice.update({
+      where: { id },
+      data: { status: 'Cancelled' }, // Need to ensure InvoiceStatus.Cancelled matches string
+    });
+    return invoice;
   }
 }
