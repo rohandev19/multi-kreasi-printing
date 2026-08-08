@@ -3,6 +3,7 @@ import { FinanceController } from '../finance.controller';
 import { RecordPaymentUseCase } from '../use-cases/record-payment.usecase';
 import { SendInvoiceUseCase } from '../use-cases/send-invoice.usecase';
 import { CalculateOutstandingBalanceUseCase } from '../use-cases/calculate-outstanding-balance.usecase';
+import { GenerateInvoiceUseCase } from '../use-cases/generate-invoice.usecase';
 import { StorageService } from '../../storage/storage.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
@@ -35,6 +36,10 @@ describe('FinanceController Integration', () => {
           useValue: { execute: vi.fn() },
         },
         {
+          provide: GenerateInvoiceUseCase,
+          useValue: { execute: vi.fn() },
+        },
+        {
           provide: StorageService,
           useValue: { getSignedUrl: vi.fn() },
         },
@@ -44,6 +49,7 @@ describe('FinanceController Integration', () => {
             invoice: {
               findMany: vi.fn(),
               findUnique: vi.fn(),
+              count: vi.fn(),
             },
           },
         },
@@ -77,43 +83,73 @@ describe('FinanceController Integration', () => {
     it('should return invoices for Customer role (IDOR prevention)', async () => {
       const mockReq = {
         user: { userId: 'customer-1', role: 'Customer' },
+        query: {},
       } as any;
 
       const mockInvoices = [{ id: 'inv-1', customerId: 'customer-1' }];
       (prisma.invoice.findMany as Mock).mockResolvedValue(mockInvoices);
+      (prisma.invoice.count as Mock).mockResolvedValue(1);
 
       const filters = {};
       const result = await controller.getInvoices(filters, mockReq);
 
+      expect(prisma.invoice.count).toHaveBeenCalledWith({
+        where: { customerId: 'customer-1' },
+      });
       expect(prisma.invoice.findMany).toHaveBeenCalledWith({
         where: { customerId: 'customer-1' },
         include: {
           customer: { select: { id: true, fullName: true, email: true } },
         },
         orderBy: { createdAt: 'desc' },
+        skip: 0,
+        take: 50,
       });
-      expect(result).toEqual(mockInvoices);
+      expect(result).toEqual({
+        data: mockInvoices,
+        meta: {
+          total: 1,
+          page: 1,
+          limit: 50,
+          totalPages: 1,
+        },
+      });
     });
 
     it('should return invoices for Finance_Staff without customer restriction', async () => {
       const mockReq = {
         user: { userId: 'staff-1', role: 'Finance_Staff' },
+        query: {},
       } as any;
 
       const mockInvoices = [{ id: 'inv-1' }, { id: 'inv-2' }];
       (prisma.invoice.findMany as Mock).mockResolvedValue(mockInvoices);
+      (prisma.invoice.count as Mock).mockResolvedValue(2);
 
       const filters = { status: 'PENDING' };
-      const result = await controller.getInvoices(filters, mockReq);
+      const result = await controller.getInvoices(filters as any, mockReq);
 
+      expect(prisma.invoice.count).toHaveBeenCalledWith({
+        where: { status: 'PENDING' },
+      });
       expect(prisma.invoice.findMany).toHaveBeenCalledWith({
         where: { status: 'PENDING' },
         include: {
           customer: { select: { id: true, fullName: true, email: true } },
         },
         orderBy: { createdAt: 'desc' },
+        skip: 0,
+        take: 50,
       });
-      expect(result).toEqual(mockInvoices);
+      expect(result).toEqual({
+        data: mockInvoices,
+        meta: {
+          total: 2,
+          page: 1,
+          limit: 50,
+          totalPages: 1,
+        },
+      });
     });
   });
 

@@ -57,6 +57,7 @@ describe('OrdersController Integration', () => {
             order: {
               findMany: vi.fn(),
               findUnique: vi.fn(),
+              count: vi.fn(),
             },
             designFile: {
               findMany: vi.fn(),
@@ -116,16 +117,29 @@ describe('OrdersController Integration', () => {
 
       const mockOrders = [{ id: 'order-1' }];
       (prisma.order.findMany as Mock).mockResolvedValue(mockOrders);
+      (prisma.order.count as Mock).mockResolvedValue(1);
 
       const result = await controller.list(mockReq);
 
+      expect(prisma.order.count).toHaveBeenCalledWith({
+        where: { customer: { email: 'test@example.com' } },
+      });
       expect(prisma.order.findMany).toHaveBeenCalledWith({
         where: { customer: { email: 'test@example.com' } },
         include: { customer: { select: { companyName: true, email: true } } },
         orderBy: { createdAt: 'desc' },
+        skip: 0,
         take: 50,
       });
-      expect(result).toEqual(mockOrders);
+      expect(result).toEqual({
+        data: mockOrders,
+        meta: {
+          total: 1,
+          page: 1,
+          limit: 50,
+          totalPages: 1,
+        },
+      });
     });
 
     it('should return all orders for Owner role without role query param', async () => {
@@ -136,16 +150,29 @@ describe('OrdersController Integration', () => {
 
       const mockOrders = [{ id: 'order-1' }];
       (prisma.order.findMany as Mock).mockResolvedValue(mockOrders);
+      (prisma.order.count as Mock).mockResolvedValue(1);
 
       const result = await controller.list(mockReq);
 
+      expect(prisma.order.count).toHaveBeenCalledWith({
+        where: {},
+      });
       expect(prisma.order.findMany).toHaveBeenCalledWith({
         where: {},
         include: { customer: { select: { companyName: true, email: true } } },
         orderBy: { createdAt: 'desc' },
+        skip: 0,
         take: 50,
       });
-      expect(result).toEqual(mockOrders);
+      expect(result).toEqual({
+        data: mockOrders,
+        meta: {
+          total: 1,
+          page: 1,
+          limit: 50,
+          totalPages: 1,
+        },
+      });
     });
   });
 
