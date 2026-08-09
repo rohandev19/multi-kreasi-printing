@@ -43,6 +43,11 @@ export const PublicLayout: React.FC = () => {
               }`}>
                 About Us
               </Link>
+              <Link to="/custom-order" className={`text-sm font-medium transition-colors ${
+                isHome ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-indigo-600'
+              }`}>
+                Custom Order
+              </Link>
               <Link to="/contact" className={`text-sm font-medium transition-colors ${
                 isHome ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-indigo-600'
               }`}>
@@ -145,7 +150,7 @@ export const PublicLayout: React.FC = () => {
               <h3 className="text-white font-bold mb-4 uppercase text-sm tracking-wider">Legal</h3>
               <ul className="space-y-2 text-sm">
                 <li><Link to="/terms" className="hover:text-indigo-400 transition-colors">Terms of Service</Link></li>
-                <li><Link to="/privacy" className="hover:text-indigo-400 transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/privacy-policy" className="hover:text-indigo-400 transition-colors">Privacy Policy</Link></li>
                 <li><Link to="/faq" className="hover:text-indigo-400 transition-colors">FAQ</Link></li>
               </ul>
             </div>

@@ -61,11 +61,14 @@ import { SettingsModule } from './settings/settings.module';
             limit: parseInt(process.env.RATE_LIMIT_MAX || '100', 10), // default 100 requests
           },
         ],
-        storage: new ThrottlerStorageRedisService({
-          host: process.env.REDIS_HOST || '127.0.0.1',
-          port: parseInt(process.env.REDIS_PORT || '6379', 10),
-          password: process.env.REDIS_PASSWORD,
-        }),
+        storage:
+          process.env.NODE_ENV === 'production'
+            ? new ThrottlerStorageRedisService({
+                host: process.env.REDIS_HOST || '127.0.0.1',
+                port: parseInt(process.env.REDIS_PORT || '6379', 10),
+                password: process.env.REDIS_PASSWORD,
+              })
+            : undefined,
       }),
     }),
     QuotationsModule,

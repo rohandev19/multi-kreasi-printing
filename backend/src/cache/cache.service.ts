@@ -31,12 +31,14 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
       // Handle async connection specifically for development fallback
       if (process.env.NODE_ENV !== 'production') {
         this.redisClient.connect().catch((err) => {
-          this.logger.warn(`Redis unavailable in development: ${err.message}. Bypassing cache.`);
+          this.logger.warn(
+            `Redis unavailable in development: ${err.message}. Bypassing cache.`,
+          );
           this.redisClient = null;
         });
       } else {
-         // In production, catch error events but don't set client to null
-         // because we want it to reconnect using the retryStrategy
+        // In production, catch error events but don't set client to null
+        // because we want it to reconnect using the retryStrategy
       }
 
       this.redisClient.on('connect', () => {
@@ -45,14 +47,18 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
 
       this.redisClient.on('error', (err) => {
         if (process.env.NODE_ENV === 'production') {
-           this.logger.error(`Redis connection error (MANDATORY IN PROD): ${err.message}`);
+          this.logger.error(
+            `Redis connection error (MANDATORY IN PROD): ${err.message}`,
+          );
         } else {
-           this.logger.warn(`Redis connection error: ${err.message}`);
+          this.logger.warn(`Redis connection error: ${err.message}`);
         }
       });
     } catch (err) {
       if (process.env.NODE_ENV === 'production') {
-        throw new Error(`CRITICAL: Failed to initialize Redis which is mandatory in production. Error: ${err.message}`);
+        throw new Error(
+          `CRITICAL: Failed to initialize Redis which is mandatory in production. Error: ${err.message}`,
+        );
       } else {
         this.logger.warn(`Redis initialization failed: ${err.message}`);
         this.redisClient = null;

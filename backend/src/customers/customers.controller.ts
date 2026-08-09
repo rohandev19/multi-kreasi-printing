@@ -41,7 +41,10 @@ export class CustomersController {
     const result = await this.searchCustomersUseCase.execute(query);
     const user = (req as any).user;
 
-    let metrics: Record<string, { totalRevenue: number, outstandingBalance: number, totalOrders: number }> = {};
+    let metrics: Record<
+      string,
+      { totalRevenue: number; outstandingBalance: number; totalOrders: number }
+    > = {};
     if (
       user.role === 'Owner' ||
       user.role === 'Manager' ||

@@ -20,4 +20,3 @@ export function createPrismaClient(): PrismaClient {
   prismaInstance = new PrismaClient({ adapter });
   return prismaInstance;
 }
-

@@ -17,7 +17,8 @@ export class JwtService {
       }
     }
 
-    this.secret = process.env.JWT_SECRET || 'dev-only-secret-do-not-use-in-prod';
+    this.secret =
+      process.env.JWT_SECRET || 'dev-only-secret-do-not-use-in-prod';
     this.refreshSecret = process.env.JWT_REFRESH_SECRET || this.secret;
 
     if (!process.env.JWT_SECRET) {
@@ -57,4 +58,3 @@ export class JwtService {
     }
   }
 }
-

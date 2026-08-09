@@ -43,6 +43,9 @@ const ForgotPassword = lazy(() => import('./pages/public/ForgotPassword').then(m
 const ResetPassword = lazy(() => import('./pages/public/ResetPassword').then(m => ({ default: m.ResetPassword })));
 import { FaqPage } from './pages/public/FaqPage';
 import { PrivacyPolicyPage } from './pages/public/PrivacyPolicy';
+import { CustomOrderPage } from './pages/public/CustomOrder';
+import { CareersPage } from './pages/public/CareersPage';
+import { BulkPrintingPage } from './pages/public/BulkPrintingPage';
 
 const LoadingSpinner = () => (
   <div className="flex h-full items-center justify-center">
@@ -110,6 +113,18 @@ export const router = createBrowserRouter([
           {
             path: 'payment/:orderId',
             element: <PaymentPage />,
+          },
+          {
+            path: 'custom-order',
+            element: <CustomOrderPage />,
+          },
+          {
+            path: 'careers',
+            element: <CareersPage />,
+          },
+          {
+            path: 'bulk',
+            element: <BulkPrintingPage />,
           },
         ],
       },
