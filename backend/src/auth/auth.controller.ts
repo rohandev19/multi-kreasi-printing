@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Get,
   Param,
+  Patch,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -18,6 +19,8 @@ import { LogoutUseCase } from './use-cases/logout.usecase';
 import { RefreshTokenUseCase } from './use-cases/refresh-token.usecase';
 import { RegisterRequestDto } from './dto/register.dto';
 import { RegisterUseCase } from './use-cases/register.usecase';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { ChangePasswordUseCase } from './use-cases/change-password.usecase';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { EmailVerificationService } from './services/email-verification.service';
 import { Public } from './decorators/public.decorator';
@@ -29,6 +32,7 @@ export class AuthController {
     private readonly logoutUseCase: LogoutUseCase,
     private readonly refreshTokenUseCase: RefreshTokenUseCase,
     private readonly registerUseCase: RegisterUseCase,
+    private readonly changePasswordUseCase: ChangePasswordUseCase,
     private readonly emailVerificationService: EmailVerificationService,
     private readonly prisma: PrismaService,
   ) {}
@@ -103,6 +107,15 @@ export class AuthController {
     }
     res.clearCookie('refresh_token');
     return { message: 'Logged out successfully' };
+  }
+
+  @Patch('change-password')
+  async changePassword(@Req() req: Request, @Body() dto: ChangePasswordDto) {
+    const user = (req as any).user;
+    if (!user || !user.sub) {
+      throw new UnauthorizedException();
+    }
+    return this.changePasswordUseCase.execute(user.sub, dto);
   }
 
   @Public()

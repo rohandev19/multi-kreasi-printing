@@ -6,6 +6,7 @@ import { LoginUseCase } from './use-cases/login.usecase';
 import { RefreshTokenUseCase } from './use-cases/refresh-token.usecase';
 import { LogoutUseCase } from './use-cases/logout.usecase';
 import { RegisterUseCase } from './use-cases/register.usecase';
+import { ChangePasswordUseCase } from './use-cases/change-password.usecase';
 import { EmailVerificationService } from './services/email-verification.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
@@ -19,6 +20,7 @@ import { RolesGuard } from './guards/roles.guard';
     RefreshTokenUseCase,
     LogoutUseCase,
     RegisterUseCase,
+    ChangePasswordUseCase,
     EmailVerificationService,
     {
       provide: APP_GUARD,
