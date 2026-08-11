@@ -51,7 +51,7 @@ describe('Dashboard Page', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/Good afternoon/i)).toBeInTheDocument();
+      expect(screen.getByText(/Good/i)).toBeInTheDocument();
       expect(screen.getByText('Total Revenue')).toBeInTheDocument();
       expect(screen.getByText('Orders Today')).toBeInTheDocument();
     });

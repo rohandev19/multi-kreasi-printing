@@ -11,6 +11,8 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { PublicProductsController } from './public-products.controller';
 import { GetPublicProductsUseCase } from './use-cases/get-public-products.usecase';
 import { GetPublicProductDetailUseCase } from './use-cases/get-public-product-detail.usecase';
+import { AddProductReviewUseCase } from './use-cases/add-product-review.usecase';
+import { GetProductReviewsUseCase } from './use-cases/get-product-reviews.usecase';
 
 @Module({
   imports: [StorageModule, CacheModule.register()],
@@ -23,6 +25,8 @@ import { GetPublicProductDetailUseCase } from './use-cases/get-public-product-de
     ManageProductImagesUseCase,
     GetPublicProductsUseCase,
     GetPublicProductDetailUseCase,
+    AddProductReviewUseCase,
+    GetProductReviewsUseCase,
   ],
 })
 export class ProductsModule {}

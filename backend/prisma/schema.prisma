@@ -44,6 +44,7 @@ model User {
   stockMovements          StockMovement[]
   role                    Role                     @relation(fields: [roleId], references: [id])
   widgetPreference        WidgetPreference?
+  productReviews          ProductReview[]
 
   @@index([email])
   @@index([roleId])
@@ -139,6 +140,7 @@ model Product {
   images         ProductImage[]
   category       Category              @relation(fields: [categoryId], references: [id])
   quotationItems QuotationItem[]
+  reviews        ProductReview[]
 
   @@index([sku])
   @@index([categoryId])
@@ -477,6 +479,24 @@ model SystemSettings {
 
   @@map("system_settings")
 }
+
+model ProductReview {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  rating    Int      @default(5)
+  comment   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([userId])
+  @@map("product_reviews")
+}
+
 
 enum InvoiceStatus {
   Draft

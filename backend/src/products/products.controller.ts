@@ -20,9 +20,14 @@ import { UpdateProductUseCase } from './use-cases/update-product.usecase';
 import { SearchProductsUseCase } from './use-cases/search-products.usecase';
 import { SetPricingTiersUseCase } from './use-cases/set-pricing-tiers.usecase';
 import { ManageProductImagesUseCase } from './use-cases/manage-product-images.usecase';
+import { AddProductReviewDto } from './dto/add-product-review.dto';
+import { AddProductReviewUseCase } from './use-cases/add-product-review.usecase';
+import { GetProductReviewsUseCase } from './use-cases/get-product-reviews.usecase';
 import { Roles } from '../auth/decorators/roles.decorator';
 import type { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 export interface AuthenticatedUser {
   sub: string;
@@ -44,6 +49,8 @@ export class ProductsController {
     private searchProductsUseCase: SearchProductsUseCase,
     private setPricingTiersUseCase: SetPricingTiersUseCase,
     private manageProductImagesUseCase: ManageProductImagesUseCase,
+    private addProductReviewUseCase: AddProductReviewUseCase,
+    private getProductReviewsUseCase: GetProductReviewsUseCase,
   ) {}
 
   @Post()
@@ -103,4 +110,22 @@ export class ProductsController {
       userId,
     );
   }
+
+  @Get(':id/reviews')
+  @Public()
+  async getReviews(@Param('id') id: string) {
+    return this.getProductReviewsUseCase.execute(id);
+  }
+
+  @Post(':id/reviews')
+  @UseGuards(JwtAuthGuard)
+  async addReview(
+    @Param('id') id: string,
+    @Body() dto: AddProductReviewDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user.sub;
+    return this.addProductReviewUseCase.execute(id, userId, dto);
+  }
 }
+

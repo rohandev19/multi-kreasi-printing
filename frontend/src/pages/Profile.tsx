@@ -6,7 +6,7 @@ import api from '../api/axios';
 
 export default function Profile() {
   const { user, roleName } = useRoleAccess();
-  const { showToast } = useToast();
+  const { success, error: showError } = useToast();
   
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -17,7 +17,7 @@ export default function Profile() {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      showToast('New passwords do not match', 'error');
+      showError('New passwords do not match');
       return;
     }
     
@@ -27,13 +27,13 @@ export default function Profile() {
         currentPassword,
         newPassword
       });
-      showToast('Password changed successfully!', 'success');
+      success('Password changed successfully!');
       setIsPasswordModalOpen(false);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (error: any) {
-      showToast(error.response?.data?.message || 'Failed to change password', 'error');
+      showError(error.response?.data?.message || 'Failed to change password');
     } finally {
       setIsSubmitting(false);
     }

@@ -4,6 +4,7 @@ import { LoginUseCase } from '../use-cases/login.usecase';
 import { LogoutUseCase } from '../use-cases/logout.usecase';
 import { RefreshTokenUseCase } from '../use-cases/refresh-token.usecase';
 import { RegisterUseCase } from '../use-cases/register.usecase';
+import { ChangePasswordUseCase } from '../use-cases/change-password.usecase';
 import { EmailVerificationService } from '../services/email-verification.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UnauthorizedException } from '@nestjs/common';
@@ -17,6 +18,7 @@ describe('AuthController Integration', () => {
   let logoutUseCase: LogoutUseCase;
   let refreshTokenUseCase: RefreshTokenUseCase;
   let registerUseCase: RegisterUseCase;
+  let changePasswordUseCase: ChangePasswordUseCase;
   let emailVerificationService: EmailVerificationService;
   let prisma: PrismaService;
 
@@ -38,6 +40,10 @@ describe('AuthController Integration', () => {
         },
         {
           provide: RegisterUseCase,
+          useValue: { execute: vi.fn() },
+        },
+        {
+          provide: ChangePasswordUseCase,
           useValue: { execute: vi.fn() },
         },
         {
@@ -68,6 +74,7 @@ describe('AuthController Integration', () => {
     logoutUseCase = module.get<LogoutUseCase>(LogoutUseCase);
     refreshTokenUseCase = module.get<RefreshTokenUseCase>(RefreshTokenUseCase);
     registerUseCase = module.get<RegisterUseCase>(RegisterUseCase);
+    changePasswordUseCase = module.get<ChangePasswordUseCase>(ChangePasswordUseCase);
     emailVerificationService = module.get<EmailVerificationService>(
       EmailVerificationService,
     );
