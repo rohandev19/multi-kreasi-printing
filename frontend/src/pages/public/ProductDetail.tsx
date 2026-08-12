@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Star, Truck, RefreshCw, ShieldCheck } from 'lucide-react';
-import { api } from '../../lib/api';
-import { useAuth } from '../../contexts/AuthContext';
+import api from '../../api/axios';
+import { useRoleContext } from '../../contexts/RoleContext';
 import { useToast } from '../../contexts/ToastContext';
 
 interface Review {
@@ -19,7 +19,7 @@ interface Review {
 
 export const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user } = useRoleContext();
   const { addToast } = useToast();
   
   // Mock State for other product aspects
