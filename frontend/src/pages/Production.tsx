@@ -105,13 +105,9 @@ export default function Production() {
         progress: j.status === 'Completed' ? 100 : j.status === 'QC' ? 90 : j.status === 'In_Progress' ? 45 : 0
       }));
       
-      if (mappedJobs.length === 0) {
-        mappedJobs = dummyJobs;
-      }
-      
       setJobs(mappedJobs);
     } catch {
-      setJobs(dummyJobs);
+      setJobs([]);
     } finally {
       setLoading(false);
     }

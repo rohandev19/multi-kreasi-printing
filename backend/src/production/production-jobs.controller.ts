@@ -60,7 +60,7 @@ export class ProductionJobsController {
     let whereClause = {};
 
     if (user.role === 'Production_Staff') {
-      whereClause = { assigneeId: user.id };
+      whereClause = { assignedTo: user.sub };
     }
 
     const [total, data] = await Promise.all([
@@ -100,13 +100,13 @@ export class ProductionJobsController {
   }
 
   @Post('from-order/:orderId')
-  @Roles('Sales', 'Manager', 'Owner', 'Production')
+  @Roles('Sales', 'Manager', 'Owner', 'Production', 'Production_Staff')
   async createJobFromOrder(@Param('orderId') orderId: string) {
     return this.createProductionJob.execute(orderId);
   }
 
   @Patch(':id/assign')
-  @Roles('Production', 'Manager', 'Owner')
+  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
   async assignJob(
     @Param('id') id: string,
     @Body() dto: AssignProductionJobDto,
@@ -122,14 +122,14 @@ export class ProductionJobsController {
   }
 
   @Patch(':id/start')
-  @Roles('Production', 'Manager', 'Owner')
+  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
   async startJob(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const userId = req.user.sub;
     return this.startProduction.execute(id, userId);
   }
 
   @Patch(':id/complete')
-  @Roles('Production', 'Manager', 'Owner')
+  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
   async completeJob(
     @Param('id') id: string,
     @Body() dto: CompleteProductionDto,
@@ -145,7 +145,7 @@ export class ProductionJobsController {
   }
 
   @Post(':id/materials')
-  @Roles('Production', 'Manager', 'Owner')
+  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
   async recordMaterial(
     @Param('id') id: string,
     @Body() dto: RecordMaterialConsumptionDto,
@@ -162,7 +162,7 @@ export class ProductionJobsController {
   }
 
   @Post(':id/rework')
-  @Roles('Production', 'Manager', 'Owner')
+  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
   async reworkJob(
     @Param('id') id: string,
     @Body() dto: CreateReworkJobDto,

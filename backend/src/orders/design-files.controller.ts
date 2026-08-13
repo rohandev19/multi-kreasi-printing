@@ -41,7 +41,7 @@ export class DesignFilesController {
   ) {}
 
   @Get()
-  @Roles('Designer', 'Production', 'Manager', 'Owner')
+  @Roles('Designer', 'Production', 'Production_Staff', 'Manager', 'Owner')
   async list(@Req() req: AuthenticatedRequest) {
     const user = req.user;
     let whereClause = {};
@@ -90,21 +90,21 @@ export class DesignFilesController {
   }
 
   @Get(':id')
-  @Roles('Customer', 'Production', 'Sales', 'Manager', 'Owner')
+  @Roles('Customer', 'Production', 'Production_Staff', 'Sales', 'Manager', 'Owner')
   async getDetails(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const user = req.user;
     return this.getDesignFile.execute(id, user);
   }
 
   @Get(':id/download')
-  @Roles('Customer', 'Production', 'Sales', 'Manager', 'Owner')
+  @Roles('Customer', 'Production', 'Production_Staff', 'Sales', 'Manager', 'Owner')
   async download(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const user = req.user;
     return this.downloadDesignFile.execute(id, user);
   }
 
   @Patch(':id/approve')
-  @Roles('Production', 'Manager', 'Owner')
+  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
   async approveDesign(
     @Param('id') id: string,
     @Body() dto: { notes?: string },
@@ -119,7 +119,7 @@ export class DesignFilesController {
   }
 
   @Patch(':id/reject')
-  @Roles('Production', 'Manager', 'Owner')
+  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
   async rejectDesign(
     @Param('id') id: string,
     @Body() dto: { notes: string },
@@ -134,7 +134,7 @@ export class DesignFilesController {
   }
 
   @Patch(':id/request-revision')
-  @Roles('Designer', 'Production', 'Manager', 'Owner')
+  @Roles('Designer', 'Production', 'Production_Staff', 'Manager', 'Owner')
   async requestRevision(
     @Param('id') id: string,
     @Body() dto: { notes: string },

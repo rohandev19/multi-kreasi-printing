@@ -63,13 +63,13 @@ const menuItems: MenuItem[] = [
     path: '/dashboard/design',
     icon: <Palette size={20} />,
     label: 'Design Files',
-    roles: ['Owner', 'Manager', 'Designer'],
+    roles: ['Owner', 'Manager', 'Designer', 'Production_Staff'],
   },
   {
     path: '/dashboard/warehouse',
     icon: <Package size={20} />,
     label: 'Warehouse',
-    roles: ['Owner', 'Manager', 'Warehouse_Staff'],
+    roles: ['Owner', 'Manager', 'Warehouse_Staff', 'Production_Staff'],
   },
   {
     path: '/dashboard/users',

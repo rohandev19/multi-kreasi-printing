@@ -33,14 +33,14 @@ export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 
   @Get()
-  @Roles('Owner', 'Manager', 'Warehouse_Staff')
+  @Roles('Owner', 'Manager', 'Warehouse_Staff', 'Production_Staff')
   async getInventory(@Req() req: AuthenticatedRequest) {
     const user = req.user;
     return this.inventoryService.getMaterials(user.role);
   }
 
   @Get(':id')
-  @Roles('Owner', 'Manager', 'Warehouse_Staff')
+  @Roles('Owner', 'Manager', 'Warehouse_Staff', 'Production_Staff')
   async getMaterialById(@Param('id') id: string) {
     return this.inventoryService.getMaterialById(id);
   }

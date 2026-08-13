@@ -245,7 +245,7 @@ export const router = createBrowserRouter([
           {
             path: 'design',
             element: (
-              <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Designer', 'Sales']}>
+              <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Designer', 'Sales', 'Production_Staff']}>
                 <Suspense fallback={<LoadingSpinner />}>
                   <DesignFiles />
                 </Suspense>
@@ -255,7 +255,7 @@ export const router = createBrowserRouter([
           {
             path: 'warehouse',
             element: (
-              <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Warehouse_Staff']}>
+              <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Warehouse_Staff', 'Production_Staff']}>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Warehouse />
                 </Suspense>

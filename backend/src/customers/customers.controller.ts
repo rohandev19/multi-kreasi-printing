@@ -29,14 +29,14 @@ export class CustomersController {
   ) {}
 
   @Post()
-  @Roles('Owner', 'Manager', 'Finance_Staff', 'Production_Staff', 'Designer')
+  @Roles('Owner', 'Manager', 'Finance_Staff', 'Production_Staff', 'Designer', 'Sales')
   async create(@Body() dto: CreateCustomerDto, @Req() req: Request) {
     const userId = (req as any).user.sub;
     return this.createCustomerUseCase.execute(dto, userId);
   }
 
   @Get()
-  @Roles('Owner', 'Manager', 'Finance_Staff')
+  @Roles('Owner', 'Manager', 'Finance_Staff', 'Sales')
   async search(@Query() query: SearchCustomersDto, @Req() req: Request) {
     const result = await this.searchCustomersUseCase.execute(query);
     const user = (req as any).user;
@@ -120,7 +120,7 @@ export class CustomersController {
   }
 
   @Patch(':id')
-  @Roles('Owner', 'Manager', 'Finance_Staff')
+  @Roles('Owner', 'Manager', 'Finance_Staff', 'Sales')
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateCustomerDto,
