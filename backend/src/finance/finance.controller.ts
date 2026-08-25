@@ -71,19 +71,22 @@ export class FinanceController {
     const [total, data] = await Promise.all([
       this.prisma.invoice.count({ where }),
       this.prisma.invoice.findMany({
-      where,
-      include: {
-        customer: {
-          select: { id: true, fullName: true, email: true },
+        where,
+        include: {
+          customer: {
+            select: { id: true, fullName: true, email: true },
+          },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-      skip,
-    })
-  ]);
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip,
+      }),
+    ]);
 
-    return { data, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
+    return {
+      data,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   @Get(':id')

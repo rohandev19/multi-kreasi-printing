@@ -28,6 +28,7 @@ import type { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CacheService } from '../cache/cache.service';
 
 export interface AuthenticatedUser {
   sub: string;
@@ -51,6 +52,7 @@ export class ProductsController {
     private manageProductImagesUseCase: ManageProductImagesUseCase,
     private addProductReviewUseCase: AddProductReviewUseCase,
     private getProductReviewsUseCase: GetProductReviewsUseCase,
+    private cacheService: CacheService,
   ) {}
 
   @Post()
@@ -60,7 +62,10 @@ export class ProductsController {
     @Req() req: AuthenticatedRequest,
   ) {
     const userId = req.user.sub;
-    return this.createProductUseCase.execute(dto, userId);
+    const result = await this.createProductUseCase.execute(dto, userId);
+    await this.cacheService.invalidatePattern('/api/v1/public/products*');
+    await this.cacheService.invalidatePattern('public_categories*');
+    return result;
   }
 
   @Get()
@@ -77,7 +82,10 @@ export class ProductsController {
     @Req() req: AuthenticatedRequest,
   ) {
     const userId = req.user.sub;
-    return this.updateProductUseCase.execute(id, dto, userId);
+    const result = await this.updateProductUseCase.execute(id, dto, userId);
+    await this.cacheService.invalidatePattern('/api/v1/public/products*');
+    await this.cacheService.invalidatePattern('public_categories*');
+    return result;
   }
 
   @Post(':id/pricing-tiers')
@@ -88,7 +96,9 @@ export class ProductsController {
     @Req() req: AuthenticatedRequest,
   ) {
     const userId = req.user.sub;
-    return this.setPricingTiersUseCase.execute(id, dto, userId);
+    const result = await this.setPricingTiersUseCase.execute(id, dto, userId);
+    await this.cacheService.invalidatePattern('/api/v1/public/products*');
+    return result;
   }
 
   @Post(':id/images')
@@ -103,12 +113,14 @@ export class ProductsController {
     if (!file) throw new BadRequestException('File gambar tidak ditemukan');
     const userId = req.user.sub;
     const isPrimaryBool = isPrimary === 'true';
-    return this.manageProductImagesUseCase.uploadImage(
+    const result = await this.manageProductImagesUseCase.uploadImage(
       id,
       file,
       isPrimaryBool,
       userId,
     );
+    await this.cacheService.invalidatePattern('/api/v1/public/products*');
+    return result;
   }
 
   @Get(':id/reviews')
@@ -125,7 +137,8 @@ export class ProductsController {
     @Req() req: AuthenticatedRequest,
   ) {
     const userId = req.user.sub;
-    return this.addProductReviewUseCase.execute(id, userId, dto);
+    const result = await this.addProductReviewUseCase.execute(id, userId, dto);
+    await this.cacheService.invalidatePattern('/api/v1/public/products*');
+    return result;
   }
 }
-

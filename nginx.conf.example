@@ -10,6 +10,9 @@ server {
     listen 443 ssl http2;
     server_name multikreasiprinting.com www.multikreasiprinting.com;
 
+    # Global upload size limit
+    client_max_body_size 10M;
+
     # SSL Configuration (Replace with actual paths from Let's Encrypt / Certbot)
     ssl_certificate /etc/letsencrypt/live/multikreasiprinting.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/multikreasiprinting.com/privkey.pem;
@@ -45,6 +48,28 @@ server {
         root /var/www/multikreasiprinting-production/frontend/dist;
         index index.html;
         try_files $uri $uri/ /index.html;
+
+        # Static assets caching
+        location ~* \.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+            access_log off;
+        }
+    }
+
+    # Special rule for design file uploads
+    location /api/v1/design-files {
+        client_max_body_size 100M;
+        proxy_pass http://127.0.0.1:3000;
+        
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 
     # Backend API Proxy

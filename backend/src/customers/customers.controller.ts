@@ -29,7 +29,14 @@ export class CustomersController {
   ) {}
 
   @Post()
-  @Roles('Owner', 'Manager', 'Finance_Staff', 'Production_Staff', 'Designer', 'Sales')
+  @Roles(
+    'Owner',
+    'Manager',
+    'Finance_Staff',
+    'Production_Staff',
+    'Designer',
+    'Sales',
+  )
   async create(@Body() dto: CreateCustomerDto, @Req() req: Request) {
     const userId = (req as any).user.sub;
     return this.createCustomerUseCase.execute(dto, userId);

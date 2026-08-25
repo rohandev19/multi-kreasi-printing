@@ -30,9 +30,9 @@ export class AddProductReviewUseCase {
             id: true,
             fullName: true,
             avatarUrl: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     return review;

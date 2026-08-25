@@ -74,7 +74,9 @@ describe('AuthController Integration', () => {
     logoutUseCase = module.get<LogoutUseCase>(LogoutUseCase);
     refreshTokenUseCase = module.get<RefreshTokenUseCase>(RefreshTokenUseCase);
     registerUseCase = module.get<RegisterUseCase>(RegisterUseCase);
-    changePasswordUseCase = module.get<ChangePasswordUseCase>(ChangePasswordUseCase);
+    changePasswordUseCase = module.get<ChangePasswordUseCase>(
+      ChangePasswordUseCase,
+    );
     emailVerificationService = module.get<EmailVerificationService>(
       EmailVerificationService,
     );

@@ -1,0 +1,128 @@
+name: Deploy to Azure VM
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Run linter
+        run: npm run lint
+        working-directory: backend
+
+      - name: Run tests
+        run: npm run test
+        working-directory: backend
+
+      - name: Build backend
+        run: npm run build
+        working-directory: backend
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Azure VM via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_VM_HOST }}
+          username: ${{ secrets.AZURE_VM_USERNAME }}
+          key: ${{ secrets.AZURE_VM_SSH_KEY }}
+          script: |
+            # Ensure target directory exists
+            mkdir -p /var/www/multikreasiprinting-production
+            cd /var/www/multikreasiprinting-production
+
+            # Clone if not exists, otherwise pull
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/${{ github.repository }}.git .
+            else
+              git pull origin main
+            fi
+
+            # --- Backend ---
+            cd backend
+            # Generate .env file from secrets
+            echo "NODE_ENV=production" > .env
+            echo "PORT=3000" >> .env
+            echo "DB_HOST=127.0.0.1" >> .env
+            echo "DB_PORT=5432" >> .env
+            echo "DB_USER=postgres" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "DB_NAME=mkprinting" >> .env
+            echo "DB_POOL_MIN=5" >> .env
+            echo "DB_POOL_MAX=20" >> .env
+            echo "REDIS_HOST=127.0.0.1" >> .env
+            echo "REDIS_PORT=6379" >> .env
+            echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            echo "JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}" >> .env
+            echo "ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}" >> .env
+            echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
+            echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
+            echo "SMTP_USER=${{ secrets.SMTP_USER }}" >> .env
+            echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> .env
+            echo "R2_ACCOUNT_ID=${{ secrets.R2_ACCOUNT_ID }}" >> .env
+            echo "R2_ACCESS_KEY_ID=${{ secrets.R2_ACCESS_KEY_ID }}" >> .env
+            echo "R2_SECRET_ACCESS_KEY=${{ secrets.R2_SECRET_ACCESS_KEY }}" >> .env
+            echo "R2_BUCKET_NAME=${{ secrets.R2_BUCKET_NAME }}" >> .env
+
+            npm ci --omit=dev
+            npx prisma generate
+            npm run build
+
+            # Zero-downtime restart via PM2 ecosystem config
+            # If not running, start it. If running, reload it.
+            pm2 describe mkp-backend-prod > /dev/null
+            if [ $? -eq 0 ]; then
+              pm2 reload ecosystem.config.js --env production
+            else
+              pm2 start ecosystem.config.js --env production
+            fi
+            pm2 save
+
+            # --- Frontend ---
+            cd ../frontend
+            echo "VITE_API_URL=https://multikreasiprinting.com/api/v1" > .env.production
+            npm ci
+            npm run build
+
+            echo "✅ Deployment ke Azure VM selesai!"
+
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Wait for server to stabilize
+        run: sleep 15
+
+      - name: Health Check
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            https://${{ secrets.AZURE_VM_HOST }}/api/v1/health)
+          
+          if [ "$response" = "200" ]; then
+            echo "✅ Health check passed (HTTP $response)"
+          else
+            echo "❌ Health check failed (HTTP $response)"
+            exit 1
+          fi

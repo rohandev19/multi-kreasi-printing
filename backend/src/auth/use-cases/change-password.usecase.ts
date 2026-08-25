@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ChangePasswordDto } from '../dto/change-password.dto';
 import * as bcrypt from 'bcrypt';
@@ -7,7 +11,10 @@ import * as bcrypt from 'bcrypt';
 export class ChangePasswordUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(userId: string, dto: ChangePasswordDto): Promise<{ success: boolean }> {
+  async execute(
+    userId: string,
+    dto: ChangePasswordDto,
+  ): Promise<{ success: boolean }> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -16,7 +23,10 @@ export class ChangePasswordUseCase {
       throw new NotFoundException('User not found');
     }
 
-    const isPasswordValid = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+    const isPasswordValid = await bcrypt.compare(
+      dto.currentPassword,
+      user.passwordHash,
+    );
     if (!isPasswordValid) {
       throw new UnauthorizedException('Current password is incorrect');
     }

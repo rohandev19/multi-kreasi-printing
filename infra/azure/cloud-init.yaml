@@ -1,0 +1,44 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - nginx
+  - redis-server
+  - postgresql
+  - postgresql-contrib
+  - curl
+  - git
+  - certbot
+  - python3-certbot-nginx
+
+runcmd:
+  # 1. Setup Node.js 22
+  - curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+  - apt-get install -y nodejs
+  
+  # 2. Install PM2 Globally
+  - npm install -g pm2
+  
+  # 3. Setup PostgreSQL Database and User
+  # WARNING: In a real production scenario, the password should be securely generated and managed.
+  # This sets up a default user 'postgres' with password 'supersecretpassword' for the app.
+  - sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'supersecretpassword';"
+  - sudo -u postgres psql -c "CREATE DATABASE mkprinting;"
+  
+  # 4. Setup Redis Authentication
+  # Set a simple password for Redis (Warning: Change for real prod)
+  - echo "requirepass supersecretredis" >> /etc/redis/redis.conf
+  - systemctl restart redis-server
+
+  # 5. Create deployment directories
+  - mkdir -p /var/www/multikreasiprinting-production
+  - chown -R azureuser:azureuser /var/www/multikreasiprinting-production
+
+  # 6. Configure Timezone to Asia/Jakarta
+  - timedatectl set-timezone Asia/Jakarta
+
+  # 7. Enable PM2 on startup
+  - env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u azureuser --hp /home/azureuser
+
+final_message: "The Azure VM is successfully provisioned and ready for deployment! (Cloud-init completed in $UPTIME seconds)"

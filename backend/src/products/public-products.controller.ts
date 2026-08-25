@@ -17,14 +17,14 @@ export class PublicProductsController {
 
   @Get()
   @Public()
-  @CacheTTL(300) // 5 minutes TTL
+  @CacheTTL(1800000) // 30 minutes TTL
   async getProducts(@Query() query: GetPublicProductsDto) {
     return this.getPublicProducts.execute(query);
   }
 
   @Get('categories')
   @Public()
-  @CacheTTL(300)
+  @CacheTTL(1800000)
   @CacheKey('public_categories')
   async getCategories() {
     const categories = await this.prisma.category.findMany({
@@ -40,7 +40,7 @@ export class PublicProductsController {
 
   @Get(':id')
   @Public()
-  @CacheTTL(300)
+  @CacheTTL(1800000)
   async getProductDetail(@Param('id') id: string) {
     return this.getPublicProductDetail.execute(id);
   }

@@ -2,12 +2,14 @@ import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { RolesGuard } from '../roles.guard';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { CacheService } from '../../../cache/cache.service';
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
 
 describe('RolesGuard', () => {
   let rolesGuard: RolesGuard;
   let reflector: Reflector;
   let prismaService: PrismaService;
+  let cacheService: CacheService;
 
   beforeEach(() => {
     reflector = new Reflector();
@@ -16,7 +18,11 @@ describe('RolesGuard', () => {
         findUnique: vi.fn(),
       },
     } as any;
-    rolesGuard = new RolesGuard(reflector, prismaService);
+    cacheService = {
+      get: vi.fn().mockResolvedValue(null),
+      set: vi.fn().mockResolvedValue(undefined),
+    } as any;
+    rolesGuard = new RolesGuard(reflector, prismaService, cacheService);
   });
 
   const mockExecutionContext = (user: any): ExecutionContext => {

@@ -127,7 +127,7 @@ describe('FinanceController Integration', () => {
       (prisma.invoice.count as Mock).mockResolvedValue(2);
 
       const filters = { status: 'PENDING' };
-      const result = await controller.getInvoices(filters as any, mockReq);
+      const result = await controller.getInvoices(filters, mockReq);
 
       expect(prisma.invoice.count).toHaveBeenCalledWith({
         where: { status: 'PENDING' },

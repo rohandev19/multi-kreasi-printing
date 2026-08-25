@@ -90,14 +90,28 @@ export class DesignFilesController {
   }
 
   @Get(':id')
-  @Roles('Customer', 'Production', 'Production_Staff', 'Sales', 'Manager', 'Owner')
+  @Roles(
+    'Customer',
+    'Production',
+    'Production_Staff',
+    'Sales',
+    'Manager',
+    'Owner',
+  )
   async getDetails(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const user = req.user;
     return this.getDesignFile.execute(id, user);
   }
 
   @Get(':id/download')
-  @Roles('Customer', 'Production', 'Production_Staff', 'Sales', 'Manager', 'Owner')
+  @Roles(
+    'Customer',
+    'Production',
+    'Production_Staff',
+    'Sales',
+    'Manager',
+    'Owner',
+  )
   async download(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const user = req.user;
     return this.downloadDesignFile.execute(id, user);

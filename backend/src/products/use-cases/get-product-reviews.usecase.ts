@@ -15,14 +15,15 @@ export class GetProductReviewsUseCase {
             id: true,
             fullName: true,
             avatarUrl: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
-    const averageRating = reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-      : 0;
+    const averageRating =
+      reviews.length > 0
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+        : 0;
 
     return {
       reviews,

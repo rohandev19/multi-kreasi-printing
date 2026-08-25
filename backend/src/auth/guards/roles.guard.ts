@@ -8,12 +8,14 @@ import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { PrismaService } from '../../prisma/prisma.service';
+import { CacheService } from '../../cache/cache.service';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private prisma: PrismaService,
+    private cache: CacheService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -39,10 +41,20 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    const userDb = await this.prisma.user.findUnique({
-      where: { id: user.sub },
-      include: { role: true },
-    });
+    const cacheKey = `user_roles_${user.sub}`;
+    let userDb: any = await this.cache.get(cacheKey);
+
+    if (!userDb) {
+      userDb = await this.prisma.user.findUnique({
+        where: { id: user.sub },
+        include: { role: true },
+      });
+
+      if (userDb) {
+        // Cache for 1 hour (3600 seconds)
+        await this.cache.set(cacheKey, userDb, 3600);
+      }
+    }
 
     if (!userDb || userDb.status !== 'ACTIVE') {
       throw new ForbiddenException('Akses ditolak: Akun tidak aktif');

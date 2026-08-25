@@ -66,37 +66,40 @@ export class ProductionJobsController {
     const [total, data] = await Promise.all([
       this.prisma.productionJob.count({ where: whereClause }),
       this.prisma.productionJob.findMany({
-      where: whereClause,
-      include: {
-        order: {
-          select: {
-            orderNumber: true,
-            customer: {
-              select: {
-                companyName: true,
+        where: whereClause,
+        include: {
+          order: {
+            select: {
+              orderNumber: true,
+              customer: {
+                select: {
+                  companyName: true,
+                },
               },
             },
           },
-        },
-        machine: {
-          select: {
-            name: true,
-            type: true,
+          machine: {
+            select: {
+              name: true,
+              type: true,
+            },
+          },
+          assignee: {
+            select: {
+              fullName: true,
+            },
           },
         },
-        assignee: {
-          select: {
-            fullName: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-      skip,
-    })
-  ]);
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip,
+      }),
+    ]);
 
-    return { data, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
+    return {
+      data,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   @Post('from-order/:orderId')
