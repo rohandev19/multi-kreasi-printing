@@ -22,7 +22,7 @@ import { CartModule } from './cart/cart.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { BullModule } from '@nestjs/bullmq';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { APP_GUARD } from '@nestjs/core';
 import { QuotationsModule } from './quotations/quotations.module';
 import { SettingsModule } from './settings/settings.module';
