@@ -6,7 +6,7 @@ services:
     container_name: mkprinting_db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 17210535Rohan
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
       POSTGRES_DB: mkprinting
     ports:
       - '5432:5432'
