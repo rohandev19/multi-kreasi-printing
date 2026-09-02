@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "description": "Multi Kreasi Printing Enterprise Digital Platform",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
   "workspaces": [
     "backend",
     "frontend"

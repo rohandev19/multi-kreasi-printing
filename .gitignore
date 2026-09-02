@@ -8,4 +8,6 @@ build/
 coverage/
 .nx/
 
+package-lock.json
+
 k6.exe
