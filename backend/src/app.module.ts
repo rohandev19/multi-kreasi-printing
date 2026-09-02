@@ -51,7 +51,12 @@ import { SettingsModule } from './settings/settings.module';
       connection: process.env.REDIS_URL
         ? {
             url: process.env.REDIS_URL,
-            tls: process.env.REDIS_TLS === 'true' ? { rejectUnauthorized: false } : undefined,
+            // rediss:// scheme means TLS is required (e.g. Heroku Key-Value)
+            tls:
+              process.env.REDIS_URL.startsWith('rediss://') ||
+              process.env.REDIS_TLS === 'true'
+                ? { rejectUnauthorized: false }
+                : undefined,
           }
         : {
             host: process.env.REDIS_HOST || 'localhost',
@@ -59,24 +64,30 @@ import { SettingsModule } from './settings/settings.module';
           },
     }),
     ThrottlerModule.forRootAsync({
-      useFactory: () => ({
-        throttlers: [
-          {
-            ttl: parseInt(process.env.RATE_LIMIT_TTL || '60000', 10), // default 1 minute
-            limit: parseInt(process.env.RATE_LIMIT_MAX || '100', 10), // default 100 requests
-          },
-        ],
-        storage:
-          process.env.NODE_ENV === 'production'
-            ? process.env.REDIS_URL
-              ? new ThrottlerStorageRedisService(process.env.REDIS_URL)
-              : new ThrottlerStorageRedisService({
-                  host: process.env.REDIS_HOST || '127.0.0.1',
-                  port: parseInt(process.env.REDIS_PORT || '6379', 10),
-                  password: process.env.REDIS_PASSWORD,
-                })
-            : undefined,
-      }),
+      useFactory: () => {
+        const redisUrl = process.env.REDIS_URL;
+        const isTls =
+          !!redisUrl &&
+          (redisUrl.startsWith('rediss://') || process.env.REDIS_TLS === 'true');
+        return {
+          throttlers: [
+            {
+              ttl: parseInt(process.env.RATE_LIMIT_TTL || '60000', 10),
+              limit: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
+            },
+          ],
+          storage:
+            process.env.NODE_ENV === 'production'
+              ? redisUrl
+                ? new ThrottlerStorageRedisService(redisUrl, isTls ? { tls: { rejectUnauthorized: false } } : undefined)
+                : new ThrottlerStorageRedisService({
+                    host: process.env.REDIS_HOST || '127.0.0.1',
+                    port: parseInt(process.env.REDIS_PORT || '6379', 10),
+                    password: process.env.REDIS_PASSWORD,
+                  })
+              : undefined,
+        };
+      },
     }),
     QuotationsModule,
     SettingsModule,

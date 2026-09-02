@@ -15,15 +15,19 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     try {
       const redisOptions = {
         maxRetriesPerRequest: 1,
-        // In production, we want to retry connection if it fails since Redis is mandatory
         retryStrategy: (times: number) => {
           if (process.env.NODE_ENV === 'production') {
-            return Math.min(times * 50, 2000); // Reconnect in prod
+            return Math.min(times * 50, 2000);
           }
-          return null; // Don't retry in dev
+          return null;
         },
-        lazyConnect: process.env.NODE_ENV !== 'production', // Connect immediately in prod
-        tls: process.env.REDIS_TLS === 'true' ? { rejectUnauthorized: false } : undefined,
+        lazyConnect: process.env.NODE_ENV !== 'production',
+        // Auto-detect TLS from rediss:// scheme (e.g. Heroku Key-Value) or explicit flag
+        tls:
+          (process.env.REDIS_URL?.startsWith('rediss://') ||
+            process.env.REDIS_TLS === 'true')
+            ? { rejectUnauthorized: false }
+            : undefined,
       };
 
       this.redisClient = process.env.REDIS_URL
