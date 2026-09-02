@@ -14,7 +14,7 @@ const distPath = join(__dirname, 'dist');
 app.use(express.static(distPath));
 
 // SPA fallback — all routes serve index.html for React Router to handle
-app.get('*', (_req, res) => {
+app.get('/*', (_req, res) => {
   res.sendFile(join(distPath, 'index.html'));
 });
 
