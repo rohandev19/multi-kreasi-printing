@@ -1,4 +1,3 @@
-import React from 'react';
 import { Briefcase, MapPin, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

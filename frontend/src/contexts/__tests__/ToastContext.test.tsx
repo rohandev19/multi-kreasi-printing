@@ -1,17 +1,15 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '../../utils/test-utils';
 import { useToast, ToastProvider } from '../ToastContext';
-import { useEffect } from 'react';
 
 const TestComponent = () => {
-  const { success, error, info, warning } = useToast();
+  const { success, error, info } = useToast();
 
   return (
     <div>
       <button onClick={() => success('Success Title', 'Success Message')}>Show Success</button>
       <button onClick={() => error('Error Title', 'Error Message')}>Show Error</button>
       <button onClick={() => info('Info Title', 'Info Message')}>Show Info</button>
-      <button onClick={() => warning('Warning Title', 'Warning Message')}>Show Warning</button>
     </div>
   );
 };

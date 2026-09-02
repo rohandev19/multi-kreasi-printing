@@ -13,20 +13,27 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
 
   onModuleInit() {
     try {
-      this.redisClient = new Redis({
-        host: process.env.REDIS_HOST || '127.0.0.1',
-        port: parseInt(process.env.REDIS_PORT || '6379', 10),
-        password: process.env.REDIS_PASSWORD,
+      const redisOptions = {
         maxRetriesPerRequest: 1,
         // In production, we want to retry connection if it fails since Redis is mandatory
-        retryStrategy: (times) => {
+        retryStrategy: (times: number) => {
           if (process.env.NODE_ENV === 'production') {
             return Math.min(times * 50, 2000); // Reconnect in prod
           }
           return null; // Don't retry in dev
         },
         lazyConnect: process.env.NODE_ENV !== 'production', // Connect immediately in prod
-      });
+        tls: process.env.REDIS_TLS === 'true' ? { rejectUnauthorized: false } : undefined,
+      };
+
+      this.redisClient = process.env.REDIS_URL
+        ? new Redis(process.env.REDIS_URL, redisOptions as any)
+        : new Redis({
+            ...redisOptions,
+            host: process.env.REDIS_HOST || '127.0.0.1',
+            port: parseInt(process.env.REDIS_PORT || '6379', 10),
+            password: process.env.REDIS_PASSWORD,
+          } as any);
 
       // Handle async connection specifically for development fallback
       if (process.env.NODE_ENV !== 'production') {

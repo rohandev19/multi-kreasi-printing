@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Building, Truck, Zap, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Building, Truck, Zap, CheckCircle2 } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
 
 export const CheckoutPage: React.FC = () => {

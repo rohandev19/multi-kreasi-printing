@@ -48,10 +48,15 @@ import { SettingsModule } from './settings/settings.module';
     CartModule,
     InventoryModule,
     BullModule.forRoot({
-      connection: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379', 10),
-      },
+      connection: process.env.REDIS_URL
+        ? {
+            url: process.env.REDIS_URL,
+            tls: process.env.REDIS_TLS === 'true' ? { rejectUnauthorized: false } : undefined,
+          }
+        : {
+            host: process.env.REDIS_HOST || 'localhost',
+            port: parseInt(process.env.REDIS_PORT || '6379', 10),
+          },
     }),
     ThrottlerModule.forRootAsync({
       useFactory: () => ({
@@ -63,11 +68,13 @@ import { SettingsModule } from './settings/settings.module';
         ],
         storage:
           process.env.NODE_ENV === 'production'
-            ? new ThrottlerStorageRedisService({
-                host: process.env.REDIS_HOST || '127.0.0.1',
-                port: parseInt(process.env.REDIS_PORT || '6379', 10),
-                password: process.env.REDIS_PASSWORD,
-              })
+            ? process.env.REDIS_URL
+              ? new ThrottlerStorageRedisService(process.env.REDIS_URL)
+              : new ThrottlerStorageRedisService({
+                  host: process.env.REDIS_HOST || '127.0.0.1',
+                  port: parseInt(process.env.REDIS_PORT || '6379', 10),
+                  password: process.env.REDIS_PASSWORD,
+                })
             : undefined,
       }),
     }),

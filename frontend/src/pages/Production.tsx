@@ -18,48 +18,7 @@ interface Job {
   progress: number;
 }
 
-const dummyJobs: Job[] = [
-  {
-    id: 'PROD-1001',
-    orderNumber: 'ORD-2026-0810',
-    product: 'Spanduk Outdoor 3x2m',
-    machine: 'Large Format Printer (LFP-01)',
-    material: 'Flexi 280g',
-    status: 'In Progress',
-    priority: 'High',
-    progress: 65,
-  },
-  {
-    id: 'PROD-1002',
-    orderNumber: 'ORD-2026-0811',
-    product: 'Kartu Nama 2 Muka',
-    machine: 'Konica Minolta (KM-02)',
-    material: 'Art Carton 260g',
-    status: 'Quality Check',
-    priority: 'Normal',
-    progress: 90,
-  },
-  {
-    id: 'PROD-1003',
-    orderNumber: 'ORD-2026-0812',
-    product: 'Stiker Vinyl Die Cut',
-    machine: 'Roland Print & Cut',
-    material: 'Vinyl Putih',
-    status: 'Queued',
-    priority: 'Urgent',
-    progress: 0,
-  },
-  {
-    id: 'PROD-1004',
-    orderNumber: 'ORD-2026-0805',
-    product: 'Brosur Lipat 3 A4',
-    machine: 'Heidelberg Offset',
-    material: 'Art Paper 150g',
-    status: 'Completed',
-    priority: 'Normal',
-    progress: 100,
-  }
-];
+
 
 export default function Production() {
   const { role, loading: roleLoading } = useRoleContext();

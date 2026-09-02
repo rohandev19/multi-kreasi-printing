@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { CheckCircle2, XCircle } from 'lucide-react';
-import api from '../../../api/axios';
+import api from '../../api/axios';
 
 export const VerifyEmailPage = () => {
   const { token } = useParams<{ token: string }>();

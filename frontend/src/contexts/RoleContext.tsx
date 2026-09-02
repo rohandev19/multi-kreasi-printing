@@ -20,7 +20,7 @@ export interface User {
   fullName?: string;
 }
 
-interface RoleContextType {
+export interface RoleContextType {
   role: UserRole | null;
   user: User | null;
   loading: boolean;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, Truck, RefreshCw, ShieldCheck } from 'lucide-react';
+import { Star } from 'lucide-react';
 import api from '../../api/axios';
 import { useRoleContext } from '../../contexts/RoleContext';
 import { useToast } from '../../contexts/ToastContext';
@@ -24,12 +24,6 @@ export const ProductDetail: React.FC = () => {
   
   // Mock State for other product aspects
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
-  const [quantity, setQuantity] = useState(1);
-  const [paperType, setPaperType] = useState('Art Paper 150gsm');
-  const [finishing, setFinishing] = useState<string[]>([]);
-  const [size, setSize] = useState('A4');
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-
   // Reviews State
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsTotal, setReviewsTotal] = useState(0);
@@ -61,7 +55,7 @@ export const ProductDetail: React.FC = () => {
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      addToast('warning', 'Please login to submit a review');
+      addToast('info', 'Please login to submit a review');
       return;
     }
     
@@ -80,13 +74,6 @@ export const ProductDetail: React.FC = () => {
     } finally {
       setIsSubmittingReview(false);
     }
-  };
-
-  const calculateTotal = () => {
-    let total = basePrice;
-    if (finishing.includes('Glossy Lamination')) total += 50000;
-    if (finishing.includes('Matte Lamination')) total += 50000;
-    return total * quantity;
   };
 
   return (

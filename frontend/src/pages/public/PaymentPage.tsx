@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Copy, UploadCloud, CheckCircle2, AlertCircle, Clock, Building, CreditCard } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
 

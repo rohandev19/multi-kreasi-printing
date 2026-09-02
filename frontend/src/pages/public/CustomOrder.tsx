@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,7 +13,7 @@ const customOrderSchema = z.object({
   companyName: z.string().optional(),
   productCategory: z.string().min(1, 'Please select a category'),
   specifications: z.string().min(10, 'Please provide detailed specifications (min 10 chars)'),
-  estimatedQuantity: z.number().min(1, 'Quantity must be at least 1').or(z.string().regex(/^\d+$/).transform(Number)),
+  estimatedQuantity: z.number().min(1, 'Quantity must be at least 1'),
   notes: z.string().optional(),
 });
 
@@ -151,7 +151,7 @@ export const CustomOrderPage = () => {
                 <input 
                   type="number" 
                   min="1"
-                  {...register('estimatedQuantity')}
+                  {...register('estimatedQuantity', { valueAsNumber: true })}
                   className={`w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 ${errors.estimatedQuantity ? 'border-red-300' : 'border-gray-300'}`}
                 />
                 {errors.estimatedQuantity && <p className="mt-1 text-sm text-red-600">{errors.estimatedQuantity.message}</p>}

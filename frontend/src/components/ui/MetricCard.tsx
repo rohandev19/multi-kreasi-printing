@@ -65,7 +65,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         )}
       </div>
       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${getVariantStyles()}`}>
-        {React.cloneElement(icon as React.ReactElement, { size: 28 })}
+        {React.cloneElement(icon as React.ReactElement<any>, { size: 28 })}
       </div>
     </div>
   );

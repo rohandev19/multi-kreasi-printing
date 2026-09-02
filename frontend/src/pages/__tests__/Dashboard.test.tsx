@@ -13,7 +13,7 @@ vi.mock('../../api/axios', () => {
 
 describe('Dashboard Page', () => {
   it('renders loading state initially if role loading', () => {
-    const { container } = render(<Dashboard />, { roleValue: { role: null, user: null, loading: true, logout: vi.fn(), refreshRole: vi.fn() } });
+    const { container } = render(<Dashboard />, { roleValue: { role: null, user: null, loading: true, refreshRole: vi.fn() as any } });
     
     // Check for animate-pulse which signifies loading
     expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
@@ -28,7 +28,7 @@ describe('Dashboard Page', () => {
     });
 
     render(<Dashboard />, { 
-      roleValue: { role: 'User', user: { fullName: 'John Doe' }, loading: false, logout: vi.fn(), refreshRole: vi.fn() } 
+      roleValue: { role: 'User' as any, user: { fullName: 'John Doe' } as any, loading: false, refreshRole: vi.fn() as any } 
     });
 
     await waitFor(() => {
@@ -47,7 +47,7 @@ describe('Dashboard Page', () => {
       .mockResolvedValueOnce({ data: { ordersToday: 12, pendingApprovals: 5, lowStockAlerts: 1 } }); // metricsRes
 
     render(<Dashboard />, { 
-      roleValue: { role: 'Manager', user: { fullName: 'Admin User', name: 'Admin User' }, loading: false, logout: vi.fn(), refreshRole: vi.fn() } 
+      roleValue: { role: 'Manager' as any, user: { fullName: 'Admin User', name: 'Admin User' } as any, loading: false, refreshRole: vi.fn() as any } 
     });
 
     await waitFor(() => {
