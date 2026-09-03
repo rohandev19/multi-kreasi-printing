@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-import { Search, LayoutGrid, List, ShoppingCart, SearchX } from 'lucide-react';
+import { MagnifyingGlass, GridFour, List, ShoppingCart } from '@phosphor-icons/react';
 import { Link } from 'react-router-dom';
 
-// Mock data
-const mockProducts = [
-  { id: '1', name: 'Premium Business Cards', category: 'Business Cards', desc: 'Standard 9x5cm, Art Carton 260gsm, Full Color', price: 50000, isNew: true, image: 'https://images.unsplash.com/photo-1572981779307-38b8cabb2407?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { id: '2', name: 'A5 Flyers / Leaflets', category: 'Flyers', desc: 'A5 size, Art Paper 150gsm, 1-side printing', price: 150000, image: 'https://images.unsplash.com/photo-1563209259-ea16b9b3cc03?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { id: '3', name: 'Roll Up Banner 60x160cm', category: 'Banners', desc: 'Albatros material with matte lamination, includes stand', price: 250000, image: 'https://images.unsplash.com/photo-1621533566160-cebb8a8da928?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { id: '4', name: 'Corrugated Packaging Box', category: 'Packaging', desc: 'Custom size die-cut E-flute corrugated boxes', price: 8500, image: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { id: '5', name: 'Vinyl Kiss-Cut Stickers', category: 'Stickers', desc: 'A3+ sheet, waterproof vinyl, custom kiss-cut shapes', price: 15000, image: 'https://images.unsplash.com/photo-1589363460779-cb29ef9cb497?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { id: '6', name: 'Company Profile Brochure', category: 'Brochures', desc: 'A4 Bi-fold, Art Paper 150gsm inside, Art Carton 260gsm cover', price: 15000, isNew: true, image: 'https://images.unsplash.com/photo-1585860268579-2d1f9cc02fc1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { id: '7', name: 'Outdoor X-Banner', category: 'Banners', desc: '60x160cm Flexi China 280gsm, includes X-stand', price: 65000, image: 'https://images.unsplash.com/photo-1565034946487-077786996e27?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { id: '8', name: 'Custom Paper Bags', category: 'Packaging', desc: 'Ivory 210gsm, full color print, rope handle', price: 7500, image: 'https://images.unsplash.com/photo-1555529902-5261145633bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-];
+const catalogProducts: Array<{
+  id: string;
+  name: string;
+  category: string;
+  desc: string;
+  price: number;
+  isNew?: boolean;
+  image?: string;
+}> = [];
 
 const categories = ['All', 'Business Cards', 'Flyers', 'Banners', 'Packaging', 'Stickers', 'Brochures'];
 
@@ -24,7 +22,7 @@ export const ProductsCatalog: React.FC = () => {
 
   const formatIDR = (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
 
-  const filteredProducts = mockProducts.filter(p => {
+  const filteredProducts = catalogProducts.filter(p => {
     const matchCat = activeCategory === 'All' || p.category === activeCategory;
     const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.desc.toLowerCase().includes(searchQuery.toLowerCase());
     return matchCat && matchSearch;
@@ -39,7 +37,7 @@ export const ProductsCatalog: React.FC = () => {
       {/* 1. PAGE HEADER */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
         <div className="text-sm text-slate-500 font-medium mb-4">
-          <Link to="/" className="hover:text-indigo-600">Home</Link> <span className="mx-2">&gt;</span> Products
+          <Link to="/" className="hover:text-primary-600">Home</Link> <span className="mx-2">&gt;</span> Products
         </div>
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Product Catalog</h1>
         <p className="text-slate-500 font-medium mt-2">Browse our high-quality printing services</p>
@@ -50,13 +48,13 @@ export const ProductsCatalog: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-4 justify-between">
           
           <div className="relative w-full md:w-80 shrink-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} weight="regular" />
             <input 
               type="text" 
               placeholder="Search products..." 
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm placeholder:text-slate-400 outline-none transition-all"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm placeholder:text-slate-400 outline-none transition-all"
             />
           </div>
 
@@ -67,7 +65,7 @@ export const ProductsCatalog: React.FC = () => {
                 onClick={() => setActiveCategory(cat)}
                 className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
                   activeCategory === cat 
-                    ? 'bg-indigo-600 text-white' 
+                    ? 'bg-primary-600 text-white' 
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
@@ -80,24 +78,24 @@ export const ProductsCatalog: React.FC = () => {
             <div className="flex bg-slate-100 p-1 rounded-lg">
               <button 
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                 aria-label="Grid View"
               >
-                <LayoutGrid size={18} />
+                <GridFour size={18} weight="regular" />
               </button>
               <button 
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                 aria-label="List View"
               >
-                <List size={18} />
+                <List size={18} weight="regular" />
               </button>
             </div>
             
             <select 
               value={sortBy}
               onChange={e => setSortBy(e.target.value)}
-              className="px-4 py-2.5 border border-slate-200 rounded-xl bg-white text-sm text-slate-600 focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer"
+              className="px-4 py-2.5 border border-slate-200 rounded-xl bg-white text-sm text-slate-600 focus:ring-2 focus:ring-primary-500 outline-none cursor-pointer"
             >
               <option value="newest">Newest</option>
               <option value="price-low">Price: Low to High</option>
@@ -111,16 +109,21 @@ export const ProductsCatalog: React.FC = () => {
       {/* 3. PRODUCT GRID/LIST */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {filteredProducts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-100 mt-8">
-            <SearchX size={48} className="text-slate-300 mb-4" />
-            <h3 className="text-xl font-bold text-slate-900 mb-2">No products found</h3>
-            <p className="text-slate-500 mb-6">Try adjusting your search or filters</p>
-            <button 
-              onClick={() => { setSearchQuery(''); setActiveCategory('All'); }}
-              className="px-6 py-2.5 bg-indigo-50 text-indigo-700 font-bold rounded-xl hover:bg-indigo-100 transition-colors"
-            >
-              Clear Filters
-            </button>
+          <div className="mt-8 flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 py-20 text-center shadow-sm">
+            <MagnifyingGlass size={48} className="mb-4 text-slate-300" weight="regular" />
+            <h3 className="mb-2 text-xl font-bold text-slate-900">Produk belum tersedia</h3>
+            <p className="mb-6 max-w-md text-slate-500">Katalog produk akan muncul setelah data produk siap ditampilkan dari backend.</p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <button 
+                onClick={() => { setSearchQuery(''); setActiveCategory('All'); }}
+                className="px-6 py-2.5 bg-primary-50 text-primary-700 font-bold rounded-xl hover:bg-primary-100 transition-colors"
+              >
+                Reset Filter
+              </button>
+              <Link to="/contact" className="px-6 py-2.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50">
+                Hubungi Sales
+              </Link>
+            </div>
           </div>
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -129,15 +132,15 @@ export const ProductsCatalog: React.FC = () => {
                 <div className="aspect-[4/3] bg-slate-100 relative overflow-hidden shrink-0">
                   <img src={product.image} alt={product.name} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   {product.isNew && (
-                    <span className="absolute top-3 left-3 bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-sm z-10">NEW</span>
+                    <span className="absolute top-3 left-3 bg-primary-600 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-sm z-10">NEW</span>
                   )}
                   <Link to={`/products/${product.id}`} className="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 backdrop-blur-[2px]">
                     <span className="bg-white text-slate-900 font-bold text-sm px-6 py-2.5 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Quick View</span>
                   </Link>
                 </div>
                 <div className="p-5 flex flex-col flex-1">
-                  <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2">{product.category}</span>
-                  <Link to={`/products/${product.id}`} className="text-base font-bold text-slate-900 mb-1 line-clamp-2 hover:text-indigo-600 transition-colors">{product.name}</Link>
+                  <span className="text-xs font-bold text-primary-600 uppercase tracking-wider mb-2">{product.category}</span>
+                  <Link to={`/products/${product.id}`} className="text-base font-bold text-slate-900 mb-1 line-clamp-2 hover:text-primary-600 transition-colors">{product.name}</Link>
                   <p className="text-sm text-slate-500 line-clamp-2 mb-4 flex-1">{product.desc}</p>
                   <div className="flex flex-col gap-1 mb-4">
                     <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Starts From</span>
@@ -145,9 +148,9 @@ export const ProductsCatalog: React.FC = () => {
                   </div>
                   <Link 
                     to={`/products/${product.id}`}
-                    className="w-full h-11 bg-slate-50 text-indigo-700 text-sm font-bold rounded-xl hover:bg-indigo-600 hover:text-white transition-all flex items-center justify-center gap-2 mt-auto border border-indigo-100 hover:border-indigo-600"
+                    className="w-full h-11 bg-slate-50 text-primary-700 text-sm font-bold rounded-xl hover:bg-primary-600 hover:text-white transition-all flex items-center justify-center gap-2 mt-auto border border-primary-100 hover:border-primary-600"
                   >
-                    <ShoppingCart size={16} /> Configure
+                    <ShoppingCart size={16} weight="regular" /> Configure
                   </Link>
                 </div>
               </div>
@@ -160,11 +163,11 @@ export const ProductsCatalog: React.FC = () => {
                 <div className="w-full sm:w-48 h-32 shrink-0 bg-slate-100 rounded-lg overflow-hidden relative">
                   <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                   {product.isNew && (
-                    <span className="absolute top-2 left-2 bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">NEW</span>
+                    <span className="absolute top-2 left-2 bg-primary-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">NEW</span>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1 block">{product.category}</span>
+                  <span className="text-xs font-bold text-primary-600 uppercase tracking-wider mb-1 block">{product.category}</span>
                   <h3 className="text-lg font-bold text-slate-900 mb-1 truncate">{product.name}</h3>
                   <p className="text-sm text-slate-500 mb-2">{product.desc}</p>
                 </div>
@@ -175,9 +178,9 @@ export const ProductsCatalog: React.FC = () => {
                   </div>
                   <Link 
                     to={`/products/${product.id}`}
-                    className="w-full sm:w-auto px-6 h-10 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+                    className="w-full sm:w-auto px-6 h-10 bg-primary-600 text-white text-sm font-semibold rounded-xl hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
                   >
-                    <ShoppingCart size={16} /> Configure
+                    <ShoppingCart size={16} weight="regular" /> Configure
                   </Link>
                 </div>
               </div>
@@ -193,7 +196,7 @@ export const ProductsCatalog: React.FC = () => {
             </div>
             <div className="flex gap-1">
               <button disabled className="px-3 py-1.5 bg-slate-50 text-slate-400 border border-slate-200 rounded-lg text-sm font-medium cursor-not-allowed">Previous</button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium bg-indigo-600 text-white border-indigo-600 border shadow-sm">1</button>
+              <button className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium bg-primary-600 text-white border-primary-600 border shadow-sm">1</button>
               <button disabled className="px-3 py-1.5 bg-slate-50 text-slate-400 border border-slate-200 rounded-lg text-sm font-medium cursor-not-allowed">Next</button>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, ChevronUp, ChevronDown, SearchX } from 'lucide-react';
+import { MagnifyingGlass, CaretUp, CaretDown } from '@phosphor-icons/react';
 
 export interface Column<T> {
   header: string;
@@ -51,13 +51,13 @@ export function DataTable<T>({
         <div className="relative">
           {onSearch && (
             <>
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} weight="regular" />
               <input
                 type="text"
                 placeholder={searchPlaceholder}
                 value={searchValue}
                 onChange={(e) => onSearch(e.target.value)}
-                className="pl-10 pr-4 py-2.5 w-full sm:w-72 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm placeholder:text-slate-400 transition-all outline-none"
+                className="pl-10 pr-4 py-2.5 w-full sm:w-72 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm placeholder:text-slate-400 transition-all outline-none"
               />
             </>
           )}
@@ -82,8 +82,8 @@ export function DataTable<T>({
                     {col.header}
                     {col.sortable && (
                       <div className="flex flex-col">
-                        <ChevronUp size={12} className="text-slate-400" />
-                        <ChevronDown size={12} className="-mt-1 text-slate-400" />
+                        <CaretUp size={12} className="text-slate-400" weight="regular" />
+                        <CaretDown size={12} className="-mt-1 text-slate-400" weight="regular" />
                       </div>
                     )}
                   </div>
@@ -106,7 +106,7 @@ export function DataTable<T>({
               <tr>
                 <td colSpan={columns.length} className="px-6 py-16 text-center">
                   <div className="flex flex-col items-center justify-center">
-                    <SearchX size={48} className="text-slate-300 mb-4" />
+                    <MagnifyingGlass size={48} className="text-slate-300 mb-4" weight="regular" />
                     <h3 className="text-lg font-bold text-slate-900 mb-1">{emptyTitle}</h3>
                     <p className="text-slate-500 mb-4">{emptySubtitle}</p>
                     {emptyAction}
@@ -163,7 +163,7 @@ export function DataTable<T>({
                     onClick={() => pagination.onPageChange(page)}
                     className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                       pagination.currentPage === page
-                        ? 'bg-indigo-600 text-white border-indigo-600 border'
+                        ? 'bg-primary-600 text-white border-primary-600 border'
                         : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
                     }`}
                   >

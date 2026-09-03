@@ -6,7 +6,8 @@ import { useRoleContext } from '../contexts/RoleContext';
 import { MetricCard } from '../components/MetricCard';
 import { DashboardCustomization } from '../components/DashboardCustomization';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Sliders, Check, X } from 'lucide-react';
+import { Faders, Check, X } from '@phosphor-icons/react';
+import { Skeleton } from '../components/ui/Skeleton';
 
 export default function Dashboard() {
   const { role, user, loading: roleLoading } = useRoleContext();
@@ -65,12 +66,16 @@ export default function Dashboard() {
 
   if (roleLoading || loading) {
     return (
-      <div className="space-y-6 p-6 animate-pulse">
-        <div className="h-8 bg-slate-200 rounded w-1/4 mb-2"></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="space-y-6 p-6">
+        <Skeleton variant="text" width="18rem" height="2rem" className="mb-2" />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-32 bg-slate-200 rounded-xl"></div>
+            <Skeleton key={i} variant="card" height="8rem" />
           ))}
+        </div>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <Skeleton variant="table" rows={5} className="h-64" />
+          <Skeleton variant="card" height="16rem" />
         </div>
       </div>
     );
@@ -121,7 +126,7 @@ export default function Dashboard() {
             <p className="text-slate-500 font-medium mt-1">{todayStr}</p>
           </div>
           <div className="flex items-center gap-3">
-            <select className="bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+            <select className="bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
               <option>This Week</option>
               <option>This Month</option>
               <option>Last 30 Days</option>
@@ -130,7 +135,7 @@ export default function Dashboard() {
               onClick={() => setIsCustomizing(true)}
               className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 text-sm font-medium px-4 py-2 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"
             >
-              <Sliders size={16} />
+              <Faders size={16} weight="regular" />
               Customize
             </button>
           </div>
@@ -194,7 +199,7 @@ export default function Dashboard() {
                 <tbody className="divide-y divide-slate-100">
                   {pendingApprovals.map((order, idx) => (
                     <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="px-5 py-3 font-medium text-indigo-600">{order.id}</td>
+                      <td className="px-5 py-3 font-medium text-primary-600">{order.id}</td>
                       <td className="px-5 py-3">
                         <p className="font-semibold text-slate-800">{order.customer}</p>
                         <p className="text-xs text-slate-500 truncate max-w-[200px]">{order.items}</p>
@@ -203,10 +208,10 @@ export default function Dashboard() {
                       <td className="px-5 py-3">
                         <div className="flex justify-end gap-2">
                           <button className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors" title="Approve">
-                            <Check size={16} />
+                            <Check size={16} weight="regular" />
                           </button>
                           <button className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors" title="Reject">
-                            <X size={16} />
+                            <X size={16} weight="regular" />
                           </button>
                         </div>
                       </td>
@@ -232,13 +237,13 @@ export default function Dashboard() {
                 <div key={idx}>
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-semibold text-slate-800">{job.id} <span className="text-slate-400 font-normal ml-1">· {job.machine}</span></span>
-                    <span className="text-xs font-bold text-indigo-600">{job.progress}%</span>
+                    <span className="text-xs font-bold text-primary-600">{job.progress}%</span>
                   </div>
                   <div className="h-2 rounded-full bg-slate-100 overflow-hidden mb-2">
-                    <div className="h-full bg-indigo-600 rounded-full transition-all duration-500" style={{ width: `${job.progress}%` }}></div>
+                    <div className="h-full bg-primary-600 rounded-full transition-all duration-500" style={{ width: `${job.progress}%` }}></div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${job.status === 'QC' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${job.status === 'QC' ? 'bg-primary-100 text-primary-700' : 'bg-blue-100 text-blue-700'}`}>
                       {job.status}
                     </span>
                   </div>
@@ -288,7 +293,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
             <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <h2 className="text-lg font-bold text-slate-800 tracking-tight">Recent Orders</h2>
-              <Link to="/dashboard/orders" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">View All &rarr;</Link>
+              <Link to="/dashboard/orders" className="text-sm font-semibold text-primary-600 hover:text-primary-700">View All &rarr;</Link>
             </div>
             <div className="overflow-x-auto flex-1">
               <table className="w-full text-sm text-left">
@@ -311,7 +316,7 @@ export default function Dashboard() {
                       <td className="px-5 py-3">
                         <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${
                           order.status === 'Completed' || order.status === 'Delivered' ? 'bg-emerald-100 text-emerald-700' :
-                          'bg-indigo-100 text-indigo-700'
+                          'bg-primary-100 text-primary-700'
                         }`}>
                           {order.status}
                         </span>

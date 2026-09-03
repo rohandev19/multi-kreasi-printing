@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Clock, Package, CreditCard, FileText } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Clock, Package, CreditCard, FileText } from '@phosphor-icons/react';
 import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
 
@@ -33,8 +33,8 @@ export const OrderDetail = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Pending': return 'bg-amber-100 text-amber-700';
-      case 'Approved': return 'bg-indigo-100 text-indigo-700';
-      case 'In_Production': return 'bg-indigo-100 text-indigo-700';
+      case 'Approved': return 'bg-primary-100 text-primary-700';
+      case 'In_Production': return 'bg-primary-100 text-primary-700';
       case 'Completed': return 'bg-emerald-100 text-emerald-700';
       default: return 'bg-slate-100 text-slate-700';
     }
@@ -73,7 +73,7 @@ export const OrderDetail = () => {
     return (
       <div className="p-8 text-center">
         <h2 className="text-2xl font-bold text-slate-800">Order not found</h2>
-        <Link to="/dashboard/orders" className="text-indigo-600 hover:underline mt-4 inline-block">Back to Orders</Link>
+        <Link to="/dashboard/orders" className="text-primary-600 hover:underline mt-4 inline-block">Back to Orders</Link>
       </div>
     );
   }
@@ -83,7 +83,7 @@ export const OrderDetail = () => {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link to="/dashboard/orders" className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
-          <ArrowLeft size={20} />
+          <ArrowLeft size={20} weight="regular" />
         </Link>
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
@@ -102,14 +102,14 @@ export const OrderDetail = () => {
           {/* Timeline / Progress */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-              <Clock className="text-slate-400" size={20} /> Order Progress
+              <Clock className="text-slate-400" size={20} weight="regular" /> Order Progress
             </h3>
             <div className="relative">
               <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-100"></div>
               <div className="space-y-6 relative">
                 <div className="flex gap-4">
                   <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 z-10 border-4 border-white text-emerald-600">
-                    <CheckCircle2 size={16} />
+                    <CheckCircle size={16} weight="regular" />
                   </div>
                   <div>
                     <h4 className="font-bold text-slate-900">Order Placed</h4>
@@ -118,7 +118,7 @@ export const OrderDetail = () => {
                 </div>
                 <div className="flex gap-4">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-4 border-white ${['Approved', 'In_Production', 'Completed'].includes(order.status) ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
-                    <CheckCircle2 size={16} />
+                    <CheckCircle size={16} weight="regular" />
                   </div>
                   <div>
                     <h4 className={`font-bold ${['Approved', 'In_Production', 'Completed'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Order Approved</h4>
@@ -126,7 +126,7 @@ export const OrderDetail = () => {
                 </div>
                 <div className="flex gap-4">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-4 border-white ${['In_Production', 'Completed'].includes(order.status) ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
-                    <CheckCircle2 size={16} />
+                    <CheckCircle size={16} weight="regular" />
                   </div>
                   <div>
                     <h4 className={`font-bold ${['In_Production', 'Completed'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>In Production</h4>
@@ -134,7 +134,7 @@ export const OrderDetail = () => {
                 </div>
                 <div className="flex gap-4">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-4 border-white ${['Completed'].includes(order.status) ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
-                    <CheckCircle2 size={16} />
+                    <CheckCircle size={16} weight="regular" />
                   </div>
                   <div>
                     <h4 className={`font-bold ${['Completed'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Completed & Delivered</h4>
@@ -148,14 +148,14 @@ export const OrderDetail = () => {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div className="p-6 border-b border-slate-100">
               <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <Package className="text-slate-400" size={20} /> Order Items
+                <Package className="text-slate-400" size={20} weight="regular" /> Order Items
               </h3>
             </div>
             <div className="divide-y divide-slate-100">
               {order.items?.map((item: { id: string; product: { name: string }; quantity: number; unitPrice: number; notes: string }) => (
                 <div key={item.id} className="p-6 flex items-start gap-4">
                   <div className="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100 text-slate-400">
-                    <Package size={24} />
+                    <Package size={24} weight="regular" />
                   </div>
                   <div className="flex-1">
                     <h4 className="font-bold text-slate-900">{item.product?.name || 'Custom Product'}</h4>
@@ -198,7 +198,7 @@ export const OrderDetail = () => {
           {/* Payment Summary */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <CreditCard size={16} /> Payment Summary
+              <CreditCard size={16} weight="regular" /> Payment Summary
             </h3>
             <div className="space-y-3 mb-6">
               <div className="flex justify-between text-sm">
@@ -211,7 +211,7 @@ export const OrderDetail = () => {
               </div>
               <div className="pt-3 border-t border-slate-100 flex justify-between">
                 <span className="font-bold text-slate-900">Total</span>
-                <span className="font-black text-indigo-600 tabular-nums text-lg">{formatCurrency(order.totalAmount)}</span>
+                <span className="font-black text-primary-600 tabular-nums text-lg">{formatCurrency(order.totalAmount)}</span>
               </div>
             </div>
             <div className={`p-3 rounded-xl flex justify-between items-center ${order.paymentStatus === 'Paid' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-amber-50 text-amber-700 border border-amber-100'}`}>
@@ -223,16 +223,16 @@ export const OrderDetail = () => {
           {/* Connected Documents */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <FileText size={16} /> Connected Documents
+              <FileText size={16} weight="regular" /> Connected Documents
             </h3>
             <div className="space-y-3">
               <Link to="/dashboard/design" className="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors group">
-                <span className="text-sm font-medium text-slate-700 group-hover:text-indigo-600">Design File</span>
-                <ArrowLeft size={16} className="rotate-135 text-slate-400" />
+                <span className="text-sm font-medium text-slate-700 group-hover:text-primary-600">Design File</span>
+                <ArrowLeft size={16} className="rotate-135 text-slate-400" weight="regular" />
               </Link>
               <Link to="/dashboard/invoices" className="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors group">
-                <span className="text-sm font-medium text-slate-700 group-hover:text-indigo-600">Invoice</span>
-                <ArrowLeft size={16} className="rotate-135 text-slate-400" />
+                <span className="text-sm font-medium text-slate-700 group-hover:text-primary-600">Invoice</span>
+                <ArrowLeft size={16} className="rotate-135 text-slate-400" weight="regular" />
               </Link>
             </div>
           </div>

@@ -144,7 +144,7 @@ export default function DesignFiles() {
   if (roleLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
   }
@@ -156,7 +156,7 @@ export default function DesignFiles() {
         {(role === 'Owner' || role === 'Manager') && (
           <button 
             onClick={() => setIsUploadOpen(true)}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+            className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
           >
             Upload Design
           </button>

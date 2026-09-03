@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { UploadCloud, CheckCircle2 } from 'lucide-react';
+import { CloudArrowUp, CheckCircle } from '@phosphor-icons/react';
 import { useToast } from '../../contexts/ToastContext';
 import api from '../../api/axios';
 
@@ -56,7 +56,7 @@ export const CustomOrderPage = () => {
     return (
       <div className="max-w-3xl mx-auto py-20 px-4 text-center animate-fade-in">
         <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-green-100 mb-8">
-          <CheckCircle2 className="w-12 h-12 text-green-600" />
+          <CheckCircle className="w-12 h-12 text-green-600" weight="regular" />
         </div>
         <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Request Sent Successfully!</h1>
         <p className="text-xl text-gray-600 mb-8">
@@ -64,7 +64,7 @@ export const CustomOrderPage = () => {
         </p>
         <button 
           onClick={() => setIsSuccess(false)}
-          className="bg-indigo-600 text-white py-3 px-8 rounded-lg hover:bg-indigo-700 font-medium"
+          className="bg-primary-600 text-white py-3 px-8 rounded-lg hover:bg-primary-700 font-medium"
         >
           Submit Another Request
         </button>
@@ -93,7 +93,7 @@ export const CustomOrderPage = () => {
                 <input 
                   type="text" 
                   {...register('fullName')}
-                  className={`w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 ${errors.fullName ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`w-full border rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 p-2 ${errors.fullName ? 'border-red-300' : 'border-gray-300'}`}
                 />
                 {errors.fullName && <p className="mt-1 text-sm text-red-600">{errors.fullName.message}</p>}
               </div>
@@ -102,7 +102,7 @@ export const CustomOrderPage = () => {
                 <input 
                   type="email" 
                   {...register('email')}
-                  className={`w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 ${errors.email ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`w-full border rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 p-2 ${errors.email ? 'border-red-300' : 'border-gray-300'}`}
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
               </div>
@@ -111,7 +111,7 @@ export const CustomOrderPage = () => {
                 <input 
                   type="tel" 
                   {...register('phone')}
-                  className={`w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 ${errors.phone ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`w-full border rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 p-2 ${errors.phone ? 'border-red-300' : 'border-gray-300'}`}
                 />
                 {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>}
               </div>
@@ -120,7 +120,7 @@ export const CustomOrderPage = () => {
                 <input 
                   type="text" 
                   {...register('companyName')}
-                  className="w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2"
+                  className="w-full border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 p-2"
                 />
               </div>
             </div>
@@ -134,7 +134,7 @@ export const CustomOrderPage = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Product Category *</label>
                 <select 
                   {...register('productCategory')}
-                  className={`w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 ${errors.productCategory ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`w-full border rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 p-2 ${errors.productCategory ? 'border-red-300' : 'border-gray-300'}`}
                 >
                   <option value="">Select a category...</option>
                   <option value="Packaging">Packaging & Boxes</option>
@@ -152,7 +152,7 @@ export const CustomOrderPage = () => {
                   type="number" 
                   min="1"
                   {...register('estimatedQuantity', { valueAsNumber: true })}
-                  className={`w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 ${errors.estimatedQuantity ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`w-full border rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 p-2 ${errors.estimatedQuantity ? 'border-red-300' : 'border-gray-300'}`}
                 />
                 {errors.estimatedQuantity && <p className="mt-1 text-sm text-red-600">{errors.estimatedQuantity.message}</p>}
               </div>
@@ -163,7 +163,7 @@ export const CustomOrderPage = () => {
                   rows={4}
                   {...register('specifications')}
                   placeholder="Example: Box size 20x10x5 cm, Ivory 300gsm, Doff lamination, Hot print gold on logo..."
-                  className={`w-full border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 ${errors.specifications ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`w-full border rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 p-2 ${errors.specifications ? 'border-red-300' : 'border-gray-300'}`}
                 ></textarea>
                 {errors.specifications && <p className="mt-1 text-sm text-red-600">{errors.specifications.message}</p>}
               </div>
@@ -171,9 +171,9 @@ export const CustomOrderPage = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Design Reference (Optional)</label>
                 <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
                   <div className="space-y-1 text-center">
-                    <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
+                    <CloudArrowUp className="mx-auto h-12 w-12 text-gray-400" weight="regular" />
                     <div className="flex text-sm text-gray-600 justify-center">
-                      <span className="relative cursor-pointer bg-transparent rounded-md font-medium text-indigo-600 hover:text-indigo-500">
+                      <span className="relative cursor-pointer bg-transparent rounded-md font-medium text-primary-600 hover:text-primary-500">
                         Upload a file
                       </span>
                       <p className="pl-1">or drag and drop</p>
@@ -189,7 +189,7 @@ export const CustomOrderPage = () => {
             <button 
               type="submit" 
               disabled={isSubmitting}
-              className="w-full md:w-auto md:min-w-[200px] flex justify-center py-3 px-6 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
+              className="w-full md:w-auto md:min-w-[200px] flex justify-center py-3 px-6 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
             >
               {isSubmitting ? 'Submitting...' : 'Submit Custom Request'}
             </button>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Bell, Check, Package, CreditCard, AlertCircle, Trash2 } from 'lucide-react';
+import { Bell, Check, Package, CreditCard, WarningCircle, Trash } from '@phosphor-icons/react';
 
 interface Notification {
   id: string;
@@ -61,10 +61,10 @@ export const Notifications = () => {
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'order': return <Package className="text-indigo-500" size={20} />;
-      case 'payment': return <CreditCard className="text-emerald-500" size={20} />;
-      case 'alert': return <AlertCircle className="text-amber-500" size={20} />;
-      default: return <Bell className="text-slate-500" size={20} />;
+      case 'order': return <Package className="text-primary-500" size={20} weight="regular" />;
+      case 'payment': return <CreditCard className="text-emerald-500" size={20} weight="regular" />;
+      case 'alert': return <WarningCircle className="text-amber-500" size={20} weight="regular" />;
+      default: return <Bell className="text-slate-500" size={20} weight="regular" />;
     }
   };
 
@@ -104,9 +104,9 @@ export const Notifications = () => {
         {unreadCount > 0 && (
           <button 
             onClick={markAllAsRead}
-            className="flex items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors px-4 py-2 rounded-lg hover:bg-indigo-50"
+            className="flex items-center gap-2 text-sm font-bold text-primary-600 hover:text-primary-800 transition-colors px-4 py-2 rounded-lg hover:bg-primary-50"
           >
-            <Check size={16} strokeWidth={2.5} />
+            <Check size={16} strokeWidth={2.5} weight="regular" />
             Mark all as read
           </button>
         )}
@@ -115,7 +115,7 @@ export const Notifications = () => {
       {notifications.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 text-center border border-slate-100 shadow-sm flex flex-col items-center">
           <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 mb-4">
-            <Bell size={32} />
+            <Bell size={32} weight="regular" />
           </div>
           <h3 className="text-lg font-bold text-slate-900 mb-2">You're all caught up!</h3>
           <p className="text-slate-500 font-medium">No new notifications right now.</p>
@@ -128,11 +128,11 @@ export const Notifications = () => {
               className={`bg-white rounded-xl p-5 border transition-all ${
                 notification.isRead 
                   ? 'border-slate-100 shadow-sm' 
-                  : 'border-indigo-100 shadow-md shadow-indigo-50/50 bg-indigo-50/10'
+                  : 'border-primary-100 shadow-md shadow-primary-50/50 bg-primary-50/10'
               }`}
             >
               <div className="flex gap-4">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${notification.isRead ? 'bg-slate-50' : 'bg-white shadow-sm border border-indigo-50'}`}>
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${notification.isRead ? 'bg-slate-50' : 'bg-white shadow-sm border border-primary-50'}`}>
                   {getIcon(notification.type)}
                 </div>
                 
@@ -154,10 +154,10 @@ export const Notifications = () => {
                   {!notification.isRead && (
                     <button 
                       onClick={() => markAsRead(notification.id)}
-                      className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      className="p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                       title="Mark as read"
                     >
-                      <Check size={16} />
+                      <Check size={16} weight="regular" />
                     </button>
                   )}
                   <button 
@@ -165,7 +165,7 @@ export const Notifications = () => {
                     className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     title="Delete"
                   >
-                    <Trash2 size={16} />
+                    <Trash size={16} weight="regular" />
                   </button>
                 </div>
               </div>

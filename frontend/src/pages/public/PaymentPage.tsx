@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Copy, UploadCloud, CheckCircle2, AlertCircle, Clock, Building, CreditCard } from 'lucide-react';
+import { Copy, CloudArrowUp, CheckCircle, WarningCircle, Clock, Buildings, CreditCard } from '@phosphor-icons/react';
 import { useToast } from '../../contexts/ToastContext';
 
 export const PaymentPage: React.FC = () => {
@@ -67,7 +67,7 @@ export const PaymentPage: React.FC = () => {
 
       <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-6 mb-8 flex items-start gap-4">
         <div className="mt-0.5 bg-amber-100 p-2 rounded-full text-amber-600 shrink-0">
-          <Clock size={24} />
+          <Clock size={24} weight="regular" />
         </div>
         <div>
           <h3 className="text-lg font-bold text-amber-900 mb-1">Awaiting Payment</h3>
@@ -85,7 +85,7 @@ export const PaymentPage: React.FC = () => {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="bg-slate-50 border-b border-slate-200 p-4 sm:p-6">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <Building size={20} className="text-indigo-600" /> Bank Transfer
+                <Buildings size={20} className="text-primary-600" weight="regular" /> Bank Transfer
               </h2>
             </div>
             
@@ -96,18 +96,18 @@ export const PaymentPage: React.FC = () => {
                   <span className="text-2xl font-extrabold text-slate-900">{formatIDR(amount)}</span>
                   <button 
                     onClick={() => copyToClipboard(amount.toString(), 'Amount')}
-                    className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                   >
-                    <Copy size={18} />
+                    <Copy size={18} weight="regular" />
                   </button>
                 </div>
                 <p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
-                  <AlertCircle size={14} /> Please transfer the exact amount
+                  <WarningCircle size={14} weight="regular" /> Please transfer the exact amount
                 </p>
               </div>
 
               <div className="space-y-4">
-                <div className="border border-slate-200 rounded-xl p-4 hover:border-indigo-300 transition-colors">
+                <div className="border border-slate-200 rounded-xl p-4 hover:border-primary-300 transition-colors">
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <span className="font-bold text-slate-900 block text-lg">Bank BCA</span>
@@ -119,14 +119,14 @@ export const PaymentPage: React.FC = () => {
                     <span className="font-mono text-lg font-bold text-slate-700 tracking-wider">123 456 7890</span>
                     <button 
                       onClick={() => copyToClipboard('1234567890', 'Account Number')}
-                      className="text-indigo-600 text-sm font-semibold hover:underline"
+                      className="text-primary-600 text-sm font-semibold hover:underline"
                     >
                       Copy
                     </button>
                   </div>
                 </div>
 
-                <div className="border border-slate-200 rounded-xl p-4 hover:border-indigo-300 transition-colors">
+                <div className="border border-slate-200 rounded-xl p-4 hover:border-primary-300 transition-colors">
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <span className="font-bold text-slate-900 block text-lg">Bank Mandiri</span>
@@ -138,7 +138,7 @@ export const PaymentPage: React.FC = () => {
                     <span className="font-mono text-lg font-bold text-slate-700 tracking-wider">098 765 4321</span>
                     <button 
                       onClick={() => copyToClipboard('0987654321', 'Account Number')}
-                      className="text-indigo-600 text-sm font-semibold hover:underline"
+                      className="text-primary-600 text-sm font-semibold hover:underline"
                     >
                       Copy
                     </button>
@@ -153,14 +153,14 @@ export const PaymentPage: React.FC = () => {
         <div>
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6 sticky top-24">
             <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-              <CreditCard size={20} className="text-indigo-600" /> Upload Transfer Proof
+              <CreditCard size={20} className="text-primary-600" weight="regular" /> Upload Transfer Proof
             </h2>
 
             <form onSubmit={submitProof}>
               {!uploadedFile ? (
-                <label className="block border-2 border-dashed border-slate-300 rounded-xl p-10 text-center hover:border-indigo-400 hover:bg-indigo-50/50 transition-colors cursor-pointer group mb-6">
+                <label className="block border-2 border-dashed border-slate-300 rounded-xl p-10 text-center hover:border-primary-400 hover:bg-primary-50/50 transition-colors cursor-pointer group mb-6">
                   <input type="file" className="hidden" onChange={handleFileUpload} accept="image/jpeg,image/png,application/pdf" />
-                  <UploadCloud size={48} className="mx-auto text-slate-300 group-hover:text-indigo-500 mb-4 transition-colors" />
+                  <CloudArrowUp size={48} className="mx-auto text-slate-300 group-hover:text-primary-500 mb-4 transition-colors" weight="regular" />
                   <h3 className="text-base font-bold text-slate-900 mb-1">Click to upload proof</h3>
                   <p className="text-sm text-slate-500">JPG, PNG or PDF (Max 5MB)</p>
                 </label>
@@ -177,8 +177,8 @@ export const PaymentPage: React.FC = () => {
                     </button>
                   </div>
                   <div className="flex items-center gap-3 bg-white p-3 border border-slate-100 rounded-lg">
-                    <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center shrink-0">
-                      <CheckCircle2 size={20} />
+                    <div className="w-10 h-10 bg-primary-100 text-primary-600 rounded-lg flex items-center justify-center shrink-0">
+                      <CheckCircle size={20} weight="regular" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-bold text-slate-900 truncate">{uploadedFile.name}</p>
@@ -191,7 +191,7 @@ export const PaymentPage: React.FC = () => {
               <button 
                 type="submit"
                 disabled={uploading || !uploadedFile}
-                className="w-full h-14 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-md flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full h-14 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 shadow-md flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {uploading ? (
                   <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -204,7 +204,7 @@ export const PaymentPage: React.FC = () => {
             <div className="mt-6 pt-6 border-t border-slate-100">
               <p className="text-sm text-slate-500 leading-relaxed text-center">
                 Need help? Contact our finance team at <br/>
-                <a href="mailto:finance@mkprinting.com" className="font-semibold text-indigo-600">finance@mkprinting.com</a>
+                <a href="mailto:finance@mkprinting.com" className="font-semibold text-primary-600">finance@mkprinting.com</a>
               </p>
             </div>
           </div>

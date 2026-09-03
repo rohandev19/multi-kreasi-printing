@@ -5,7 +5,7 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { ReportIssueModal } from '../components/modals/ReportIssueModal';
 import { ReassignJobModal } from '../components/modals/ReassignJobModal';
 import { useToast } from '../contexts/ToastContext';
-import { LayoutList, Columns, Factory, Play, ClipboardCheck, CheckCircle, AlertTriangle, Settings, GripVertical } from 'lucide-react';
+import { ListBullets, Columns, Factory, Play, ClipboardText, CheckCircle, Warning, Gear, DotsSixVertical } from '@phosphor-icons/react';
 
 interface Job {
   id: string;
@@ -116,7 +116,7 @@ export default function Production() {
   if (roleLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
   }
@@ -132,15 +132,15 @@ export default function Production() {
         <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
           <button 
             onClick={() => setViewMode('table')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'table' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'table' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
           >
-            <LayoutList size={16} /> Table
+            <ListBullets size={16} weight="regular" /> Table
           </button>
           <button 
             onClick={() => setViewMode('kanban')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'kanban' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'kanban' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
           >
-            <Columns size={16} /> Kanban
+            <Columns size={16} weight="regular" /> Kanban
           </button>
         </div>
       </div>
@@ -161,10 +161,10 @@ export default function Production() {
               <button 
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${isActive ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${isActive ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}
               >
                 {status}
-                <span className={`px-2 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-indigo-500 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-primary-500 text-white' : 'bg-slate-100 text-slate-500'}`}>
                   {count}
                 </span>
               </button>
@@ -177,7 +177,7 @@ export default function Production() {
       {!loading && jobs.length === 0 && (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-16 flex flex-col items-center justify-center text-center">
           <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-            <Factory className="w-8 h-8 text-slate-300" />
+            <Factory className="w-8 h-8 text-slate-300" weight="regular" />
           </div>
           <h3 className="text-lg font-bold text-slate-900 mb-1">Production queue is empty</h3>
           <p className="text-sm text-slate-500 max-w-sm">
@@ -202,9 +202,9 @@ export default function Production() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredJobs.map(job => (
-                  <tr key={job.id} className={`hover:bg-slate-50/80 transition-colors ${job.status === 'In Progress' ? 'border-l-4 border-indigo-600' : 'border-l-4 border-transparent'}`}>
+                  <tr key={job.id} className={`hover:bg-slate-50/80 transition-colors ${job.status === 'In Progress' ? 'border-l-4 border-primary-600' : 'border-l-4 border-transparent'}`}>
                     <td className="px-5 py-4">
-                      <div className="font-bold text-indigo-600">{job.id}</div>
+                      <div className="font-bold text-primary-600">{job.id}</div>
                       <div className="text-xs text-slate-500">{job.orderNumber}</div>
                     </td>
                     <td className="px-5 py-4 font-semibold text-slate-800">
@@ -218,42 +218,42 @@ export default function Production() {
                       <div className="flex justify-between items-center mb-1">
                         <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md flex items-center gap-1
                           ${job.status === 'Queued' ? 'bg-slate-100 text-slate-600' :
-                            job.status === 'In Progress' ? 'bg-indigo-100 text-indigo-700' :
-                            job.status === 'Quality Check' ? 'bg-purple-100 text-purple-700' :
+                            job.status === 'In Progress' ? 'bg-primary-100 text-primary-700' :
+                            job.status === 'Quality Check' ? 'bg-primary-100 text-primary-700' :
                             'bg-emerald-100 text-emerald-700'
                           }
                         `}>
-                          {job.status === 'In Progress' && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>}
+                          {job.status === 'In Progress' && <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse"></span>}
                           {job.status}
                         </span>
                         <span className="text-xs font-bold text-slate-500">{job.progress}%</span>
                       </div>
                       <div className="h-2 rounded-full bg-slate-100 overflow-hidden w-48">
-                        <div className={`h-full rounded-full transition-all duration-500 ${job.progress === 100 ? 'bg-emerald-500' : 'bg-indigo-500'}`} style={{ width: `${job.progress}%` }}></div>
+                        <div className={`h-full rounded-full transition-all duration-500 ${job.progress === 100 ? 'bg-emerald-500' : 'bg-primary-500'}`} style={{ width: `${job.progress}%` }}></div>
                       </div>
                     </td>
                     <td className="px-5 py-4 text-right">
                       <div className="flex justify-end gap-2">
                         {job.status === 'Queued' && (
-                          <button onClick={() => handleStartJob(job.id)} className="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg text-xs font-bold transition-colors">
-                            <Play size={14} /> Start
+                          <button onClick={() => handleStartJob(job.id)} className="flex items-center gap-1 px-3 py-1.5 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg text-xs font-bold transition-colors">
+                            <Play size={14} weight="regular" /> Start
                           </button>
                         )}
                         {job.status === 'In Progress' && (
                           <button onClick={() => handleMarkQC(job.id)} className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-bold transition-colors">
-                            <ClipboardCheck size={14} /> QC
+                            <ClipboardText size={14} weight="regular" /> QC
                           </button>
                         )}
                         {job.status === 'Quality Check' && (
                           <button onClick={() => handleCompleteJob(job.id)} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg text-xs font-bold transition-colors">
-                            <CheckCircle size={14} /> Done
+                            <CheckCircle size={14} weight="regular" /> Done
                           </button>
                         )}
                         <button onClick={() => setReassignJobId(job.id)} className="p-1.5 border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600 rounded-lg transition-colors" title="Reassign">
-                          <Settings size={16} />
+                          <Gear size={16} weight="regular" />
                         </button>
                         <button onClick={() => setReportIssueJobId(job.id)} className="p-1.5 border border-red-200 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Report Issue">
-                          <AlertTriangle size={16} />
+                          <Warning size={16} weight="regular" />
                         </button>
                       </div>
                     </td>
@@ -282,10 +282,10 @@ export default function Production() {
                     <div key={job.id} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow cursor-grab group">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <div className="text-xs font-bold text-indigo-600">{job.id}</div>
+                          <div className="text-xs font-bold text-primary-600">{job.id}</div>
                           <div className="font-semibold text-slate-800 mt-0.5">{job.product}</div>
                         </div>
-                        <GripVertical size={16} className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <DotsSixVertical size={16} className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" weight="regular" />
                       </div>
                       
                       <div className="text-xs text-slate-500 mb-3 bg-slate-50 px-2 py-1 rounded inline-block">
@@ -302,12 +302,12 @@ export default function Production() {
                         <span className="text-[10px] font-bold text-slate-400">{job.progress}%</span>
                       </div>
                       <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                        <div className={`h-full rounded-full ${job.progress === 100 ? 'bg-emerald-500' : 'bg-indigo-500'}`} style={{ width: `${job.progress}%` }}></div>
+                        <div className={`h-full rounded-full ${job.progress === 100 ? 'bg-emerald-500' : 'bg-primary-500'}`} style={{ width: `${job.progress}%` }}></div>
                       </div>
                       
                       <div className="mt-4 flex gap-2">
                         {job.status === 'Queued' && (
-                          <button onClick={() => handleStartJob(job.id)} className="flex-1 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg text-xs font-bold transition-colors">Start</button>
+                          <button onClick={() => handleStartJob(job.id)} className="flex-1 py-1.5 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg text-xs font-bold transition-colors">Start</button>
                         )}
                         {job.status === 'In Progress' && (
                           <button onClick={() => handleMarkQC(job.id)} className="flex-1 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-bold transition-colors">Send QC</button>
@@ -316,7 +316,7 @@ export default function Production() {
                           <button onClick={() => handleCompleteJob(job.id)} className="flex-1 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg text-xs font-bold transition-colors">Done</button>
                         )}
                         <button onClick={() => setReportIssueJobId(job.id)} className="px-2 py-1.5 border border-red-200 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                          <AlertTriangle size={14} />
+                          <Warning size={14} weight="regular" />
                         </button>
                       </div>
                     </div>

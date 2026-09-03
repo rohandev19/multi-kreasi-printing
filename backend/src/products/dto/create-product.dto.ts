@@ -30,4 +30,8 @@ export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
   unitOfMeasure!: string;
+
+  @IsString()
+  @IsOptional()
+  status?: string;
 }

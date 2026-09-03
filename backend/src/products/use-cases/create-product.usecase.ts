@@ -24,7 +24,7 @@ export class CreateProductUseCase {
         categoryId: dto.categoryId,
         basePrice: dto.basePrice,
         unitOfMeasure: dto.unitOfMeasure,
-        status: 'Active',
+        status: dto.status || 'Active',
       },
     });
 

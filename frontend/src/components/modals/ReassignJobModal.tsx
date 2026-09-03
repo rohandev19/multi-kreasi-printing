@@ -97,7 +97,7 @@ export const ReassignJobModal: React.FC<ReassignJobModalProps> = ({
             ) : (
               <select
                 {...register('assignedTo')}
-                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.assignedTo ? 'border-red-500' : ''}`}
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.assignedTo ? 'border-red-500' : ''}`}
               >
                 <option value="">Select staff member...</option>
                 {staff.map(s => (
@@ -120,7 +120,7 @@ export const ReassignJobModal: React.FC<ReassignJobModalProps> = ({
           <button
             type="submit"
             disabled={loading || fetchingStaff}
-            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
           >
             {loading ? 'Reassigning...' : 'Confirm Reassign'}
           </button>

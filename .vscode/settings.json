@@ -1,3 +1,9 @@
 {
-  "css.lint.unknownAtRules": "ignore"
+  "css.lint.unknownAtRules": "ignore",
+  "chat.tools.terminal.autoApprove": {
+    "/^npm run lint --workspace=frontend$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
 }

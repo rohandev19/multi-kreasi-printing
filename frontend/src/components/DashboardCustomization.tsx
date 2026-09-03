@@ -17,7 +17,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical } from 'lucide-react';
+import { DotsSixVertical } from '@phosphor-icons/react';
 
 interface WidgetPreference {
   layoutOrder: string[];
@@ -71,7 +71,7 @@ const SortableWidgetItem = ({
         {...listeners}
         className="mr-3 cursor-grab text-slate-400 hover:text-slate-600 focus:outline-none"
       >
-        <GripVertical size={20} />
+        <DotsSixVertical size={20} weight="regular" />
       </div>
       <label className="flex items-center flex-1 cursor-pointer">
         <input

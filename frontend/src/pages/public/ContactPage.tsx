@@ -32,17 +32,17 @@ export const ContactPage = () => {
           <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); success('Message Sent', 'We will get back to you soon!'); }}>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-              <input type="text" className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required />
+              <input type="text" className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500" required />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input type="email" className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required />
+              <input type="email" className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500" required />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-              <textarea rows={4} className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required></textarea>
+              <textarea rows={4} className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500" required></textarea>
             </div>
-            <button type="submit" className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors font-medium">
+            <button type="submit" className="w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 transition-colors font-medium">
               Send Message
             </button>
           </form>

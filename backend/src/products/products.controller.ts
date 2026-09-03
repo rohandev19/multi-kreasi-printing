@@ -7,9 +7,11 @@ import {
   Query,
   Param,
   Patch,
+  Delete,
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -25,11 +27,12 @@ import { AddProductReviewUseCase } from './use-cases/add-product-review.usecase'
 import { GetProductReviewsUseCase } from './use-cases/get-product-reviews.usecase';
 import { Roles } from '../auth/decorators/roles.decorator';
 import type { Request } from 'express';
+import type { Express } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CacheService } from '../cache/cache.service';
-
+import { PrismaService } from '../prisma/prisma.service';
 export interface AuthenticatedUser {
   sub: string;
   role: string;
@@ -53,6 +56,7 @@ export class ProductsController {
     private addProductReviewUseCase: AddProductReviewUseCase,
     private getProductReviewsUseCase: GetProductReviewsUseCase,
     private cacheService: CacheService,
+    private prisma: PrismaService,
   ) {}
 
   @Post()
@@ -68,10 +72,113 @@ export class ProductsController {
     return result;
   }
 
+  @Get('categories')
+  @Roles('Owner', 'Manager')
+  async getCategories() {
+    const categories = await this.prisma.category.findMany({
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true, description: true },
+    });
+    return { data: categories };
+  }
+
+  @Post('categories')
+  @Roles('Owner', 'Manager')
+  async createCategory(@Body() dto: { name: string; description?: string }) {
+    const name = dto.name?.trim();
+    if (!name) {
+      throw new BadRequestException('Nama kategori wajib diisi');
+    }
+
+    const category = await this.prisma.category.create({
+      data: {
+        name,
+        description: dto.description?.trim() || null,
+      },
+    });
+
+    await this.cacheService.invalidatePattern('/api/v1/public/products*');
+    await this.cacheService.invalidatePattern('public_categories*');
+    return category;
+  }
+
+  @Patch('categories/:id')
+  @Roles('Owner', 'Manager')
+  async updateCategory(
+    @Param('id') id: string,
+    @Body() dto: { name?: string; description?: string },
+  ) {
+    const existing = await this.prisma.category.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException('Kategori tidak ditemukan');
+    }
+
+    const name = dto.name?.trim();
+    if (name) {
+      existing.name = name;
+    }
+
+    const category = await this.prisma.category.update({
+      where: { id },
+      data: {
+        name: name ?? existing.name,
+        description:
+          dto.description !== undefined
+            ? dto.description?.trim() || null
+            : existing.description,
+      },
+    });
+
+    await this.cacheService.invalidatePattern('/api/v1/public/products*');
+    await this.cacheService.invalidatePattern('public_categories*');
+    return category;
+  }
+
+  @Delete('categories/:id')
+  @Roles('Owner', 'Manager')
+  async deleteCategory(@Param('id') id: string) {
+    const category = await this.prisma.category.findUnique({ where: { id } });
+    if (!category) {
+      throw new NotFoundException('Kategori tidak ditemukan');
+    }
+
+    const productCount = await this.prisma.product.count({
+      where: { categoryId: id },
+    });
+    if (productCount > 0) {
+      throw new BadRequestException(
+        'Kategori masih digunakan produk, pindahkan atau hapus produknya terlebih dahulu',
+      );
+    }
+
+    await this.prisma.category.delete({ where: { id } });
+    await this.cacheService.invalidatePattern('/api/v1/public/products*');
+    await this.cacheService.invalidatePattern('public_categories*');
+    return { success: true, message: 'Kategori berhasil dihapus' };
+  }
+
   @Get()
   @Public() // Catalog search is public
   async search(@Query() query: SearchProductsDto) {
     return this.searchProductsUseCase.execute(query);
+  }
+
+  @Delete(':id')
+  @Roles('Owner', 'Manager')
+  async deleteProduct(@Param('id') id: string) {
+    const product = await this.prisma.product.findUnique({ where: { id } });
+    if (!product) {
+      throw new NotFoundException('Produk tidak ditemukan');
+    }
+
+    const updated = await this.prisma.product.update({
+      where: { id },
+      data: { status: 'Discontinued' },
+    });
+
+    await this.cacheService.invalidatePattern('/api/v1/public/products*');
+    await this.cacheService.invalidatePattern('public_categories*');
+    return { success: true, product: updated };
   }
 
   @Patch(':id')
@@ -106,7 +213,8 @@ export class ProductsController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(
     @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile()
+    file: Parameters<ManageProductImagesUseCase['uploadImage']>[1],
     @Body('isPrimary') isPrimary: string,
     @Req() req: AuthenticatedRequest,
   ) {
