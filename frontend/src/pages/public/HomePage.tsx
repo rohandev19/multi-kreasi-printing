@@ -1,40 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Package, Printer, Truck, ShieldCheck, Clock, BadgePercent, Headphones, ArrowRight, Star } from 'lucide-react';
-import { HeroBackgroundImage } from '../../components/HeroBackgroundImage';
-import { HeroOverlay } from '../../components/HeroOverlay';
-import type { HeroImageConfig } from '../../types/heroImage';
-
-const heroImageConfig: HeroImageConfig = {
-  desktop: {
-    webp: '/BannerResize.webp',
-    png: '/BannerHome.png',
-  },
-  tablet: {
-    webp: '/BannerResize.webp',
-    png: '/BannerHome.png',
-  },
-  mobile: {
-    webp: '/BannerResize.webp',
-    png: '/BannerHome.png',
-  },
-  alt: 'Multi Kreasi Printing production banner',
-  objectPosition: 'center center',
-  overlayOpacity: 0.5,
-};
 
 export const HomePage: React.FC = () => {
   return (
     <div className="w-full">
       {/* 1. HERO SECTION */}
       <section className="relative w-full bg-slate-950 py-32 lg:py-48 overflow-hidden">
-        <HeroBackgroundImage config={heroImageConfig} />
-        <HeroOverlay opacity={heroImageConfig.overlayOpacity} />
         {/* Background Gradients */}
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/50 via-slate-900 to-purple-900/40 z-0"></div>
         {/* Blurred Circles */}
-        <div className="absolute top-0 right-0 z-1 h-[800px] w-[800px] -translate-y-1/2 translate-x-1/3 rounded-full bg-indigo-500/20 opacity-10 blur-[120px] pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 z-1 h-[600px] w-[600px] -translate-x-1/4 translate-y-1/3 rounded-full bg-purple-500/20 opacity-10 blur-[100px] pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-500/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 pointer-events-none z-0"></div>
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-500/20 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4 pointer-events-none z-0"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
           {/* Badge Pill */}
