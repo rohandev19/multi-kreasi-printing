@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { X, Package, Clock, CheckCircle, FileText } from '@phosphor-icons/react';
+import { X, Package, Clock, CheckCircle, FileText } from 'lucide-react';
 
 interface OrderDetails {
   id: string;
@@ -33,8 +33,8 @@ const statusColors: Record<string, string> = {
   Draft: 'bg-gray-100 text-gray-700',
   Pending_Approval: 'bg-amber-100 text-amber-700',
   Approved: 'bg-blue-100 text-blue-700',
-  In_Production: 'bg-primary-100 text-primary-700',
-  Quality_Check: 'bg-primary-100 text-primary-700',
+  In_Production: 'bg-purple-100 text-purple-700',
+  Quality_Check: 'bg-indigo-100 text-indigo-700',
   Completed: 'bg-emerald-100 text-emerald-700',
   Delivered: 'bg-green-100 text-green-700',
   Cancelled: 'bg-red-100 text-red-700',
@@ -90,7 +90,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-full hover:bg-slate-200"
           >
-            <X size={20} weight="regular" />
+            <X size={20} />
           </button>
         </div>
 
@@ -129,12 +129,12 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               {/* Status Timeline */}
               <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
                 <h4 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                  <Clock size={18} weight="regular" />
+                  <Clock size={18} />
                   Order Status Tracking
                 </h4>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
-                    <div className="mt-0.5"><CheckCircle size={16} className="text-emerald-500" weight="regular" /></div>
+                    <div className="mt-0.5"><CheckCircle size={16} className="text-emerald-500" /></div>
                     <div>
                       <p className="text-sm font-medium text-slate-800">Order Placed</p>
                       <p className="text-xs text-slate-500">{new Date(order.createdAt).toLocaleDateString()}</p>
@@ -143,7 +143,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   {order.designFiles && order.designFiles.length > 0 && (
                     <div className="flex items-start gap-3">
                       <div className="mt-0.5">
-                        <CheckCircle size={16} className={order.designFiles[0].status === 'Design_Approved' ? 'text-emerald-500' : 'text-blue-500'} weight="regular" />
+                        <CheckCircle size={16} className={order.designFiles[0].status === 'Design_Approved' ? 'text-emerald-500' : 'text-blue-500'} />
                       </div>
                       <div>
                         <p className="text-sm font-medium text-slate-800">Design: {order.designFiles[0].status.replace(/_/g, ' ')}</p>
@@ -156,7 +156,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               {/* Items List */}
               <div>
                 <h4 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                  <Package size={18} weight="regular" />
+                  <Package size={18} />
                   Order Items
                 </h4>
                 <div className="border border-slate-200 rounded-lg overflow-hidden">
@@ -211,7 +211,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           </button>
           {order && order.paymentStatus === 'Paid' && (
             <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
-              <FileText size={16} weight="regular" />
+              <FileText size={16} />
               Download Invoice
             </button>
           )}

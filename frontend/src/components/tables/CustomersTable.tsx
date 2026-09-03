@@ -1,5 +1,5 @@
 import React from 'react';
-import { NotePencil, Eye, Trash, CreditCard } from '@phosphor-icons/react';
+import { Edit, Eye, Trash2, CreditCard } from 'lucide-react';
 
 interface Customer {
   id: string;
@@ -101,15 +101,15 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                 className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                 title="View Details"
               >
-                <Eye size={18} weight="regular" />
+                <Eye size={18} />
               </button>
               {(isFinance || canManage) && onViewPaymentHistory && (
                 <button
                   onClick={() => onViewPaymentHistory(customer.id)}
-                  className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                  className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                   title="Payment History"
                 >
-                  <CreditCard size={18} weight="regular" />
+                  <CreditCard size={18} />
                 </button>
               )}
               {canManage && onEditCustomer && (
@@ -118,7 +118,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                   className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
                   title="Edit Customer"
                 >
-                  <NotePencil size={18} weight="regular" />
+                  <Edit size={18} />
                 </button>
               )}
               {canManage && onDeleteCustomer && (
@@ -127,7 +127,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                   className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   title="Delete Customer"
                 >
-                  <Trash size={18} weight="regular" />
+                  <Trash2 size={18} />
                 </button>
               )}
             </div>
@@ -219,15 +219,15 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                       className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
                       title="View Details"
                     >
-                      <Eye size={18} weight="regular" />
+                      <Eye size={18} />
                     </button>
                     {(isFinance || canManage) && onViewPaymentHistory && (
                       <button
                         onClick={() => onViewPaymentHistory(customer.id)}
-                        className="p-1 text-slate-400 hover:text-primary-600 transition-colors"
+                        className="p-1 text-slate-400 hover:text-indigo-600 transition-colors"
                         title="Payment History"
                       >
-                        <CreditCard size={18} weight="regular" />
+                        <CreditCard size={18} />
                       </button>
                     )}
                     {canManage && onEditCustomer && (
@@ -236,7 +236,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                         className="p-1 text-slate-400 hover:text-amber-600 transition-colors"
                         title="Edit Customer"
                       >
-                        <NotePencil size={18} weight="regular" />
+                        <Edit size={18} />
                       </button>
                     )}
                     {canManage && onDeleteCustomer && (
@@ -245,7 +245,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                         className="p-1 text-slate-400 hover:text-red-600 transition-colors"
                         title="Delete Customer"
                       >
-                        <Trash size={18} weight="regular" />
+                        <Trash2 size={18} />
                       </button>
                     )}
                   </td>

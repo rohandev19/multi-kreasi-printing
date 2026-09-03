@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import api from '../api/axios';
-import { Package, Warning, TrendDown, TrendUp } from '@phosphor-icons/react';
+import { Package, AlertTriangle, TrendingDown, TrendingUp } from 'lucide-react';
 import { useRoleContext } from '../contexts/RoleContext';
 import { WarehouseTable } from '../components/tables/WarehouseTable';
 import { MaterialFormModal } from '../components/modals/MaterialFormModal';
@@ -108,7 +108,7 @@ export default function Warehouse() {
   if (roleLoading || loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
@@ -122,7 +122,7 @@ export default function Warehouse() {
         {canManageCatalog && (
           <button 
             onClick={handleAddMaterial}
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
           >
             Add Material
           </button>
@@ -137,7 +137,7 @@ export default function Warehouse() {
               <p className="text-sm font-medium text-slate-600">Total Materials</p>
               <p className="text-2xl font-bold text-slate-900 mt-1">{stats.total}</p>
             </div>
-            <Package className="text-primary-500" size={32} weight="regular" />
+            <Package className="text-indigo-500" size={32} />
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
@@ -146,7 +146,7 @@ export default function Warehouse() {
               <p className="text-sm font-medium text-slate-600">In Stock</p>
               <p className="text-2xl font-bold text-emerald-600 mt-1">{stats.inStock}</p>
             </div>
-            <TrendUp className="text-emerald-500" size={32} weight="regular" />
+            <TrendingUp className="text-emerald-500" size={32} />
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
@@ -155,7 +155,7 @@ export default function Warehouse() {
               <p className="text-sm font-medium text-slate-600">Low Stock</p>
               <p className="text-2xl font-bold text-amber-600 mt-1">{stats.lowStock}</p>
             </div>
-            <Warning className="text-amber-500" size={32} weight="regular" />
+            <AlertTriangle className="text-amber-500" size={32} />
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
@@ -164,7 +164,7 @@ export default function Warehouse() {
               <p className="text-sm font-medium text-slate-600">Out of Stock</p>
               <p className="text-2xl font-bold text-red-600 mt-1">{stats.outOfStock}</p>
             </div>
-            <TrendDown className="text-red-500" size={32} weight="regular" />
+            <TrendingDown className="text-red-500" size={32} />
           </div>
         </div>
       </div>

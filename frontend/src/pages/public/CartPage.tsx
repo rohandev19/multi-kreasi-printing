@@ -1,19 +1,30 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Trash, Minus, Plus, ArrowRight, Lock } from '@phosphor-icons/react';
+import { ArrowLeft, ShoppingCart, Trash2, Minus, Plus, ArrowRight, Lock } from 'lucide-react';
 
-type CartItem = {
-  id: string;
-  name: string;
-  specs: string;
-  sku: string;
-  price: number;
-  quantity: number;
-  image?: string;
-};
+const mockCartItems = [
+  {
+    id: '1',
+    name: 'Premium Business Cards',
+    specs: 'Standard 9x5cm · Art Carton 260gsm · Matte Lamination',
+    sku: 'BC-PRM-260-MT',
+    price: 50000,
+    quantity: 5, // 5 boxes
+    image: 'https://images.unsplash.com/photo-1572981779307-38b8cabb2407?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+  },
+  {
+    id: '2',
+    name: 'A5 Flyers / Leaflets',
+    specs: 'A5 · Art Paper 150gsm · No Finishing',
+    sku: 'FL-A5-150-NO',
+    price: 150000,
+    quantity: 10, // 1000 pcs
+    image: 'https://images.unsplash.com/photo-1563209259-ea16b9b3cc03?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+  }
+];
 
 export const CartPage: React.FC = () => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState(mockCartItems);
 
   const formatIDR = (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
 
@@ -44,8 +55,8 @@ export const CartPage: React.FC = () => {
           <div className="lg:w-2/3">
             {/* Header */}
             <div className="mb-8">
-              <Link to="/products" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-primary-600 mb-4 transition-colors">
-                <ArrowLeft size={16} className="mr-1" weight="regular" /> Back to Catalog
+              <Link to="/products" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-indigo-600 mb-4 transition-colors">
+                <ArrowLeft size={16} className="mr-1" /> Back to Catalog
               </Link>
               <div className="flex items-end justify-between">
                 <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Shopping Cart</h1>
@@ -56,12 +67,12 @@ export const CartPage: React.FC = () => {
             {items.length === 0 ? (
               <div className="bg-white rounded-2xl border border-slate-100 p-16 flex flex-col items-center justify-center text-center shadow-sm">
                 <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-                  <ShoppingCart size={48} className="text-slate-300" weight="regular" />
+                  <ShoppingCart size={48} className="text-slate-300" />
                 </div>
-                <h2 className="text-2xl font-bold text-slate-900 mb-2">Keranjang Anda masih kosong</h2>
-                <p className="text-slate-500 mb-8">Belum ada item yang ditambahkan. Katalog produk akan muncul setelah data tersedia.</p>
-                <Link to="/products" className="px-8 py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-colors shadow-sm">
-                  Lihat Katalog
+                <h2 className="text-2xl font-bold text-slate-900 mb-2">Your cart is empty</h2>
+                <p className="text-slate-500 mb-8">Browse our catalog to find what you need</p>
+                <Link to="/products" className="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm">
+                  Browse Catalog
                 </Link>
               </div>
             ) : (
@@ -84,7 +95,7 @@ export const CartPage: React.FC = () => {
                           onClick={() => updateQuantity(item.id, -1)}
                           className="w-8 h-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"
                         >
-                          <Minus size={14} weight="regular" />
+                          <Minus size={14} />
                         </button>
                         <span className="w-12 h-full flex items-center justify-center border-x border-slate-200 font-bold text-slate-900 text-sm">
                           {item.quantity}
@@ -93,7 +104,7 @@ export const CartPage: React.FC = () => {
                           onClick={() => updateQuantity(item.id, 1)}
                           className="w-8 h-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"
                         >
-                          <Plus size={14} weight="regular" />
+                          <Plus size={14} />
                         </button>
                       </div>
 
@@ -107,7 +118,7 @@ export const CartPage: React.FC = () => {
                         className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
                         title="Remove item"
                       >
-                        <Trash size={18} weight="regular" />
+                        <Trash2 size={18} />
                       </button>
                     </div>
                   </div>
@@ -143,7 +154,7 @@ export const CartPage: React.FC = () => {
                 </div>
                 <div className="border-t border-slate-100 pt-4 mt-2 flex justify-between items-end">
                   <span className="text-slate-900 font-bold">Total</span>
-                  <span className="text-2xl font-extrabold text-primary-600">{formatIDR(total)}</span>
+                  <span className="text-2xl font-extrabold text-indigo-600">{formatIDR(total)}</span>
                 </div>
               </div>
 
@@ -153,21 +164,21 @@ export const CartPage: React.FC = () => {
                   className={`w-full h-14 font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition-all ${
                     items.length === 0 
                       ? 'bg-slate-100 text-slate-400 cursor-not-allowed pointer-events-none' 
-                      : 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-lg'
+                      : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-lg'
                   }`}
                 >
-                  Proceed to Checkout <ArrowRight size={20} weight="regular" />
+                  Proceed to Checkout <ArrowRight size={20} />
                 </Link>
                 
                 <div className="text-center mt-4">
-                  <Link to="/products" className="text-sm font-semibold text-primary-600 hover:text-primary-700">
+                  <Link to="/products" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">
                     Continue Shopping
                   </Link>
                 </div>
               </div>
 
               <div className="mt-6 pt-6 border-t border-slate-100 flex items-center justify-center gap-2 text-xs text-slate-400 font-medium">
-                <Lock size={14} weight="regular" /> Secure B2B Checkout
+                <Lock size={14} /> Secure B2B Checkout
               </div>
             </div>
           </div>

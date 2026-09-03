@@ -115,7 +115,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
     >
       {fetchingData ? (
         <div className="p-12 flex justify-center items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -125,7 +125,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
               <input
                 type="text"
                 {...register('name')}
-                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.name ? 'border-red-500' : ''}`}
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.name ? 'border-red-500' : ''}`}
                 placeholder="e.g., PT Maju Mundur"
               />
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
@@ -136,7 +136,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
               <input
                 type="email"
                 {...register('email')}
-                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.email ? 'border-red-500' : ''}`}
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.email ? 'border-red-500' : ''}`}
                 placeholder="contact@company.com"
               />
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
@@ -147,7 +147,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
               <input
                 type="tel"
                 {...register('phone')}
-                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.phone ? 'border-red-500' : ''}`}
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.phone ? 'border-red-500' : ''}`}
                 placeholder="+62 812 3456 7890"
               />
               {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
@@ -157,7 +157,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
               <label className="block text-sm font-medium text-slate-700 mb-1">Loyalty Tier</label>
               <select
                 {...register('loyaltyTier')}
-                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.loyaltyTier ? 'border-red-500' : ''}`}
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.loyaltyTier ? 'border-red-500' : ''}`}
               >
                 <option value="Standard">Standard</option>
                 <option value="Silver">Silver</option>
@@ -180,7 +180,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+              className="px-6 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
               {loading ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Add Customer')}
             </button>

@@ -7,7 +7,7 @@ import { OrdersTable } from '../components/tables/OrdersTable';
 import type { Order } from '../components/tables/OrdersTable';
 import { exportToCSV } from '../utils/exportUtils';
 import { CreateOrderModal } from '../components/modals/CreateOrderModal';
-import { Plus, MagnifyingGlass, Funnel, Download } from '@phosphor-icons/react';
+import { Plus, Search, Filter, Download } from 'lucide-react';
 
 export default function Orders() {
   const { role, loading: roleLoading } = useRoleContext();
@@ -147,7 +147,7 @@ export default function Orders() {
   if (roleLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
@@ -163,9 +163,9 @@ export default function Orders() {
         {(role === 'Owner' || role === 'Manager' || role === 'Sales') && (
           <button 
             onClick={handleOpenCreateNew}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl font-bold shadow-sm shadow-primary-200 hover:bg-primary-700 hover:-translate-y-0.5 transition-all w-full md:w-auto"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-bold shadow-sm shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all w-full md:w-auto"
           >
-            <Plus size={18} weight="regular" />
+            <Plus size={18} />
             Create Order
           </button>
         )}
@@ -181,23 +181,23 @@ export default function Orders() {
       <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col lg:flex-row gap-4 items-center justify-between">
         <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto flex-1">
           <div className="relative w-full sm:w-72">
-            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" weight="regular" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
             <input 
               type="text" 
               placeholder="Search by order or customer..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
+              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
             />
           </div>
           
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <div className="relative flex-1 sm:flex-none">
-              <Funnel className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" weight="regular" />
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
               <select 
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full sm:w-auto pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm appearance-none focus:bg-white focus:ring-2 focus:ring-primary-500 outline-none"
+                className="w-full sm:w-auto pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm appearance-none focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none"
               >
                 <option value="All">All Status</option>
                 <option value="Pending_Approval">Pending Approval</option>
@@ -214,7 +214,7 @@ export default function Orders() {
             <select 
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="flex-1 sm:flex-none px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-primary-500 outline-none"
+              className="flex-1 sm:flex-none px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none"
             >
               <option value="All">All Priority</option>
               <option value="Normal">Normal</option>
@@ -230,7 +230,7 @@ export default function Orders() {
               type="date" 
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-slate-50 focus:bg-white transition-all w-full sm:w-auto"
+              className="px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50 focus:bg-white transition-all w-full sm:w-auto"
               title="Start Date"
             />
             <span className="text-slate-400 hidden sm:inline">-</span>
@@ -238,7 +238,7 @@ export default function Orders() {
               type="date" 
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-slate-50 focus:bg-white transition-all w-full sm:w-auto"
+              className="px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50 focus:bg-white transition-all w-full sm:w-auto"
               title="End Date"
             />
           </div>
@@ -246,7 +246,7 @@ export default function Orders() {
             onClick={() => handleExport(filteredOrders, 'orders_export')}
             className="flex items-center justify-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors w-full sm:w-auto"
           >
-            <Download size={16} weight="regular" />
+            <Download size={16} />
             <span className="hidden sm:inline">Export CSV</span>
           </button>
         </div>
@@ -264,7 +264,7 @@ export default function Orders() {
 
       {/* BULK ACTIONS BAR */}
       {selectedIds.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-3xl bg-primary-600 text-white rounded-xl shadow-xl shadow-primary-600/30 p-4 flex items-center justify-between z-50 animate-modal-in">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-3xl bg-indigo-600 text-white rounded-xl shadow-xl shadow-indigo-600/30 p-4 flex items-center justify-between z-50 animate-modal-in">
           <div className="font-semibold px-2">
             {selectedIds.length} order{selectedIds.length > 1 ? 's' : ''} selected
           </div>
@@ -278,7 +278,7 @@ export default function Orders() {
             <button 
               onClick={handleBulkApprove}
               disabled={isApproving}
-              className="px-4 py-2 bg-white text-primary-700 hover:bg-primary-50 rounded-lg text-sm font-bold shadow-sm transition-colors disabled:opacity-50"
+              className="px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-bold shadow-sm transition-colors disabled:opacity-50"
             >
               {isApproving ? 'Approving...' : 'Approve All'}
             </button>

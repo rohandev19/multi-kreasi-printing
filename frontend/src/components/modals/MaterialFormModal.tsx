@@ -119,7 +119,7 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
     >
       {fetchingData ? (
         <div className="p-12 flex justify-center items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -129,7 +129,7 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
               <input
                 type="text"
                 {...register('name')}
-                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.name ? 'border-red-500' : ''}`}
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.name ? 'border-red-500' : ''}`}
                 placeholder="e.g., A4 Paper 80gsm"
               />
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
@@ -141,7 +141,7 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
                 <input
                   type="text"
                   {...register('sku')}
-                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.sku ? 'border-red-500' : ''}`}
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.sku ? 'border-red-500' : ''}`}
                   placeholder="e.g., PPR-A4-80"
                 />
                 {errors.sku && <p className="text-red-500 text-xs mt-1">{errors.sku.message}</p>}
@@ -150,7 +150,7 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
                 <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
                 <select
                   {...register('category')}
-                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.category ? 'border-red-500' : ''}`}
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.category ? 'border-red-500' : ''}`}
                 >
                   <option value="Paper">Paper</option>
                   <option value="Ink">Ink</option>
@@ -168,7 +168,7 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
                 <label className="block text-sm font-medium text-slate-700 mb-1">Unit of Measure <span className="text-red-500">*</span></label>
                 <select
                   {...register('unit')}
-                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.unit ? 'border-red-500' : ''}`}
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.unit ? 'border-red-500' : ''}`}
                 >
                   <option value="sheets">Sheets</option>
                   <option value="m²">Square Meters (m²)</option>
@@ -185,7 +185,7 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
                   type="number"
                   min="0"
                   {...register('minStock')}
-                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.minStock ? 'border-red-500' : ''}`}
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.minStock ? 'border-red-500' : ''}`}
                   placeholder="e.g., 1000"
                 />
                 {errors.minStock && <p className="text-red-500 text-xs mt-1">{errors.minStock.message}</p>}
@@ -205,7 +205,7 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+              className="px-6 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
               {loading ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Add Material')}
             </button>

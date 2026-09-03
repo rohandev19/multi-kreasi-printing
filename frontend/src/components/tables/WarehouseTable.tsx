@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, Warning, TrendDown, TrendUp, NotePencil, Plus, Trash, ArrowsLeftRight } from '@phosphor-icons/react';
+import { Package, AlertTriangle, TrendingDown, TrendingUp, Edit, Plus, Trash2, ArrowRightLeft } from 'lucide-react';
 
 interface Material {
   id: string;
@@ -33,9 +33,9 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
 }) => {
   const getStatusBadge = (status: string) => {
     const config = {
-      In_Stock: { color: 'bg-emerald-100 text-emerald-700', icon: <TrendUp size={14} weight="regular" /> },
-      Low_Stock: { color: 'bg-amber-100 text-amber-700', icon: <Warning size={14} weight="regular" /> },
-      Out_of_Stock: { color: 'bg-red-100 text-red-700', icon: <TrendDown size={14} weight="regular" /> },
+      In_Stock: { color: 'bg-emerald-100 text-emerald-700', icon: <TrendingUp size={14} /> },
+      Low_Stock: { color: 'bg-amber-100 text-amber-700', icon: <AlertTriangle size={14} /> },
+      Out_of_Stock: { color: 'bg-red-100 text-red-700', icon: <TrendingDown size={14} /> },
     };
     return config[status as keyof typeof config] || config.In_Stock;
   };
@@ -93,23 +93,23 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
                   className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                   title="Adjust Stock"
                 >
-                  <ArrowsLeftRight size={18} weight="regular" />
+                  <ArrowRightLeft size={18} />
                 </button>
                 <button
                   onClick={() => onRecordShipment(material.id)}
                   className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                   title="Record Shipment"
                 >
-                  <Plus size={18} weight="regular" />
+                  <Plus size={18} />
                 </button>
                 
                 {canManageCatalog && onEditMaterial && (
                   <button
                     onClick={() => onEditMaterial(material.id)}
-                    className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                    className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                     title="Edit Material"
                   >
-                    <NotePencil size={18} weight="regular" />
+                    <Edit size={18} />
                   </button>
                 )}
                 
@@ -119,7 +119,7 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
                     className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     title="Delete Material"
                   >
-                    <Trash size={18} weight="regular" />
+                    <Trash2 size={18} />
                   </button>
                 )}
               </div>
@@ -128,7 +128,7 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
         })}
         {materials.length === 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-slate-500">
-            <Package size={48} className="mx-auto mb-3 text-slate-300" weight="regular" />
+            <Package size={48} className="mx-auto mb-3 text-slate-300" />
             <p>No materials found in warehouse.</p>
           </div>
         )}
@@ -167,7 +167,7 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
             {materials.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
-                  <Package size={48} className="mx-auto mb-3 text-slate-300" weight="regular" />
+                  <Package size={48} className="mx-auto mb-3 text-slate-300" />
                   <p>No materials found in warehouse.</p>
                 </td>
               </tr>
@@ -205,23 +205,23 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
                         className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
                         title="Adjust Stock"
                       >
-                        <ArrowsLeftRight size={18} weight="regular" />
+                        <ArrowRightLeft size={18} />
                       </button>
                       <button
                         onClick={() => onRecordShipment(material.id)}
                         className="p-1 text-slate-400 hover:text-emerald-600 transition-colors"
                         title="Record Shipment"
                       >
-                        <Plus size={18} weight="regular" />
+                        <Plus size={18} />
                       </button>
                       
                       {canManageCatalog && onEditMaterial && (
                         <button
                           onClick={() => onEditMaterial(material.id)}
-                          className="p-1 text-slate-400 hover:text-primary-600 transition-colors"
+                          className="p-1 text-slate-400 hover:text-indigo-600 transition-colors"
                           title="Edit Material"
                         >
-                          <NotePencil size={18} weight="regular" />
+                          <Edit size={18} />
                         </button>
                       )}
                       
@@ -231,7 +231,7 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
                           className="p-1 text-slate-400 hover:text-red-600 transition-colors"
                           title="Delete Material"
                         >
-                          <Trash size={18} weight="regular" />
+                          <Trash2 size={18} />
                         </button>
                       )}
                     </td>

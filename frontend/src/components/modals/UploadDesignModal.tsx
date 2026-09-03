@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
 import { useToast } from '../../contexts/ToastContext';
-import { CloudArrowUp } from '@phosphor-icons/react';
+import { UploadCloud } from 'lucide-react';
 
 interface UploadDesignModalProps {
   isOpen: boolean;
@@ -103,7 +103,7 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
               <select
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value)}
-                className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 required
               >
                 <option value="">Select an order...</option>
@@ -120,13 +120,13 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
             <label className="block text-sm font-medium text-slate-700 mb-1">
               File <span className="text-red-500">*</span>
             </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-lg hover:border-primary-500 transition-colors bg-slate-50">
+            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-lg hover:border-indigo-500 transition-colors bg-slate-50">
               <div className="space-y-1 text-center">
-                <CloudArrowUp className="mx-auto h-12 w-12 text-slate-400" weight="regular" />
+                <UploadCloud className="mx-auto h-12 w-12 text-slate-400" />
                 <div className="flex text-sm text-slate-600 justify-center">
                   <label
                     htmlFor="file-upload"
-                    className="relative cursor-pointer rounded-md bg-white font-medium text-primary-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2 hover:text-primary-500"
+                    className="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
                   >
                     <span>Upload a file</span>
                     <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} required />
@@ -149,7 +149,7 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
                 min="1"
                 value={version}
                 onChange={(e) => setVersion(parseInt(e.target.value))}
-                className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 required
               />
             </div>
@@ -160,7 +160,7 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="e.g., Fixed logo color"
-                className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
           </div>
@@ -178,7 +178,7 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
           <button
             type="submit"
             disabled={loading || !orderId || !file}
-            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
             {loading ? 'Uploading...' : 'Upload File'}
           </button>

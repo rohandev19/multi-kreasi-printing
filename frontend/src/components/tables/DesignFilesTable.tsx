@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileImage, Check, X, Clock, Eye, Download, Trash, NotePencil } from '@phosphor-icons/react';
+import { FileImage, Check, X, Clock, Eye, Download, Trash2, Edit } from 'lucide-react';
 
 interface DesignFile {
   id: string;
@@ -27,12 +27,12 @@ interface DesignFilesTableProps {
 }
 
 const statusConfig: Record<string, { color: string; icon: React.ReactNode }> = {
-  Uploaded: { color: 'bg-blue-100 text-blue-700', icon: <Clock size={14} weight="regular" /> },
-  AI_Check: { color: 'bg-primary-100 text-primary-700', icon: <Clock size={14} weight="regular" /> },
-  Manual_Review: { color: 'bg-amber-100 text-amber-700', icon: <Clock size={14} weight="regular" /> },
-  Approved: { color: 'bg-emerald-100 text-emerald-700', icon: <Check size={14} weight="regular" /> },
-  Rejected: { color: 'bg-red-100 text-red-700', icon: <X size={14} weight="regular" /> },
-  Revision_Required: { color: 'bg-orange-100 text-orange-700', icon: <X size={14} weight="regular" /> },
+  Uploaded: { color: 'bg-blue-100 text-blue-700', icon: <Clock size={14} /> },
+  AI_Check: { color: 'bg-purple-100 text-purple-700', icon: <Clock size={14} /> },
+  Manual_Review: { color: 'bg-amber-100 text-amber-700', icon: <Clock size={14} /> },
+  Approved: { color: 'bg-emerald-100 text-emerald-700', icon: <Check size={14} /> },
+  Rejected: { color: 'bg-red-100 text-red-700', icon: <X size={14} /> },
+  Revision_Required: { color: 'bg-orange-100 text-orange-700', icon: <X size={14} /> },
 };
 
 export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
@@ -74,7 +74,7 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
           <div key={file.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3 flex flex-col">
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-2">
-                <FileImage size={16} className="text-blue-500 flex-shrink-0" weight="regular" />
+                <FileImage size={16} className="text-blue-500 flex-shrink-0" />
                 <div className="font-medium text-slate-900 break-all">{file.originalName}</div>
               </div>
             </div>
@@ -108,14 +108,14 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
                 className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                 title="Preview"
               >
-                <Eye size={18} weight="regular" />
+                <Eye size={18} />
               </button>
               <button
                 onClick={() => onDownload(file.id)}
                 className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                 title="Download"
               >
-                <Download size={18} weight="regular" />
+                <Download size={18} />
               </button>
               {(isDesigner || canManage) && file.status === 'Manual_Review' && (
                 <>
@@ -124,21 +124,21 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
                     className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                     title="Approve"
                   >
-                    <Check size={18} weight="regular" />
+                    <Check size={18} />
                   </button>
                   <button
                     onClick={() => onReject(file.id)}
                     className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     title="Reject"
                   >
-                    <X size={18} weight="regular" />
+                    <X size={18} />
                   </button>
                   <button
                     onClick={() => onRevisionRequest(file.id)}
                     className="p-1.5 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                     title="Request Revision"
                   >
-                    <NotePencil size={18} weight="regular" />
+                    <Edit size={18} />
                   </button>
                 </>
               )}
@@ -148,7 +148,7 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
                   className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   title="Delete"
                 >
-                  <Trash size={18} weight="regular" />
+                  <Trash2 size={18} />
                 </button>
               )}
             </div>
@@ -156,7 +156,7 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
         ))}
         {files.length === 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-slate-500">
-            <FileImage size={48} className="mx-auto mb-3 text-slate-300" weight="regular" />
+            <FileImage size={48} className="mx-auto mb-3 text-slate-300" />
             <p>No design files found.</p>
           </div>
         )}
@@ -198,7 +198,7 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
             {files.length === 0 ? (
               <tr>
                 <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
-                  <FileImage size={48} className="mx-auto mb-3 text-slate-300" weight="regular" />
+                  <FileImage size={48} className="mx-auto mb-3 text-slate-300" />
                   <p>No design files found.</p>
                 </td>
               </tr>
@@ -206,7 +206,7 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
               files.map((file) => (
                 <tr key={file.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4 text-sm font-medium text-slate-900 flex items-center gap-2">
-                    <FileImage size={16} className="text-blue-500" weight="regular" />
+                    <FileImage size={16} className="text-blue-500" />
                     {file.originalName}
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-700">
@@ -236,14 +236,14 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
                       className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
                       title="Preview"
                     >
-                      <Eye size={18} weight="regular" />
+                      <Eye size={18} />
                     </button>
                     <button
                       onClick={() => onDownload(file.id)}
                       className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
                       title="Download"
                     >
-                      <Download size={18} weight="regular" />
+                      <Download size={18} />
                     </button>
                     {(isDesigner || canManage) && file.status === 'Manual_Review' && (
                       <>
@@ -252,21 +252,21 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
                           className="p-1 text-slate-400 hover:text-emerald-600 transition-colors"
                           title="Approve"
                         >
-                          <Check size={18} weight="regular" />
+                          <Check size={18} />
                         </button>
                         <button
                           onClick={() => onReject(file.id)}
                           className="p-1 text-slate-400 hover:text-red-600 transition-colors"
                           title="Reject"
                         >
-                          <X size={18} weight="regular" />
+                          <X size={18} />
                         </button>
                         <button
                           onClick={() => onRevisionRequest(file.id)}
                           className="p-1 text-slate-400 hover:text-orange-600 transition-colors"
                           title="Request Revision"
                         >
-                          <NotePencil size={18} weight="regular" />
+                          <Edit size={18} />
                         </button>
                       </>
                     )}
@@ -276,7 +276,7 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
                         className="p-1 text-slate-400 hover:text-red-600 transition-colors"
                         title="Delete"
                       >
-                        <Trash size={18} weight="regular" />
+                        <Trash2 size={18} />
                       </button>
                     )}
                   </td>

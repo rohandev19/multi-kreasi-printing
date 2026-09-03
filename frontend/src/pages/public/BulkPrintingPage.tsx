@@ -1,23 +1,23 @@
 import { Link } from 'react-router-dom';
-import { Package, TrendDown, Clock, ShieldCheck, ArrowRight, Truck } from '@phosphor-icons/react';
+import { Package, TrendingDown, Clock, ShieldCheck, ArrowRight, Truck } from 'lucide-react';
 
 export const BulkPrintingPage = () => {
   return (
     <div className="animate-fade-in">
       {/* Hero Section */}
-      <section className="bg-primary-900 text-white py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-primary-300 via-primary-900 to-black"></div>
+      <section className="bg-indigo-900 text-white py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-300 via-indigo-900 to-black"></div>
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">Enterprise Bulk Printing Solutions</h1>
-          <p className="text-xl text-primary-100 max-w-3xl mx-auto mb-10 leading-relaxed">
+          <p className="text-xl text-indigo-100 max-w-3xl mx-auto mb-10 leading-relaxed">
             Scale your business with our high-volume printing services. Enjoy significant cost savings, priority production, and dedicated B2B support for all your corporate printing needs.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link to="/custom-order" className="bg-white text-primary-900 hover:bg-primary-50 font-bold py-3 px-8 rounded-lg shadow-lg transition-all flex items-center justify-center gap-2">
+            <Link to="/custom-order" className="bg-white text-indigo-900 hover:bg-indigo-50 font-bold py-3 px-8 rounded-lg shadow-lg transition-all flex items-center justify-center gap-2">
               Request a Bulk Quote
-              <ArrowRight size={18} weight="regular" />
+              <ArrowRight size={18} />
             </Link>
-            <Link to="/contact" className="bg-primary-800 hover:bg-primary-700 text-white font-bold py-3 px-8 rounded-lg border border-primary-600 transition-all">
+            <Link to="/contact" className="bg-indigo-800 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg border border-indigo-600 transition-all">
               Talk to Sales
             </Link>
           </div>
@@ -33,8 +33,8 @@ export const BulkPrintingPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="w-14 h-14 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mb-6">
-              <TrendDown size={28} weight="regular" />
+            <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6">
+              <TrendingDown size={28} />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3">Tiered Volume Discounts</h3>
             <p className="text-gray-600 leading-relaxed">
@@ -43,8 +43,8 @@ export const BulkPrintingPage = () => {
           </div>
 
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="w-14 h-14 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mb-6">
-              <Clock size={28} weight="regular" />
+            <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6">
+              <Clock size={28} />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3">Priority Production Lane</h3>
             <p className="text-gray-600 leading-relaxed">
@@ -53,8 +53,8 @@ export const BulkPrintingPage = () => {
           </div>
 
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="w-14 h-14 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mb-6">
-              <ShieldCheck size={28} weight="regular" />
+            <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6">
+              <ShieldCheck size={28} />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3">Consistent Quality Control</h3>
             <p className="text-gray-600 leading-relaxed">
@@ -63,8 +63,8 @@ export const BulkPrintingPage = () => {
           </div>
           
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="w-14 h-14 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mb-6">
-              <Package size={28} weight="regular" />
+            <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6">
+              <Package size={28} />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3">Custom Packaging & Kitting</h3>
             <p className="text-gray-600 leading-relaxed">
@@ -72,18 +72,18 @@ export const BulkPrintingPage = () => {
             </p>
           </div>
 
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow lg:col-span-2 flex flex-col justify-center bg-primary-50/50">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow lg:col-span-2 flex flex-col justify-center bg-indigo-50/50">
             <div className="flex items-start gap-4">
-              <div className="shrink-0 w-12 h-12 bg-white text-primary-600 rounded-full flex items-center justify-center shadow-sm">
-                <Truck size={24} weight="regular" />
+              <div className="shrink-0 w-12 h-12 bg-white text-indigo-600 rounded-full flex items-center justify-center shadow-sm">
+                <Truck size={24} />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Nationwide Logistics Network</h3>
                 <p className="text-gray-600 leading-relaxed mb-4">
                   We partner with top-tier logistics providers to ensure your large pallets or multi-destination shipments arrive safely and on time, anywhere in Indonesia. We handle the routing, tracking, and delivery confirmation so you don't have to.
                 </p>
-                <Link to="/contact" className="text-primary-600 font-bold hover:text-primary-800 flex items-center gap-1">
-                  Discuss logistics requirements <ArrowRight size={16} weight="regular" />
+                <Link to="/contact" className="text-indigo-600 font-bold hover:text-indigo-800 flex items-center gap-1">
+                  Discuss logistics requirements <ArrowRight size={16} />
                 </Link>
               </div>
             </div>

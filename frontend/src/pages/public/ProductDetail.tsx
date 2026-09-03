@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star } from '@phosphor-icons/react';
+import { Star } from 'lucide-react';
 import api from '../../api/axios';
 import { useRoleContext } from '../../contexts/RoleContext';
 import { useToast } from '../../contexts/ToastContext';
@@ -82,8 +82,8 @@ export const ProductDetail: React.FC = () => {
         
         {/* Breadcrumb */}
         <div className="text-sm text-slate-500 font-medium mb-8">
-          <Link to="/" className="hover:text-primary-600">Home</Link> <span className="mx-2">&gt;</span> 
-          <Link to="/products" className="hover:text-primary-600">Products</Link> <span className="mx-2">&gt;</span> 
+          <Link to="/" className="hover:text-indigo-600">Home</Link> <span className="mx-2">&gt;</span> 
+          <Link to="/products" className="hover:text-indigo-600">Products</Link> <span className="mx-2">&gt;</span> 
           <span className="text-slate-900">Flyers</span>
         </div>
 
@@ -103,20 +103,20 @@ export const ProductDetail: React.FC = () => {
           {/* RIGHT COLUMN: Configuration */}
           <div className="lg:w-1/2">
             <div className="mb-6">
-              <span className="text-xs font-bold text-primary-600 uppercase tracking-wider mb-2 block">Flyers & Leaflets</span>
+              <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2 block">Flyers & Leaflets</span>
               <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">Premium A5 Flyers</h1>
               
               <div className="flex items-center gap-4 mb-4">
                 <div className="flex items-center gap-1 text-amber-400">
-                  <Star size={18} fill={reviewsAverage >= 1 ? "currentColor" : "none"} weight="regular" />
-                  <Star size={18} fill={reviewsAverage >= 2 ? "currentColor" : "none"} weight="regular" />
-                  <Star size={18} fill={reviewsAverage >= 3 ? "currentColor" : "none"} weight="regular" />
-                  <Star size={18} fill={reviewsAverage >= 4 ? "currentColor" : "none"} weight="regular" />
-                  <Star size={18} fill={reviewsAverage >= 5 ? "currentColor" : "none"} className={reviewsAverage < 5 ? "text-slate-200" : ""} weight="regular" />
+                  <Star size={18} fill={reviewsAverage >= 1 ? "currentColor" : "none"} />
+                  <Star size={18} fill={reviewsAverage >= 2 ? "currentColor" : "none"} />
+                  <Star size={18} fill={reviewsAverage >= 3 ? "currentColor" : "none"} />
+                  <Star size={18} fill={reviewsAverage >= 4 ? "currentColor" : "none"} />
+                  <Star size={18} fill={reviewsAverage >= 5 ? "currentColor" : "none"} className={reviewsAverage < 5 ? "text-slate-200" : ""} />
                 </div>
                 <span className="text-sm font-medium text-slate-600">{reviewsAverage} ({reviewsTotal} reviews)</span>
                 <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                <button onClick={() => setActiveTab('reviews')} className="text-sm font-medium text-primary-600 hover:text-primary-700">Write a review</button>
+                <button onClick={() => setActiveTab('reviews')} className="text-sm font-medium text-indigo-600 hover:text-indigo-700">Write a review</button>
               </div>
 
               <div className="flex items-end gap-2 mb-4">
@@ -133,13 +133,13 @@ export const ProductDetail: React.FC = () => {
           <div className="flex gap-8 border-b border-slate-200 mb-8 overflow-x-auto no-scrollbar">
             <button 
               onClick={() => setActiveTab('description')}
-              className={`pb-4 text-base font-bold whitespace-nowrap transition-colors ${activeTab === 'description' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-slate-500 hover:text-slate-800'}`}
+              className={`pb-4 text-base font-bold whitespace-nowrap transition-colors ${activeTab === 'description' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}
             >
               Description
             </button>
             <button 
               onClick={() => setActiveTab('reviews')}
-              className={`pb-4 text-base font-bold whitespace-nowrap transition-colors ${activeTab === 'reviews' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-slate-500 hover:text-slate-800'}`}
+              className={`pb-4 text-base font-bold whitespace-nowrap transition-colors ${activeTab === 'reviews' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}
             >
               Reviews ({reviewsTotal})
             </button>
@@ -178,7 +178,7 @@ export const ProductDetail: React.FC = () => {
                       <textarea
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
-                        className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 p-3 border"
+                        className="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3 border"
                         rows={3}
                         placeholder="What do you think about this product?"
                         required
@@ -187,7 +187,7 @@ export const ProductDetail: React.FC = () => {
                     <button
                       type="submit"
                       disabled={isSubmittingReview}
-                      className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50"
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50"
                     >
                       {isSubmittingReview ? 'Submitting...' : 'Submit Review'}
                     </button>
@@ -195,7 +195,7 @@ export const ProductDetail: React.FC = () => {
                 ) : (
                   <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center">
                     <p className="text-slate-600 mb-2">Please log in to write a review for this product.</p>
-                    <Link to="/login" className="text-primary-600 font-medium hover:underline">Log in now</Link>
+                    <Link to="/login" className="text-indigo-600 font-medium hover:underline">Log in now</Link>
                   </div>
                 )}
 
@@ -217,7 +217,7 @@ export const ProductDetail: React.FC = () => {
                               <p className="font-bold text-slate-900 text-sm">{review.user.fullName}</p>
                               <div className="flex text-amber-400 gap-0.5">
                                 {[1, 2, 3, 4, 5].map((star) => (
-                                  <Star key={star} size={12} fill={review.rating >= star ? 'currentColor' : 'none'} className={review.rating < star ? 'text-slate-200' : ''} weight="regular" />
+                                  <Star key={star} size={12} fill={review.rating >= star ? 'currentColor' : 'none'} className={review.rating < star ? 'text-slate-200' : ''} />
                                 ))}
                               </div>
                             </div>

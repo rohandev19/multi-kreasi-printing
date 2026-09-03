@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
 import { useToast } from '../../contexts/ToastContext';
-import { Plus, Trash } from '@phosphor-icons/react';
+import { Plus, Trash2 } from 'lucide-react';
 import { z } from 'zod';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -192,7 +192,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
     >
       {fetchingData ? (
         <div className="p-12 flex justify-center items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[80vh]">
@@ -204,7 +204,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                 <label className="block text-sm font-medium text-slate-700 mb-1">Customer <span className="text-red-500">*</span></label>
                 <select
                   {...register('customerId')}
-                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.customerId ? 'border-red-500' : ''}`}
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.customerId ? 'border-red-500' : ''}`}
                 >
                   <option value="">Select a customer...</option>
                   {customers.map(c => (
@@ -219,7 +219,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                   <label className="block text-sm font-medium text-slate-700 mb-1">Order Status</label>
                   <select
                     {...register('status')}
-                    className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.status ? 'border-red-500' : ''}`}
+                    className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.status ? 'border-red-500' : ''}`}
                   >
                     <option value="Draft">Draft</option>
                     <option value="Pending_Approval">Pending Approval</option>
@@ -233,7 +233,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                   <label className="block text-sm font-medium text-slate-700 mb-1">Payment</label>
                   <select
                     {...register('paymentStatus')}
-                    className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.paymentStatus ? 'border-red-500' : ''}`}
+                    className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.paymentStatus ? 'border-red-500' : ''}`}
                   >
                     <option value="Unpaid">Unpaid</option>
                     <option value="Partial">Partial</option>
@@ -253,9 +253,9 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                 <button
                   type="button"
                   onClick={() => append({ productId: '', quantity: 1, price: 0 })}
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+                  className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
                 >
-                  <Plus size={16} weight="regular" /> Add Item
+                  <Plus size={16} /> Add Item
                 </button>
               </div>
               
@@ -275,7 +275,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                               setValue(`items.${index}.price` as const, product.basePrice);
                             }
                           }}
-                          className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.items?.[index]?.productId ? 'border-red-500' : ''}`}
+                          className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.items?.[index]?.productId ? 'border-red-500' : ''}`}
                         >
                           <option value="">Select product...</option>
                           {products.map(p => (
@@ -295,7 +295,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                             type="number"
                             min="0"
                             {...register(`items.${index}.price` as const)}
-                            className={`w-full pl-9 border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.items?.[index]?.price ? 'border-red-500' : ''}`}
+                            className={`w-full pl-9 border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.items?.[index]?.price ? 'border-red-500' : ''}`}
                           />
                         </div>
                         {errors.items?.[index]?.price && <p className="text-red-500 text-xs mt-1">{errors.items[index]?.price?.message}</p>}
@@ -307,7 +307,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                           type="number"
                           min="1"
                           {...register(`items.${index}.quantity` as const)}
-                          className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.items?.[index]?.quantity ? 'border-red-500' : ''}`}
+                          className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.items?.[index]?.quantity ? 'border-red-500' : ''}`}
                         />
                         {errors.items?.[index]?.quantity && <p className="text-red-500 text-xs mt-1">{errors.items[index]?.quantity?.message}</p>}
                       </div>
@@ -320,7 +320,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                         className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors mt-5"
                         title="Remove item"
                       >
-                        <Trash size={18} weight="regular" />
+                        <Trash2 size={18} />
                       </button>
                     )}
                   </div>
@@ -330,9 +330,9 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
             </div>
 
             {/* Total Summary */}
-            <div className="bg-primary-50 p-4 rounded-xl border border-primary-100 flex justify-between items-center">
-              <span className="font-medium text-primary-900">Total Amount</span>
-              <span className="text-xl font-bold text-primary-700">{formatCurrency(calculateTotal())}</span>
+            <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 flex justify-between items-center">
+              <span className="font-medium text-indigo-900">Total Amount</span>
+              <span className="text-xl font-bold text-indigo-700">{formatCurrency(calculateTotal())}</span>
             </div>
 
           </div>
@@ -350,7 +350,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 flex items-center"
+              className="px-6 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 flex items-center"
             >
               {loading ? (
                 <>

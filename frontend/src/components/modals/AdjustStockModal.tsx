@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
 import { useToast } from '../../contexts/ToastContext';
-import { Package, Plus, Minus } from '@phosphor-icons/react';
+import { PackageMinus, PackagePlus } from 'lucide-react';
 
 interface AdjustStockModalProps {
   isOpen: boolean;
@@ -75,10 +75,7 @@ export const AdjustStockModal: React.FC<AdjustStockModalProps> = ({
                   : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
               }`}
             >
-              <div className="flex items-center justify-center gap-2">
-                <Package size={20} className={adjustmentType === 'add' ? 'text-emerald-500' : ''} weight="regular" />
-                <Plus size={16} className={adjustmentType === 'add' ? 'text-emerald-500' : ''} weight="bold" />
-              </div>
+              <PackagePlus size={24} className={adjustmentType === 'add' ? 'text-emerald-500' : ''} />
               <span className="text-sm font-medium">Add Stock</span>
             </button>
             <button
@@ -90,10 +87,7 @@ export const AdjustStockModal: React.FC<AdjustStockModalProps> = ({
                   : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
               }`}
             >
-              <div className="flex items-center justify-center gap-2">
-                <Package size={20} className={adjustmentType === 'subtract' ? 'text-red-500' : ''} weight="regular" />
-                <Minus size={16} className={adjustmentType === 'subtract' ? 'text-red-500' : ''} weight="bold" />
-              </div>
+              <PackageMinus size={24} className={adjustmentType === 'subtract' ? 'text-red-500' : ''} />
               <span className="text-sm font-medium">Subtract Stock</span>
             </button>
           </div>
@@ -108,7 +102,7 @@ export const AdjustStockModal: React.FC<AdjustStockModalProps> = ({
                 min="1"
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
-                className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 required
               />
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -130,7 +124,7 @@ export const AdjustStockModal: React.FC<AdjustStockModalProps> = ({
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder={adjustmentType === 'add' ? 'e.g., Manual stock count correction' : 'e.g., Damaged goods, waste'}
             />
           </div>

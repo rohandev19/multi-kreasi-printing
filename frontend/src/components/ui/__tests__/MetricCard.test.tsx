@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '../../../utils/test-utils';
 import { MetricCard } from '../MetricCard';
-import { Users } from '@phosphor-icons/react';
+import { Users } from 'lucide-react';
 
 describe('MetricCard Component', () => {
   it('renders title, value, and icon correctly', () => {
@@ -9,7 +9,7 @@ describe('MetricCard Component', () => {
       <MetricCard 
         title="Total Users" 
         value="1,234" 
-        icon={<Users weight="regular" />} 
+        icon={<Users />} 
       />
     );
 
@@ -22,7 +22,7 @@ describe('MetricCard Component', () => {
       <MetricCard 
         title="Revenue" 
         value="$50K" 
-        icon={<Users weight="regular" />} 
+        icon={<Users />} 
         trend={{ value: 12.5, direction: 'up' }}
       />
     );
@@ -35,7 +35,7 @@ describe('MetricCard Component', () => {
       <MetricCard 
         title="Bounce Rate" 
         value="45%" 
-        icon={<Users weight="regular" />} 
+        icon={<Users />} 
         trend={{ value: 5.2, direction: 'down' }}
       />
     );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
-import { CreditCard, Calendar } from '@phosphor-icons/react';
+import { CreditCard, Calendar } from 'lucide-react';
 
 interface PaymentHistoryModalProps {
   isOpen: boolean;
@@ -62,7 +62,7 @@ export const PaymentHistoryModal: React.FC<PaymentHistoryModalProps> = ({
       <div className="p-0">
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
           </div>
         ) : error ? (
           <div className="p-6">
@@ -70,7 +70,7 @@ export const PaymentHistoryModal: React.FC<PaymentHistoryModalProps> = ({
           </div>
         ) : payments.length === 0 ? (
           <div className="text-center py-12 text-slate-500">
-            <CreditCard size={48} className="mx-auto text-slate-300 mb-4" weight="regular" />
+            <CreditCard size={48} className="mx-auto text-slate-300 mb-4" />
             <p>No payment history found for this customer.</p>
           </div>
         ) : (
@@ -81,13 +81,13 @@ export const PaymentHistoryModal: React.FC<PaymentHistoryModalProps> = ({
                   <div>
                     <p className="font-bold text-slate-900 text-sm mb-1">{formatCurrency(payment.amount)}</p>
                     <div className="flex items-center gap-3 text-xs text-slate-500">
-                      <span className="flex items-center gap-1"><Calendar size={12} weight="regular" /> {formatDate(payment.date)}</span>
+                      <span className="flex items-center gap-1"><Calendar size={12} /> {formatDate(payment.date)}</span>
                       <span>•</span>
                       <span>{payment.method}</span>
                       {payment.invoiceNumber && (
                         <>
                           <span>•</span>
-                          <span className="font-medium text-primary-600">{payment.invoiceNumber}</span>
+                          <span className="font-medium text-indigo-600">{payment.invoiceNumber}</span>
                         </>
                       )}
                     </div>

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FileX, ArrowLeft, House } from '@phosphor-icons/react';
+import { FileQuestion, ArrowLeft, Home } from 'lucide-react';
 import { useRoleContext } from '../contexts/RoleContext';
 
 export const NotFound = () => {
@@ -9,8 +9,8 @@ export const NotFound = () => {
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
       <div className="max-w-md w-full text-center">
         <div className="mb-8 flex justify-center">
-          <div className="w-24 h-24 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 shadow-sm border border-primary-200">
-            <FileX size={48} strokeWidth={1.5} weight="regular" />
+          <div className="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-200">
+            <FileQuestion size={48} strokeWidth={1.5} />
           </div>
         </div>
         
@@ -24,15 +24,15 @@ export const NotFound = () => {
             onClick={() => window.history.back()}
             className="flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
           >
-            <ArrowLeft size={18} weight="regular" />
+            <ArrowLeft size={18} />
             Go Back
           </button>
           
           <Link 
             to={user ? '/dashboard' : '/'}
-            className="flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-700 transition-all shadow-md shadow-primary-600/20"
+            className="flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-md shadow-indigo-600/20"
           >
-            <House size={18} weight="regular" />
+            <Home size={18} />
             {user ? 'Dashboard' : 'Homepage'}
           </Link>
         </div>

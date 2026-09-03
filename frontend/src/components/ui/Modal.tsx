@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { X } from '@phosphor-icons/react';
+import { X } from 'lucide-react';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -74,7 +74,7 @@ export const Modal: React.FC<ModalProps> = ({
               className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors"
               aria-label="Close"
             >
-              <X size={18} weight="regular" />
+              <X size={18} />
             </button>
           </div>
         )}

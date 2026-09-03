@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, MagnifyingGlass, Plus, PaperPlaneTilt, FloppyDisk } from '@phosphor-icons/react';
+import { X, Search, Plus, Send, Save } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import { useToast } from '../../contexts/ToastContext';
 
@@ -86,18 +86,18 @@ export default function CreateQuotationModal({ isOpen, onClose, quotationId }: P
           <label className="block text-sm font-bold text-slate-700 mb-2">Customer</label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MagnifyingGlass className="h-4 w-4 text-slate-400" weight="regular" />
+              <Search className="h-4 w-4 text-slate-400" />
             </div>
             <input
               type="text"
               value={customer}
               onChange={(e) => setCustomer(e.target.value)}
               placeholder="Search customer by name or company..."
-              className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 focus:bg-white transition-colors"
+              className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm focus:ring-2 focus:ring-indigo-600 focus:bg-white transition-colors"
             />
           </div>
           <div className="mt-2 text-right">
-            <button className="text-xs font-bold text-primary-600 hover:text-primary-700 hover:underline">
+            <button className="text-xs font-bold text-indigo-600 hover:text-indigo-700 hover:underline">
               + Add New Customer
             </button>
           </div>
@@ -117,13 +117,13 @@ export default function CreateQuotationModal({ isOpen, onClose, quotationId }: P
                   className="absolute -top-3 -right-3 w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-200 shadow-sm"
                   title="Remove Item"
                 >
-                  <X size={12} strokeWidth={3} weight="regular" />
+                  <X size={12} strokeWidth={3} />
                 </button>
                 
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                   <div className="md:col-span-3">
                     <label className="block text-xs font-bold text-slate-500 mb-1">Product/Service</label>
-                    <select className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-primary-600">
+                    <select className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-600">
                       <option value="">Select Product...</option>
                       <option value="business_cards">Business Cards</option>
                       <option value="flyers">Flyers & Brochures</option>
@@ -132,7 +132,7 @@ export default function CreateQuotationModal({ isOpen, onClose, quotationId }: P
                   </div>
                   <div className="md:col-span-4">
                     <label className="block text-xs font-bold text-slate-500 mb-1">Specifications</label>
-                    <input type="text" placeholder="e.g., A4, Art Paper 260gsm" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-primary-600" />
+                    <input type="text" placeholder="e.g., A4, Art Paper 260gsm" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-600" />
                   </div>
                   <div className="md:col-span-1">
                     <label className="block text-xs font-bold text-slate-500 mb-1">Qty</label>
@@ -144,7 +144,7 @@ export default function CreateQuotationModal({ isOpen, onClose, quotationId }: P
                         newItems[index].qty = parseInt(e.target.value) || 0;
                         setItems(newItems);
                       }}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-primary-600" 
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-600" 
                     />
                   </div>
                   <div className="md:col-span-2">
@@ -157,7 +157,7 @@ export default function CreateQuotationModal({ isOpen, onClose, quotationId }: P
                         newItems[index].price = parseInt(e.target.value) || 0;
                         setItems(newItems);
                       }}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-primary-600 font-mono" 
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-600 font-mono" 
                     />
                   </div>
                   <div className="md:col-span-2">
@@ -173,9 +173,9 @@ export default function CreateQuotationModal({ isOpen, onClose, quotationId }: P
           
           <button 
             onClick={handleAddItem}
-            className="mt-4 flex items-center gap-2 text-sm font-bold text-primary-600 hover:text-primary-700 bg-primary-50 px-4 py-2 rounded-lg hover:bg-primary-100 transition-colors"
+            className="mt-4 flex items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-4 py-2 rounded-lg hover:bg-indigo-100 transition-colors"
           >
-            <Plus size={16} weight="regular" />
+            <Plus size={16} />
             Add Item
           </button>
         </div>
@@ -189,7 +189,7 @@ export default function CreateQuotationModal({ isOpen, onClose, quotationId }: P
                 value={terms}
                 onChange={(e) => setTerms(e.target.value)}
                 rows={4}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-primary-600 resize-none text-slate-600"
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-600 resize-none text-slate-600"
               ></textarea>
             </div>
             
@@ -214,7 +214,7 @@ export default function CreateQuotationModal({ isOpen, onClose, quotationId }: P
                   type="number" 
                   value={validDays}
                   onChange={(e) => setValidDays(parseInt(e.target.value) || 0)}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-primary-600" 
+                  className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-600" 
                 />
               </div>
               <div>
@@ -223,7 +223,7 @@ export default function CreateQuotationModal({ isOpen, onClose, quotationId }: P
                   type="number" 
                   value={totalDiscount}
                   onChange={(e) => setTotalDiscount(parseInt(e.target.value) || 0)}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-primary-600" 
+                  className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-600" 
                   max="100"
                   min="0"
                 />
@@ -249,7 +249,7 @@ export default function CreateQuotationModal({ isOpen, onClose, quotationId }: P
                 </div>
                 <div className="pt-3 mt-3 border-t border-slate-200 flex justify-between items-center">
                   <span className="font-bold text-slate-900">Grand Total</span>
-                  <span className="text-2xl font-extrabold text-primary-600 tracking-tight">{formatCurrency(grandTotal)}</span>
+                  <span className="text-2xl font-extrabold text-indigo-600 tracking-tight">{formatCurrency(grandTotal)}</span>
                 </div>
               </div>
             </div>
@@ -269,16 +269,16 @@ export default function CreateQuotationModal({ isOpen, onClose, quotationId }: P
         <div className="flex gap-3">
           <button 
             onClick={handleSaveDraft}
-            className="flex items-center gap-2 px-6 py-2.5 border-2 border-primary-600 text-primary-700 font-bold rounded-xl hover:bg-primary-50 transition-colors bg-white shadow-sm"
+            className="flex items-center gap-2 px-6 py-2.5 border-2 border-indigo-600 text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-colors bg-white shadow-sm"
           >
-            <FloppyDisk size={18} weight="regular" />
+            <Save size={18} />
             Save as Draft
           </button>
           <button 
             onClick={handleSaveAndSend}
-            className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-colors shadow-sm"
+            className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"
           >
-            <PaperPlaneTilt size={18} weight="regular" />
+            <Send size={18} />
             Save & Send
           </button>
         </div>

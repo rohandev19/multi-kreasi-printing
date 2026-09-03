@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
 import { useToast } from '../../contexts/ToastContext';
-import { Warning } from '@phosphor-icons/react';
+import { AlertTriangle } from 'lucide-react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -67,7 +67,7 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
-            <Warning className="text-amber-500 w-6 h-6 flex-shrink-0" weight="regular" />
+            <AlertTriangle className="text-amber-500 w-6 h-6 flex-shrink-0" />
             <p className="text-sm text-amber-800">
               Reporting an issue will pause this production job and notify the manager.
             </p>

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { CheckCircle, WarningCircle, Info, X } from '@phosphor-icons/react';
+import { CheckCircle, AlertCircle, Info, X } from 'lucide-react';
 
 export type ToastType = 'success' | 'error' | 'info';
 
@@ -58,9 +58,9 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             }`}
           >
             <div className="shrink-0 mt-0.5">
-              {toast.type === 'success' && <CheckCircle size={20} className="text-emerald-500" weight="regular" />}
-              {toast.type === 'error' && <WarningCircle size={20} className="text-red-500" weight="regular" />}
-              {toast.type === 'info' && <Info size={20} className="text-blue-500" weight="regular" />}
+              {toast.type === 'success' && <CheckCircle size={20} className="text-emerald-500" />}
+              {toast.type === 'error' && <AlertCircle size={20} className="text-red-500" />}
+              {toast.type === 'info' && <Info size={20} className="text-blue-500" />}
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-sm">{toast.title}</h4>
@@ -70,7 +70,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
               onClick={() => removeToast(toast.id)}
               className="shrink-0 p-1 text-current opacity-50 hover:opacity-100 transition-opacity rounded-md hover:bg-black/5"
             >
-              <X size={16} weight="regular" />
+              <X size={16} />
             </button>
           </div>
         ))}

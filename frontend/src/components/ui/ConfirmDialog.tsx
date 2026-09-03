@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal } from './Modal';
-import { Trash, Warning, Info } from '@phosphor-icons/react';
+import { Trash2, AlertTriangle, Info } from 'lucide-react';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -29,19 +29,19 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     switch (variant) {
       case 'danger':
         return {
-          icon: <Trash size={24} className="text-red-600" weight="regular" />,
+          icon: <Trash2 size={24} className="text-red-600" />,
           bg: 'bg-red-100',
           btn: 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
         };
       case 'warning':
         return {
-          icon: <Warning size={24} className="text-amber-600" weight="regular" />,
+          icon: <AlertTriangle size={24} className="text-amber-600" />,
           bg: 'bg-amber-100',
           btn: 'bg-amber-600 hover:bg-amber-700 focus:ring-amber-500',
         };
       case 'info':
         return {
-          icon: <Info size={24} className="text-blue-600" weight="regular" />,
+          icon: <Info size={24} className="text-blue-600" />,
           bg: 'bg-blue-100',
           btn: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
         };

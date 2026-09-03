@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MagnifyingGlass, Download, Calendar, ChartLine, List, CaretDown, Funnel, CaretLeft, CaretRight, FileText } from '@phosphor-icons/react';
+import { Search, Download, Calendar, Activity, List, ChevronDown, Filter, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
 import api from '../api/axios';
 
 export default function AuditLog() {
@@ -57,14 +57,14 @@ export default function AuditLog() {
   const getActionBadgeColor = (action: string) => {
     switch (action) {
       case 'Created': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
-      case 'Updated': return 'bg-primary-100 text-primary-700 border border-primary-200';
+      case 'Updated': return 'bg-indigo-100 text-indigo-700 border border-indigo-200';
       case 'Deleted': return 'bg-red-100 text-red-700 border border-red-200';
       case 'Approved': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
       case 'Rejected': return 'bg-red-100 text-red-700 border border-red-200';
-      case 'Login': return 'bg-primary-100 text-primary-700 border border-primary-200';
+      case 'Login': return 'bg-indigo-100 text-indigo-700 border border-indigo-200';
       case 'Logout': return 'bg-slate-100 text-slate-600 border border-slate-200';
       case 'Password_Changed': return 'bg-amber-100 text-amber-700 border border-amber-200';
-      case 'Status_Changed': return 'bg-primary-100 text-primary-700 border border-primary-200';
+      case 'Status_Changed': return 'bg-purple-100 text-purple-700 border border-purple-200';
       case 'Payment_Recorded': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
       default: return 'bg-slate-100 text-slate-700 border border-slate-200';
     }
@@ -81,11 +81,11 @@ export default function AuditLog() {
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm hover:bg-slate-50 transition-colors">
-            <Download size={16} weight="regular" />
+            <Download size={16} />
             CSV
           </button>
           <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm hover:bg-slate-50 transition-colors">
-            <Download size={16} weight="regular" />
+            <Download size={16} />
             PDF
           </button>
         </div>
@@ -118,71 +118,71 @@ export default function AuditLog() {
           <div className="flex-1 w-full lg:w-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MagnifyingGlass className="h-4 w-4 text-slate-400" weight="regular" />
+                <Search className="h-4 w-4 text-slate-400" />
               </div>
               <input
                 type="text"
                 placeholder="Search logs..."
-                className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+                className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
               />
             </div>
             
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Calendar className="h-4 w-4 text-slate-400" weight="regular" />
+                <Calendar className="h-4 w-4 text-slate-400" />
               </div>
-              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
+              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-indigo-600 appearance-none text-slate-700">
                 <option>Today</option>
                 <option>Last 7 Days</option>
                 <option>Last 30 Days</option>
                 <option>Custom Range</option>
               </select>
-              <CaretDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" weight="regular" />
+              <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
             </div>
 
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Funnel className="h-4 w-4 text-slate-400" weight="regular" />
+                <Filter className="h-4 w-4 text-slate-400" />
               </div>
-              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
+              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-indigo-600 appearance-none text-slate-700">
                 <option value="">All Actions</option>
                 <option value="Created">Created</option>
                 <option value="Updated">Updated</option>
                 <option value="Deleted">Deleted</option>
                 <option value="Approved">Approved</option>
               </select>
-              <CaretDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" weight="regular" />
+              <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
             </div>
 
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FileText className="h-4 w-4 text-slate-400" weight="regular" />
+                <FileText className="h-4 w-4 text-slate-400" />
               </div>
-              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
+              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-indigo-600 appearance-none text-slate-700">
                 <option value="">All Resources</option>
                 <option value="Order">Order</option>
                 <option value="Invoice">Invoice</option>
                 <option value="Customer">Customer</option>
                 <option value="Settings">Settings</option>
               </select>
-              <CaretDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" weight="regular" />
+              <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
             </div>
           </div>
 
           <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg shrink-0">
             <button 
               onClick={() => setViewMode('table')}
-              className={`p-1.5 rounded-md flex items-center justify-center transition-colors ${viewMode === 'table' ? 'bg-white shadow-sm text-primary-600' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`p-1.5 rounded-md flex items-center justify-center transition-colors ${viewMode === 'table' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
               title="Table View"
             >
-              <List size={18} weight="regular" />
+              <List size={18} />
             </button>
             <button 
               onClick={() => setViewMode('timeline')}
-              className={`p-1.5 rounded-md flex items-center justify-center transition-colors ${viewMode === 'timeline' ? 'bg-white shadow-sm text-primary-600' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`p-1.5 rounded-md flex items-center justify-center transition-colors ${viewMode === 'timeline' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
               title="Timeline View"
             >
-              <ChartLine size={18} weight="regular" />
+              <Activity size={18} />
             </button>
           </div>
           
@@ -193,7 +193,7 @@ export default function AuditLog() {
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[400px]">
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
           </div>
         ) : error ? (
           <div className="p-8 text-center text-red-600 bg-red-50">
@@ -215,7 +215,7 @@ export default function AuditLog() {
                 {logs.map((log) => (
                   <React.Fragment key={log.id}>
                     <tr 
-                      className={`hover:bg-slate-50 transition-colors cursor-pointer ${expandedRow === log.id ? 'bg-primary-50/30' : ''}`}
+                      className={`hover:bg-slate-50 transition-colors cursor-pointer ${expandedRow === log.id ? 'bg-indigo-50/30' : ''}`}
                       onClick={() => setExpandedRow(expandedRow === log.id ? null : log.id)}
                     >
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-500">
@@ -239,7 +239,7 @@ export default function AuditLog() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-bold text-slate-900">{log.resourceType}</div>
-                        <div className="text-xs font-mono text-primary-600 hover:underline">{log.resourceId}</div>
+                        <div className="text-xs font-mono text-indigo-600 hover:underline">{log.resourceId}</div>
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-600 truncate max-w-[200px]" title={log.description}>
                         {log.description}
@@ -302,7 +302,7 @@ export default function AuditLog() {
               {logs.slice(0, 4).map((log) => (
                 <div key={log.id} className="relative pl-6 sm:pl-8 group">
                   {/* Timeline Dot */}
-                  <div className={`absolute -left-[9px] top-4 w-4 h-4 rounded-full border-2 border-white shadow-sm ${log.action === 'Deleted' || log.action === 'Rejected' ? 'bg-red-500' : log.action === 'Created' || log.action === 'Approved' ? 'bg-emerald-500' : 'bg-primary-500'}`}></div>
+                  <div className={`absolute -left-[9px] top-4 w-4 h-4 rounded-full border-2 border-white shadow-sm ${log.action === 'Deleted' || log.action === 'Rejected' ? 'bg-red-500' : log.action === 'Created' || log.action === 'Approved' ? 'bg-emerald-500' : 'bg-indigo-500'}`}></div>
                   
                   {/* Content Card */}
                   <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow">
@@ -331,7 +331,7 @@ export default function AuditLog() {
                     <div className="flex items-center gap-2 text-xs">
                       <span className="text-slate-500 font-medium">Resource:</span>
                       <span className="font-bold text-slate-900">{log.resourceType}</span>
-                      <a href="#" className="font-mono text-primary-600 font-bold hover:underline">{log.resourceId}</a>
+                      <a href="#" className="font-mono text-indigo-600 font-bold hover:underline">{log.resourceId}</a>
                     </div>
                   </div>
                 </div>
@@ -346,7 +346,7 @@ export default function AuditLog() {
               {logs.slice(4).map((log) => (
                 <div key={log.id} className="relative pl-6 sm:pl-8 group">
                   {/* Timeline Dot */}
-                  <div className={`absolute -left-[9px] top-4 w-4 h-4 rounded-full border-2 border-white shadow-sm ${log.action === 'Deleted' || log.action === 'Rejected' ? 'bg-red-500' : log.action === 'Created' || log.action === 'Approved' ? 'bg-emerald-500' : 'bg-primary-500'}`}></div>
+                  <div className={`absolute -left-[9px] top-4 w-4 h-4 rounded-full border-2 border-white shadow-sm ${log.action === 'Deleted' || log.action === 'Rejected' ? 'bg-red-500' : log.action === 'Created' || log.action === 'Approved' ? 'bg-emerald-500' : 'bg-indigo-500'}`}></div>
                   
                   {/* Content Card */}
                   <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow">
@@ -375,7 +375,7 @@ export default function AuditLog() {
                     <div className="flex items-center gap-2 text-xs">
                       <span className="text-slate-500 font-medium">Resource:</span>
                       <span className="font-bold text-slate-900">{log.resourceType}</span>
-                      <a href="#" className="font-mono text-primary-600 font-bold hover:underline">{log.resourceId}</a>
+                      <a href="#" className="font-mono text-indigo-600 font-bold hover:underline">{log.resourceId}</a>
                     </div>
                   </div>
                 </div>
@@ -391,10 +391,10 @@ export default function AuditLog() {
           </p>
           <div className="flex gap-2">
             <button className="p-2 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-slate-700 disabled:opacity-50 transition-colors">
-              <CaretLeft size={18} weight="regular" />
+              <ChevronLeft size={18} />
             </button>
             <button className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-slate-900 transition-colors">
-              <CaretRight size={18} weight="regular" />
+              <ChevronRight size={18} />
             </button>
           </div>
         </div>

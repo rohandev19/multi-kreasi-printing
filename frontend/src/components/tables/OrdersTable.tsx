@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { UserRole } from '../../contexts/RoleContext';
-import { Eye, DotsThreeVertical, Package, CaretLeft, CaretRight, Check, X, Printer, CurrencyDollar } from '@phosphor-icons/react';
+import { Eye, MoreVertical, Package, ChevronLeft, ChevronRight, Check, X, Printer, Banknote } from 'lucide-react';
 
 export interface Order {
   id: string;
@@ -57,7 +57,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
     return (
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-16 flex flex-col items-center justify-center text-center">
         <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-          <Package className="w-8 h-8 text-slate-300" weight="regular" />
+          <Package className="w-8 h-8 text-slate-300" />
         </div>
         <h3 className="text-lg font-bold text-slate-900 mb-1">No orders found</h3>
         <p className="text-sm text-slate-500 max-w-sm mb-6">
@@ -90,8 +90,8 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
     switch (status) {
       case 'Pending_Approval': return 'bg-amber-100 text-amber-700';
       case 'Approved': return 'bg-blue-100 text-blue-700';
-      case 'In_Production': return 'bg-primary-100 text-primary-700';
-      case 'Quality_Check': return 'bg-primary-100 text-primary-700';
+      case 'In_Production': return 'bg-indigo-100 text-indigo-700';
+      case 'Quality_Check': return 'bg-purple-100 text-purple-700';
       case 'Ready': return 'bg-teal-100 text-teal-700';
       case 'Shipped': return 'bg-emerald-100 text-emerald-700';
       case 'Delivered': return 'bg-slate-800 text-white';
@@ -127,7 +127,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
               <th className="px-5 py-4 w-12">
                 <input 
                   type="checkbox" 
-                  className="rounded border-slate-300 text-primary-600 focus:ring-primary-500 w-4 h-4 cursor-pointer"
+                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
                   checked={isAllSelected}
                   onChange={toggleAll}
                 />
@@ -146,16 +146,16 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
             {orders.map((order) => {
               const isSelected = selectedIds.includes(order.id);
               return (
-                <tr key={order.id} className={`hover:bg-slate-50/80 transition-colors ${isSelected ? 'bg-primary-50/30' : ''}`}>
+                <tr key={order.id} className={`hover:bg-slate-50/80 transition-colors ${isSelected ? 'bg-indigo-50/30' : ''}`}>
                   <td className="px-5 py-4">
                     <input 
                       type="checkbox" 
-                      className="rounded border-slate-300 text-primary-600 focus:ring-primary-500 w-4 h-4 cursor-pointer"
+                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
                       checked={isSelected}
                       onChange={() => onSelect(order.id)}
                     />
                   </td>
-                  <td className="px-5 py-4 font-medium text-primary-600 cursor-pointer" onClick={() => onView(order.id)}>
+                  <td className="px-5 py-4 font-medium text-indigo-600 cursor-pointer" onClick={() => onView(order.id)}>
                     {order.orderNumber}
                   </td>
                   <td className="px-5 py-4 font-semibold text-slate-800">
@@ -184,17 +184,17 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                     <div className="flex items-center justify-end gap-2">
                       <button 
                         onClick={() => onView(order.id)}
-                        className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                         title="View Details"
                       >
-                        <Eye size={18} weight="regular" />
+                        <Eye size={18} />
                       </button>
                       <div className="relative">
                         <button 
                           onClick={() => setOpenDropdown(openDropdown === order.id ? null : order.id)}
                           className={`p-1.5 rounded-lg transition-colors ${openDropdown === order.id ? 'bg-slate-100 text-slate-800' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`}
                         >
-                          <DotsThreeVertical size={18} weight="regular" />
+                          <MoreVertical size={18} />
                         </button>
                         
                         {openDropdown === order.id && (
@@ -204,26 +204,26 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                               {(userRole === 'Owner' || userRole === 'Manager') && (
                                 <>
                                   <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                                    <Check size={14} className="text-emerald-600" weight="regular" /> Approve Order
+                                    <Check size={14} className="text-emerald-600" /> Approve Order
                                   </button>
                                   <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                                    <X size={14} className="text-red-600" weight="regular" /> Reject Order
+                                    <X size={14} className="text-red-600" /> Reject Order
                                   </button>
                                 </>
                               )}
                               {(userRole === 'Production_Staff' || userRole === 'Owner') && (
                                 <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                                  <Printer size={14} className="text-primary-600" weight="regular" /> Start Production
+                                  <Printer size={14} className="text-indigo-600" /> Start Production
                                 </button>
                               )}
                               {(userRole === 'Finance_Staff' || userRole === 'Owner') && (
                                 <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                                  <CurrencyDollar size={14} className="text-emerald-600" weight="regular" /> Record Payment
+                                  <Banknote size={14} className="text-emerald-600" /> Record Payment
                                 </button>
                               )}
                               {(userRole === 'Owner' || userRole === 'Manager') && (
                                 <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
-                                  <X size={14} weight="regular" /> Cancel Order
+                                  <X size={14} /> Cancel Order
                                 </button>
                               )}
                             </div>
@@ -244,11 +244,11 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
         <span className="text-sm text-slate-500">Showing <span className="font-medium text-slate-900">1</span> to <span className="font-medium text-slate-900">{orders.length}</span> of <span className="font-medium text-slate-900">{orders.length}</span> results</span>
         <div className="flex gap-1">
           <button className="p-1 rounded-md text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition-colors" disabled>
-            <CaretLeft size={20} weight="regular" />
+            <ChevronLeft size={20} />
           </button>
-          <button className="w-8 h-8 rounded-md bg-primary-600 text-white font-medium text-sm flex items-center justify-center">1</button>
+          <button className="w-8 h-8 rounded-md bg-indigo-600 text-white font-medium text-sm flex items-center justify-center">1</button>
           <button className="p-1 rounded-md text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition-colors">
-            <CaretRight size={20} weight="regular" />
+            <ChevronRight size={20} />
           </button>
         </div>
       </div>

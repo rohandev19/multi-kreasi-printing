@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
-import { Envelope, ShoppingBag, CreditCard, Phone, Medal } from '@phosphor-icons/react';
+import { Mail, Phone, ShoppingBag, CreditCard, Award } from 'lucide-react';
 
 interface CustomerDetailModalProps {
   isOpen: boolean;
@@ -52,7 +52,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
     Standard: 'bg-slate-100 text-slate-700',
     Silver: 'bg-gray-200 text-gray-800',
     Gold: 'bg-amber-100 text-amber-700',
-    Platinum: 'bg-primary-100 text-primary-700',
+    Platinum: 'bg-indigo-100 text-indigo-700',
   };
 
   return (
@@ -60,7 +60,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
       <div className="p-6">
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
           </div>
         ) : error ? (
           <div className="bg-red-50 text-red-600 p-4 rounded-lg text-sm">{error}</div>
@@ -71,12 +71,12 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
               <div>
                 <h3 className="text-xl font-bold text-slate-900">{customer.companyName || customer.name}</h3>
                 <div className="flex items-center gap-4 mt-2 text-sm text-slate-600">
-                  <div className="flex items-center gap-1.5"><Envelope size={16} className="text-slate-400" weight="regular" /> {customer.email}</div>
-                  {customer.phone && <div className="flex items-center gap-1.5"><Phone size={16} className="text-slate-400" weight="regular" /> {customer.phone}</div>}
+                  <div className="flex items-center gap-1.5"><Mail size={16} className="text-slate-400" /> {customer.email}</div>
+                  {customer.phone && <div className="flex items-center gap-1.5"><Phone size={16} className="text-slate-400" /> {customer.phone}</div>}
                 </div>
               </div>
               <span className={`px-2.5 py-1 text-xs font-semibold rounded-full flex items-center gap-1 ${tierColors[customer.loyaltyTier || 'Standard'] || tierColors.Standard}`}>
-                <Medal size={14} weight="regular" />
+                <Award size={14} />
                 {customer.loyaltyTier || 'Standard'}
               </span>
             </div>
@@ -87,7 +87,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                 <div className="flex items-center gap-2 text-slate-500 mb-1">
-                  <ShoppingBag size={16} weight="regular" />
+                  <ShoppingBag size={16} />
                   <span className="text-xs font-semibold uppercase tracking-wider">Total Orders</span>
                 </div>
                 <div className="text-2xl font-bold text-slate-900">{customer.totalOrders || 0}</div>
@@ -95,7 +95,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
               
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                 <div className="flex items-center gap-2 text-slate-500 mb-1">
-                  <CreditCard size={16} weight="regular" />
+                  <CreditCard size={16} />
                   <span className="text-xs font-semibold uppercase tracking-wider">Total Revenue</span>
                 </div>
                 <div className="text-xl font-bold text-slate-900">{formatCurrency(customer.totalRevenue || 0)}</div>
