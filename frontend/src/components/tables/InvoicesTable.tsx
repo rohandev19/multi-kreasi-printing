@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download, CreditCard, Bell, Trash2, Eye } from 'lucide-react';
+import { Download, CreditCard, Bell, Trash, Eye } from '@phosphor-icons/react';
 
 interface Invoice {
   id: string;
@@ -103,7 +103,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                   className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                   title="Download Invoice"
                 >
-                  <Download size={18} />
+                  <Download size={18} weight="regular" />
                 </button>
               ) : (
                 <>
@@ -112,14 +112,14 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                     className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                     title="View Details"
                   >
-                    <Eye size={18} />
+                    <Eye size={18} weight="regular" />
                   </button>
                   <button
                     onClick={() => onDownload(invoice.id)}
-                    className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                     title="Download Invoice"
                   >
-                    <Download size={18} />
+                    <Download size={18} weight="regular" />
                   </button>
                   
                   {canManage && invoice.status !== 'Fully_Paid' && (
@@ -128,7 +128,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                       className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                       title="Record Payment"
                     >
-                      <CreditCard size={18} />
+                      <CreditCard size={18} weight="regular" />
                     </button>
                   )}
                   
@@ -138,7 +138,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                       className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
                       title="Send Reminder"
                     >
-                      <Bell size={18} />
+                      <Bell size={18} weight="regular" />
                     </button>
                   )}
                   
@@ -148,7 +148,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                       className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete Invoice"
                     >
-                      <Trash2 size={18} />
+                      <Trash size={18} weight="regular" />
                     </button>
                   )}
                 </>
@@ -233,7 +233,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                         className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
                         title="Download Invoice"
                       >
-                        <Download size={18} />
+                        <Download size={18} weight="regular" />
                       </button>
                     ) : (
                       <>
@@ -242,14 +242,14 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                           className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
                           title="View Details"
                         >
-                          <Eye size={18} />
+                          <Eye size={18} weight="regular" />
                         </button>
                         <button
                           onClick={() => onDownload(invoice.id)}
-                          className="p-1 text-slate-400 hover:text-indigo-600 transition-colors"
+                          className="p-1 text-slate-400 hover:text-primary-600 transition-colors"
                           title="Download Invoice"
                         >
-                          <Download size={18} />
+                          <Download size={18} weight="regular" />
                         </button>
                         
                         {canManage && invoice.status !== 'Fully_Paid' && (
@@ -258,7 +258,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                             className="p-1 text-slate-400 hover:text-emerald-600 transition-colors"
                             title="Record Payment"
                           >
-                            <CreditCard size={18} />
+                            <CreditCard size={18} weight="regular" />
                           </button>
                         )}
                         
@@ -268,7 +268,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                             className="p-1 text-slate-400 hover:text-amber-600 transition-colors"
                             title="Send Reminder"
                           >
-                            <Bell size={18} />
+                            <Bell size={18} weight="regular" />
                           </button>
                         )}
                         
@@ -278,7 +278,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                             className="p-1 text-slate-400 hover:text-red-600 transition-colors"
                             title="Delete Invoice"
                           >
-                            <Trash2 size={18} />
+                            <Trash size={18} weight="regular" />
                           </button>
                         )}
                       </>

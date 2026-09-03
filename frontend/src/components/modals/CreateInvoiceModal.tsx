@@ -106,7 +106,7 @@ export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
             ) : (
               <select
                 {...register('orderId')}
-                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.orderId ? 'border-red-500' : ''}`}
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.orderId ? 'border-red-500' : ''}`}
               >
                 <option value="">Select an order to invoice...</option>
                 {orders.map(o => (
@@ -126,7 +126,7 @@ export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
             <input
               type="date"
               {...register('dueDate')}
-              className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.dueDate ? 'border-red-500' : ''}`}
+              className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.dueDate ? 'border-red-500' : ''}`}
             />
             {errors.dueDate && <p className="text-red-500 text-xs mt-1">{errors.dueDate.message}</p>}
           </div>
@@ -143,7 +143,7 @@ export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
           <button
             type="submit"
             disabled={loading || fetchingOrders}
-            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
           >
             {loading ? 'Creating...' : 'Generate Invoice'}
           </button>

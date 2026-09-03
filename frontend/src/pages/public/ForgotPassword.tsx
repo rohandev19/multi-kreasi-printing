@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Mail, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Envelope, CheckCircle, WarningCircle } from '@phosphor-icons/react';
 import { useToast } from '../../contexts/ToastContext';
 import api from '../../api/axios';
 
@@ -32,9 +32,9 @@ export const ForgotPassword = () => {
     <div className="bg-slate-50 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
       
       {/* Decorative background elements */}
-      <div className="absolute top-0 left-0 w-full h-96 bg-indigo-600 rounded-b-[4rem] sm:rounded-b-[8rem] -translate-y-20 shadow-lg hidden sm:block"></div>
-      <div className="absolute top-20 right-20 w-64 h-64 bg-indigo-500/30 rounded-full blur-3xl hidden lg:block"></div>
-      <div className="absolute top-40 left-20 w-48 h-48 bg-indigo-400/20 rounded-full blur-2xl hidden lg:block"></div>
+      <div className="absolute top-0 left-0 w-full h-96 bg-primary-600 rounded-b-[4rem] sm:rounded-b-[8rem] -translate-y-20 shadow-lg hidden sm:block"></div>
+      <div className="absolute top-20 right-20 w-64 h-64 bg-primary-500/30 rounded-full blur-3xl hidden lg:block"></div>
+      <div className="absolute top-40 left-20 w-48 h-48 bg-primary-400/20 rounded-full blur-2xl hidden lg:block"></div>
 
       <div className="max-w-md w-full relative z-10">
         
@@ -42,7 +42,7 @@ export const ForgotPassword = () => {
         <div className="text-center mb-8 sm:mb-10">
           <Link to="/" className="inline-block">
             <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4 border border-slate-100">
-              <span className="text-2xl font-black text-indigo-600 tracking-tighter">MK</span>
+              <span className="text-2xl font-black text-primary-600 tracking-tighter">MK</span>
             </div>
           </Link>
         </div>
@@ -53,7 +53,7 @@ export const ForgotPassword = () => {
             {isSuccess ? (
               <div className="text-center animate-fade-in">
                 <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                  <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+                  <CheckCircle className="w-10 h-10 text-emerald-600" weight="regular" />
                 </div>
                 <h2 className="text-2xl font-extrabold text-slate-900 mb-3 tracking-tight">Check your email</h2>
                 <p className="text-slate-500 font-medium mb-8 leading-relaxed">
@@ -62,7 +62,7 @@ export const ForgotPassword = () => {
                 
                 <div className="bg-slate-50 rounded-2xl p-6 mb-8 border border-slate-100 text-left">
                   <div className="flex gap-3 text-sm text-slate-600 font-medium">
-                    <AlertCircle className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
+                    <WarningCircle className="w-5 h-5 text-primary-500 shrink-0 mt-0.5" weight="regular" />
                     <p>Did not receive the email? Check your spam folder, or try sending it again.</p>
                   </div>
                 </div>
@@ -73,13 +73,13 @@ export const ForgotPassword = () => {
                       setIsSuccess(false);
                       setLoading(false);
                     }}
-                    className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all active:scale-[0.98]"
+                    className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all active:scale-[0.98]"
                   >
                     Resend Email
                   </button>
                   <Link 
                     to="/login"
-                    className="w-full flex justify-center py-4 px-4 border border-slate-200 rounded-xl shadow-sm text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all"
+                    className="w-full flex justify-center py-4 px-4 border border-slate-200 rounded-xl shadow-sm text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all"
                   >
                     Back to Login
                   </Link>
@@ -101,7 +101,7 @@ export const ForgotPassword = () => {
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Mail className="h-5 w-5 text-slate-400" />
+                        <Envelope className="h-5 w-5 text-slate-400" weight="regular" />
                       </div>
                       <input
                         id="email"
@@ -111,7 +111,7 @@ export const ForgotPassword = () => {
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="block w-full pl-12 pr-4 py-4 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 font-medium transition-colors"
+                        className="block w-full pl-12 pr-4 py-4 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600 font-medium transition-colors"
                         placeholder="Enter your email"
                       />
                     </div>
@@ -120,7 +120,7 @@ export const ForgotPassword = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-md shadow-indigo-600/20 text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all active:scale-[0.98]"
+                    className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-md shadow-primary-600/20 text-base font-bold text-white bg-primary-600 hover:bg-primary-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-all active:scale-[0.98]"
                   >
                     {loading ? (
                       <div className="flex items-center gap-2">
@@ -136,9 +136,9 @@ export const ForgotPassword = () => {
                 <div className="mt-10 text-center">
                   <Link 
                     to="/login" 
-                    className="inline-flex items-center gap-2 font-bold text-slate-600 hover:text-indigo-600 transition-colors group"
+                    className="inline-flex items-center gap-2 font-bold text-slate-600 hover:text-primary-600 transition-colors group"
                   >
-                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" weight="regular" />
                     Back to login
                   </Link>
                 </div>

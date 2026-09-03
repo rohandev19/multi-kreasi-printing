@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
-import { Download } from 'lucide-react';
+import { Download } from '@phosphor-icons/react';
 
 interface InvoiceDetailModalProps {
   isOpen: boolean;
@@ -65,7 +65,7 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
       <div className="p-6">
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
           </div>
         ) : error ? (
           <div className="bg-red-50 text-red-600 p-4 rounded-lg text-sm">{error}</div>
@@ -92,7 +92,7 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Reference Order</p>
-                <p className="font-semibold text-indigo-600">{invoice.order?.orderNumber}</p>
+                <p className="font-semibold text-primary-600">{invoice.order?.orderNumber}</p>
               </div>
             </div>
 
@@ -124,8 +124,8 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
           Close
         </button>
         {invoice && (
-          <button className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2">
-            <Download size={16} />
+          <button className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2">
+            <Download size={16} weight="regular" />
             Download PDF
           </button>
         )}

@@ -1,24 +1,24 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
+  SquaresFour, 
   ShoppingCart, 
   Factory, 
   Users, 
   FileText,
   Package,
   Palette,
-  ClipboardList,
-  Store,
-  Settings,
-  ScrollText,
-  BarChart3,
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
+  ClipboardText,
+  Storefront,
+  Gear,
+  Scroll,
+  ChartBar,
+  SignOut,
+  CaretLeft,
+  CaretRight,
   User as UserIcon,
-  MoreVertical
-} from 'lucide-react';
+  DotsThreeVertical
+} from '@phosphor-icons/react';
 import { useRoleContext } from '../../contexts/RoleContext';
 
 interface MenuItem {
@@ -31,91 +31,102 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   {
     path: '/products',
-    icon: <Store size={20} />,
+    icon: <Storefront size={20} weight="regular" />,
     label: 'Catalog',
     roles: ['Customer'],
   },
   {
     path: '/dashboard',
-    icon: <LayoutDashboard size={20} />,
+    icon: <SquaresFour size={20} weight="regular" />,
     label: 'Dashboard',
     roles: ['Owner', 'Manager', 'Designer', 'Production_Staff', 'Warehouse_Staff', 'Finance_Staff', 'Sales', 'Customer'],
   },
   {
     path: '/dashboard/orders',
-    icon: <ShoppingCart size={20} />,
+    icon: <ShoppingCart size={20} weight="regular" />,
     label: 'Orders',
     roles: ['Owner', 'Manager', 'Designer', 'Production_Staff', 'Finance_Staff', 'Sales'],
   },
   {
+    path: '/dashboard/products',
+    icon: <Package size={20} weight="regular" />,
+    label: 'Products',
+    roles: ['Owner', 'Manager'],
+  },
+  {
     path: '/dashboard/quotations',
-    icon: <FileText size={20} />,
+    icon: <FileText size={20} weight="regular" />,
     label: 'Quotations',
     roles: ['Owner', 'Manager', 'Sales'],
   },
   {
     path: '/dashboard/production',
-    icon: <Factory size={20} />,
+    icon: <Factory size={20} weight="regular" />,
     label: 'Production',
     roles: ['Owner', 'Manager', 'Production_Staff'],
   },
   {
     path: '/dashboard/design',
-    icon: <Palette size={20} />,
+    icon: <Palette size={20} weight="regular" />,
     label: 'Design Files',
     roles: ['Owner', 'Manager', 'Designer', 'Production_Staff'],
   },
   {
     path: '/dashboard/warehouse',
-    icon: <Package size={20} />,
+    icon: <Package size={20} weight="regular" />,
     label: 'Warehouse',
     roles: ['Owner', 'Manager', 'Warehouse_Staff', 'Production_Staff'],
   },
   {
     path: '/dashboard/users',
-    icon: <Users size={20} />,
+    icon: <Users size={20} weight="regular" />,
     label: 'Staff & Users',
     roles: ['Owner', 'Manager'],
   },
   {
     path: '/dashboard/customers',
-    icon: <Users size={20} />,
+    icon: <Users size={20} weight="regular" />,
     label: 'Customers',
     roles: ['Owner', 'Manager', 'Finance_Staff', 'Sales'],
   },
   {
     path: '/dashboard/invoices',
-    icon: <FileText size={20} />,
+    icon: <FileText size={20} weight="regular" />,
     label: 'Invoices',
     roles: ['Owner', 'Manager', 'Finance_Staff', 'Customer'],
   },
   {
     path: '/dashboard/my-orders',
-    icon: <ClipboardList size={20} />,
+    icon: <ClipboardText size={20} weight="regular" />,
     label: 'My Orders',
     roles: ['Customer'],
   },
   {
     path: '/dashboard/reports',
-    icon: <BarChart3 size={20} />,
+    icon: <ChartBar size={20} weight="regular" />,
     label: 'Reports',
     roles: ['Owner', 'Manager', 'Finance_Staff'],
   },
   {
     path: '/dashboard/audit-log',
-    icon: <ScrollText size={20} />,
+    icon: <Scroll size={20} weight="regular" />,
     label: 'Audit Log',
     roles: ['Owner', 'Manager'],
   },
   {
     path: '/dashboard/settings',
-    icon: <Settings size={20} />,
+    icon: <Gear size={20} weight="regular" />,
     label: 'Settings',
     roles: ['Owner'],
   },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+}
+
+export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
   const location = useLocation();
   const { role: userRole, user, logoutUser } = useRoleContext();
   const [collapsed, setCollapsed] = useState(false);
@@ -132,62 +143,81 @@ export default function Sidebar() {
 
   const getLinkClass = (path: string) => {
     const isActive = location.pathname === path || (path !== '/dashboard' && location.pathname.startsWith(path));
-    const base = "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group relative";
+    const base = "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group relative";
     
     if (isActive) {
-      return `${base} bg-indigo-50 text-indigo-700 font-semibold border-l-4 border-indigo-600`;
+      // Professional active state: background color with subtle border (no colored stripe)
+      // Using design tokens: bg-neutral-100, text-neutral-900, border-primary-600
+      return `${base} bg-neutral-100 text-neutral-900 font-semibold border border-neutral-200`;
     }
-    return `${base} text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-l-4 border-transparent`;
+    // Inactive state with subtle hover
+    return `${base} text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900`;
   };
 
   return (
-    <aside 
-      className={`${
-        collapsed ? 'w-20' : 'w-64'
-      } hidden md:flex flex-col bg-white border-r border-slate-200 h-screen sticky top-0 transition-all duration-300 z-30`}
-    >
-      {/* LOGO AREA */}
-      <div className="h-16 flex items-center px-4 border-b border-slate-100 flex-shrink-0 relative">
-        <Link to="/" className="flex items-center gap-2 overflow-hidden w-full">
+    <>
+      {mobileOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation"
+          onClick={onMobileClose}
+          className="fixed inset-0 z-30 bg-slate-900/20 md:hidden"
+        />
+      )}
+
+      <aside
+        className={`${collapsed ? 'w-20' : 'w-64'} fixed inset-y-0 left-0 z-40 flex h-screen -translate-x-full flex-col border-r transition-transform duration-200 ease-out md:sticky md:z-30 md:translate-x-0 md:flex`}
+        style={{
+          backgroundColor: 'var(--bg-elevated)',
+          borderColor: 'var(--border-default)',
+          boxShadow: mobileOpen ? 'var(--shadow-lg)' : 'none',
+          transform: mobileOpen ? 'translateX(0)' : undefined,
+        }}
+      >
+      <div className="relative flex h-16 flex-shrink-0 items-center border-b px-4" style={{ borderColor: 'var(--border-default)' }}>
+        <Link to="/" className="flex w-full items-center gap-2 overflow-hidden">
           {collapsed ? (
-            <div className="w-10 h-10 mx-auto bg-indigo-600 text-white rounded-xl flex items-center justify-center font-black text-lg shadow-sm flex-shrink-0">
+            <div
+              className="mx-auto flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-lg font-black shadow-sm"
+              style={{ backgroundColor: 'var(--color-primary-600)', color: 'white' }}
+            >
               MK
             </div>
           ) : (
             <div className="flex flex-col">
-              <h1 className="text-xl font-extrabold text-slate-800 tracking-tight leading-tight">MK Printing</h1>
-              <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-600">Enterprise</span>
+              <h1 className="text-xl font-extrabold tracking-tight leading-tight" style={{ color: 'var(--text-primary)' }}>MK Printing</h1>
+              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--color-primary-600)' }}>Enterprise</span>
             </div>
           )}
         </Link>
-        <button 
+        <button
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3 top-5 bg-white border border-slate-200 text-slate-500 rounded-full p-1 hover:bg-slate-50 hover:text-slate-700 shadow-sm transition-colors"
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="absolute -right-3 top-5 rounded-full border p-1 shadow-sm transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-100)]"
+          style={{
+            backgroundColor: 'var(--bg-elevated)',
+            borderColor: 'var(--border-default)',
+            color: 'var(--text-secondary)',
+          }}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          {collapsed ? <CaretRight size={14} weight="bold" /> : <CaretLeft size={14} weight="bold" />}
         </button>
       </div>
 
-      {/* NAVIGATION MENU */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1 scrollbar-thin scrollbar-thumb-slate-200">
+      <nav className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden p-3 scrollbar-thin scrollbar-thumb-slate-200">
         {visibleMenuItems.map((item) => (
-          <Link 
-            key={item.path} 
-            to={item.path} 
+          <Link
+            key={item.path}
+            to={item.path}
+            onClick={() => onMobileClose?.()}
             className={getLinkClass(item.path)}
             title={collapsed ? item.label : undefined}
           >
-            <div className={`${collapsed ? 'mx-auto' : ''} flex-shrink-0`}>
-              {item.icon}
-            </div>
-            {!collapsed && (
-              <span className="truncate flex-1">{item.label}</span>
-            )}
-            
-            {/* Tooltip for collapsed state */}
+            <div className={`${collapsed ? 'mx-auto' : ''} flex-shrink-0`}>{item.icon}</div>
+            {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
+
             {collapsed && (
-              <div className="absolute left-14 bg-slate-800 text-white px-2 py-1 rounded text-xs opacity-0 invisible group-hover:opacity-100 group-hover:visible whitespace-nowrap z-50 pointer-events-none transition-all">
+              <div className="pointer-events-none absolute left-14 z-50 whitespace-nowrap rounded bg-[var(--color-neutral-900)] px-2 py-1 text-xs text-white opacity-0 invisible transition-all duration-150 ease-out group-hover:visible group-hover:opacity-100">
                 {item.label}
               </div>
             )}
@@ -195,64 +225,64 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* USER SECTION */}
-      <div className="p-3 border-t border-slate-100 relative">
-        <button 
+      <div className="relative border-t p-3" style={{ borderColor: 'var(--border-default)' }}>
+        <button
           onClick={() => setShowUserMenu(!showUserMenu)}
-          className={`flex items-center gap-3 w-full p-2 rounded-xl hover:bg-slate-50 transition-colors text-left ${collapsed ? 'justify-center' : ''}`}
+          className={`flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-100)] ${collapsed ? 'justify-center' : ''}`}
         >
-          <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
-            <UserIcon size={20} className="text-slate-400" />
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border" style={{ backgroundColor: 'var(--color-neutral-100)', borderColor: 'var(--border-default)' }}>
+            <UserIcon size={20} weight="regular" style={{ color: 'var(--text-tertiary)' }} />
           </div>
-          
+
           {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-slate-800 truncate">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
                 {user?.fullName || user?.name || 'User'}
               </p>
-              <p className="text-xs text-slate-500 font-medium truncate">
+              <p className="truncate text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
                 {userRole?.replace('_', ' ')}
               </p>
             </div>
           )}
-          
-          {!collapsed && (
-            <MoreVertical size={16} className="text-slate-400 flex-shrink-0" />
-          )}
+
+          {!collapsed && <DotsThreeVertical size={16} weight="bold" style={{ color: 'var(--text-tertiary)' }} className="flex-shrink-0" />}
         </button>
 
-        {/* Dropdown Menu */}
         {showUserMenu && (
-          <div className={`absolute bottom-full mb-2 bg-white rounded-xl shadow-lg border border-slate-100 py-1 overflow-hidden z-50 ${collapsed ? 'left-14 w-48' : 'left-3 right-3'}`}>
-            <Link 
-              to="/dashboard/profile" 
-              className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+          <div className={`absolute bottom-full z-50 mb-2 overflow-hidden rounded-xl border py-1 ${collapsed ? 'left-14 w-48' : 'left-3 right-3'}`} style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-md)' }}>
+            <Link
+              to="/dashboard/profile"
+              className="flex items-center gap-2 px-4 py-2 text-sm transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-50)]"
+              style={{ color: 'var(--text-primary)' }}
               onClick={() => setShowUserMenu(false)}
             >
-              <UserIcon size={16} />
+              <UserIcon size={16} weight="regular" style={{ color: 'var(--text-tertiary)' }} />
               Profile
             </Link>
             {userRole === 'Owner' && (
-              <Link 
-                to="/dashboard/settings" 
-                className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+              <Link
+                to="/dashboard/settings"
+                className="flex items-center gap-2 px-4 py-2 text-sm transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-50)]"
+                style={{ color: 'var(--text-primary)' }}
                 onClick={() => setShowUserMenu(false)}
               >
-                <Settings size={16} />
+                <Gear size={16} weight="regular" style={{ color: 'var(--text-tertiary)' }} />
                 Settings
               </Link>
             )}
-            <div className="h-px bg-slate-100 my-1"></div>
-            <button 
+            <div className="my-1 h-px" style={{ backgroundColor: 'var(--border-default)' }}></div>
+            <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+              className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors duration-150 ease-out hover:bg-[var(--color-error-50)]"
+              style={{ color: 'var(--color-error-600)' }}
             >
-              <LogOut size={16} />
+              <SignOut size={16} weight="regular" />
               Logout
             </button>
           </div>
         )}
       </div>
     </aside>
+    </>
   );
 }

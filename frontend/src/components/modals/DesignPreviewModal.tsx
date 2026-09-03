@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
-import { Download, Image as ImageIcon } from 'lucide-react';
+import { Download, Image as ImageIcon } from '@phosphor-icons/react';
 
 interface DesignPreviewModalProps {
   isOpen: boolean;
@@ -58,7 +58,7 @@ export const DesignPreviewModal: React.FC<DesignPreviewModalProps> = ({
       <div className="p-0 flex flex-col h-[70vh]">
         {loading ? (
           <div className="flex-1 flex justify-center items-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
           </div>
         ) : error ? (
           <div className="p-6">
@@ -72,7 +72,7 @@ export const DesignPreviewModal: React.FC<DesignPreviewModalProps> = ({
                 <img src={file.fileUrl} alt={file.fileName} className="max-w-full max-h-full object-contain" />
               ) : (
                 <div className="text-slate-600 flex flex-col items-center">
-                  <ImageIcon size={64} className="mb-4 opacity-50" />
+                  <ImageIcon size={64} className="mb-4 opacity-50" weight="regular" />
                   <p className="text-sm">Preview not available for this file type.</p>
                   <p className="text-xs mt-1 font-mono text-slate-500">{file.fileName}</p>
                 </div>
@@ -89,7 +89,7 @@ export const DesignPreviewModal: React.FC<DesignPreviewModalProps> = ({
                   </div>
                 </div>
                 <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg font-medium transition-colors text-sm">
-                  <Download size={16} />
+                  <Download size={16} weight="regular" />
                   Download
                 </button>
               </div>

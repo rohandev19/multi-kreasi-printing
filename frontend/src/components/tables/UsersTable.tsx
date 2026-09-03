@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, Trash2 } from 'lucide-react';
+import { NotePencil, Trash } from '@phosphor-icons/react';
 
 export interface User {
   id: string;
@@ -29,7 +29,7 @@ const statusColors: Record<string, string> = {
 };
 
 const roleColors: Record<string, string> = {
-  Owner: 'bg-purple-100 text-purple-700',
+  Owner: 'bg-primary-100 text-primary-700',
   Manager: 'bg-blue-100 text-blue-700',
   Production_Staff: 'bg-orange-100 text-orange-700',
   Designer: 'bg-pink-100 text-pink-700',
@@ -92,14 +92,14 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                   className="p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
                   title="Edit User"
                 >
-                  <Edit size={16} />
+                  <NotePencil size={16} weight="regular" />
                 </button>
                 <button
                   onClick={() => onDeleteUser(user.id)}
                   className="p-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                   title="Delete User"
                 >
-                  <Trash2 size={16} />
+                  <Trash size={16} weight="regular" />
                 </button>
               </div>
             )}
@@ -149,14 +149,14 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                         className="inline-flex items-center p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
                         title="Edit User"
                       >
-                        <Edit size={16} />
+                        <NotePencil size={16} weight="regular" />
                       </button>
                       <button
                         onClick={() => onDeleteUser(user.id)}
                         className="inline-flex items-center p-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                         title="Delete User"
                       >
-                        <Trash2 size={16} />
+                        <Trash size={16} weight="regular" />
                       </button>
                     </td>
                   )}

@@ -15,6 +15,7 @@ const OrderDetail = lazy(() => import('./pages/OrderDetail').then(m => ({ defaul
 const Notifications = lazy(() => import('./pages/Notifications').then(m => ({ default: m.Notifications })));
 const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
 const Users = lazy(() => import('./pages/Users'));
+const Products = lazy(() => import('./pages/Products'));
 const Settings = lazy(() => import('./pages/Settings'));
 const AuditLog = lazy(() => import('./pages/AuditLog'));
 const Reports = lazy(() => import('./pages/Reports'));
@@ -46,6 +47,7 @@ import { PrivacyPolicyPage } from './pages/public/PrivacyPolicy';
 import { CustomOrderPage } from './pages/public/CustomOrder';
 import { CareersPage } from './pages/public/CareersPage';
 import { BulkPrintingPage } from './pages/public/BulkPrintingPage';
+import { HelpPage } from './pages/Help';
 
 const LoadingSpinner = () => (
   <div className="flex h-full items-center justify-center">
@@ -103,8 +105,16 @@ export const router = createBrowserRouter([
             element: <FaqPage />,
           },
           {
+            path: 'privacy',
+            element: <PrivacyPolicyPage />,
+          },
+          {
             path: 'privacy-policy',
             element: <PrivacyPolicyPage />,
+          },
+          {
+            path: 'help',
+            element: <HelpPage />,
           },
           {
             path: 'checkout',
@@ -198,6 +208,16 @@ export const router = createBrowserRouter([
               <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Designer', 'Production_Staff', 'Finance_Staff', 'Sales']}>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Orders />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'products',
+            element: (
+              <ProtectedRoute allowedRoles={['Owner', 'Manager']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Products />
                 </Suspense>
               </ProtectedRoute>
             ),

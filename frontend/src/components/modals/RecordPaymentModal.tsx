@@ -82,7 +82,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                 type="number"
                 min="1"
                 {...register('amount')}
-                className={`w-full pl-9 border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.amount ? 'border-red-500' : ''}`}
+                className={`w-full pl-9 border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.amount ? 'border-red-500' : ''}`}
               />
             </div>
             {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount.message}</p>}
@@ -94,7 +94,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
             </label>
             <select
               {...register('method')}
-              className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.method ? 'border-red-500' : ''}`}
+              className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.method ? 'border-red-500' : ''}`}
             >
               <option value="Bank Transfer">Bank Transfer</option>
               <option value="Cash">Cash</option>

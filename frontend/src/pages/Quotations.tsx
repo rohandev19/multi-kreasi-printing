@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Filter, Calendar, FileText, CheckCircle, TrendingUp, ChevronDown, ChevronLeft, ChevronRight, Eye, Pencil, Send, Copy, Trash2, Clock, XCircle, ShoppingBag, Download, Users } from 'lucide-react';
+import { Plus, MagnifyingGlass, Funnel, Calendar, FileText, CheckCircle, TrendUp, CaretDown, CaretLeft, CaretRight, Eye, PencilSimple, PaperPlaneTilt, Copy, Trash, Clock, XCircle, ShoppingBag, Download, Users } from '@phosphor-icons/react';
 import CreateQuotationModal from '../components/modals/CreateQuotationModal';
 import QuotationDetailModal from '../components/modals/QuotationDetailModal';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
@@ -28,17 +28,17 @@ export default function Quotations() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Draft':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600"><Pencil size={12} /> Draft</span>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600"><PencilSimple size={12} weight="regular" /> Draft</span>;
       case 'Sent':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700"><Send size={12} /> Sent</span>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-100 text-primary-700"><PaperPlaneTilt size={12} weight="regular" /> Sent</span>;
       case 'Viewed':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700"><Eye size={12} /> Viewed</span>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-100 text-primary-700"><Eye size={12} weight="regular" /> Viewed</span>;
       case 'Accepted':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><CheckCircle size={12} /> Accepted</span>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><CheckCircle size={12} weight="regular" /> Accepted</span>;
       case 'Declined':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700"><XCircle size={12} /> Declined</span>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700"><XCircle size={12} weight="regular" /> Declined</span>;
       case 'Expired':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500"><Clock size={12} /> Expired</span>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500"><Clock size={12} weight="regular" /> Expired</span>;
       default:
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-800">{status}</span>;
     }
@@ -109,9 +109,9 @@ export default function Quotations() {
             setSelectedQuotation(null);
             setIsCreateModalOpen(true);
           }}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all active:scale-95"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-600 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-primary-700 focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all active:scale-95"
         >
-          <Plus size={18} />
+          <Plus size={18} weight="regular" />
           Create Quotation
         </button>
       </div>
@@ -120,7 +120,7 @@ export default function Quotations() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
-            <FileText size={24} />
+            <FileText size={24} weight="regular" />
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500">Pending Quotations</p>
@@ -129,7 +129,7 @@ export default function Quotations() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
-            <CheckCircle size={24} />
+            <CheckCircle size={24} weight="regular" />
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500">Accepted This Month</p>
@@ -140,8 +140,8 @@ export default function Quotations() {
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
-            <TrendingUp size={24} />
+          <div className="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center text-primary-600 shrink-0">
+            <TrendUp size={24} weight="regular" />
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500">Conversion Rate</p>
@@ -157,20 +157,20 @@ export default function Quotations() {
           <div className="flex-1 w-full lg:w-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-slate-400" />
+                <MagnifyingGlass className="h-4 w-4 text-slate-400" weight="regular" />
               </div>
               <input
                 type="text"
                 placeholder="Search quotations..."
-                className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
+                className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
               />
             </div>
             
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Filter className="h-4 w-4 text-slate-400" />
+                <Funnel className="h-4 w-4 text-slate-400" weight="regular" />
               </div>
-              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-indigo-600 appearance-none text-slate-700">
+              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
                 <option value="">All Statuses</option>
                 <option value="Draft">Draft</option>
                 <option value="Sent">Sent</option>
@@ -179,31 +179,31 @@ export default function Quotations() {
                 <option value="Declined">Declined</option>
                 <option value="Expired">Expired</option>
               </select>
-              <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
+              <CaretDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" weight="regular" />
             </div>
 
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Calendar className="h-4 w-4 text-slate-400" />
+                <Calendar className="h-4 w-4 text-slate-400" weight="regular" />
               </div>
-              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-indigo-600 appearance-none text-slate-700">
+              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
                 <option>All Time</option>
                 <option>This Month</option>
                 <option>Last 30 Days</option>
               </select>
-              <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
+              <CaretDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" weight="regular" />
             </div>
 
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Users className="h-4 w-4 text-slate-400" />
+                <Users className="h-4 w-4 text-slate-400" weight="regular" />
               </div>
-              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-indigo-600 appearance-none text-slate-700">
+              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
                 <option value="">All Sales Staff</option>
                 <option value="John">John Sales</option>
                 <option value="Sarah">Sarah Manager</option>
               </select>
-              <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
+              <CaretDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" weight="regular" />
             </div>
           </div>
         </div>
@@ -228,7 +228,7 @@ export default function Quotations() {
               {paginatedQuotations.map((quo) => (
                 <tr key={quo.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-mono font-bold text-indigo-600 hover:underline cursor-pointer" onClick={() => { setSelectedQuotation(quo.id); setIsDetailModalOpen(true); }}>
+                    <span className="text-sm font-mono font-bold text-primary-600 hover:underline cursor-pointer" onClick={() => { setSelectedQuotation(quo.id); setIsDetailModalOpen(true); }}>
                       {quo.quotationNumber}
                     </span>
                   </td>
@@ -256,33 +256,33 @@ export default function Quotations() {
                     <div className="flex items-center justify-end gap-2">
                       <button 
                         onClick={() => { setSelectedQuotation(quo.id); setIsDetailModalOpen(true); }}
-                        className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                         title="View Quotation"
                       >
-                        <Eye size={18} />
+                        <Eye size={18} weight="regular" />
                       </button>
                       
                       {quo.status === 'Draft' && (
                         <>
                           <button 
-                            className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                             title="Edit"
                             onClick={() => { setSelectedQuotation(quo.id); setIsCreateModalOpen(true); }}
                           >
-                            <Pencil size={18} />
+                            <PencilSimple size={18} weight="regular" />
                           </button>
                           <button 
                             className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                             title="Send to Customer"
                           >
-                            <Send size={18} />
+                            <PaperPlaneTilt size={18} weight="regular" />
                           </button>
                           <button 
                             className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             title="Delete"
                             onClick={() => setIsDeleteModalOpen(true)}
                           >
-                            <Trash2 size={18} />
+                            <Trash size={18} weight="regular" />
                           </button>
                         </>
                       )}
@@ -294,7 +294,7 @@ export default function Quotations() {
                           className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors disabled:opacity-50"
                           title="Convert to Order"
                         >
-                          <ShoppingBag size={18} />
+                          <ShoppingBag size={18} weight="regular" />
                         </button>
                       )}
 
@@ -302,14 +302,14 @@ export default function Quotations() {
                         className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
                         title="Download PDF"
                       >
-                        <Download size={18} />
+                        <Download size={18} weight="regular" />
                       </button>
 
                       <button 
                         className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
                         title="Duplicate"
                       >
-                        <Copy size={18} />
+                        <Copy size={18} weight="regular" />
                       </button>
                     </div>
                   </td>
@@ -330,14 +330,14 @@ export default function Quotations() {
               disabled={currentPage === 1}
               className="p-2 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-slate-700 disabled:opacity-50 transition-colors"
             >
-              <ChevronLeft size={18} />
+              <CaretLeft size={18} weight="regular" />
             </button>
             <button 
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages || totalPages === 0}
               className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-slate-900 transition-colors disabled:opacity-50"
             >
-              <ChevronRight size={18} />
+              <CaretRight size={18} weight="regular" />
             </button>
           </div>
         </div>

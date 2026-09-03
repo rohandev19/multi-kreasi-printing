@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building, Truck, Zap, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Buildings, Truck, Lightning, CheckCircle } from '@phosphor-icons/react';
 import { useToast } from '../../contexts/ToastContext';
 
 export const CheckoutPage: React.FC = () => {
@@ -36,8 +36,8 @@ export const CheckoutPage: React.FC = () => {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="mb-8">
-          <Link to="/cart" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-indigo-600 mb-4 transition-colors">
-            <ArrowLeft size={16} className="mr-1" /> Back to Cart
+          <Link to="/cart" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-primary-600 mb-4 transition-colors">
+            <ArrowLeft size={16} className="mr-1" weight="regular" /> Back to Cart
           </Link>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Checkout</h1>
         </div>
@@ -50,7 +50,7 @@ export const CheckoutPage: React.FC = () => {
             {/* Step 1: Order Details */}
             <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 text-sm font-bold flex items-center justify-center shrink-0">1</div>
+                <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 text-sm font-bold flex items-center justify-center shrink-0">1</div>
                 <h2 className="text-xl font-bold text-slate-900">Order Details</h2>
               </div>
               
@@ -61,7 +61,7 @@ export const CheckoutPage: React.FC = () => {
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
                     disabled={loading}
-                    className="w-full border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50 hover:bg-white p-3 text-slate-700 outline-none transition-colors"
+                    className="w-full border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-slate-50 hover:bg-white p-3 text-slate-700 outline-none transition-colors"
                   >
                     <option value="Normal">Normal</option>
                     <option value="High">High Priority</option>
@@ -77,7 +77,7 @@ export const CheckoutPage: React.FC = () => {
                     min={new Date().toISOString().split('T')[0]}
                     disabled={loading}
                     required
-                    className="w-full border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50 hover:bg-white p-3 text-slate-700 outline-none transition-colors"
+                    className="w-full border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-slate-50 hover:bg-white p-3 text-slate-700 outline-none transition-colors"
                   />
                 </div>
 
@@ -87,7 +87,7 @@ export const CheckoutPage: React.FC = () => {
                     rows={4}
                     disabled={loading}
                     placeholder="Any specific requirements or instructions for production?"
-                    className="w-full border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50 hover:bg-white p-3 text-slate-700 outline-none transition-colors resize-y"
+                    className="w-full border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-slate-50 hover:bg-white p-3 text-slate-700 outline-none transition-colors resize-y"
                   ></textarea>
                 </div>
               </div>
@@ -96,39 +96,39 @@ export const CheckoutPage: React.FC = () => {
             {/* Step 2: Delivery Information */}
             <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 text-sm font-bold flex items-center justify-center shrink-0">2</div>
+                <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 text-sm font-bold flex items-center justify-center shrink-0">2</div>
                 <h2 className="text-xl font-bold text-slate-900">Delivery Information</h2>
               </div>
               
               <div className="space-y-4 mb-6">
                 {/* Method Options */}
-                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer transition-colors ${deliveryMethod === 'pickup' ? 'border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600' : 'border-slate-200 hover:border-indigo-300'}`}>
+                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer transition-colors ${deliveryMethod === 'pickup' ? 'border-primary-600 bg-primary-50 ring-1 ring-primary-600' : 'border-slate-200 hover:border-primary-300'}`}>
                   <input type="radio" name="delivery" value="pickup" checked={deliveryMethod === 'pickup'} onChange={() => setDeliveryMethod('pickup')} disabled={loading} className="mt-1" />
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-slate-900 flex items-center gap-2"><Building size={16} className="text-indigo-600" /> Self Pickup</span>
+                      <span className="font-bold text-slate-900 flex items-center gap-2"><Buildings size={16} className="text-primary-600" weight="regular" /> Self Pickup</span>
                       <span className="font-bold text-emerald-600">Free</span>
                     </div>
                     <p className="text-sm text-slate-500">Pick up at our workshop</p>
                   </div>
                 </label>
                 
-                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer transition-colors ${deliveryMethod === 'standard' ? 'border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600' : 'border-slate-200 hover:border-indigo-300'}`}>
+                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer transition-colors ${deliveryMethod === 'standard' ? 'border-primary-600 bg-primary-50 ring-1 ring-primary-600' : 'border-slate-200 hover:border-primary-300'}`}>
                   <input type="radio" name="delivery" value="standard" checked={deliveryMethod === 'standard'} onChange={() => setDeliveryMethod('standard')} disabled={loading} className="mt-1" />
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-slate-900 flex items-center gap-2"><Truck size={16} className="text-indigo-600" /> Standard Delivery</span>
+                      <span className="font-bold text-slate-900 flex items-center gap-2"><Truck size={16} className="text-primary-600" weight="regular" /> Standard Delivery</span>
                       <span className="font-bold text-slate-900">Rp 25.000</span>
                     </div>
                     <p className="text-sm text-slate-500">3-5 business days</p>
                   </div>
                 </label>
 
-                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer transition-colors ${deliveryMethod === 'express' ? 'border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600' : 'border-slate-200 hover:border-indigo-300'}`}>
+                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer transition-colors ${deliveryMethod === 'express' ? 'border-primary-600 bg-primary-50 ring-1 ring-primary-600' : 'border-slate-200 hover:border-primary-300'}`}>
                   <input type="radio" name="delivery" value="express" checked={deliveryMethod === 'express'} onChange={() => setDeliveryMethod('express')} disabled={loading} className="mt-1" />
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-slate-900 flex items-center gap-2"><Zap size={16} className="text-amber-500" /> Express Delivery</span>
+                      <span className="font-bold text-slate-900 flex items-center gap-2"><Lightning size={16} className="text-amber-500" weight="regular" /> Express Delivery</span>
                       <span className="font-bold text-slate-900">Rp 75.000</span>
                     </div>
                     <p className="text-sm text-slate-500">1-2 business days</p>
@@ -144,7 +144,7 @@ export const CheckoutPage: React.FC = () => {
                     disabled={loading}
                     required
                     placeholder="Enter complete delivery address..."
-                    className="w-full border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50 hover:bg-white p-3 text-slate-700 outline-none transition-colors resize-y"
+                    className="w-full border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-slate-50 hover:bg-white p-3 text-slate-700 outline-none transition-colors resize-y"
                   ></textarea>
                 </div>
               )}
@@ -183,7 +183,7 @@ export const CheckoutPage: React.FC = () => {
                 </div>
                 <div className="border-t border-slate-100 pt-4 mt-2 flex justify-between items-end">
                   <span className="text-slate-900 font-bold">Total</span>
-                  <span className="text-2xl font-extrabold text-indigo-600">{formatIDR(total)}</span>
+                  <span className="text-2xl font-extrabold text-primary-600">{formatIDR(total)}</span>
                 </div>
               </div>
 
@@ -191,17 +191,17 @@ export const CheckoutPage: React.FC = () => {
                 <button 
                   type="submit"
                   disabled={loading}
-                  className="w-full h-14 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full h-14 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   ) : (
-                    <>Place Order <CheckCircle2 size={20} /></>
+                    <>Place Order <CheckCircle size={20} weight="regular" /></>
                   )}
                 </button>
                 
                 <p className="text-xs text-center text-slate-500 mt-4 leading-relaxed">
-                  By placing your order, you agree to our <Link to="/terms" className="text-indigo-600 hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-indigo-600 hover:underline">Privacy Policy</Link>.
+                  By placing your order, you agree to our <Link to="/terms" className="text-primary-600 hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-primary-600 hover:underline">Privacy Policy</Link>.
                 </p>
               </div>
             </div>

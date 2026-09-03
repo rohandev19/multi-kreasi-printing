@@ -1,10 +1,6 @@
 import React from 'react';
-import { 
-  CircleDollarSign, Package, Clock, AlertTriangle, Settings, 
-  Users, CheckCircle2, Palette, Server, Inbox, Truck, 
-  FileText, ShoppingCart, BarChart3
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { Package, Clock, Warning, Gear, Users, CheckCircle, Palette, Truck, FileText, ShoppingCart, ChartBar, CurrencyCircleDollar, Database, Tray } from '@phosphor-icons/react';
+import type { Icon } from '@phosphor-icons/react';
 
 interface MetricCardProps {
   title: string;
@@ -21,51 +17,46 @@ interface MetricCardProps {
 
 const colorMap = {
   emerald: {
-    bg: 'bg-emerald-100',
-    text: 'text-emerald-600',
-    border: 'border-emerald-200',
+    bg: 'bg-[var(--color-success-100)]',
+    text: 'text-[var(--color-success-600)]',
   },
   blue: {
-    bg: 'bg-blue-100',
-    text: 'text-blue-600',
-    border: 'border-blue-200',
+    bg: 'bg-[var(--color-info-100)]',
+    text: 'text-[var(--color-info-600)]',
   },
   amber: {
-    bg: 'bg-amber-100',
-    text: 'text-amber-600',
-    border: 'border-amber-200',
+    bg: 'bg-[var(--color-warning-100)]',
+    text: 'text-[var(--color-warning-600)]',
   },
   red: {
-    bg: 'bg-red-100',
-    text: 'text-red-600',
-    border: 'border-red-200',
+    bg: 'bg-[var(--color-error-100)]',
+    text: 'text-[var(--color-error-600)]',
   },
   purple: {
-    bg: 'bg-purple-100',
-    text: 'text-purple-600',
-    border: 'border-purple-200',
+    bg: 'bg-[var(--color-primary-100)]',
+    text: 'text-[var(--color-primary-600)]',
   },
   indigo: {
-    bg: 'bg-indigo-100',
-    text: 'text-indigo-600',
-    border: 'border-indigo-200',
+    bg: 'bg-[var(--color-primary-100)]',
+    text: 'text-[var(--color-primary-600)]',
   },
 };
 
-const iconMap: Record<string, LucideIcon> = {
-  revenue: CircleDollarSign,
+const iconMap: Record<string, Icon> = {
+  revenue: CurrencyCircleDollar,
   orders: Package,
   clock: Clock,
-  alert: AlertTriangle,
-  cogs: Settings,
+  alert: Warning,
+  cogs: Gear,
   users: Users,
-  check: CheckCircle2,
+  check: CheckCircle,
   palette: Palette,
-  server: Server,
-  inbox: Inbox,
+  server: Database,
+  inbox: Tray,
   truck: Truck,
   document: FileText,
   cart: ShoppingCart,
+  chart: ChartBar,
 };
 
 export const MetricCard: React.FC<MetricCardProps> = ({
@@ -77,17 +68,17 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   loading = false,
 }) => {
   const styles = colorMap[color];
-  const IconComponent = iconMap[icon] || BarChart3;
+  const IconComponent = iconMap[icon] || ChartBar;
 
   if (loading) {
     return (
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 animate-pulse">
-        <div className="flex items-center justify-between mb-2">
-          <div className="h-4 bg-slate-200 rounded w-1/2"></div>
-          <div className="w-10 h-10 bg-slate-100 rounded-lg"></div>
+      <div className="border p-6 shadow-sm animate-pulse" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
+        <div className="mb-2 flex items-center justify-between">
+          <div className="h-4 w-1/2 rounded" style={{ backgroundColor: 'var(--color-neutral-200)' }}></div>
+          <div className="h-10 w-10 rounded-lg" style={{ backgroundColor: 'var(--color-neutral-100)' }}></div>
         </div>
-        <div className="h-8 bg-slate-200 rounded w-3/4 mt-4"></div>
-        <div className="h-3 bg-slate-200 rounded w-1/3 mt-3"></div>
+        <div className="mt-4 h-8 w-3/4 rounded" style={{ backgroundColor: 'var(--color-neutral-200)' }}></div>
+        <div className="mt-3 h-3 w-1/3 rounded" style={{ backgroundColor: 'var(--color-neutral-200)' }}></div>
       </div>
     );
   }
@@ -108,23 +99,23 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-slate-500 text-sm font-medium uppercase tracking-wider">
+    <div className="border p-6 transition-all duration-150 ease-out hover:shadow-md" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-sm font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
           {title}
         </h3>
-        <div className={`w-10 h-10 ${styles.bg} rounded-lg flex items-center justify-center`}>
-          <IconComponent className={`w-5 h-5 ${styles.text}`} />
+        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${styles.bg}`}>
+          <IconComponent className={`h-5 w-5 ${styles.text}`} weight="regular" />
         </div>
       </div>
       <p className={`text-3xl font-bold tabular-nums ${styles.text}`}>
         {formatValue(value)}
       </p>
       {change && (
-        <p className="text-sm text-slate-500 mt-1 flex items-center gap-1">
+        <p className="mt-1 flex items-center gap-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
           <span
             className={`font-medium ${
-              change.isPositive ? 'text-emerald-600' : 'text-red-600'
+              change.isPositive ? 'text-[var(--color-success-600)]' : 'text-[var(--color-error-600)]'
             }`}
           >
             {change.isPositive ? '↑' : '↓'} {Math.abs(change.value).toFixed(1)}%

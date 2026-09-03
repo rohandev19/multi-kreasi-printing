@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { ShoppingBag, Eye, FileText } from 'lucide-react';
+import { ShoppingBag, Eye, FileText } from '@phosphor-icons/react';
 import { OrderDetailsModal } from '../components/OrderDetailsModal';
 
 interface Order {
@@ -20,9 +20,9 @@ interface Order {
 const statusColors: Record<string, string> = {
   Draft: 'bg-gray-100 text-gray-700',
   Pending_Approval: 'bg-amber-100 text-amber-700',
-  Approved: 'bg-indigo-100 text-indigo-700',
-  In_Production: 'bg-purple-100 text-purple-700',
-  Quality_Check: 'bg-indigo-100 text-indigo-700',
+  Approved: 'bg-primary-100 text-primary-700',
+  In_Production: 'bg-primary-100 text-primary-700',
+  Quality_Check: 'bg-primary-100 text-primary-700',
   Completed: 'bg-emerald-100 text-emerald-700',
   Delivered: 'bg-green-100 text-green-700',
   Cancelled: 'bg-red-100 text-red-700',
@@ -69,7 +69,7 @@ export default function MyOrders() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
   }
@@ -88,21 +88,21 @@ export default function MyOrders() {
         <h2 className="text-2xl font-bold text-slate-800">My Orders</h2>
         <button 
           onClick={() => navigate('/products')}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2"
+          className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors flex items-center gap-2"
         >
-          <ShoppingBag size={18} />
+          <ShoppingBag size={18} weight="regular" />
           New Order
         </button>
       </div>
 
       {orders.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
-          <ShoppingBag size={64} className="mx-auto mb-4 text-slate-300" />
+          <ShoppingBag size={64} className="mx-auto mb-4 text-slate-300" weight="regular" />
           <h3 className="text-lg font-semibold text-slate-800 mb-2">No orders yet</h3>
           <p className="text-slate-500 mb-6">Create your first order to get started with MK Printing</p>
           <button 
             onClick={() => navigate('/products')}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+            className="px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
           >
             Create Order
           </button>
@@ -160,14 +160,14 @@ export default function MyOrders() {
                   onClick={() => setSelectedOrderId(order.id)}
                   className="flex-1 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors flex items-center justify-center gap-2"
                 >
-                  <Eye size={16} />
+                  <Eye size={16} weight="regular" />
                   View Details
                 </button>
                 <button 
                   onClick={() => navigate('/dashboard/invoices')}
-                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
                 >
-                  <FileText size={16} />
+                  <FileText size={16} weight="regular" />
                   View Invoice
                 </button>
               </div>

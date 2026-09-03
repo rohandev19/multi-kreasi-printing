@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle } from '@phosphor-icons/react';
 import api from '../../api/axios';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -91,13 +91,13 @@ export const RegisterPage = () => {
         {success ? (
           <div className="text-center py-8">
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
-              <CheckCircle2 className="w-8 h-8 text-green-600" />
+              <CheckCircle className="w-8 h-8 text-green-600" weight="regular" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Registration Successful!</h2>
             <p className="text-gray-600 mb-8">Please check your email to verify your account.</p>
             <Link 
               to="/login"
-              className="inline-block px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
+              className="inline-block px-8 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
             >
               Go to Login
             </Link>
@@ -121,7 +121,7 @@ export const RegisterPage = () => {
                 <input 
                   type="text" 
                   {...register('fullName')}
-                  className={`mt-1 w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500 text-sm ${errors.fullName ? 'border-red-500' : 'border-gray-300'}`} 
+                  className={`mt-1 w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:ring-primary-500 focus:border-primary-500 text-sm ${errors.fullName ? 'border-red-500' : 'border-gray-300'}`} 
                   placeholder="John Doe" 
                   disabled={loading}
                 />
@@ -134,7 +134,7 @@ export const RegisterPage = () => {
                   type="email" 
                   {...register('email')}
                   autoComplete="email"
-                  className={`mt-1 w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500 text-sm ${errors.email ? 'border-red-500' : 'border-gray-300'}`} 
+                  className={`mt-1 w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:ring-primary-500 focus:border-primary-500 text-sm ${errors.email ? 'border-red-500' : 'border-gray-300'}`} 
                   placeholder="you@example.com" 
                   disabled={loading}
                 />
@@ -146,7 +146,7 @@ export const RegisterPage = () => {
                 <input 
                   type="tel" 
                   {...register('phone')}
-                  className={`mt-1 w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500 text-sm ${errors.phone ? 'border-red-500' : 'border-gray-300'}`} 
+                  className={`mt-1 w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:ring-primary-500 focus:border-primary-500 text-sm ${errors.phone ? 'border-red-500' : 'border-gray-300'}`} 
                   placeholder="+62 812 3456 7890" 
                   disabled={loading}
                 />
@@ -159,7 +159,7 @@ export const RegisterPage = () => {
                   {...register('password', {
                     onChange: (e) => setPasswordValue(e.target.value)
                   })}
-                  className={`mt-1 w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500 text-sm ${errors.password ? 'border-red-500' : 'border-gray-300'}`} 
+                  className={`mt-1 w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:ring-primary-500 focus:border-primary-500 text-sm ${errors.password ? 'border-red-500' : 'border-gray-300'}`} 
                   disabled={loading}
                 />
                 
@@ -182,7 +182,7 @@ export const RegisterPage = () => {
                 <input 
                   type="password" 
                   {...register('confirmPassword')}
-                  className={`mt-1 w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500 text-sm ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'}`} 
+                  className={`mt-1 w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:ring-primary-500 focus:border-primary-500 text-sm ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'}`} 
                   disabled={loading}
                 />
                 {errors.confirmPassword && <p className="text-red-600 text-xs mt-1">{errors.confirmPassword.message}</p>}
@@ -191,7 +191,7 @@ export const RegisterPage = () => {
               <button 
                 type="submit" 
                 disabled={loading}
-                className="w-full py-2.5 mt-2 bg-indigo-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
+                className="w-full py-2.5 mt-2 bg-primary-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-primary-700 focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-colors"
               >
                 {loading ? 'Creating account...' : 'Create Account'}
               </button>
@@ -199,7 +199,7 @@ export const RegisterPage = () => {
 
             <div className="mt-6 text-center">
               <span className="text-sm text-gray-500">Already have an account? </span>
-              <Link to="/login" className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
+              <Link to="/login" className="text-sm font-medium text-primary-600 hover:text-primary-500 transition-colors">
                 Sign in
               </Link>
             </div>

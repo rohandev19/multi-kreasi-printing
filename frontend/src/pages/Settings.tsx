@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Building2, CreditCard, Bell, Palette, Settings as SettingsIcon, Link2, Plus, Trash2, MessageCircle, Mail } from 'lucide-react';
+import { FloppyDisk, BuildingOffice, CreditCard, Bell, Palette, LinkSimple, Plus, Trash, ChatCircle, Envelope, Gear } from '@phosphor-icons/react';
 import { useToast } from '../contexts/ToastContext';
 import api from '../api/axios';
 import { z } from 'zod';
@@ -175,12 +175,12 @@ export default function Settings() {
   };
 
   const tabs = [
-    { id: 'General', icon: SettingsIcon },
-    { id: 'Business Info', icon: Building2 },
+    { id: 'General', icon: Gear },
+    { id: 'Business Info', icon: BuildingOffice },
     { id: 'Payment', icon: CreditCard },
     { id: 'Notifications', icon: Bell },
     { id: 'Branding', icon: Palette },
-    { id: 'Integrations', icon: Link2 },
+    { id: 'Integrations', icon: LinkSimple },
   ];
 
   const handleAddBank = (data: BankFormValues) => {
@@ -221,7 +221,7 @@ export default function Settings() {
       <button
         type="button"
         onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 ${checked ? 'bg-indigo-600' : 'bg-slate-200'}`}
+        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 ${checked ? 'bg-primary-600' : 'bg-slate-200'}`}
         role="switch"
         aria-checked={checked}
       >
@@ -246,9 +246,9 @@ export default function Settings() {
         <button
           onClick={handleSave}
           disabled={!isDirty}
-          className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-primary-700 focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Save size={18} />
+          <FloppyDisk size={18} weight="regular" />
           Save All Changes
         </button>
       </div>
@@ -270,11 +270,11 @@ export default function Settings() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-colors whitespace-nowrap lg:whitespace-normal text-left relative ${
                     isActive 
-                      ? 'bg-indigo-50 text-indigo-700 font-semibold' 
+                      ? 'bg-primary-50 text-primary-700 font-semibold' 
                       : 'text-slate-600 hover:bg-slate-50 font-medium'
                   }`}
                 >
-                  <Icon size={18} className={isActive ? 'text-indigo-600' : 'text-slate-400'} />
+                  <Icon size={18} className={isActive ? 'text-primary-600' : 'text-slate-400'} />
                   {tab.id}
                   {hasChanges && isActive && (
                     <span className="absolute right-3 w-2 h-2 rounded-full bg-amber-400"></span>
@@ -301,7 +301,7 @@ export default function Settings() {
                       type="text" 
                       value={dirtyState.general.appName} 
                       onChange={(e) => handleGeneralChange('appName', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                     />
                   </div>
                   <div>
@@ -309,7 +309,7 @@ export default function Settings() {
                     <select 
                       value={dirtyState.general.timezone}
                       onChange={(e) => handleGeneralChange('timezone', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                     >
                       <option value="Asia/Jakarta">Asia/Jakarta</option>
                       <option value="UTC">UTC</option>
@@ -320,7 +320,7 @@ export default function Settings() {
                     <select 
                       value={dirtyState.general.language}
                       onChange={(e) => handleGeneralChange('language', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                     >
                       <option value="English">English</option>
                       <option value="Bahasa Indonesia">Bahasa Indonesia</option>
@@ -340,7 +340,7 @@ export default function Settings() {
                     <select 
                       value={dirtyState.general.dateFormat}
                       onChange={(e) => handleGeneralChange('dateFormat', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                     >
                       <option value="DD/MM/YYYY">DD/MM/YYYY</option>
                       <option value="MM/DD/YYYY">MM/DD/YYYY</option>
@@ -353,7 +353,7 @@ export default function Settings() {
                       type="number" 
                       value={dirtyState.general.taxRate} 
                       onChange={(e) => handleGeneralChange('taxRate', parseFloat(e.target.value))}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -362,7 +362,7 @@ export default function Settings() {
                       type="number" 
                       value={dirtyState.general.autoApproveLimit} 
                       onChange={(e) => handleGeneralChange('autoApproveLimit', parseInt(e.target.value))}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm font-mono"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm font-mono"
                     />
                     <p className="mt-1 text-xs text-slate-500">Orders below this value will skip manual approval. Currently: {formatCurrency(dirtyState.general.autoApproveLimit)}</p>
                   </div>
@@ -372,7 +372,7 @@ export default function Settings() {
                       type="text" 
                       value={dirtyState.general.orderPrefix} 
                       onChange={(e) => handleGeneralChange('orderPrefix', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm font-mono"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm font-mono"
                     />
                   </div>
                   <div>
@@ -381,7 +381,7 @@ export default function Settings() {
                       type="text" 
                       value={dirtyState.general.invoicePrefix} 
                       onChange={(e) => handleGeneralChange('invoicePrefix', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm font-mono"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm font-mono"
                     />
                   </div>
                 </div>
@@ -394,8 +394,8 @@ export default function Settings() {
                 <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Business Information</h2>
                 
                 <div className="flex gap-6 items-start mb-6">
-                  <div className="w-32 h-32 shrink-0 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-slate-50 overflow-hidden relative group cursor-pointer hover:border-indigo-400">
-                    <span className="text-2xl font-black text-indigo-600">MK</span>
+                  <div className="w-32 h-32 shrink-0 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-slate-50 overflow-hidden relative group cursor-pointer hover:border-primary-400">
+                    <span className="text-2xl font-black text-primary-600">MK</span>
                     <div className="absolute inset-0 bg-slate-900/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <span className="text-white text-xs font-bold">Change Logo</span>
                     </div>
@@ -416,7 +416,7 @@ export default function Settings() {
                       type="text" 
                       value={dirtyState.business.companyName} 
                       onChange={(e) => handleBusinessChange('companyName', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -425,7 +425,7 @@ export default function Settings() {
                       type="text" 
                       value={dirtyState.business.npwp} 
                       onChange={(e) => handleBusinessChange('npwp', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm font-mono"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm font-mono"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -434,7 +434,7 @@ export default function Settings() {
                       value={dirtyState.business.address} 
                       onChange={(e) => handleBusinessChange('address', e.target.value)}
                       rows={3}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm resize-none"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm resize-none"
                     ></textarea>
                   </div>
                   <div>
@@ -443,7 +443,7 @@ export default function Settings() {
                       type="text" 
                       value={dirtyState.business.city} 
                       onChange={(e) => handleBusinessChange('city', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                     />
                   </div>
                   <div>
@@ -452,7 +452,7 @@ export default function Settings() {
                       type="text" 
                       value={dirtyState.business.province} 
                       onChange={(e) => handleBusinessChange('province', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                     />
                   </div>
                   <div>
@@ -461,7 +461,7 @@ export default function Settings() {
                       type="text" 
                       value={dirtyState.business.postalCode} 
                       onChange={(e) => handleBusinessChange('postalCode', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                     />
                   </div>
                   <div>
@@ -470,7 +470,7 @@ export default function Settings() {
                       type="tel" 
                       value={dirtyState.business.phone} 
                       onChange={(e) => handleBusinessChange('phone', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                     />
                   </div>
                   <div>
@@ -479,7 +479,7 @@ export default function Settings() {
                       type="email" 
                       value={dirtyState.business.email} 
                       onChange={(e) => handleBusinessChange('email', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                     />
                   </div>
                   <div>
@@ -488,7 +488,7 @@ export default function Settings() {
                       type="url" 
                       value={dirtyState.business.website} 
                       onChange={(e) => handleBusinessChange('website', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                     />
                   </div>
                 </div>
@@ -510,17 +510,17 @@ export default function Settings() {
                           <p className="text-xs text-slate-500 mt-0.5">Branch: {bank.branch}</p>
                         </div>
                         <div className="flex gap-2">
-                          <button className="p-2 text-slate-400 hover:text-indigo-600 bg-white rounded-lg border border-slate-200 shadow-sm">
+                          <button className="p-2 text-slate-400 hover:text-primary-600 bg-white rounded-lg border border-slate-200 shadow-sm">
                             Edit
                           </button>
                           <button onClick={() => handleDeleteBank(bank.id)} className="p-2 text-slate-400 hover:text-red-600 bg-white rounded-lg border border-slate-200 shadow-sm">
-                            <Trash2 size={16} />
+                            <Trash size={16} weight="regular" />
                           </button>
                         </div>
                       </div>
                     ))}
-                    <button onClick={() => setIsBankModalOpen(true)} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-xl text-indigo-600 font-bold hover:bg-indigo-50 transition-colors flex justify-center items-center gap-2">
-                      <Plus size={18} />
+                    <button onClick={() => setIsBankModalOpen(true)} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-xl text-primary-600 font-bold hover:bg-primary-50 transition-colors flex justify-center items-center gap-2">
+                      <Plus size={18} weight="regular" />
                       Add Bank Account
                     </button>
                   </div>
@@ -535,7 +535,7 @@ export default function Settings() {
                         type="number" 
                         value={dirtyState.payment.deadlineHours} 
                         onChange={(e) => handlePaymentChange('deadlineHours', parseInt(e.target.value))}
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                       />
                     </div>
                     <div className="flex items-center">
@@ -552,7 +552,7 @@ export default function Settings() {
                           type="number" 
                           value={dirtyState.payment.minPartialPercent} 
                           onChange={(e) => handlePaymentChange('minPartialPercent', parseInt(e.target.value))}
-                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                         />
                       </div>
                     )}
@@ -589,8 +589,8 @@ export default function Settings() {
               <div className="space-y-6 animate-fade-in">
                 <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4 flex justify-between items-center">
                   Email Notifications
-                  <span className="text-sm font-normal text-indigo-600 hover:underline cursor-pointer flex items-center gap-1 opacity-50">
-                    Customize Templates <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md font-bold">Coming Soon</span>
+                  <span className="text-sm font-normal text-primary-600 hover:underline cursor-pointer flex items-center gap-1 opacity-50">
+                    Customize Templates <span className="text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded-md font-bold">Coming Soon</span>
                   </span>
                 </h2>
                 
@@ -667,7 +667,7 @@ export default function Settings() {
                         type="text" 
                         value={dirtyState.branding.primaryColor}
                         onChange={(e) => handleBrandingChange('primaryColor', e.target.value)}
-                        className="px-4 py-2 rounded-lg border border-slate-200 font-mono text-sm w-32 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
+                        className="px-4 py-2 rounded-lg border border-slate-200 font-mono text-sm w-32 focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
                       />
                     </div>
                   </div>
@@ -678,7 +678,7 @@ export default function Settings() {
                       value={dirtyState.branding.invoiceHeader}
                       onChange={(e) => handleBrandingChange('invoiceHeader', e.target.value)}
                       rows={2}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm resize-none"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm resize-none"
                     ></textarea>
                   </div>
 
@@ -688,12 +688,12 @@ export default function Settings() {
                       value={dirtyState.branding.invoiceFooter}
                       onChange={(e) => handleBrandingChange('invoiceFooter', e.target.value)}
                       rows={3}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm resize-none"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm resize-none"
                     ></textarea>
                   </div>
 
                   <div>
-                    <button className="px-4 py-2 bg-indigo-50 text-indigo-700 font-bold rounded-lg hover:bg-indigo-100 transition-colors">
+                    <button className="px-4 py-2 bg-primary-50 text-primary-700 font-bold rounded-lg hover:bg-primary-100 transition-colors">
                       Preview Invoice Example
                     </button>
                   </div>
@@ -710,7 +710,7 @@ export default function Settings() {
                   <div className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex gap-4">
                       <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
-                        <MessageCircle className="w-6 h-6 text-emerald-600" />
+                        <ChatCircle className="w-6 h-6 text-emerald-600" weight="regular" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2 mb-1">
@@ -726,7 +726,7 @@ export default function Settings() {
                     </div>
                     <div className="flex items-center gap-4 w-full sm:w-auto">
                       {dirtyState.integrations.whatsapp.enabled ? (
-                        <button className="text-sm font-bold text-indigo-600 hover:text-indigo-700 px-3 py-1.5 border border-indigo-200 rounded-lg hover:bg-indigo-50">
+                        <button className="text-sm font-bold text-primary-600 hover:text-primary-700 px-3 py-1.5 border border-primary-200 rounded-lg hover:bg-primary-50">
                           Configure
                         </button>
                       ) : null}
@@ -739,8 +739,8 @@ export default function Settings() {
 
                   <div className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex gap-4">
-                      <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-                        <Mail className="w-6 h-6 text-indigo-600" />
+                      <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center shrink-0">
+                        <Envelope className="w-6 h-6 text-primary-600" weight="regular" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2 mb-1">
@@ -754,13 +754,13 @@ export default function Settings() {
                       <select 
                         value={dirtyState.integrations.emailProvider}
                         onChange={(e) => handleIntegrationChange('emailProvider', e.target.value)}
-                        className="px-3 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-600 font-medium text-sm"
+                        className="px-3 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-600 font-medium text-sm"
                       >
                         <option value="SMTP">SMTP</option>
                         <option value="SendGrid">SendGrid</option>
                         <option value="Mailgun">Mailgun</option>
                       </select>
-                      <button className="text-sm font-bold text-indigo-600 hover:text-indigo-700 px-3 py-1.5 border border-indigo-200 rounded-lg hover:bg-indigo-50">
+                      <button className="text-sm font-bold text-primary-600 hover:text-primary-700 px-3 py-1.5 border border-primary-200 rounded-lg hover:bg-primary-50">
                         Configure
                       </button>
                     </div>
@@ -778,7 +778,7 @@ export default function Settings() {
             <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <h2 className="text-lg font-bold text-slate-900">Add Bank Account</h2>
               <button onClick={() => setIsBankModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
-                <Trash2 size={20} className="hidden" /> {/* Using Trash2 as a placeholder just to keep imports happy, but actually just rendering an X manually */}
+                <Trash size={20} className="hidden" weight="regular" /> {/* Using Trash2 as a placeholder just to keep imports happy, but actually just rendering an X manually */}
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
               </button>
             </div>
@@ -790,7 +790,7 @@ export default function Settings() {
                   <input
                     {...register('name')}
                     placeholder="e.g. Bank Central Asia (BCA)"
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                   />
                   {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
                 </div>
@@ -800,7 +800,7 @@ export default function Settings() {
                   <input
                     {...register('accountNo')}
                     placeholder="e.g. 1234567890"
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm font-mono"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm font-mono"
                   />
                   {errors.accountNo && <p className="mt-1 text-sm text-red-600">{errors.accountNo.message}</p>}
                 </div>
@@ -810,7 +810,7 @@ export default function Settings() {
                   <input
                     {...register('accountName')}
                     placeholder="e.g. PT Multi Kreasi Printing"
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                   />
                   {errors.accountName && <p className="mt-1 text-sm text-red-600">{errors.accountName.message}</p>}
                 </div>
@@ -820,7 +820,7 @@ export default function Settings() {
                   <input
                     {...register('branch')}
                     placeholder="e.g. Sudirman"
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                   />
                   {errors.branch && <p className="mt-1 text-sm text-red-600">{errors.branch.message}</p>}
                 </div>
@@ -836,7 +836,7 @@ export default function Settings() {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg shadow-sm hover:bg-indigo-700 transition-colors"
+                  className="px-6 py-2 bg-primary-600 text-white text-sm font-bold rounded-lg shadow-sm hover:bg-primary-700 transition-colors"
                 >
                   Add Account
                 </button>

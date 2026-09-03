@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, CheckCircle, AlertCircle, Edit, Trash2 } from 'lucide-react';
+import { Play, CheckCircle, WarningCircle, NotePencil, Trash } from '@phosphor-icons/react';
 
 interface ProductionJob {
   id: string;
@@ -25,8 +25,8 @@ interface ProductionTableProps {
 const statusColors: Record<string, string> = {
   Queue: 'bg-gray-100 text-gray-700',
   Assigned: 'bg-blue-100 text-blue-700',
-  In_Progress: 'bg-purple-100 text-purple-700',
-  Quality_Check: 'bg-indigo-100 text-indigo-700',
+  In_Progress: 'bg-primary-100 text-primary-700',
+  Quality_Check: 'bg-primary-100 text-primary-700',
   Completed: 'bg-emerald-100 text-emerald-700',
 };
 
@@ -91,29 +91,29 @@ export const ProductionTable: React.FC<ProductionTableProps> = ({
                 className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                 title="Start Job"
               >
-                <Play size={18} />
+                <Play size={18} weight="regular" />
               </button>
               <button
                 onClick={() => onCompleteJob(job.id)}
                 className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                 title="Complete Job"
               >
-                <CheckCircle size={18} />
+                <CheckCircle size={18} weight="regular" />
               </button>
               <button
                 onClick={() => onReportIssue(job.id)}
                 className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
                 title="Report Issue"
               >
-                <AlertCircle size={18} />
+                <WarningCircle size={18} weight="regular" />
               </button>
               {canManageJobs && onReassign && (
                 <button
                   onClick={() => onReassign(job.id)}
-                  className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                  className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                   title="Reassign"
                 >
-                  <Edit size={18} />
+                  <NotePencil size={18} weight="regular" />
                 </button>
               )}
               {canManageJobs && onDelete && (
@@ -122,7 +122,7 @@ export const ProductionTable: React.FC<ProductionTableProps> = ({
                   className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   title="Delete Job"
                 >
-                  <Trash2 size={18} />
+                  <Trash size={18} weight="regular" />
                 </button>
               )}
             </div>
@@ -200,29 +200,29 @@ export const ProductionTable: React.FC<ProductionTableProps> = ({
                       className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
                       title="Start Job"
                     >
-                      <Play size={18} />
+                      <Play size={18} weight="regular" />
                     </button>
                     <button
                       onClick={() => onCompleteJob(job.id)}
                       className="p-1 text-slate-400 hover:text-emerald-600 transition-colors"
                       title="Complete Job"
                     >
-                      <CheckCircle size={18} />
+                      <CheckCircle size={18} weight="regular" />
                     </button>
                     <button
                       onClick={() => onReportIssue(job.id)}
                       className="p-1 text-slate-400 hover:text-amber-600 transition-colors"
                       title="Report Issue"
                     >
-                      <AlertCircle size={18} />
+                      <WarningCircle size={18} weight="regular" />
                     </button>
                     {canManageJobs && onReassign && (
                       <button
                         onClick={() => onReassign(job.id)}
-                        className="p-1 text-slate-400 hover:text-indigo-600 transition-colors"
+                        className="p-1 text-slate-400 hover:text-primary-600 transition-colors"
                         title="Reassign"
                       >
-                        <Edit size={18} />
+                        <NotePencil size={18} weight="regular" />
                       </button>
                     )}
                     {canManageJobs && onDelete && (
@@ -231,7 +231,7 @@ export const ProductionTable: React.FC<ProductionTableProps> = ({
                         className="p-1 text-slate-400 hover:text-red-600 transition-colors"
                         title="Delete Job"
                       >
-                        <Trash2 size={18} />
+                        <Trash size={18} weight="regular" />
                       </button>
                     )}
                   </td>
