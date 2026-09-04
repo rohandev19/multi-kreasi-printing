@@ -1,7 +1,17 @@
 import axios from 'axios';
 
+declare global {
+  interface Window {
+    __API_URL__?: string;
+  }
+}
+
+const runtimeApiUrl = typeof window !== 'undefined' ? window.__API_URL__ : undefined;
+const buildTimeApiUrl = import.meta.env.VITE_API_URL;
+const fallbackUrl = 'http://localhost:3000';
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  baseURL: runtimeApiUrl || buildTimeApiUrl || fallbackUrl,
 });
 
 api.interceptors.request.use((config) => {
