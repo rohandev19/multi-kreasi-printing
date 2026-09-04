@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
 import {
   CheckCircle,
-  CurrencyDollar,
   Eye,
   FolderPlus,
   Image as ImageIcon,
@@ -97,6 +96,17 @@ const normalizeArrayResponse = (payload: unknown): any[] => {
 
 const formatCurrency = (value: number | string | null | undefined) =>
   `Rp ${Number(value || 0).toLocaleString('id-ID')}`;
+
+const toRupiahInput = (num: number | string): string => {
+  const n = typeof num === 'string' ? num.replace(/\D/g, '') : String(Math.max(0, Math.floor(Number(num || 0))));
+  if (!n || n === '0') return '';
+  return Number(n).toLocaleString('id-ID');
+};
+
+const fromRupiahInput = (val: string): number => {
+  const clean = (val || '').replace(/\D/g, '');
+  return clean ? Number(clean) : 0;
+};
 
 export default function Products() {
   const { success, error: showError } = useToast();
@@ -225,6 +235,10 @@ export default function Products() {
           return { ...tier, [field]: value === '' ? '' : Number(value) };
         }
 
+        if (field === 'unitPrice') {
+          return { ...tier, unitPrice: toRupiahInput(value) };
+        }
+
         return { ...tier, [field]: value };
       }),
     );
@@ -329,29 +343,30 @@ export default function Products() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    const basePriceNum = fromRupiahInput(form.basePrice);
     const payload = {
       sku: form.sku.trim(),
       name: form.name.trim(),
       description: form.description.trim(),
       categoryId: form.categoryId,
-      basePrice: Number(form.basePrice),
+      basePrice: basePriceNum,
       unitOfMeasure: form.unitOfMeasure.trim() || 'pcs',
       status: form.status,
     };
 
-    if (!payload.sku || !payload.name || !payload.categoryId || Number.isNaN(payload.basePrice) || payload.basePrice < 0) {
-      showError('Validasi gagal', 'Lengkapi field produk wajib sebelum menyimpan.');
+    if (!payload.sku || !payload.name || !payload.categoryId || !Number.isFinite(payload.basePrice) || payload.basePrice < 0) {
+      showError('Validasi gagal', 'Lengkapi field produk wajib (SKU, Nama, Kategori, Harga) sebelum menyimpan.');
       return;
     }
 
     const normalizedTiers = pricingTiers
-      .filter((tier) => Number(tier.minQuantity) > 0 && Number(tier.unitPrice) >= 0)
+      .filter((tier) => Number(tier.minQuantity) > 0 && fromRupiahInput(String(tier.unitPrice)) >= 0 && tier.unitPrice !== '')
       .map((tier) => ({
         minQuantity: Number(tier.minQuantity),
         maxQuantity: tier.maxQuantity === '' ? undefined : Number(tier.maxQuantity),
-        unitPrice: Number(tier.unitPrice),
+        unitPrice: fromRupiahInput(String(tier.unitPrice)),
       }))
-      .filter((tier) => Number.isFinite(tier.minQuantity) && Number.isFinite(tier.unitPrice));
+      .filter((tier) => Number.isFinite(tier.minQuantity) && Number.isFinite(tier.unitPrice) && tier.unitPrice >= 0);
 
     setSubmitting(true);
     try {
@@ -399,7 +414,7 @@ export default function Products() {
       name: source.name || '',
       description: source.description || '',
       categoryId: source.categoryId || '',
-      basePrice: String(source.basePrice ?? ''),
+      basePrice: toRupiahInput(source.basePrice ?? ''),
       unitOfMeasure: source.unitOfMeasure || 'pcs',
       status: source.status || 'Active',
     });
@@ -408,7 +423,7 @@ export default function Products() {
         ? source.pricingTiers.map((tier) => ({
             minQuantity: tier.minQuantity ?? 1,
             maxQuantity: tier.maxQuantity ?? '',
-            unitPrice: Number(tier.unitPrice ?? 0),
+            unitPrice: toRupiahInput(tier.unitPrice ?? 0),
           }))
         : [emptyPricingTier],
     );
@@ -633,15 +648,18 @@ export default function Products() {
                <label className="space-y-2 text-sm font-medium text-slate-700">
                  Harga Dasar
                  <div className="relative">
-                   <CurrencyDollar size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" weight="regular" />
+                   <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-extrabold tracking-tight text-primary-700">
+                     Rp
+                   </span>
                    <input
-                     type="number"
-                     min="0"
-                     step="1000"
+                     type="text"
+                     inputMode="numeric"
                      value={form.basePrice}
-                     onChange={(event) => setForm((current) => ({ ...current, basePrice: event.target.value }))}
-                     className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-3 text-slate-900 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
-                     placeholder="250000"
+                     onChange={(event) =>
+                       setForm((current) => ({ ...current, basePrice: toRupiahInput(event.target.value) }))
+                     }
+                     className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-slate-900 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
+                     placeholder="250.000"
                    />
                  </div>
                </label>
@@ -811,15 +829,20 @@ export default function Products() {
                      </label>
 
                      <label className="space-y-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                       Unit price
-                       <input
-                         type="number"
-                         min="0"
-                         step="1000"
-                         value={tier.unitPrice}
-                         onChange={(event) => handlePricingTierChange(index, 'unitPrice', event.target.value)}
-                         className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
-                       />
+                       Harga Satuan (IDR)
+                       <div className="relative">
+                         <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-extrabold tracking-tight text-primary-700">
+                           Rp
+                         </span>
+                         <input
+                           type="text"
+                           inputMode="numeric"
+                           value={tier.unitPrice}
+                           onChange={(event) => handlePricingTierChange(index, 'unitPrice', event.target.value)}
+                           className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-8 pr-2.5 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
+                           placeholder="200.000"
+                         />
+                       </div>
                      </label>
 
                      <button
@@ -834,21 +857,40 @@ export default function Products() {
                </div>
               </div>
 
-              <div className="mt-5 flex justify-end gap-3">
-               <button
-                 type="button"
-                 onClick={resetProductForm}
-                 className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-               >
-                 Batal
-               </button>
-               <button
-                 type="submit"
-                 disabled={submitting}
-                 className="rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-70"
-               >
-                 {submitting ? 'Menyimpan...' : editingProductId ? 'Simpan Perubahan' : 'Simpan Produk'}
-               </button>
+              <div className="sticky bottom-0 z-10 -mx-5 -mb-5 mt-8 border-t border-slate-200 bg-white/95 px-5 py-4 shadow-[0_-10px_30px_-10px_rgba(2,132,199,0.15)] backdrop-blur supports-[backdrop-filter]:bg-white/80">
+               <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+                 <div className="flex-1">
+                   <p className="text-xs text-slate-500">
+                     <span className="font-semibold text-slate-700">Tip:</span> Harga sudah otomatis dalam format Rupiah (IDR). Tekan Simpan untuk menyimpan ke katalog.
+                   </p>
+                 </div>
+                 <div className="flex justify-end gap-3">
+                   <button
+                     type="button"
+                     onClick={resetProductForm}
+                     className="inline-flex min-w-[100px] items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow"
+                   >
+                     Batal
+                   </button>
+                   <button
+                     type="submit"
+                     disabled={submitting}
+                     className="inline-flex min-w-[180px] items-center justify-center gap-2 rounded-xl bg-sky-700 px-6 py-3 text-sm font-extrabold tracking-tight text-white shadow-lg shadow-sky-700/20 transition hover:-translate-y-0.5 hover:bg-sky-800 hover:shadow-xl hover:shadow-sky-800/30 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-70 disabled:shadow-none"
+                     style={{ backgroundColor: '#0369a1' }}
+                   >
+                     {submitting ? (
+                       <>
+                         <svg className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" viewBox="0 0 24 24" />
+                         Menyimpan...
+                       </>
+                     ) : editingProductId ? (
+                       'Simpan Perubahan'
+                     ) : (
+                       'Simpan Produk'
+                     )}
+                   </button>
+                 </div>
+               </div>
               </div>
             </form>
           )}
