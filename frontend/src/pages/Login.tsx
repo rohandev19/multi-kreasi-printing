@@ -56,18 +56,18 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 font-sans p-4">
-      <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl border border-slate-100 relative">
+    <div className="flex min-h-screen w-full items-start sm:items-center justify-center bg-slate-50 font-sans p-3 sm:p-4 overflow-y-auto">
+      <div className="w-full max-w-md p-5 sm:p-8 bg-white rounded-2xl shadow-xl border border-slate-100 relative my-4">
         <Link 
           to="/" 
-          className="absolute top-6 left-6 text-slate-400 hover:text-primary-600 transition-colors flex items-center gap-1 text-sm font-medium"
+          className="absolute top-4 left-4 sm:top-6 sm:left-6 text-slate-400 hover:text-primary-600 transition-colors flex items-center gap-1 text-sm font-medium"
         >
           <ArrowLeft className="w-4 h-4" weight="regular" />
           Back
         </Link>
-        <div className="mb-8 mt-6 text-center">
-          <h2 className="text-3xl font-extrabold text-slate-800 mb-2 tracking-tight">MK Printing</h2>
-          <p className="text-slate-500">Sign in to your account</p>
+        <div className="mb-6 sm:mb-8 mt-4 sm:mt-6 text-center">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-2 tracking-tight">MK Printing</h2>
+          <p className="text-sm sm:text-base text-slate-500">Sign in to your account</p>
         </div>
         
         {error && (
@@ -76,7 +76,7 @@ export default function Login() {
           </div>
         )}
 
-        <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+        <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit(onSubmit)}>
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-1">Email</label>
             <input 
@@ -122,13 +122,14 @@ export default function Login() {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full bg-primary-600 text-white p-3 rounded-lg font-bold shadow-md hover:bg-primary-700 hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+            className="w-full bg-primary-600 text-white p-3 rounded-lg font-bold shadow-md hover:bg-primary-700 hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mt-2 relative z-10"
+            style={{ backgroundColor: loading ? undefined : '#0284c7', color: '#ffffff' }}
           >
             {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
 
-        <div className="flex items-center gap-4 my-6">
+        <div className="flex items-center gap-4 my-5 sm:my-6">
           <div className="flex-1 h-px bg-slate-200"></div>
           <span className="text-sm text-slate-400">or</span>
           <div className="flex-1 h-px bg-slate-200"></div>

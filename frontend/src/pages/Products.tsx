@@ -367,6 +367,7 @@ export default function Products() {
             setShowForm(true);
           }}
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm shadow-primary-200 transition hover:bg-primary-700"
+          style={!showForm ? { backgroundColor: '#0284c7', color: '#ffffff' } : undefined}
         >
           <Plus size={18} weight="bold" />
           {showForm ? 'Tutup Form' : 'Tambah Produk'}
@@ -530,9 +531,10 @@ export default function Products() {
                  <button
                    type="button"
                    onClick={addPricingTier}
-                   className="rounded-lg border border-primary-200 bg-primary-50 px-3 py-1.5 text-xs font-bold text-primary-700 transition hover:bg-primary-100"
+                   className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 bg-primary-50 px-3 py-1.5 text-xs font-bold text-primary-700 transition hover:bg-primary-100"
                  >
-                   + Tambah Tier
+                   <Plus size={12} weight="bold" />
+                   Tambah Tier
                  </button>
                </div>
 
