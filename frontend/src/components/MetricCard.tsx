@@ -72,7 +72,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
   if (loading) {
     return (
-      <div className="border p-6 shadow-sm animate-pulse" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
+      <div className="animate-pulse border p-6" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
         <div className="mb-2 flex items-center justify-between">
           <div className="h-4 w-1/2 rounded" style={{ backgroundColor: 'var(--color-neutral-200)' }}></div>
           <div className="h-10 w-10 rounded-lg" style={{ backgroundColor: 'var(--color-neutral-100)' }}></div>
@@ -99,7 +99,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   };
 
   return (
-    <div className="border p-6 transition-all duration-150 ease-out hover:shadow-md" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
+    <div className="border p-6 transition-all duration-150 ease-out hover:shadow-sm" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-sm font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
           {title}

@@ -15,7 +15,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   width = '100%',
   height,
 }) => {
-  const baseClassName = `relative overflow-hidden rounded-md bg-[var(--color-neutral-200)] ${className}`;
+  const baseClassName = `relative overflow-hidden rounded-md bg-[var(--color-neutral-200)] transition-opacity duration-150 ${className}`;
   const inlineStyle = {
     width,
     height: height ?? undefined,
@@ -24,19 +24,19 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
   if (variant === 'card') {
     return (
-      <div className={baseClassName} style={inlineStyle} aria-label="Loading content" />
+      <div className={baseClassName} style={inlineStyle} role="status" aria-label="Loading content" />
     );
   }
 
   if (variant === 'chart') {
     return (
-      <div className={`${baseClassName} h-64`} style={{ width: '100%', animation: 'skeleton-pulse 1.5s ease-in-out infinite' }} aria-label="Loading chart" />
+      <div className={`${baseClassName} h-64`} style={{ width: '100%', animation: 'skeleton-pulse 1.5s ease-in-out infinite' }} role="status" aria-label="Loading chart" />
     );
   }
 
   if (variant === 'table') {
     return (
-      <div className="space-y-3" aria-label="Loading table">
+      <div className="space-y-3" role="status" aria-label="Loading table">
         {Array.from({ length: rows }).map((_, index) => (
           <div
             key={index}
@@ -49,6 +49,6 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   }
 
   return (
-    <div className={`${baseClassName} h-4`} style={inlineStyle} aria-label="Loading text" />
+    <div className={`${baseClassName} h-4`} style={inlineStyle} role="status" aria-label="Loading text" />
   );
 };

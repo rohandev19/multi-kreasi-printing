@@ -60,18 +60,20 @@ export const Modal: React.FC<ModalProps> = ({
     <div
       ref={overlayRef}
       onMouseDown={handleOverlayClick}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: 'var(--bg-overlay)', backdropFilter: 'blur(8px)' }}
       role="dialog"
       aria-modal="true"
       aria-label={title}
     >
-      <div className={`bg-white rounded-xl shadow-2xl w-full ${sizeClasses[size]} animate-modal-in overflow-hidden max-h-full flex flex-col`}>
+      <div className={`w-full overflow-hidden rounded-lg border animate-modal-in max-h-full flex flex-col`} style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-md)' }}>
         {!hideHeader && (
-          <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center shrink-0">
-            <h2 className="text-lg font-bold text-slate-800">{title}</h2>
+          <div className="flex shrink-0 items-center justify-between border-b px-6 py-4" style={{ backgroundColor: 'var(--color-neutral-50)', borderColor: 'var(--border-default)' }}>
+            <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{title}</h2>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors"
+              className="rounded-full p-1.5 transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-100)]"
+              style={{ color: 'var(--text-secondary)' }}
               aria-label="Close"
             >
               <X size={18} weight="regular" />

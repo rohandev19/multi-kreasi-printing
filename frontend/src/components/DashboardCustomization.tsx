@@ -61,15 +61,21 @@ const SortableWidgetItem = ({
   return (
     <div
       ref={setNodeRef}
-      style={style}
-      className={`flex items-center p-3 mb-2 border border-slate-200 rounded-lg bg-white ${
-        isDragging ? 'shadow-md opacity-75 ring-2 ring-blue-500' : 'hover:bg-slate-50'
-      }`}
+      className="mb-2 flex items-center border p-3 transition-colors duration-150"
+      style={{
+        ...style,
+        backgroundColor: 'var(--bg-elevated)',
+        borderColor: 'var(--border-default)',
+        borderRadius: 'var(--radius-lg)',
+        zIndex: isDragging ? 10 : 1,
+        boxShadow: isDragging ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+      }}
     >
       <div
         {...attributes}
         {...listeners}
-        className="mr-3 cursor-grab text-slate-400 hover:text-slate-600 focus:outline-none"
+        className="mr-3 cursor-grab focus:outline-none"
+        style={{ color: 'var(--text-tertiary)' }}
       >
         <DotsSixVertical size={20} weight="regular" />
       </div>
@@ -78,9 +84,10 @@ const SortableWidgetItem = ({
           type="checkbox"
           checked={isEnabled}
           onChange={() => onToggle(id)}
-          className="w-5 h-5 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+          className="h-5 w-5 rounded border"
+          style={{ borderColor: 'var(--border-default)', accentColor: 'var(--color-primary-600)' }}
         />
-        <span className="ml-3 font-medium text-slate-700">{title}</span>
+        <span className="ml-3 font-medium" style={{ color: 'var(--text-primary)' }}>{title}</span>
       </label>
     </div>
   );
@@ -222,38 +229,39 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-          <h2 className="text-lg font-semibold text-slate-800">Customize Dashboard</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'var(--bg-overlay)', backdropFilter: 'blur(8px)' }}>
+      <div className="flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-lg border" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-md)' }}>
+        <div className="flex items-center justify-between border-b px-6 py-4" style={{ backgroundColor: 'var(--color-neutral-50)', borderColor: 'var(--border-default)' }}>
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Customize Dashboard</h2>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 transition-colors"
+            className="transition-colors duration-150 hover:text-[var(--text-primary)]"
+            style={{ color: 'var(--text-secondary)' }}
           >
-            ✕
+            ×
           </button>
         </div>
 
         <div className="p-6 overflow-y-auto flex-1">
           {error && (
-            <div className="mb-4 bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+            <div className="mb-4 rounded-lg p-3 text-sm" style={{ backgroundColor: 'var(--color-error-50)', color: 'var(--color-error-700)' }}>
               {error}
             </div>
           )}
           
           {success && (
-            <div className="mb-4 bg-emerald-50 text-emerald-600 p-3 rounded-lg text-sm">
+            <div className="mb-4 rounded-lg p-3 text-sm" style={{ backgroundColor: 'var(--color-success-50)', color: 'var(--color-success-700)' }}>
               Preferences saved successfully!
             </div>
           )}
 
           {loading ? (
             <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="h-8 w-8 animate-spin rounded-full border-b-2" style={{ borderColor: 'var(--color-primary-600)' }}></div>
             </div>
           ) : (
             <div className="space-y-4">
-              <p className="text-sm text-slate-500 mb-2">
+              <p className="mb-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
                 Drag to reorder widgets, or check/uncheck to show/hide them on your dashboard.
               </p>
               

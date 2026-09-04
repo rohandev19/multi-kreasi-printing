@@ -29,21 +29,21 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     switch (variant) {
       case 'danger':
         return {
-          icon: <Trash size={24} className="text-red-600" weight="regular" />,
-          bg: 'bg-red-100',
-          btn: 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
+          icon: <Trash size={24} className="text-[var(--color-error-600)]" weight="regular" />,
+          bg: 'var(--color-error-100)',
+          btn: 'var(--color-error-600)',
         };
       case 'warning':
         return {
-          icon: <Warning size={24} className="text-amber-600" weight="regular" />,
-          bg: 'bg-amber-100',
-          btn: 'bg-amber-600 hover:bg-amber-700 focus:ring-amber-500',
+          icon: <Warning size={24} className="text-[var(--color-warning-600)]" weight="regular" />,
+          bg: 'var(--color-warning-100)',
+          btn: 'var(--color-warning-600)',
         };
       case 'info':
         return {
-          icon: <Info size={24} className="text-blue-600" weight="regular" />,
-          bg: 'bg-blue-100',
-          btn: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
+          icon: <Info size={24} className="text-[var(--color-info-600)]" weight="regular" />,
+          bg: 'var(--color-info-100)',
+          btn: 'var(--color-info-600)',
         };
     }
   };
@@ -53,27 +53,29 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm" hideHeader>
       <div className="flex gap-4">
-        <div className={`shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${styles.bg}`}>
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: styles.bg }}>
           {styles.icon}
         </div>
         <div className="flex-1 pt-1 text-left">
-          <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
-          <p className="text-sm text-slate-600 leading-relaxed">{message}</p>
+          <h3 className="mb-2 text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{title}</h3>
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{message}</p>
         </div>
       </div>
       
-      <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-100">
+      <div className="mt-6 flex justify-end gap-3 border-t pt-4" style={{ borderColor: 'var(--border-default)' }}>
         <button
           onClick={onClose}
           disabled={loading}
-          className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition-colors"
+          className="rounded-lg border px-4 py-2 text-sm font-medium transition-colors duration-150 disabled:opacity-50"
+          style={{ backgroundColor: 'var(--bg-elevated)', color: 'var(--text-primary)', borderColor: 'var(--border-default)' }}
         >
           {cancelLabel}
         </button>
         <button
           onClick={onConfirm}
           disabled={loading}
-          className={`px-4 py-2 text-sm font-medium text-white rounded-lg focus:ring-2 focus:ring-offset-2 disabled:opacity-50 transition-colors ${styles.btn}`}
+          className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors duration-150 disabled:opacity-50"
+          style={{ backgroundColor: styles.btn }}
         >
           {loading ? 'Processing...' : confirmLabel}
         </button>

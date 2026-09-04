@@ -116,7 +116,7 @@ export default function Dashboard() {
       }));
 
     return (
-      <div className="space-y-6 max-w-7xl mx-auto animate-fade-in">
+      <div className="mx-auto max-w-7xl space-y-6 animate-fade-in">
         {/* Header Row */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
@@ -126,14 +126,15 @@ export default function Dashboard() {
             <p className="text-slate-500 font-medium mt-1">{todayStr}</p>
           </div>
           <div className="flex items-center gap-3">
-            <select className="bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
+            <select className="border px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-primary-500 focus:border-primary-500" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', color: 'var(--text-primary)', borderRadius: 'var(--radius-md)' }}>
               <option>This Week</option>
               <option>This Month</option>
               <option>Last 30 Days</option>
             </select>
             <button 
               onClick={() => setIsCustomizing(true)}
-              className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 text-sm font-medium px-4 py-2 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"
+              className="flex items-center gap-2 border px-4 py-2 text-sm font-medium transition-colors hover:bg-slate-50 hover:text-slate-900"
+              style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', color: 'var(--text-secondary)', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-sm)' }}
             >
               <Faders size={16} weight="regular" />
               Customize
@@ -177,18 +178,18 @@ export default function Dashboard() {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Pending Approvals Table */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+          <div className="flex flex-col overflow-hidden border lg:col-span-2" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
+            <div className="flex items-center justify-between border-b p-5" style={{ backgroundColor: 'var(--color-neutral-50)', borderColor: 'var(--border-default)' }}>
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-bold text-slate-800 tracking-tight">Pending Approvals</h2>
-                <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-0.5 rounded-full">{pendingApprovals.length}</span>
+                <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Pending Approvals</h2>
+                <span className="rounded-full px-2.5 py-0.5 text-xs font-bold" style={{ backgroundColor: 'var(--color-warning-100)', color: 'var(--color-warning-700)' }}>{pendingApprovals.length}</span>
               </div>
             </div>
             <div className="overflow-x-auto flex-1">
               <table className="w-full text-sm text-left">
-                <thead className="text-xs text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
+                <thead className="text-xs uppercase" style={{ backgroundColor: 'var(--color-neutral-50)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-default)' }}>
                   <tr>
                     <th className="px-5 py-3 font-semibold">Order #</th>
                     <th className="px-5 py-3 font-semibold">Customer</th>
@@ -196,21 +197,21 @@ export default function Dashboard() {
                     <th className="px-5 py-3 font-semibold text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody style={{ color: 'var(--text-primary)' }}>
                   {pendingApprovals.map((order, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="px-5 py-3 font-medium text-primary-600">{order.id}</td>
+                    <tr key={idx} className="transition-colors duration-150 hover:bg-[var(--color-neutral-50)]" style={{ borderBottom: '1px solid var(--border-default)' }}>
+                      <td className="px-5 py-3 font-medium" style={{ color: 'var(--color-primary-600)' }}>{order.id}</td>
                       <td className="px-5 py-3">
-                        <p className="font-semibold text-slate-800">{order.customer}</p>
-                        <p className="text-xs text-slate-500 truncate max-w-[200px]">{order.items}</p>
+                        <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>{order.customer}</p>
+                        <p className="max-w-[200px] truncate text-xs" style={{ color: 'var(--text-secondary)' }}>{order.items}</p>
                       </td>
-                      <td className="px-5 py-3 font-medium text-slate-700">Rp {Number(order.value).toLocaleString('id-ID')}</td>
+                      <td className="px-5 py-3 font-medium" style={{ color: 'var(--text-primary)' }}>Rp {Number(order.value).toLocaleString('id-ID')}</td>
                       <td className="px-5 py-3">
                         <div className="flex justify-end gap-2">
-                          <button className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors" title="Approve">
+                          <button className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-150" title="Approve" style={{ backgroundColor: 'var(--color-success-50)', color: 'var(--color-success-600)' }}>
                             <Check size={16} weight="regular" />
                           </button>
-                          <button className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors" title="Reject">
+                          <button className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-150" title="Reject" style={{ backgroundColor: 'var(--color-error-50)', color: 'var(--color-error-600)' }}>
                             <X size={16} weight="regular" />
                           </button>
                         </div>
@@ -219,7 +220,7 @@ export default function Dashboard() {
                   ))}
                   {pendingApprovals.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-5 py-8 text-center text-slate-500">No pending orders require approval.</td>
+                      <td colSpan={4} className="px-5 py-8 text-center" style={{ color: 'var(--text-secondary)' }}>No pending orders require approval.</td>
                     </tr>
                   )}
                 </tbody>
@@ -228,22 +229,22 @@ export default function Dashboard() {
           </div>
 
           {/* Production Status */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-slate-100 bg-slate-50/50">
-              <h2 className="text-lg font-bold text-slate-800 tracking-tight">Active Production Jobs</h2>
+          <div className="flex flex-col overflow-hidden border" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
+            <div className="border-b p-5" style={{ backgroundColor: 'var(--color-neutral-50)', borderColor: 'var(--border-default)' }}>
+              <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Active Production Jobs</h2>
             </div>
             <div className="p-5 space-y-5 flex-1">
               {activeJobs.map((job, idx) => (
                 <div key={idx}>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-semibold text-slate-800">{job.id} <span className="text-slate-400 font-normal ml-1">· {job.machine}</span></span>
-                    <span className="text-xs font-bold text-primary-600">{job.progress}%</span>
+                    <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{job.id} <span className="ml-1 font-normal" style={{ color: 'var(--text-secondary)' }}>· {job.machine}</span></span>
+                    <span className="text-xs font-bold" style={{ color: 'var(--color-primary-600)' }}>{job.progress}%</span>
                   </div>
-                  <div className="h-2 rounded-full bg-slate-100 overflow-hidden mb-2">
-                    <div className="h-full bg-primary-600 rounded-full transition-all duration-500" style={{ width: `${job.progress}%` }}></div>
+                  <div className="mb-2 h-2 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--color-neutral-100)' }}>
+                    <div className="h-full rounded-full transition-all duration-300" style={{ width: `${job.progress}%`, backgroundColor: 'var(--color-primary-600)' }}></div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${job.status === 'QC' ? 'bg-primary-100 text-primary-700' : 'bg-blue-100 text-blue-700'}`}>
+                    <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: job.status === 'QC' ? 'var(--color-primary-100)' : 'var(--color-info-100)', color: job.status === 'QC' ? 'var(--color-primary-700)' : 'var(--color-info-700)' }}>
                       {job.status}
                     </span>
                   </div>
@@ -255,8 +256,8 @@ export default function Dashboard() {
 
         {/* Revenue Chart & Recent Orders */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-            <h2 className="text-lg font-bold text-slate-800 tracking-tight mb-4">Revenue Trend (Last 7 Days)</h2>
+          <div className="border p-5" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
+            <h2 className="mb-4 text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Revenue Trend (Last 7 Days)</h2>
             <div className="h-64 w-full">
               {metrics?.revenue?.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -279,25 +280,25 @@ export default function Dashboard() {
                       formatter={(value: any) => [`Rp ${Number(value).toLocaleString('id-ID')}`, 'Revenue']} 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                     />
-                    <Line type="monotone" dataKey="total" stroke="#4f46e5" strokeWidth={3} dot={{r: 4, fill: '#4f46e5', strokeWidth: 2, stroke: '#fff'}} activeDot={{r: 6}} />
+                    <Line type="monotone" dataKey="total" stroke="var(--color-primary-600)" strokeWidth={2} dot={{r: 3, fill: 'var(--color-primary-600)', strokeWidth: 2, stroke: 'var(--bg-elevated)'}} activeDot={{r: 5}} />
                   </LineChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="w-full h-full bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400">
+                <div className="flex h-full w-full items-center justify-center rounded-lg border-2 border-dashed" style={{ backgroundColor: 'var(--color-neutral-50)', borderColor: 'var(--border-default)', color: 'var(--text-secondary)' }}>
                   Insufficient data for chart
                 </div>
               )}
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <h2 className="text-lg font-bold text-slate-800 tracking-tight">Recent Orders</h2>
-              <Link to="/dashboard/orders" className="text-sm font-semibold text-primary-600 hover:text-primary-700">View All &rarr;</Link>
+          <div className="flex flex-col overflow-hidden border" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
+            <div className="flex items-center justify-between border-b p-5" style={{ backgroundColor: 'var(--color-neutral-50)', borderColor: 'var(--border-default)' }}>
+              <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Recent Orders</h2>
+              <Link to="/dashboard/orders" className="text-sm font-semibold" style={{ color: 'var(--color-primary-600)' }}>View All &rarr;</Link>
             </div>
             <div className="overflow-x-auto flex-1">
               <table className="w-full text-sm text-left">
-                <thead className="text-xs text-slate-500 uppercase bg-white border-b border-slate-100">
+                <thead className="text-xs uppercase" style={{ backgroundColor: 'var(--color-neutral-50)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-default)' }}>
                   <tr>
                     <th className="px-5 py-3 font-semibold">Order</th>
                     <th className="px-5 py-3 font-semibold">Customer</th>

@@ -17,7 +17,8 @@ import {
   CaretLeft,
   CaretRight,
   User as UserIcon,
-  DotsThreeVertical
+  DotsThreeVertical,
+  X
 } from '@phosphor-icons/react';
 import { useRoleContext } from '../../contexts/RoleContext';
 
@@ -154,6 +155,9 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
     return `${base} text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900`;
   };
 
+  const sidebarWidth = collapsed ? 'w-20' : 'w-64';
+  const mobileTranslate = mobileOpen ? 'translate-x-0' : '-translate-x-full';
+
   return (
     <>
       {mobileOpen && (
@@ -161,24 +165,24 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
           type="button"
           aria-label="Close navigation"
           onClick={onMobileClose}
-          className="fixed inset-0 z-30 bg-slate-900/20 md:hidden"
+          className="fixed inset-0 z-30 md:hidden"
+          style={{ backgroundColor: 'rgba(15, 20, 25, 0.5)' }}
         />
       )}
 
       <aside
-        className={`${collapsed ? 'w-20' : 'w-64'} fixed inset-y-0 left-0 z-40 flex h-screen -translate-x-full flex-col border-r transition-transform duration-200 ease-out md:sticky md:z-30 md:translate-x-0 md:flex`}
+        className={`${sidebarWidth} fixed inset-y-0 left-0 z-40 flex h-screen ${mobileTranslate} flex-col border-r transition-transform duration-200 ease-out md:sticky md:z-30 md:translate-x-0 md:flex`}
         style={{
           backgroundColor: 'var(--bg-elevated)',
           borderColor: 'var(--border-default)',
           boxShadow: mobileOpen ? 'var(--shadow-lg)' : 'none',
-          transform: mobileOpen ? 'translateX(0)' : undefined,
         }}
       >
       <div className="relative flex h-16 flex-shrink-0 items-center border-b px-4" style={{ borderColor: 'var(--border-default)' }}>
         <Link to="/" className="flex w-full items-center gap-2 overflow-hidden">
           {collapsed ? (
             <div
-              className="mx-auto flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-lg font-black shadow-sm"
+              className="mx-auto flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-lg font-black shadow-sm"
               style={{ backgroundColor: 'var(--color-primary-600)', color: 'white' }}
             >
               MK
@@ -191,8 +195,22 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
           )}
         </Link>
         <button
+          type="button"
+          onClick={onMobileClose}
+          aria-label="Close navigation"
+          className="absolute -right-3 top-5 rounded-full border p-1 shadow-sm transition-colors duration-150 ease-out md:hidden hover:bg-[var(--color-neutral-100)]"
+          style={{
+            backgroundColor: 'var(--bg-elevated)',
+            borderColor: 'var(--border-default)',
+            color: 'var(--text-secondary)',
+          }}
+        >
+          <X size={14} weight="bold" />
+        </button>
+        <button
+          type="button"
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3 top-5 rounded-full border p-1 shadow-sm transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-100)]"
+          className="hidden absolute -right-3 top-5 rounded-full border p-1 shadow-sm transition-colors duration-150 ease-out md:flex hover:bg-[var(--color-neutral-100)]"
           style={{
             backgroundColor: 'var(--bg-elevated)',
             borderColor: 'var(--border-default)',
@@ -217,7 +235,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
             {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
 
             {collapsed && (
-              <div className="pointer-events-none absolute left-14 z-50 whitespace-nowrap rounded bg-[var(--color-neutral-900)] px-2 py-1 text-xs text-white opacity-0 invisible transition-all duration-150 ease-out group-hover:visible group-hover:opacity-100">
+              <div className="pointer-events-none absolute left-14 z-50 invisible whitespace-nowrap rounded-md px-2 py-1 text-xs text-white opacity-0 transition-all duration-150 ease-out group-hover:visible group-hover:opacity-100" style={{ backgroundColor: 'var(--color-neutral-900)' }}>
                 {item.label}
               </div>
             )}
@@ -228,7 +246,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
       <div className="relative border-t p-3" style={{ borderColor: 'var(--border-default)' }}>
         <button
           onClick={() => setShowUserMenu(!showUserMenu)}
-          className={`flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-100)] ${collapsed ? 'justify-center' : ''}`}
+          className={`flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-100)] ${collapsed ? 'justify-center' : ''}`}
         >
           <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border" style={{ backgroundColor: 'var(--color-neutral-100)', borderColor: 'var(--border-default)' }}>
             <UserIcon size={20} weight="regular" style={{ color: 'var(--text-tertiary)' }} />
@@ -249,7 +267,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
         </button>
 
         {showUserMenu && (
-          <div className={`absolute bottom-full z-50 mb-2 overflow-hidden rounded-xl border py-1 ${collapsed ? 'left-14 w-48' : 'left-3 right-3'}`} style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-md)' }}>
+          <div className={`absolute bottom-full z-50 mb-2 overflow-hidden rounded-lg border py-1 ${collapsed ? 'left-14 w-48' : 'left-3 right-3'}`} style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-md)' }}>
             <Link
               to="/dashboard/profile"
               className="flex items-center gap-2 px-4 py-2 text-sm transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-50)]"

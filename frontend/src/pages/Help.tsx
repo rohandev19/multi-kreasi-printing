@@ -33,7 +33,7 @@ export const HelpPage = () => {
         {supportChannels.map(({ title, description, value, icon: Icon }) => (
           <div
             key={title}
-            className="rounded-lg border p-6 transition-all duration-150 ease-out hover:shadow-md"
+            className="rounded-lg border p-6 transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-50)]"
             style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-sm)' }}
           >
             <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg" style={{ backgroundColor: 'var(--color-primary-100)', color: 'var(--color-primary-700)' }}>
