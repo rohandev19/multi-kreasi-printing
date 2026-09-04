@@ -1,2 +1,2 @@
 web: node dist/src/main.js
-release: npx prisma migrate deploy
+release: npx prisma migrate deploy && node -e "const{execSync}=require('child_process');try{execSync('npx ts-node --transpile-only prisma/seed.ts',{stdio:'inherit'})}catch(e){console.log('[release] seed skipped or failed (non-fatal):',String(e.message||e))}"

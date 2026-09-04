@@ -3,13 +3,26 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import * as bcrypt from 'bcrypt';
 
-const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432', 10),
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME || 'mkprinting',
-});
+const DATABASE_URL = process.env.DATABASE_URL;
+
+let pool: Pool;
+if (DATABASE_URL) {
+  const needSsl = DATABASE_URL.includes('amazonaws.com') || DATABASE_URL.includes('neon.tech') || process.env.PG_REQUIRE_SSL === 'true';
+  pool = new Pool({
+    connectionString: DATABASE_URL,
+    ssl: needSsl ? { rejectUnauthorized: false } : undefined,
+  });
+  console.log(`[seed] Connected via DATABASE_URL (ssl=${needSsl})`);
+} else {
+  pool = new Pool({
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432', 10),
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME || 'mkprinting',
+  });
+  console.log('[seed] Connected via local PG env vars');
+}
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
