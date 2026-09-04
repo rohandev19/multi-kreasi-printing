@@ -66,7 +66,7 @@ export const Modal: React.FC<ModalProps> = ({
       aria-modal="true"
       aria-label={title}
     >
-      <div className={`w-full overflow-hidden rounded-lg border animate-modal-in max-h-full flex flex-col`} style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-md)' }}>
+      <div className={`w-full overflow-hidden rounded-lg border animate-modal-in max-h-full flex flex-col ${sizeClasses[size]}`} style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-md)' }}>
         {!hideHeader && (
           <div className="flex shrink-0 items-center justify-between border-b px-6 py-4" style={{ backgroundColor: 'var(--color-neutral-50)', borderColor: 'var(--border-default)' }}>
             <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{title}</h2>
