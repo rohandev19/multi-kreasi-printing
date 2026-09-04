@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type FormE
 import {
   CheckCircle,
   CurrencyDollar,
+  Eye,
   FolderPlus,
   Image as ImageIcon,
   MagnifyingGlass,
@@ -9,6 +10,7 @@ import {
   PencilSimple,
   Plus,
   Power,
+  Star,
   Tag,
   Trash,
   X,
@@ -34,7 +36,7 @@ type Product = {
   status?: string;
   createdAt?: string;
   pricingTiers?: Array<{ id?: string; minQuantity: number; maxQuantity?: number | null; unitPrice: number }>;
-  images?: Array<{ url: string; isPrimary?: boolean }>;
+  images?: Array<{ id?: string; url: string; isPrimary?: boolean; createdAt?: string }>;
 };
 
 type ProductFormState = {
@@ -52,6 +54,16 @@ type PricingTierFormState = {
   maxQuantity: number | string;
   unitPrice: number | string;
 };
+
+const MAX_IMAGES_PER_PRODUCT = 5;
+
+const PRODUCT_STATUS_LABEL: Record<string, string> = {
+  Active: 'Aktif',
+  Inactive: 'Nonaktif',
+  Discontinued: 'Dihentikan',
+};
+
+type SortKey = 'newest' | 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc';
 
 const emptyForm: ProductFormState = {
   sku: '',
@@ -92,22 +104,35 @@ export default function Products() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
   const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<SortKey>('newest');
   const [showForm, setShowForm] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [form, setForm] = useState<ProductFormState>(emptyForm);
   const [pricingTiers, setPricingTiers] = useState<PricingTierFormState[]>([emptyPricingTier]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [primaryNewFileIndex, setPrimaryNewFileIndex] = useState<number>(0);
+  const [existingImages, setExistingImages] = useState<Product['images']>([]);
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' });
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
 
   const resetProductForm = useCallback(() => {
+    imagePreviews.forEach((preview) => {
+      URL.revokeObjectURL(preview);
+    });
     setForm(emptyForm);
     setPricingTiers([emptyPricingTier]);
     setImageFiles([]);
+    setImagePreviews([]);
+    setPrimaryNewFileIndex(0);
+    setExistingImages([]);
     setEditingProductId(null);
     setShowForm(false);
-  }, []);
+  }, [imagePreviews]);
 
   const fetchCatalog = useCallback(async () => {
     try {
@@ -131,19 +156,65 @@ export default function Products() {
     void fetchCatalog();
   }, [fetchCatalog]);
 
+  useEffect(() => {
+    return () => {
+      imagePreviews.forEach((preview) => {
+        URL.revokeObjectURL(preview);
+      });
+    };
+  }, [imagePreviews]);
+
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
-    if (!query) return products;
+    let result = products;
 
-    return products.filter((product) => {
-      const categoryName = categories.find((category) => category.id === product.categoryId)?.name || product.category?.name || '';
-      return (
-        product.name.toLowerCase().includes(query) ||
-        product.sku.toLowerCase().includes(query) ||
-        categoryName.toLowerCase().includes(query)
-      );
-    });
-  }, [categories, products, search]);
+    if (query) {
+      result = result.filter((product) => {
+        const categoryName = categories.find((category) => category.id === product.categoryId)?.name || product.category?.name || '';
+        return (
+          product.name.toLowerCase().includes(query) ||
+          product.sku.toLowerCase().includes(query) ||
+          categoryName.toLowerCase().includes(query)
+        );
+      });
+    }
+
+    if (categoryFilter !== 'all') {
+      result = result.filter((product) => product.categoryId === categoryFilter);
+    }
+
+    if (statusFilter !== 'all') {
+      result = result.filter((product) => (product.status || 'Active') === statusFilter);
+    }
+
+    const sorted = [...result];
+    switch (sortBy) {
+      case 'name-asc':
+        sorted.sort((a, b) => a.name.localeCompare(b.name, 'id-ID'));
+        break;
+      case 'name-desc':
+        sorted.sort((a, b) => b.name.localeCompare(a.name, 'id-ID'));
+        break;
+      case 'price-asc':
+        sorted.sort((a, b) => Number(a.basePrice ?? 0) - Number(b.basePrice ?? 0));
+        break;
+      case 'price-desc':
+        sorted.sort((a, b) => Number(b.basePrice ?? 0) - Number(a.basePrice ?? 0));
+        break;
+      case 'newest':
+      default:
+        sorted.sort(
+          (a, b) =>
+            new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
+        );
+    }
+    return sorted;
+  }, [categories, categoryFilter, products, search, sortBy, statusFilter]);
+
+  const remainingImageSlots = useMemo(
+    () => Math.max(0, MAX_IMAGES_PER_PRODUCT - (existingImages?.length ?? 0) - imageFiles.length),
+    [existingImages, imageFiles],
+  );
 
   const handlePricingTierChange = (index: number, field: keyof PricingTierFormState, value: string) => {
     setPricingTiers((current) =>
@@ -175,8 +246,85 @@ export default function Products() {
   };
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setImageFiles(Array.from(event.target.files ?? []));
+    const files = Array.from(event.target.files ?? []);
+    const allowed = files.slice(0, remainingImageSlots);
+
+    imagePreviews.forEach((preview) => {
+      URL.revokeObjectURL(preview);
+    });
+
+    const previews = allowed.map((file) => URL.createObjectURL(file));
+    setImageFiles(allowed);
+    setImagePreviews(previews);
+    if (primaryNewFileIndex >= allowed.length && allowed.length > 0) {
+      setPrimaryNewFileIndex(0);
+    }
+    event.target.value = '';
   };
+
+  const removeNewFile = (index: number) => {
+    setImagePreviews((current) => {
+      const next = current.filter((_, i) => i !== index);
+      const removed = current[index];
+      if (removed) URL.revokeObjectURL(removed);
+      return next;
+    });
+    setImageFiles((current) => current.filter((_, i) => i !== index));
+    setPrimaryNewFileIndex((current) => {
+      if (current === index) return 0;
+      return current > index ? current - 1 : current;
+    });
+  };
+
+  const setPrimaryNewFile = (index: number) => {
+    setPrimaryNewFileIndex(index);
+  };
+
+  const deleteExistingImage = async (imageId: string) => {
+    if (!editingProductId) return;
+    const confirmed = window.confirm('Hapus gambar produk ini?');
+    if (!confirmed) return;
+    try {
+      await api.delete(`/api/v1/products/${editingProductId}/images/${imageId}`);
+      setExistingImages((current) => (current ?? []).filter((img) => img.id !== imageId));
+      success('Gambar dihapus', 'Gambar produk berhasil dihapus.');
+    } catch (err: any) {
+      showError('Gagal hapus gambar', err.response?.data?.message || 'Tidak dapat menghapus gambar.');
+    }
+  };
+
+  const setPrimaryExistingImage = async (imageId: string) => {
+    if (!editingProductId) return;
+    try {
+      await api.patch(`/api/v1/products/${editingProductId}/images/${imageId}/set-primary`);
+      setExistingImages((current) =>
+        (current ?? []).map((img) => ({ ...img, isPrimary: img.id === imageId })),
+      );
+      success('Gambar utama diubah', 'Gambar utama produk berhasil diperbarui.');
+    } catch (err: any) {
+      showError('Gagal atur gambar utama', err.response?.data?.message || 'Tidak dapat mengubah gambar utama.');
+    }
+  };
+
+  const loadProductDetail = useCallback(
+    async (productId: string) => {
+      try {
+        setDetailLoading(true);
+        const response = await api.get(`/api/v1/products/${productId}`);
+        const payload = response.data?.data ?? response.data;
+        return payload as Product & { images?: Product['images']; pricingTiers?: Product['pricingTiers'] };
+      } catch (err: any) {
+        showError(
+          'Gagal memuat detail produk',
+          err.response?.data?.message || 'Detail produk tidak dapat dimuat.',
+        );
+        return null;
+      } finally {
+        setDetailLoading(false);
+      }
+    },
+    [showError],
+  );
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -242,28 +390,35 @@ export default function Products() {
     }
   };
 
-  const handleEditProduct = (product: Product) => {
+  const handleEditProduct = async (product: Product) => {
+    const detail = await loadProductDetail(product.id);
+    const source = detail ?? product;
+
     setForm({
-      sku: product.sku || '',
-      name: product.name || '',
-      description: product.description || '',
-      categoryId: product.categoryId || '',
-      basePrice: String(product.basePrice ?? ''),
-      unitOfMeasure: product.unitOfMeasure || 'pcs',
-      status: product.status || 'Active',
+      sku: source.sku || '',
+      name: source.name || '',
+      description: source.description || '',
+      categoryId: source.categoryId || '',
+      basePrice: String(source.basePrice ?? ''),
+      unitOfMeasure: source.unitOfMeasure || 'pcs',
+      status: source.status || 'Active',
     });
     setPricingTiers(
-      product.pricingTiers && product.pricingTiers.length > 0
-        ? product.pricingTiers.map((tier) => ({
+      source.pricingTiers && source.pricingTiers.length > 0
+        ? source.pricingTiers.map((tier) => ({
             minQuantity: tier.minQuantity ?? 1,
             maxQuantity: tier.maxQuantity ?? '',
             unitPrice: Number(tier.unitPrice ?? 0),
           }))
         : [emptyPricingTier],
     );
+    setExistingImages(source.images ?? []);
+    imagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
+    setImageFiles([]);
+    setImagePreviews([]);
+    setPrimaryNewFileIndex(0);
     setEditingProductId(product.id);
     setShowForm(true);
-    setImageFiles([]);
   };
 
   const handleDeleteProduct = async (product: Product) => {
@@ -501,25 +656,116 @@ export default function Products() {
                  />
                </label>
 
-               <label className="space-y-2 text-sm font-medium text-slate-700 md:col-span-2">
-                 Gambar Produk (multi upload)
+               <div className="space-y-3 md:col-span-2">
+                 <div className="flex flex-wrap items-center justify-between gap-2 text-sm font-medium text-slate-700">
+                   <div className="flex items-center gap-2">
+                     <ImageIcon size={18} className="text-primary-600" weight="fill" />
+                     <span>Gambar Produk</span>
+                   </div>
+                   <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
+                       (existingImages?.length ?? 0) + imageFiles.length >= MAX_IMAGES_PER_PRODUCT
+                         ? 'bg-rose-50 text-rose-700'
+                         : 'bg-primary-50 text-primary-700'
+                     }`}>
+                     {(existingImages?.length ?? 0) + imageFiles.length} / {MAX_IMAGES_PER_PRODUCT}
+                   </span>
+                 </div>
+
+                 {(existingImages && existingImages.length > 0) && (
+                   <div className="space-y-2">
+                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Gambar Tersimpan</p>
+                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
+                       {existingImages.map((img) => (
+                         <div key={img.id ?? img.url} className="group relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                           <div className="aspect-square overflow-hidden bg-slate-100">
+                             <img src={img.url} alt={form.name || 'produk'} className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105" />
+                           </div>
+                           {img.isPrimary && (
+                             <span className="absolute left-1.5 top-1.5 inline-flex items-center gap-1 rounded-full bg-amber-500/95 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-white shadow-sm">
+                               <Star size={10} weight="fill" />
+                               Utama
+                             </span>
+                           )}
+                           <div className="absolute inset-x-0 bottom-0 translate-y-full flex-col gap-1 bg-slate-900/75 p-1.5 text-[10px] text-white transition-transform duration-150 group-hover:translate-y-0 flex">
+                             {!img.isPrimary && img.id && (
+                               <button
+                                 type="button"
+                                 onClick={() => setPrimaryExistingImage(img.id!)}
+                                 className="w-full truncate rounded-md bg-white/10 px-1.5 py-1 text-left hover:bg-white/20"
+                               >
+                                 <Star size={10} className="mr-1 inline" weight="bold" />
+                                 Jadikan Utama
+                               </button>
+                             )}
+                             {img.id && (
+                               <button
+                                 type="button"
+                                 onClick={() => deleteExistingImage(img.id!)}
+                                 className="w-full truncate rounded-md bg-rose-500/80 px-1.5 py-1 text-left hover:bg-rose-500"
+                               >
+                                 <Trash size={10} className="mr-1 inline" weight="bold" />
+                                 Hapus
+                               </button>
+                             )}
+                           </div>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+                 )}
+
+                 {imagePreviews.length > 0 && (
+                   <div className="space-y-2">
+                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Akan Diunggah</p>
+                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
+                       {imagePreviews.map((preview, index) => (
+                         <div key={`${preview}-${index}`} className="relative overflow-hidden rounded-xl border border-dashed border-primary-300 bg-primary-50/50 shadow-sm">
+                           <div className="aspect-square overflow-hidden bg-white">
+                             <img src={preview} alt={imageFiles[index]?.name || `preview-${index}`} className="h-full w-full object-cover" />
+                           </div>
+                           <button
+                             type="button"
+                             onClick={() => setPrimaryNewFile(index)}
+                             title={primaryNewFileIndex === index ? 'Gambar utama' : 'Jadikan utama'}
+                             className={`absolute left-1.5 top-1.5 inline-flex h-6 w-6 items-center justify-center rounded-full transition ${
+                               primaryNewFileIndex === index
+                                 ? 'bg-amber-500 text-white shadow'
+                                 : 'bg-white/90 text-slate-400 hover:text-amber-500'
+                             }`}
+                           >
+                             <Star size={12} weight="fill" />
+                           </button>
+                           <button
+                             type="button"
+                             onClick={() => removeNewFile(index)}
+                             className="absolute right-1.5 top-1.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-white shadow transition hover:bg-rose-600"
+                             aria-label="Hapus file"
+                           >
+                             <X size={12} weight="bold" />
+                           </button>
+                           <div className="truncate bg-slate-900/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                             {imageFiles[index]?.name}
+                           </div>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+                 )}
+
                  <input
                    type="file"
                    accept="image/png,image/jpeg,image/webp"
                    multiple
                    onChange={handleImageChange}
-                   className="block w-full rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-primary-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white file:shadow-sm"
+                   disabled={remainingImageSlots === 0 || detailLoading}
+                   className="block w-full rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 transition file:mr-3 file:rounded-lg file:border-0 file:bg-primary-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white file:shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
                  />
-                 {imageFiles.length > 0 && (
-                   <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-600">
-                     {imageFiles.map((file, idx) => (
-                       <span key={`${file.name}-${idx}`} className="rounded-full bg-slate-100 px-2.5 py-1">
-                         {file.name}
-                       </span>
-                     ))}
-                   </div>
-                 )}
-               </label>
+                 <p className="text-xs text-slate-500">
+                   JPG / PNG / WebP • maks. 5MB per gambar • sisa slot:{' '}
+                   <span className="font-bold text-primary-700">{remainingImageSlots}</span>
+                 </p>
+                 {detailLoading && <p className="text-xs text-slate-500">Memuat detail gambar produk...</p>}
+               </div>
               </div>
 
               <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -698,83 +944,233 @@ export default function Products() {
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="relative w-full md:max-w-sm">
-            <MagnifyingGlass size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" weight="regular" />
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
-              placeholder="Cari nama, SKU, atau kategori"
-            />
+        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center lg:flex-1 lg:gap-2">
+            <div className="relative w-full md:max-w-sm">
+              <MagnifyingGlass size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" weight="regular" />
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
+                placeholder="Cari nama, SKU, atau kategori"
+              />
+            </div>
+
+            <div className="grid flex-1 grid-cols-2 gap-2 md:grid-cols-3">
+              <select
+                value={categoryFilter}
+                onChange={(event) => setCategoryFilter(event.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
+              >
+                <option value="all">Semua Kategori</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
+              >
+                <option value="all">Semua Status</option>
+                <option value="Active">Aktif</option>
+                <option value="Inactive">Nonaktif</option>
+                <option value="Discontinued">Dihentikan</option>
+              </select>
+
+              <select
+                value={sortBy}
+                onChange={(event) => setSortBy(event.target.value as SortKey)}
+                className="col-span-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100 md:col-span-1"
+              >
+                <option value="newest">Terbaru</option>
+                <option value="name-asc">Nama (A → Z)</option>
+                <option value="name-desc">Nama (Z → A)</option>
+                <option value="price-asc">Harga (termurah)</option>
+                <option value="price-desc">Harga (termahal)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 font-semibold text-primary-700">
+              <Package size={12} />
+              {filteredProducts.length} ditampilkan
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-600">
+              Total {products.length} produk
+            </span>
           </div>
         </div>
 
         {loading ? (
           <div className="flex min-h-52 items-center justify-center text-sm text-slate-500">Loading product catalog...</div>
         ) : filteredProducts.length === 0 ? (
-          <div className="flex min-h-52 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 text-sm text-slate-500">Tidak ada produk yang sesuai pencarian.</div>
+          <div className="flex min-h-52 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 p-8 text-sm text-slate-500">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+              <Package size={24} weight="thin" />
+            </div>
+            <div className="text-center">
+              <p className="font-semibold text-slate-700">Tidak ada produk ditemukan</p>
+              <p className="mt-1 text-xs text-slate-500">Coba ubah filter kata kunci, kategori, atau status produk.</p>
+            </div>
+          </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {filteredProducts.map((product) => (
-              <article key={product.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-               {product.images?.[0]?.url ? (
-                 <img src={product.images[0].url} alt={product.name} className="mb-4 h-40 w-full rounded-xl object-cover" />
-               ) : (
-                 <div className="mb-4 flex h-40 w-full items-center justify-center rounded-xl border border-dashed border-slate-200 bg-white text-slate-400">
-                   <ImageIcon size={28} />
-                 </div>
-               )}
+            {filteredProducts.map((product) => {
+              const categoryName =
+                categories.find((category) => category.id === product.categoryId)?.name ||
+                product.category?.name ||
+                'Uncategorized';
+              const imageUrl = product.images?.find((img) => img.isPrimary)?.url || product.images?.[0]?.url;
+              const statusKey = (product.status || 'Active') as keyof typeof PRODUCT_STATUS_LABEL;
+              const displayStatus = PRODUCT_STATUS_LABEL[statusKey] ?? statusKey;
+              const statusClass =
+                product.status === 'Active'
+                  ? 'bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200'
+                  : product.status === 'Inactive'
+                  ? 'bg-amber-100 text-amber-700 ring-1 ring-inset ring-amber-200'
+                  : 'bg-slate-200 text-slate-700 ring-1 ring-inset ring-slate-300';
+              const lowestTier =
+                product.pricingTiers && product.pricingTiers.length > 0
+                  ? Math.min(...product.pricingTiers.map((t) => Number(t.unitPrice)))
+                  : null;
 
-               <div className="flex items-start justify-between gap-3">
-                 <div>
-                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{product.sku}</p>
-                   <h4 className="mt-2 text-lg font-bold text-slate-900">{product.name}</h4>
-                 </div>
-                 <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] ${product.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : product.status === 'Inactive' ? 'bg-amber-100 text-amber-700' : 'bg-slate-200 text-slate-700'}`}>
-                   {product.status || 'Active'}
-                 </span>
-               </div>
+              return (
+                <article
+                  key={product.id}
+                  className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                >
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt={product.name}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-50 to-slate-100 text-slate-400">
+                        <ImageIcon size={36} weight="thin" />
+                        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">Belum ada gambar</p>
+                      </div>
+                    )}
 
-               <p className="mt-3 line-clamp-3 text-sm text-slate-600">{product.description || 'Tidak ada deskripsi untuk produk ini.'}</p>
+                    <span className="absolute left-3 top-3 inline-flex items-center rounded-md bg-slate-900/75 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.18em] text-white backdrop-blur-sm">
+                      {product.sku}
+                    </span>
+                    <span className={`absolute right-3 top-3 inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${statusClass}`}>
+                      {displayStatus}
+                    </span>
 
-               <div className="mt-4 space-y-2 text-sm text-slate-600">
-                 <div className="flex items-center justify-between gap-2">
-                   <span>Kategori</span>
-                   <span className="font-semibold text-slate-900">{categories.find((category) => category.id === product.categoryId)?.name || product.category?.name || 'Uncategorized'}</span>
-                 </div>
-                 <div className="flex items-center justify-between gap-2">
-                   <span>Harga</span>
-                   <span className="font-semibold text-slate-900">{formatCurrency(product.basePrice ?? 0)}</span>
-                 </div>
-                 <div className="flex items-center justify-between gap-2">
-                   <span>Unit</span>
-                   <span className="font-semibold text-slate-900">{product.unitOfMeasure || 'pcs'}</span>
-                 </div>
-                 {product.pricingTiers && product.pricingTiers.length > 0 && (
-                   <div className="rounded-xl border border-amber-200 bg-amber-50 p-2 text-xs text-amber-800">
-                     <span className="font-bold">Tiered pricing:</span>{' '}
-                     {product.pricingTiers.slice(0, 2).map((tier) => `${tier.minQuantity}${tier.maxQuantity ? `-${tier.maxQuantity}` : '+'} @ ${formatCurrency(tier.unitPrice)}`).join(' • ')}
-                   </div>
-                 )}
-               </div>
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900/75 via-slate-900/40 to-transparent p-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                      <div className="flex items-center justify-end gap-2">
+                        <a
+                          href={`/products/${product.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 rounded-lg bg-white/95 px-2.5 py-1.5 text-xs font-semibold text-slate-800 shadow transition hover:bg-white"
+                        >
+                          <Eye size={12} weight="bold" />
+                          Lihat Katalog
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleEditProduct(product)}
+                          className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-white shadow transition"
+                          style={{ backgroundColor: '#0284c7' }}
+                        >
+                          <PencilSimple size={12} weight="bold" />
+                          Edit Cepat
+                        </button>
+                      </div>
+                    </div>
+                  </div>
 
-               <div className="mt-4 flex flex-wrap gap-2">
-                 <button type="button" onClick={() => handleEditProduct(product)} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
-                   <PencilSimple size={14} />
-                   Edit
-                 </button>
-                 <button type="button" onClick={() => handleToggleStatus(product)} className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100">
-                   <Power size={14} />
-                   {product.status === 'Active' ? 'Inactive' : 'Active'}
-                 </button>
-                 <button type="button" onClick={() => handleDeleteProduct(product)} className="inline-flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100">
-                   <Trash size={14} />
-                   Delete
-                 </button>
-               </div>
-              </article>
-            ))}
+                  <div className="space-y-3 p-4">
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-600">{categoryName}</p>
+                      <h4 className="line-clamp-1 text-base font-extrabold tracking-tight text-slate-900">{product.name}</h4>
+                    </div>
+                    <p className="line-clamp-2 min-h-[2.5rem] text-sm text-slate-600">
+                      {product.description || 'Belum ada deskripsi untuk produk ini.'}
+                    </p>
+
+                    <div className="flex items-baseline justify-between gap-3">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Harga dasar</span>
+                        <span className="text-lg font-extrabold text-slate-900">{formatCurrency(product.basePrice ?? 0)}</span>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Per</span>
+                        <span className="text-sm font-bold text-slate-700">{product.unitOfMeasure || 'pcs'}</span>
+                      </div>
+                    </div>
+
+                    {product.pricingTiers && product.pricingTiers.length > 0 && (
+                      <div className="rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-3">
+                        <div className="mb-1 flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-amber-700">
+                          <Tag size={11} weight="bold" />
+                          {product.pricingTiers.length} tier harga grosir
+                        </div>
+                        <p className="text-xs text-amber-800">
+                          <span className="font-semibold">Starts from:</span>{' '}
+                          <span className="font-extrabold">{formatCurrency(lowestTier ?? product.basePrice ?? 0)}</span>
+                          {' • '}
+                          {product.pricingTiers
+                            .slice(0, 2)
+                            .map((tier) => `${tier.minQuantity}${tier.maxQuantity ? `-${tier.maxQuantity}` : '+'}`)
+                            .join(' • ')}
+                          {product.pricingTiers.length > 2 ? ` • +${product.pricingTiers.length - 2} lagi` : ''}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => handleEditProduct(product)}
+                        className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                      >
+                        <PencilSimple size={13} />
+                        Edit
+                      </button>
+                      <a
+                        href={`/products/${product.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 text-xs font-semibold text-primary-700 transition hover:bg-primary-100"
+                      >
+                        <Eye size={13} />
+                        Katalog
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleStatus(product)}
+                        className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition ${
+                          product.status === 'Active'
+                            ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
+                            : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                        }`}
+                      >
+                        <Power size={13} />
+                        {product.status === 'Active' ? 'Nonaktifkan' : 'Aktifkan'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteProduct(product)}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"
+                      >
+                        <Trash size={13} />
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </div>

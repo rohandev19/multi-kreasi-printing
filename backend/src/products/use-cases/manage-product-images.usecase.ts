@@ -63,4 +63,83 @@ export class ManageProductImagesUseCase {
 
     return { success: true, url };
   }
+
+  async deleteImage(
+    productId: string,
+    imageId: string,
+    currentUserId: string,
+  ) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+    if (!product) throw new NotFoundException('Produk tidak ditemukan');
+
+    const image = await this.prisma.productImage.findUnique({
+      where: { id: imageId, productId },
+    });
+    if (!image) throw new NotFoundException('Gambar produk tidak ditemukan');
+
+    await this.storage.deleteFile(image.r2Path);
+    await this.prisma.productImage.delete({ where: { id: image.id } });
+
+    if (image.isPrimary) {
+      const nextPrimary = await this.prisma.productImage.findFirst({
+        where: { productId },
+        orderBy: { createdAt: 'asc' },
+      });
+      if (nextPrimary) {
+        await this.prisma.productImage.update({
+          where: { id: nextPrimary.id },
+          data: { isPrimary: true },
+        });
+      }
+    }
+
+    await this.audit.log({
+      userId: currentUserId,
+      action: 'PRODUCT_IMAGE_DELETED',
+      entityType: 'Product',
+      entityId: productId,
+      newValue: { imageId, imageUrl: image.url },
+    });
+
+    return { success: true };
+  }
+
+  async setPrimaryImage(
+    productId: string,
+    imageId: string,
+    currentUserId: string,
+  ) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+    if (!product) throw new NotFoundException('Produk tidak ditemukan');
+
+    const image = await this.prisma.productImage.findUnique({
+      where: { id: imageId, productId },
+    });
+    if (!image) throw new NotFoundException('Gambar produk tidak ditemukan');
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.productImage.updateMany({
+        where: { productId, isPrimary: true },
+        data: { isPrimary: false },
+      });
+      await tx.productImage.update({
+        where: { id: imageId },
+        data: { isPrimary: true },
+      });
+    });
+
+    await this.audit.log({
+      userId: currentUserId,
+      action: 'PRODUCT_IMAGE_SET_PRIMARY',
+      entityType: 'Product',
+      entityId: productId,
+      newValue: { imageId, imageUrl: image.url },
+    });
+
+    return { success: true, imageId };
+  }
 }

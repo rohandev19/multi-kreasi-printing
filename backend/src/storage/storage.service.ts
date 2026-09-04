@@ -3,6 +3,7 @@ import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
+  DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
@@ -98,5 +99,20 @@ export class StorageService {
       Key: r2Path,
     });
     return getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
+  }
+
+  async deleteFile(r2Path: string): Promise<void> {
+    try {
+      await this.s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: this.bucketName,
+          Key: r2Path,
+        }),
+      );
+    } catch (error) {
+      this.logger.warn(
+        `Gagal menghapus file dari R2 (${r2Path}), record DB akan tetap dihapus: ${(error as Error).message}`,
+      );
+    }
   }
 }

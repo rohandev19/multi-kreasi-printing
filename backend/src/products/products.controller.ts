@@ -163,6 +163,49 @@ export class ProductsController {
     return this.searchProductsUseCase.execute(query);
   }
 
+  @Get(':id')
+  @Roles('Owner', 'Manager')
+  async getProductDetail(@Param('id') id: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      include: {
+        category: { select: { id: true, name: true, description: true } },
+        pricingTiers: { orderBy: { minQuantity: 'asc' } },
+        images: {
+          orderBy: [{ isPrimary: 'desc' }, { createdAt: 'asc' }],
+          select: { id: true, url: true, isPrimary: true, createdAt: true },
+        },
+        reviews: { take: 1, orderBy: { createdAt: 'desc' } },
+      },
+    });
+    if (!product) {
+      throw new NotFoundException('Produk tidak ditemukan');
+    }
+    return {
+      data: {
+        id: product.id,
+        sku: product.sku,
+        name: product.name,
+        description: product.description,
+        categoryId: product.categoryId,
+        category: product.category,
+        basePrice: Number(product.basePrice),
+        unitOfMeasure: product.unitOfMeasure,
+        status: product.status,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+        pricingTiers: product.pricingTiers.map((t) => ({
+          id: t.id,
+          minQuantity: t.minQuantity,
+          maxQuantity: t.maxQuantity,
+          unitPrice: Number(t.unitPrice),
+        })),
+        images: product.images,
+        reviewCount: product.reviews.length,
+      },
+    };
+  }
+
   @Delete(':id')
   @Roles('Owner', 'Manager')
   async deleteProduct(@Param('id') id: string) {
@@ -225,6 +268,40 @@ export class ProductsController {
       id,
       file,
       isPrimaryBool,
+      userId,
+    );
+    await this.cacheService.invalidatePattern('/api/v1/public/products*');
+    return result;
+  }
+
+  @Delete(':productId/images/:imageId')
+  @Roles('Owner', 'Manager')
+  async deleteImage(
+    @Param('productId') productId: string,
+    @Param('imageId') imageId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user.sub;
+    const result = await this.manageProductImagesUseCase.deleteImage(
+      productId,
+      imageId,
+      userId,
+    );
+    await this.cacheService.invalidatePattern('/api/v1/public/products*');
+    return result;
+  }
+
+  @Patch(':productId/images/:imageId/set-primary')
+  @Roles('Owner', 'Manager')
+  async setPrimaryImage(
+    @Param('productId') productId: string,
+    @Param('imageId') imageId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user.sub;
+    const result = await this.manageProductImagesUseCase.setPrimaryImage(
+      productId,
+      imageId,
       userId,
     );
     await this.cacheService.invalidatePattern('/api/v1/public/products*');
