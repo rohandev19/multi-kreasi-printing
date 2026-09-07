@@ -1,4 +1,6 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import helmet from 'helmet';
 import { execSync } from 'child_process';
@@ -36,8 +38,12 @@ async function runPrismaCommands() {
 async function bootstrap() {
   await runPrismaCommands();
 
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: loggerConfig,
+  });
+
+  app.useStaticAssets(join(process.cwd(), 'public'), {
+    prefix: '/public/',
   });
 
   app.use(

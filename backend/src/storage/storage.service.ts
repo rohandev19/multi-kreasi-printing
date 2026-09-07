@@ -8,6 +8,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
+import * as fs from 'fs';
 
 @Injectable()
 export class StorageService {
@@ -52,6 +53,17 @@ export class StorageService {
     const r2Path = `${pathPrefix}/${fileName}`;
 
     try {
+      if (process.env.R2_ACCESS_KEY_ID === 'mock' || !process.env.R2_ACCESS_KEY_ID) {
+        const localDir = path.join(process.cwd(), 'public', pathPrefix);
+        if (!fs.existsSync(localDir)) {
+          fs.mkdirSync(localDir, { recursive: true });
+        }
+        const localFilePath = path.join(process.cwd(), 'public', r2Path);
+        fs.writeFileSync(localFilePath, file.buffer);
+        const url = `http://localhost:${process.env.PORT || 3000}/public/${r2Path}`;
+        return { url, r2Path };
+      }
+
       await this.s3Client.send(
         new PutObjectCommand({
           Bucket: this.bucketName,
@@ -103,6 +115,14 @@ export class StorageService {
 
   async deleteFile(r2Path: string): Promise<void> {
     try {
+      if (process.env.R2_ACCESS_KEY_ID === 'mock' || !process.env.R2_ACCESS_KEY_ID) {
+        const localFilePath = path.join(process.cwd(), 'public', r2Path);
+        if (fs.existsSync(localFilePath)) {
+          fs.unlinkSync(localFilePath);
+        }
+        return;
+      }
+
       await this.s3Client.send(
         new DeleteObjectCommand({
           Bucket: this.bucketName,

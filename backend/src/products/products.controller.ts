@@ -214,14 +214,23 @@ export class ProductsController {
       throw new NotFoundException('Produk tidak ditemukan');
     }
 
-    const updated = await this.prisma.product.update({
-      where: { id },
-      data: { status: 'Discontinued' },
-    });
-
-    await this.cacheService.invalidatePattern('/api/v1/public/products*');
-    await this.cacheService.invalidatePattern('public_categories*');
-    return { success: true, product: updated };
+    try {
+      const deleted = await this.prisma.product.delete({
+        where: { id },
+      });
+      await this.cacheService.invalidatePattern('/api/v1/public/products*');
+      await this.cacheService.invalidatePattern('public_categories*');
+      return { success: true, product: deleted, method: 'hard_delete' };
+    } catch (error: any) {
+      // Fallback to soft delete if hard delete fails due to constraints (e.g. order exists)
+      const updated = await this.prisma.product.update({
+        where: { id },
+        data: { status: 'Discontinued' },
+      });
+      await this.cacheService.invalidatePattern('/api/v1/public/products*');
+      await this.cacheService.invalidatePattern('public_categories*');
+      return { success: true, product: updated, method: 'soft_delete' };
+    }
   }
 
   @Patch(':id')

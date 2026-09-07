@@ -193,7 +193,9 @@ export default function Products() {
       result = result.filter((product) => product.categoryId === categoryFilter);
     }
 
-    if (statusFilter !== 'all') {
+    if (statusFilter === 'all') {
+      result = result.filter((product) => product.status !== 'Discontinued');
+    } else {
       result = result.filter((product) => (product.status || 'Active') === statusFilter);
     }
 
@@ -263,14 +265,14 @@ export default function Products() {
     const files = Array.from(event.target.files ?? []);
     const allowed = files.slice(0, remainingImageSlots);
 
-    imagePreviews.forEach((preview) => {
-      URL.revokeObjectURL(preview);
-    });
-
+    // Don't revoke existing previews here, just create new ones
     const previews = allowed.map((file) => URL.createObjectURL(file));
-    setImageFiles(allowed);
-    setImagePreviews(previews);
-    if (primaryNewFileIndex >= allowed.length && allowed.length > 0) {
+    
+    setImageFiles((current) => [...current, ...allowed]);
+    setImagePreviews((current) => [...current, ...previews]);
+    
+    // Maintain primary file index or default to 0 if it's the first time
+    if (primaryNewFileIndex >= imageFiles.length + allowed.length && allowed.length > 0) {
       setPrimaryNewFileIndex(0);
     }
     event.target.value = '';
@@ -1017,7 +1019,7 @@ export default function Products() {
                 onChange={(event) => setStatusFilter(event.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
               >
-                <option value="all">Semua Status</option>
+                <option value="all">Semua (Kecuali Dihentikan)</option>
                 <option value="Active">Aktif</option>
                 <option value="Inactive">Nonaktif</option>
                 <option value="Discontinued">Dihentikan</option>
