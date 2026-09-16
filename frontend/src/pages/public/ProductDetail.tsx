@@ -134,7 +134,7 @@ export const ProductDetail: React.FC = () => {
                     <img 
                       src={product.images[activeImageIndex].url} 
                       alt={product.name} 
-                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                      className="object-contain w-full h-full group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
                     <span className="text-slate-400">No Image</span>
