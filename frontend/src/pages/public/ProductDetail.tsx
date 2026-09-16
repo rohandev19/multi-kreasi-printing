@@ -17,11 +17,25 @@ interface Review {
   }
 }
 
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  basePrice: number;
+  categoryName: string;
+  images: { url: string; isPrimary: boolean }[];
+}
+
 export const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useRoleContext();
   const { addToast } = useToast();
   
+  // Product State
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
   // Mock State for other product aspects
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
   // Reviews State
@@ -34,12 +48,25 @@ export const ProductDetail: React.FC = () => {
   const [newComment, setNewComment] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
-  const basePrice = 150000;
   const formatIDR = (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
 
   useEffect(() => {
+    fetchProduct();
     fetchReviews();
   }, [id]);
+
+  const fetchProduct = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get(`/api/v1/public/products/${id}`);
+      setProduct(response.data.product);
+    } catch (error) {
+      console.error('Error fetching product details:', error);
+      addToast('error', 'Failed to load product details');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchReviews = async () => {
     try {
@@ -80,53 +107,84 @@ export const ProductDetail: React.FC = () => {
     <div className="w-full bg-slate-50 min-h-screen pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* Breadcrumb */}
-        <div className="text-sm text-slate-500 font-medium mb-8">
-          <Link to="/" className="hover:text-primary-600">Home</Link> <span className="mx-2">&gt;</span> 
-          <Link to="/products" className="hover:text-primary-600">Products</Link> <span className="mx-2">&gt;</span> 
-          <span className="text-slate-900">Flyers</span>
-        </div>
-
-        <div className="flex flex-col lg:flex-row gap-12">
-          
-          {/* LEFT COLUMN: Images */}
-          <div className="lg:w-1/2 flex flex-col gap-4">
-            <div className="aspect-square bg-slate-100 rounded-2xl overflow-hidden group cursor-zoom-in relative border border-slate-200">
-              <img 
-                src="https://images.unsplash.com/photo-1563209259-ea16b9b3cc03?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
-                alt="Product" 
-                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-              />
-            </div>
+        {loading ? (
+          <div className="flex items-center justify-center min-h-[50vh]">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-primary-600"></div>
           </div>
+        ) : !product ? (
+          <div className="text-center py-20">
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Product not found</h2>
+            <Link to="/products" className="text-primary-600 hover:underline">Return to catalog</Link>
+          </div>
+        ) : (
+          <>
+            {/* Breadcrumb */}
+            <div className="text-sm text-slate-500 font-medium mb-8">
+              <Link to="/" className="hover:text-primary-600">Home</Link> <span className="mx-2">&gt;</span> 
+              <Link to="/products" className="hover:text-primary-600">Products</Link> <span className="mx-2">&gt;</span> 
+              <span className="text-slate-900">{product.categoryName || 'Uncategorized'}</span>
+            </div>
 
-          {/* RIGHT COLUMN: Configuration */}
-          <div className="lg:w-1/2">
-            <div className="mb-6">
-              <span className="text-xs font-bold text-primary-600 uppercase tracking-wider mb-2 block">Flyers & Leaflets</span>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">Premium A5 Flyers</h1>
+            <div className="flex flex-col lg:flex-row gap-12">
               
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center gap-1 text-amber-400">
-                  <Star size={18} fill={reviewsAverage >= 1 ? "currentColor" : "none"} weight="regular" />
-                  <Star size={18} fill={reviewsAverage >= 2 ? "currentColor" : "none"} weight="regular" />
-                  <Star size={18} fill={reviewsAverage >= 3 ? "currentColor" : "none"} weight="regular" />
-                  <Star size={18} fill={reviewsAverage >= 4 ? "currentColor" : "none"} weight="regular" />
-                  <Star size={18} fill={reviewsAverage >= 5 ? "currentColor" : "none"} className={reviewsAverage < 5 ? "text-slate-200" : ""} weight="regular" />
+              {/* LEFT COLUMN: Images */}
+              <div className="lg:w-1/2 flex flex-col gap-4">
+                <div className="aspect-square bg-slate-100 rounded-2xl overflow-hidden group cursor-zoom-in relative border border-slate-200 flex items-center justify-center">
+                  {product.images && product.images.length > 0 ? (
+                    <img 
+                      src={product.images[activeImageIndex].url} 
+                      alt={product.name} 
+                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <span className="text-slate-400">No Image</span>
+                  )}
                 </div>
-                <span className="text-sm font-medium text-slate-600">{reviewsAverage} ({reviewsTotal} reviews)</span>
-                <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                <button onClick={() => setActiveTab('reviews')} className="text-sm font-medium text-primary-600 hover:text-primary-700">Write a review</button>
+                {/* Thumbnails */}
+                {product.images && product.images.length > 1 && (
+                  <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+                    {product.images.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveImageIndex(idx)}
+                        className={`w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
+                          activeImageIndex === idx ? 'border-primary-600 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'
+                        }`}
+                      >
+                        <img src={img.url} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="flex items-end gap-2 mb-4">
-                <span className="text-4xl font-extrabold text-slate-900">{formatIDR(basePrice)}</span>
-                <span className="text-slate-500 font-medium mb-1">/ 100 pcs (1 box)</span>
+              {/* RIGHT COLUMN: Configuration */}
+              <div className="lg:w-1/2">
+                <div className="mb-6">
+                  <span className="text-xs font-bold text-primary-600 uppercase tracking-wider mb-2 block">{product.categoryName || 'Uncategorized'}</span>
+                  <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">{product.name}</h1>
+                  
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="flex items-center gap-1 text-amber-400">
+                      <Star size={18} fill={reviewsAverage >= 1 ? "currentColor" : "none"} weight="regular" />
+                      <Star size={18} fill={reviewsAverage >= 2 ? "currentColor" : "none"} weight="regular" />
+                      <Star size={18} fill={reviewsAverage >= 3 ? "currentColor" : "none"} weight="regular" />
+                      <Star size={18} fill={reviewsAverage >= 4 ? "currentColor" : "none"} weight="regular" />
+                      <Star size={18} fill={reviewsAverage >= 5 ? "currentColor" : "none"} className={reviewsAverage < 5 ? "text-slate-200" : ""} weight="regular" />
+                    </div>
+                    <span className="text-sm font-medium text-slate-600">{reviewsAverage} ({reviewsTotal} reviews)</span>
+                    <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                    <button onClick={() => setActiveTab('reviews')} className="text-sm font-medium text-primary-600 hover:text-primary-700">Write a review</button>
+                  </div>
+
+                  <div className="flex items-end gap-2 mb-4">
+                    <span className="text-4xl font-extrabold text-slate-900">{formatIDR(product.basePrice)}</span>
+                    <span className="text-slate-500 font-medium mb-1">/ unit</span>
+                  </div>
+                  <p className="text-slate-600">{product.description || 'Tidak ada deskripsi untuk produk ini.'}</p>
+                </div>
               </div>
-              <p className="text-slate-600">High-quality printed flyers for your marketing needs. Choose your preferred paper, size, and finishing options below.</p>
             </div>
-          </div>
-        </div>
 
         {/* BELOW FOLD: Tabs */}
         <div className="mt-24 border-t border-slate-200 pt-16">
@@ -148,7 +206,7 @@ export const ProductDetail: React.FC = () => {
           <div className="max-w-3xl">
             {activeTab === 'description' && (
               <div className="prose prose-slate prose-indigo max-w-none">
-                <p>Maximize your marketing reach with our premium full-color flyers and leaflets.</p>
+                <p>{product.description || 'Belum ada deskripsi.'}</p>
               </div>
             )}
 
@@ -236,8 +294,8 @@ export const ProductDetail: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
-
+          </>
+        )}
       </div>
     </div>
   );
