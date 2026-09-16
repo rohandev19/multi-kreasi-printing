@@ -16,7 +16,7 @@ interface Product {
   basePrice: number;
   categoryId: string;
   categoryName: string;
-  imageUrl: string | null;
+  images?: { url: string; isPrimary: boolean }[];
   isNew?: boolean;
 }
 
@@ -177,8 +177,8 @@ export const ProductsCatalog: React.FC = () => {
             {filteredProducts.map(product => (
               <div key={product.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 group flex flex-col overflow-hidden">
                 <div className="aspect-[4/3] bg-slate-100 relative overflow-hidden shrink-0">
-                  {product.imageUrl ? (
-                    <img src={product.imageUrl} alt={product.name} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
+                  {product.images && product.images.length > 0 ? (
+                    <img src={product.images[0].url} alt={product.name} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   ) : (
                     <div className="flex items-center justify-center h-full w-full text-slate-400">No Image</div>
                   )}
@@ -212,8 +212,8 @@ export const ProductsCatalog: React.FC = () => {
             {filteredProducts.map(product => (
               <div key={product.id} className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-shadow flex flex-col sm:flex-row gap-6 items-start sm:items-center">
                 <div className="w-full sm:w-48 h-32 shrink-0 bg-slate-100 rounded-lg overflow-hidden relative flex items-center justify-center">
-                  {product.imageUrl ? (
-                    <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                  {product.images && product.images.length > 0 ? (
+                    <img src={product.images[0].url} alt={product.name} className="w-full h-full object-cover" />
                   ) : (
                     <span className="text-slate-400">No Image</span>
                   )}
