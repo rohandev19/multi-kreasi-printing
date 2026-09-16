@@ -1,36 +1,28 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  S3Client,
-  PutObjectCommand,
-  GetObjectCommand,
-  DeleteObjectCommand,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { BlobServiceClient, ContainerClient, BlobSASPermissions } from '@azure/storage-blob';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import * as fs from 'fs';
 
 @Injectable()
 export class StorageService {
-  private readonly s3Client: S3Client;
-  private readonly bucketName: string;
-  private readonly publicDomain: string;
+  private blobServiceClient: BlobServiceClient;
+  private containerClient: ContainerClient;
+  private readonly containerName: string;
   private readonly logger = new Logger(StorageService.name);
 
   constructor() {
-    this.bucketName = process.env.R2_BUCKET_NAME || 'multi-kreasi-products';
-    this.publicDomain =
-      process.env.R2_PUBLIC_DOMAIN || 'https://assets.multikreasiprinting.com';
+    this.containerName = process.env.AZURE_CONTAINER_NAME || 'multi-kreasi-products';
+    
+    const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+    if (connectionString && connectionString !== 'mock') {
+      this.blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+      this.containerClient = this.blobServiceClient.getContainerClient(this.containerName);
+    }
+  }
 
-    this.s3Client = new S3Client({
-      region: 'auto',
-      endpoint:
-        process.env.R2_ENDPOINT || 'https://mock.r2.cloudflarestorage.com',
-      credentials: {
-        accessKeyId: process.env.R2_ACCESS_KEY_ID || 'mock',
-        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || 'mock',
-      },
-    });
+  private isMock(): boolean {
+    return !process.env.AZURE_STORAGE_CONNECTION_STRING || process.env.AZURE_STORAGE_CONNECTION_STRING === 'mock';
   }
 
   async uploadFile(
@@ -53,10 +45,7 @@ export class StorageService {
     const r2Path = `${pathPrefix}/${fileName}`;
 
     try {
-      if (
-        process.env.R2_ACCESS_KEY_ID === 'mock' ||
-        !process.env.R2_ACCESS_KEY_ID
-      ) {
+      if (this.isMock()) {
         const localDir = path.join(process.cwd(), 'public', pathPrefix);
         if (!fs.existsSync(localDir)) {
           fs.mkdirSync(localDir, { recursive: true });
@@ -68,19 +57,14 @@ export class StorageService {
         return { url, r2Path };
       }
 
-      await this.s3Client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: r2Path,
-          Body: file.buffer,
-          ContentType: file.mimetype,
-        }),
-      );
+      const blockBlobClient = this.containerClient.getBlockBlobClient(r2Path);
+      await blockBlobClient.uploadData(file.buffer, {
+        blobHTTPHeaders: { blobContentType: file.mimetype }
+      });
 
-      const url = `${this.publicDomain}/${r2Path}`;
-      return { url, r2Path };
+      return { url: blockBlobClient.url, r2Path };
     } catch (error) {
-      this.logger.error('Failed to upload file to R2', error);
+      this.logger.error('Failed to upload file to Azure', error);
       throw new Error('Gagal mengupload gambar produk');
     }
   }
@@ -91,17 +75,26 @@ export class StorageService {
     mimeType: string,
   ): Promise<{ url: string; r2Path: string }> {
     try {
-      await this.s3Client.send(
-        new PutObjectCommand({
-          Bucket: this.bucketName,
-          Key: r2Path,
-          Body: buffer,
-          ContentType: mimeType,
-        }),
-      );
+      if (this.isMock()) {
+        const pathPrefix = path.dirname(r2Path);
+        const localDir = path.join(process.cwd(), 'public', pathPrefix);
+        if (!fs.existsSync(localDir)) {
+          fs.mkdirSync(localDir, { recursive: true });
+        }
+        const localFilePath = path.join(process.cwd(), 'public', r2Path);
+        fs.writeFileSync(localFilePath, buffer);
+        const baseUrl = process.env.PUBLIC_API_URL || `http://localhost:${process.env.PORT || 3000}`;
+        const url = `${baseUrl}/public/${r2Path}`;
+        return { url, r2Path };
+      }
+
+      const blockBlobClient = this.containerClient.getBlockBlobClient(r2Path);
+      await blockBlobClient.uploadData(buffer, {
+        blobHTTPHeaders: { blobContentType: mimeType }
+      });
 
       return {
-        url: `${this.publicDomain}/${r2Path}`,
+        url: blockBlobClient.url,
         r2Path,
       };
     } catch (error) {
@@ -110,19 +103,25 @@ export class StorageService {
   }
 
   async getSignedUrl(r2Path: string): Promise<string> {
-    const command = new GetObjectCommand({
-      Bucket: this.bucketName,
-      Key: r2Path,
+    if (this.isMock()) {
+      const baseUrl = process.env.PUBLIC_API_URL || `http://localhost:${process.env.PORT || 3000}`;
+      return `${baseUrl}/public/${r2Path}`;
+    }
+    const blockBlobClient = this.containerClient.getBlockBlobClient(r2Path);
+    
+    // Ensure we are using SAS auth for secure downloads
+    const sasUrl = await blockBlobClient.generateSasUrl({
+      permissions: BlobSASPermissions.parse("r"),
+      startsOn: new Date(),
+      expiresOn: new Date(new Date().valueOf() + 3600 * 1000), // 1 hour
     });
-    return getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
+    
+    return sasUrl;
   }
 
   async deleteFile(r2Path: string): Promise<void> {
     try {
-      if (
-        process.env.R2_ACCESS_KEY_ID === 'mock' ||
-        !process.env.R2_ACCESS_KEY_ID
-      ) {
+      if (this.isMock()) {
         const localFilePath = path.join(process.cwd(), 'public', r2Path);
         if (fs.existsSync(localFilePath)) {
           fs.unlinkSync(localFilePath);
@@ -130,15 +129,11 @@ export class StorageService {
         return;
       }
 
-      await this.s3Client.send(
-        new DeleteObjectCommand({
-          Bucket: this.bucketName,
-          Key: r2Path,
-        }),
-      );
+      const blockBlobClient = this.containerClient.getBlockBlobClient(r2Path);
+      await blockBlobClient.deleteIfExists();
     } catch (error) {
       this.logger.warn(
-        `Gagal menghapus file dari R2 (${r2Path}), record DB akan tetap dihapus: ${(error as Error).message}`,
+        `Gagal menghapus file dari Azure (${r2Path}), record DB akan tetap dihapus: ${(error as Error).message}`,
       );
     }
   }
