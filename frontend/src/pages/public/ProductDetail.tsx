@@ -294,7 +294,8 @@ export const ProductDetail: React.FC = () => {
               </div>
             )}
           </div>
-          </>
+        </div>
+        </>
         )}
       </div>
     </div>
