@@ -53,14 +53,18 @@ export class StorageService {
     const r2Path = `${pathPrefix}/${fileName}`;
 
     try {
-      if (process.env.R2_ACCESS_KEY_ID === 'mock' || !process.env.R2_ACCESS_KEY_ID) {
+      if (
+        process.env.R2_ACCESS_KEY_ID === 'mock' ||
+        !process.env.R2_ACCESS_KEY_ID
+      ) {
         const localDir = path.join(process.cwd(), 'public', pathPrefix);
         if (!fs.existsSync(localDir)) {
           fs.mkdirSync(localDir, { recursive: true });
         }
         const localFilePath = path.join(process.cwd(), 'public', r2Path);
         fs.writeFileSync(localFilePath, file.buffer);
-        const url = `http://localhost:${process.env.PORT || 3000}/public/${r2Path}`;
+        const baseUrl = process.env.PUBLIC_API_URL || `http://localhost:${process.env.PORT || 3000}`;
+        const url = `${baseUrl}/public/${r2Path}`;
         return { url, r2Path };
       }
 
@@ -115,7 +119,10 @@ export class StorageService {
 
   async deleteFile(r2Path: string): Promise<void> {
     try {
-      if (process.env.R2_ACCESS_KEY_ID === 'mock' || !process.env.R2_ACCESS_KEY_ID) {
+      if (
+        process.env.R2_ACCESS_KEY_ID === 'mock' ||
+        !process.env.R2_ACCESS_KEY_ID
+      ) {
         const localFilePath = path.join(process.cwd(), 'public', r2Path);
         if (fs.existsSync(localFilePath)) {
           fs.unlinkSync(localFilePath);
