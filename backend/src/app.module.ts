@@ -68,7 +68,8 @@ import { SettingsModule } from './settings/settings.module';
         const redisUrl = process.env.REDIS_URL;
         const isTls =
           !!redisUrl &&
-          (redisUrl.startsWith('rediss://') || process.env.REDIS_TLS === 'true');
+          (redisUrl.startsWith('rediss://') ||
+            process.env.REDIS_TLS === 'true');
         return {
           throttlers: [
             {
@@ -79,7 +80,10 @@ import { SettingsModule } from './settings/settings.module';
           storage:
             process.env.NODE_ENV === 'production'
               ? redisUrl
-                ? new ThrottlerStorageRedisService(redisUrl, isTls ? { tls: { rejectUnauthorized: false } } : undefined)
+                ? new ThrottlerStorageRedisService(
+                    redisUrl,
+                    isTls ? { tls: { rejectUnauthorized: false } } : undefined,
+                  )
                 : new ThrottlerStorageRedisService({
                     host: process.env.REDIS_HOST || '127.0.0.1',
                     port: parseInt(process.env.REDIS_PORT || '6379', 10),

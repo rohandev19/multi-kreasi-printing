@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star } from '@phosphor-icons/react';
+import { Star, ShoppingCart } from '@phosphor-icons/react';
 import api from '../../api/axios';
 import { useRoleContext } from '../../contexts/RoleContext';
 import { useToast } from '../../contexts/ToastContext';
+import { useCart } from '../../hooks/useCart';
 
 interface Review {
   id: string;
@@ -17,11 +18,18 @@ interface Review {
   }
 }
 
+interface PricingTier {
+  minQuantity: number;
+  pricePerUnit: number;
+}
+
 interface Product {
   id: string;
+  sku?: string;
   name: string;
   description: string;
   basePrice: number;
+  unitOfMeasure?: string;
   categoryName: string;
   images: { url: string; isPrimary: boolean }[];
 }
@@ -29,10 +37,12 @@ interface Product {
 export const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useRoleContext();
-  const { addToast } = useToast();
+  const { addToast, success } = useToast();
+  const { addToCart, loading: cartLoading } = useCart();
   
   // Product State
   const [product, setProduct] = useState<Product | null>(null);
+  const [pricingTiers, setPricingTiers] = useState<PricingTier[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
@@ -41,14 +51,24 @@ export const ProductDetail: React.FC = () => {
   // Reviews State
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsTotal, setReviewsTotal] = useState(0);
-  const [reviewsAverage, setReviewsAverage] = useState(0);
   
   // Review Form State
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   const formatIDR = (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
+
+  const handleAddToCart = async () => {
+    if (!product) return;
+    try {
+      await addToCart(product, quantity);
+      success('Berhasil', `${quantity} ${product.unitOfMeasure || 'unit'} ${product.name} ditambahkan ke keranjang.`);
+    } catch (error) {
+      addToast('error', 'Gagal menambahkan produk ke keranjang.');
+    }
+  };
 
   useEffect(() => {
     fetchProduct();
@@ -60,6 +80,7 @@ export const ProductDetail: React.FC = () => {
     try {
       const response = await api.get(`/api/v1/public/products/${id}`);
       setProduct(response.data.product);
+      setPricingTiers(response.data.pricingTiers || []);
     } catch (error) {
       console.error('Error fetching product details:', error);
       addToast('error', 'Failed to load product details');
@@ -73,7 +94,6 @@ export const ProductDetail: React.FC = () => {
       const response = await api.get(`/products/${id}/reviews`);
       setReviews(response.data.reviews || []);
       setReviewsTotal(response.data.total || 0);
-      setReviewsAverage(response.data.averageRating || 0);
     } catch (error) {
       console.error('Error fetching reviews:', error);
     }
@@ -120,8 +140,8 @@ export const ProductDetail: React.FC = () => {
           <>
             {/* Breadcrumb */}
             <div className="text-sm text-slate-500 font-medium mb-8">
-              <Link to="/" className="hover:text-primary-600">Home</Link> <span className="mx-2">&gt;</span> 
-              <Link to="/products" className="hover:text-primary-600">Products</Link> <span className="mx-2">&gt;</span> 
+              <Link to="/" className="hover:text-primary-600">Beranda</Link> <span className="mx-2">&gt;</span> 
+              <Link to="/products" className="hover:text-primary-600">Produk</Link> <span className="mx-2">&gt;</span> 
               <span className="text-slate-900">{product.categoryName || 'Uncategorized'}</span>
             </div>
 
@@ -161,27 +181,91 @@ export const ProductDetail: React.FC = () => {
               {/* RIGHT COLUMN: Configuration */}
               <div className="lg:w-1/2">
                 <div className="mb-6">
-                  <span className="text-xs font-bold text-primary-600 uppercase tracking-wider mb-2 block">{product.categoryName || 'Uncategorized'}</span>
-                  <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">{product.name}</h1>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-primary-600 uppercase tracking-wider">{product.categoryName || 'Uncategorized'}</span>
+                    {product.sku && <span className="text-[11px] font-mono font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">SKU: {product.sku}</span>}
+                  </div>
+                  <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">{product.name}</h1>
                   
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="flex items-center gap-1 text-amber-400">
-                      <Star size={18} fill={reviewsAverage >= 1 ? "currentColor" : "none"} weight="regular" />
-                      <Star size={18} fill={reviewsAverage >= 2 ? "currentColor" : "none"} weight="regular" />
-                      <Star size={18} fill={reviewsAverage >= 3 ? "currentColor" : "none"} weight="regular" />
-                      <Star size={18} fill={reviewsAverage >= 4 ? "currentColor" : "none"} weight="regular" />
-                      <Star size={18} fill={reviewsAverage >= 5 ? "currentColor" : "none"} className={reviewsAverage < 5 ? "text-slate-200" : ""} weight="regular" />
+                  <div className="flex items-end gap-2 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div>
+                      <span className="block text-sm text-slate-500 font-medium mb-1">Harga Mulai Dari</span>
+                      <span className="text-4xl font-extrabold text-slate-900">{formatIDR(product.basePrice)}</span>
+                      {product.unitOfMeasure && <span className="text-slate-500 font-medium ml-2">/ {product.unitOfMeasure}</span>}
                     </div>
-                    <span className="text-sm font-medium text-slate-600">{reviewsAverage} ({reviewsTotal} reviews)</span>
-                    <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                    <button onClick={() => setActiveTab('reviews')} className="text-sm font-medium text-primary-600 hover:text-primary-700">Write a review</button>
                   </div>
+                  
+                  <p className="text-slate-600 mb-8 leading-relaxed">{product.description || 'Tidak ada deskripsi untuk produk ini.'}</p>
 
-                  <div className="flex items-end gap-2 mb-4">
-                    <span className="text-4xl font-extrabold text-slate-900">{formatIDR(product.basePrice)}</span>
-                    <span className="text-slate-500 font-medium mb-1">/ unit</span>
+                  {pricingTiers.length > 0 && (
+                    <div className="mb-8">
+                      <h3 className="text-sm font-bold text-slate-900 mb-3 uppercase tracking-wider">Harga Grosir (Volume Discount)</h3>
+                      <div className="overflow-hidden border border-slate-200 rounded-xl">
+                        <table className="w-full text-sm text-left">
+                          <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
+                            <tr>
+                              <th className="px-4 py-3 font-bold">Minimum Qty</th>
+                              <th className="px-4 py-3 font-bold">Harga per {product.unitOfMeasure || 'unit'}</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {pricingTiers.map((tier, idx) => (
+                              <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                                <td className="px-4 py-3 font-medium text-slate-900">≥ {tier.minQuantity} {product.unitOfMeasure || ''}</td>
+                                <td className="px-4 py-3 font-bold text-primary-700">{formatIDR(tier.pricePerUnit)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="mt-8 space-y-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center h-12 border-2 border-slate-200 rounded-xl overflow-hidden bg-white shrink-0">
+                        <button 
+                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          className="w-12 h-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors font-bold text-lg"
+                        >
+                          -
+                        </button>
+                        <span className="w-16 h-full flex items-center justify-center border-x-2 border-slate-200 font-bold text-slate-900 text-base">
+                          {quantity}
+                        </span>
+                        <button 
+                          onClick={() => setQuantity(quantity + 1)}
+                          className="w-12 h-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors font-bold text-lg"
+                        >
+                          +
+                        </button>
+                      </div>
+                      
+                      <button 
+                        onClick={handleAddToCart}
+                        disabled={cartLoading}
+                        className="flex-1 h-12 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-all flex items-center justify-center gap-2 text-base shadow-sm shadow-primary-600/20 disabled:opacity-70 disabled:cursor-not-allowed"
+                      >
+                        <ShoppingCart size={20} weight="bold" />
+                        {cartLoading ? 'Menambahkan...' : 'Tambahkan ke Keranjang'}
+                      </button>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <Link 
+                        to={`/contact?product=${product.id}`}
+                        className="flex-1 py-3 bg-white text-primary-700 font-bold rounded-xl border-2 border-primary-100 hover:bg-primary-50 transition-all flex items-center justify-center text-sm"
+                      >
+                        Minta Penawaran B2B
+                      </Link>
+                      <Link 
+                        to="/contact"
+                        className="flex-1 py-3 bg-white text-slate-700 font-bold rounded-xl border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all flex items-center justify-center text-sm"
+                      >
+                        Hubungi Sales
+                      </Link>
+                    </div>
                   </div>
-                  <p className="text-slate-600">{product.description || 'Tidak ada deskripsi untuk produk ini.'}</p>
                 </div>
               </div>
             </div>
@@ -193,13 +277,13 @@ export const ProductDetail: React.FC = () => {
               onClick={() => setActiveTab('description')}
               className={`pb-4 text-base font-bold whitespace-nowrap transition-colors ${activeTab === 'description' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-slate-500 hover:text-slate-800'}`}
             >
-              Description
+              Deskripsi
             </button>
             <button 
               onClick={() => setActiveTab('reviews')}
               className={`pb-4 text-base font-bold whitespace-nowrap transition-colors ${activeTab === 'reviews' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-slate-500 hover:text-slate-800'}`}
             >
-              Reviews ({reviewsTotal})
+              Ulasan ({reviewsTotal})
             </button>
           </div>
 

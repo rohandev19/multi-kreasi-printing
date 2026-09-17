@@ -16,19 +16,25 @@ async function runPrismaCommands() {
   const shouldRun = isProd || hasDbUrl || Boolean(process.env.FORCE_MIGRATE);
   if (!shouldRun) return;
 
-  bootstrapLogger.log(`[Bootstrap] Triggered (NODE_ENV=${process.env.NODE_ENV}, DATABASE_URL=${hasDbUrl ? 'set' : 'unset'})`);
+  bootstrapLogger.log(
+    `[Bootstrap] Triggered (NODE_ENV=${process.env.NODE_ENV}, DATABASE_URL=${hasDbUrl ? 'set' : 'unset'})`,
+  );
 
   bootstrapLogger.log('Running Prisma migrations (deploy)...');
   try {
     execSync('npx prisma migrate deploy', { stdio: 'inherit' });
     bootstrapLogger.log('Migrations completed.');
   } catch (err) {
-    bootstrapLogger.warn('Migration skipped or failed: ' + (err as Error).message);
+    bootstrapLogger.warn(
+      'Migration skipped or failed: ' + (err as Error).message,
+    );
   }
 
   bootstrapLogger.log('Running Prisma seed (idempotent via seed.ts)...');
   try {
-    execSync('npx ts-node --transpile-only prisma/seed.ts', { stdio: 'inherit' });
+    execSync('npx ts-node --transpile-only prisma/seed.ts', {
+      stdio: 'inherit',
+    });
     bootstrapLogger.log('Seed completed.');
   } catch (err) {
     bootstrapLogger.warn('Seed skipped or failed: ' + (err as Error).message);
@@ -121,7 +127,9 @@ async function bootstrap() {
   const port = process.env.PORT ?? 3000;
   await app.listen(port, '0.0.0.0');
 
-  bootstrapLogger.log(`🚀 Server running on port ${port} (PID: ${process.pid})`);
+  bootstrapLogger.log(
+    `🚀 Server running on port ${port} (PID: ${process.pid})`,
+  );
   bootstrapLogger.log(`NODE_ENV=${process.env.NODE_ENV || 'development'}`);
 }
 bootstrap();

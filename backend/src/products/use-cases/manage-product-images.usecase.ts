@@ -64,11 +64,7 @@ export class ManageProductImagesUseCase {
     return { success: true, url };
   }
 
-  async deleteImage(
-    productId: string,
-    imageId: string,
-    currentUserId: string,
-  ) {
+  async deleteImage(productId: string, imageId: string, currentUserId: string) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
     });

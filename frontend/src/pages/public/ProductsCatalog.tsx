@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MagnifyingGlass, GridFour, List, ShoppingCart } from '@phosphor-icons/react';
+import { MagnifyingGlass, GridFour, List } from '@phosphor-icons/react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axios';
 
@@ -11,9 +11,11 @@ interface Category {
 
 interface Product {
   id: string;
+  sku?: string;
   name: string;
   description: string;
   basePrice: number;
+  unitOfMeasure?: string;
   categoryId: string;
   categoryName: string;
   images?: { url: string; isPrimary: boolean }[];
@@ -67,10 +69,10 @@ export const ProductsCatalog: React.FC = () => {
       {/* 1. PAGE HEADER */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
         <div className="text-sm text-slate-500 font-medium mb-4">
-          <Link to="/" className="hover:text-primary-600">Home</Link> <span className="mx-2">&gt;</span> Products
+          <Link to="/" className="hover:text-primary-600">Beranda</Link> <span className="mx-2">&gt;</span> Katalog Produk
         </div>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Product Catalog</h1>
-        <p className="text-slate-500 font-medium mt-2">Browse our high-quality printing services</p>
+        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Katalog Produk</h1>
+        <p className="text-slate-500 font-medium mt-2">Layanan cetak berkualitas tinggi untuk kebutuhan bisnis Anda</p>
       </div>
 
       {/* 2. FILTER BAR (Sticky) */}
@@ -190,19 +192,33 @@ export const ProductsCatalog: React.FC = () => {
                   </Link>
                 </div>
                 <div className="p-5 flex flex-col flex-1">
-                  <span className="text-xs font-bold text-primary-600 uppercase tracking-wider mb-2">{product.categoryName || 'Uncategorized'}</span>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-primary-600 uppercase tracking-wider">{product.categoryName || 'Uncategorized'}</span>
+                    {product.sku && <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">SKU: {product.sku}</span>}
+                  </div>
                   <Link to={`/products/${product.id}`} className="text-base font-bold text-slate-900 mb-1 line-clamp-2 hover:text-primary-600 transition-colors">{product.name}</Link>
                   <p className="text-sm text-slate-500 line-clamp-2 mb-4 flex-1">{product.description}</p>
                   <div className="flex flex-col gap-1 mb-4">
-                    <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Starts From</span>
-                    <span className="text-xl font-extrabold text-slate-900">{formatIDR(product.basePrice)}</span>
+                    <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Mulai dari</span>
+                    <span className="text-xl font-extrabold text-slate-900">
+                      {formatIDR(product.basePrice)}
+                      {product.unitOfMeasure && <span className="text-sm text-slate-500 font-normal ml-1">/ {product.unitOfMeasure}</span>}
+                    </span>
                   </div>
-                  <Link 
-                    to={`/products/${product.id}`}
-                    className="w-full h-11 bg-slate-50 text-primary-700 text-sm font-bold rounded-xl hover:bg-primary-600 hover:text-white transition-all flex items-center justify-center gap-2 mt-auto border border-primary-100 hover:border-primary-600"
-                  >
-                    <ShoppingCart size={16} weight="regular" /> Configure
-                  </Link>
+                  <div className="grid grid-cols-2 gap-2 mt-auto">
+                    <Link 
+                      to={`/products/${product.id}`}
+                      className="h-10 bg-slate-50 text-slate-700 text-sm font-bold rounded-xl hover:bg-slate-100 transition-all flex items-center justify-center border border-slate-200"
+                    >
+                      Lihat Detail
+                    </Link>
+                    <Link 
+                      to={`/contact?product=${product.id}`}
+                      className="h-10 bg-primary-50 text-primary-700 text-sm font-bold rounded-xl hover:bg-primary-600 hover:text-white transition-all flex items-center justify-center border border-primary-100 hover:border-primary-600"
+                    >
+                      Minta Penawaran
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
@@ -222,21 +238,35 @@ export const ProductsCatalog: React.FC = () => {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="text-xs font-bold text-primary-600 uppercase tracking-wider mb-1 block">{product.categoryName || 'Uncategorized'}</span>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-bold text-primary-600 uppercase tracking-wider">{product.categoryName || 'Uncategorized'}</span>
+                    {product.sku && <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">SKU: {product.sku}</span>}
+                  </div>
                   <h3 className="text-lg font-bold text-slate-900 mb-1 truncate">{product.name}</h3>
                   <p className="text-sm text-slate-500 mb-2">{product.description}</p>
                 </div>
                 <div className="flex flex-col sm:items-end w-full sm:w-auto shrink-0 gap-3 border-t sm:border-t-0 border-slate-100 pt-4 sm:pt-0">
                   <div className="flex flex-col sm:items-end">
-                    <span className="text-xs text-slate-400">Starts From</span>
-                    <span className="text-2xl font-extrabold text-slate-900">{formatIDR(product.basePrice)}</span>
+                    <span className="text-xs text-slate-400">Mulai dari</span>
+                    <span className="text-2xl font-extrabold text-slate-900">
+                      {formatIDR(product.basePrice)}
+                      {product.unitOfMeasure && <span className="text-sm text-slate-500 font-normal ml-1">/ {product.unitOfMeasure}</span>}
+                    </span>
                   </div>
-                  <Link 
-                    to={`/products/${product.id}`}
-                    className="w-full sm:w-auto px-6 h-10 bg-primary-600 text-white text-sm font-semibold rounded-xl hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <ShoppingCart size={16} weight="regular" /> Configure
-                  </Link>
+                  <div className="flex w-full sm:w-auto gap-2">
+                    <Link 
+                      to={`/products/${product.id}`}
+                      className="flex-1 sm:flex-none px-4 h-10 bg-slate-50 border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-100 transition-colors flex items-center justify-center"
+                    >
+                      Lihat Detail
+                    </Link>
+                    <Link 
+                      to={`/contact?product=${product.id}`}
+                      className="flex-1 sm:flex-none px-6 h-10 bg-primary-600 text-white text-sm font-semibold rounded-xl hover:bg-primary-700 transition-colors flex items-center justify-center"
+                    >
+                      Minta Penawaran
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}

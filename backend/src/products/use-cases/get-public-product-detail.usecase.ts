@@ -32,9 +32,11 @@ export class GetPublicProductDetailUseCase {
     return {
       product: {
         id: product.id,
+        sku: product.sku,
         name: product.name,
         description: product.description || '',
         basePrice: Number(product.basePrice),
+        unitOfMeasure: product.unitOfMeasure,
         categoryId: product.categoryId,
         categoryName: product.category?.name,
         images: product.images.map((img) => ({

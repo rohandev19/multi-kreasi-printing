@@ -10,11 +10,15 @@ export interface CartItem {
   productName: string;
   unitPrice: number;
   subtotal: number;
+  image?: string;
 }
 
 export interface Cart {
   id: string;
   items: CartItem[];
+  subtotal: number;
+  tax: number;
+  shipping: number;
   totalAmount: number;
 }
 

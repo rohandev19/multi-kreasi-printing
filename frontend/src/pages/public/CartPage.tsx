@@ -1,38 +1,27 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Trash, Minus, Plus, ArrowRight, Lock } from '@phosphor-icons/react';
-
-type CartItem = {
-  id: string;
-  name: string;
-  specs: string;
-  sku: string;
-  price: number;
-  quantity: number;
-  image?: string;
-};
+import { ArrowLeft, ShoppingCart, Trash, Minus, Plus, ArrowRight, Lock, CircleNotch } from '@phosphor-icons/react';
+import { useCart } from '../../hooks/useCart';
 
 export const CartPage: React.FC = () => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const { cart, items, updateCartItem, removeFromCart, loading } = useCart();
 
   const formatIDR = (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
 
-  const updateQuantity = (id: string, delta: number) => {
-    setItems(items.map(item => {
-      if (item.id === id) {
-        return { ...item, quantity: Math.max(1, item.quantity + delta) };
-      }
-      return item;
-    }));
+  const updateQuantity = async (productId: string, currentQuantity: number, delta: number) => {
+    const newQuantity = Math.max(1, currentQuantity + delta);
+    if (newQuantity !== currentQuantity) {
+      await updateCartItem(productId, newQuantity);
+    }
   };
 
-  const removeItem = (id: string) => {
-    setItems(items.filter(item => item.id !== id));
+  const removeItem = async (productId: string) => {
+    await removeFromCart(productId);
   };
 
-  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const tax = subtotal * 0.11; // 11% PPN
-  const total = subtotal + tax;
+  const subtotal = cart?.subtotal || items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+  const tax = cart?.tax || subtotal * 0.11; // 11% PPN
+  const total = cart?.totalAmount || subtotal + tax;
 
   return (
     <div className="w-full bg-slate-50 min-h-screen py-12">
@@ -53,7 +42,12 @@ export const CartPage: React.FC = () => {
               </div>
             </div>
 
-            {items.length === 0 ? (
+            {loading && items.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-slate-100 p-16 flex flex-col items-center justify-center text-center shadow-sm">
+                <CircleNotch size={48} className="text-primary-600 animate-spin mb-4" />
+                <h2 className="text-2xl font-bold text-slate-900 mb-2">Memuat keranjang...</h2>
+              </div>
+            ) : items.length === 0 ? (
               <div className="bg-white rounded-2xl border border-slate-100 p-16 flex flex-col items-center justify-center text-center shadow-sm">
                 <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
                   <ShoppingCart size={48} className="text-slate-300" weight="regular" />
@@ -67,22 +61,23 @@ export const CartPage: React.FC = () => {
             ) : (
               <div className="space-y-4">
                 {items.map(item => (
-                  <div key={item.id} className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+                  <div key={item.productId} className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm flex flex-col sm:flex-row gap-6 items-start sm:items-center">
                     <div className="w-24 h-24 shrink-0 rounded-xl bg-slate-100 overflow-hidden">
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      <img src={item.image || 'https://images.unsplash.com/photo-1586769852044-692d6e3703f0?w=300&q=80'} alt={item.productName} className="w-full h-full object-cover" />
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-bold text-slate-900 mb-1 truncate">{item.name}</h3>
-                      <p className="text-sm text-slate-500 mb-2 truncate">{item.specs}</p>
-                      <span className="text-xs text-slate-400 font-mono bg-slate-100 px-2 py-1 rounded-md">{item.sku}</span>
+                      <h3 className="text-base font-bold text-slate-900 mb-1 truncate">{item.productName}</h3>
+                      <p className="text-sm text-slate-500 mb-2 truncate">B2B Standard Quality</p>
+                      <span className="text-xs text-slate-400 font-mono bg-slate-100 px-2 py-1 rounded-md">PROD-{item.productId.slice(0,6).toUpperCase()}</span>
                     </div>
 
                     <div className="flex items-center justify-between w-full sm:w-auto gap-6 sm:gap-8 border-t sm:border-t-0 border-slate-100 pt-4 sm:pt-0">
                       <div className="flex items-center h-10 border border-slate-200 rounded-lg overflow-hidden bg-white shrink-0">
                         <button 
-                          onClick={() => updateQuantity(item.id, -1)}
-                          className="w-8 h-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"
+                          onClick={() => updateQuantity(item.productId, item.quantity, -1)}
+                          disabled={loading}
+                          className="w-8 h-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors disabled:opacity-50"
                         >
                           <Minus size={14} weight="regular" />
                         </button>
@@ -90,21 +85,23 @@ export const CartPage: React.FC = () => {
                           {item.quantity}
                         </span>
                         <button 
-                          onClick={() => updateQuantity(item.id, 1)}
-                          className="w-8 h-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"
+                          onClick={() => updateQuantity(item.productId, item.quantity, 1)}
+                          disabled={loading}
+                          className="w-8 h-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors disabled:opacity-50"
                         >
                           <Plus size={14} weight="regular" />
                         </button>
                       </div>
 
                       <div className="flex flex-col items-end shrink-0 min-w-[120px]">
-                        <span className="text-xs text-slate-400 mb-0.5">{formatIDR(item.price)} / unit</span>
-                        <span className="text-lg font-extrabold text-slate-900">{formatIDR(item.price * item.quantity)}</span>
+                        <span className="text-xs text-slate-400 mb-0.5">{formatIDR(item.unitPrice)} / unit</span>
+                        <span className="text-lg font-extrabold text-slate-900">{formatIDR(item.unitPrice * item.quantity)}</span>
                       </div>
 
                       <button 
-                        onClick={() => removeItem(item.id)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                        onClick={() => removeItem(item.productId)}
+                        disabled={loading}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0 disabled:opacity-50"
                         title="Remove item"
                       >
                         <Trash size={18} weight="regular" />
@@ -124,9 +121,9 @@ export const CartPage: React.FC = () => {
               {items.length > 0 && (
                 <div className="max-h-60 overflow-y-auto no-scrollbar mb-6 space-y-3 pr-2">
                   {items.map(item => (
-                    <div key={item.id} className="flex justify-between text-sm">
-                      <span className="text-slate-600 truncate pr-4 flex-1">{item.quantity}x {item.name}</span>
-                      <span className="text-slate-900 font-medium shrink-0">{formatIDR(item.price * item.quantity)}</span>
+                    <div key={item.productId} className="flex justify-between text-sm">
+                      <span className="text-slate-600 truncate pr-4 flex-1">{item.quantity}x {item.productName}</span>
+                      <span className="text-slate-900 font-medium shrink-0">{formatIDR(item.unitPrice * item.quantity)}</span>
                     </div>
                   ))}
                 </div>

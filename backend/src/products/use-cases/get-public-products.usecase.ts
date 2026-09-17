@@ -71,9 +71,11 @@ export class GetPublicProductsUseCase {
     return {
       data: products.map((p) => ({
         id: p.id,
+        sku: p.sku,
         name: p.name,
         description: p.description || '',
         basePrice: Number(p.basePrice),
+        unitOfMeasure: p.unitOfMeasure,
         categoryId: p.categoryId,
         categoryName: p.category?.name,
         images: p.images.map((img) => ({
