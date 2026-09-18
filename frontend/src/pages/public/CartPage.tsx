@@ -62,8 +62,12 @@ export const CartPage: React.FC = () => {
               <div className="space-y-4">
                 {items.map(item => (
                   <div key={item.productId} className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-                    <div className="w-24 h-24 shrink-0 rounded-xl bg-slate-100 overflow-hidden">
-                      <img src={item.image || 'https://images.unsplash.com/photo-1586769852044-692d6e3703f0?w=300&q=80'} alt={item.productName} className="w-full h-full object-cover" />
+                    <div className="w-24 h-24 shrink-0 rounded-xl bg-slate-100 overflow-hidden flex items-center justify-center">
+                      {item.image ? (
+                        <img src={item.image} alt={item.productName} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xs text-slate-400 font-medium">No Image</span>
+                      )}
                     </div>
                     
                     <div className="flex-1 min-w-0">
