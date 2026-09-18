@@ -57,7 +57,7 @@ export class GetPublicProductsUseCase {
         include: {
           category: true,
           images: {
-            where: { isPrimary: true },
+            orderBy: [{ isPrimary: 'desc' }, { createdAt: 'asc' }],
             take: 1,
           },
         },

@@ -30,7 +30,7 @@ export class SearchProductsUseCase {
         include: {
           category: { select: { name: true } },
           pricingTiers: true,
-          images: { where: { isPrimary: true }, select: { url: true } },
+          images: { orderBy: [{ isPrimary: 'desc' }, { createdAt: 'asc' }], take: 1, select: { url: true } },
         },
         orderBy: { createdAt: 'desc' },
       }),
