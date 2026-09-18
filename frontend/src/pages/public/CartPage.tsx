@@ -140,7 +140,7 @@ export const CartPage: React.FC = () => {
                 </div>
                 <div className="border-t border-slate-100 pt-4 mt-2 flex justify-between items-end">
                   <span className="text-slate-900 font-bold">Total</span>
-                  <span className="text-2xl font-extrabold text-primary-600">{formatIDR(total)}</span>
+                  <span className="text-2xl font-extrabold" style={{ color: '#0284c7' }}>{formatIDR(total)}</span>
                 </div>
               </div>
 
@@ -150,14 +150,25 @@ export const CartPage: React.FC = () => {
                   className={`w-full h-14 font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition-all ${
                     items.length === 0 
                       ? 'bg-slate-100 text-slate-400 cursor-not-allowed pointer-events-none' 
-                      : 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-lg'
+                      : ''
                   }`}
+                  style={items.length > 0 ? {
+                    background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)', 
+                    color: '#ffffff',
+                    boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)',
+                  } : {}}
+                  onMouseEnter={e => {
+                    if (items.length > 0) e.currentTarget.style.background = 'linear-gradient(135deg, #0369a1 0%, #075985 100%)';
+                  }}
+                  onMouseLeave={e => {
+                    if (items.length > 0) e.currentTarget.style.background = 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)';
+                  }}
                 >
                   Proceed to Checkout <ArrowRight size={20} weight="regular" />
                 </Link>
                 
                 <div className="text-center mt-4">
-                  <Link to="/products" className="text-sm font-semibold text-primary-600 hover:text-primary-700">
+                  <Link to="/products" className="text-sm font-semibold transition-colors" style={{ color: '#0284c7' }} onMouseEnter={e => e.currentTarget.style.color = '#0369a1'} onMouseLeave={e => e.currentTarget.style.color = '#0284c7'}>
                     Continue Shopping
                   </Link>
                 </div>
