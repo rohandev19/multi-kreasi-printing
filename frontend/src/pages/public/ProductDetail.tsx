@@ -222,20 +222,27 @@ export const ProductDetail: React.FC = () => {
                   )}
 
                   <div className="mt-8 space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center h-12 border-2 border-slate-200 rounded-xl overflow-hidden bg-white shrink-0">
+                    {/* Quantity + Add to Cart */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center h-12 rounded-xl overflow-hidden shrink-0" style={{ border: '2px solid #e2e8f0' }}>
                         <button 
                           onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                          className="w-12 h-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors font-bold text-lg"
+                          className="w-11 h-full flex items-center justify-center transition-colors font-bold text-lg"
+                          style={{ backgroundColor: '#f1f5f9', color: '#475569' }}
+                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#e2e8f0')}
+                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#f1f5f9')}
                         >
-                          -
+                          −
                         </button>
-                        <span className="w-16 h-full flex items-center justify-center border-x-2 border-slate-200 font-bold text-slate-900 text-base">
+                        <span className="w-14 h-full flex items-center justify-center font-bold text-base" style={{ borderLeft: '2px solid #e2e8f0', borderRight: '2px solid #e2e8f0', color: '#0f172a' }}>
                           {quantity}
                         </span>
                         <button 
                           onClick={() => setQuantity(quantity + 1)}
-                          className="w-12 h-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors font-bold text-lg"
+                          className="w-11 h-full flex items-center justify-center transition-colors font-bold text-lg"
+                          style={{ backgroundColor: '#f1f5f9', color: '#475569' }}
+                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#e2e8f0')}
+                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#f1f5f9')}
                         >
                           +
                         </button>
@@ -244,23 +251,41 @@ export const ProductDetail: React.FC = () => {
                       <button 
                         onClick={handleAddToCart}
                         disabled={cartLoading}
-                        className="flex-1 h-12 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-all flex items-center justify-center gap-2 text-base shadow-sm shadow-primary-600/20 disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="flex-1 h-12 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-base disabled:opacity-70 disabled:cursor-not-allowed"
+                        style={{ 
+                          background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)', 
+                          color: '#ffffff',
+                          boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'linear-gradient(135deg, #0369a1 0%, #075985 100%)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)')}
                       >
                         <ShoppingCart size={20} weight="bold" />
                         {cartLoading ? 'Menambahkan...' : 'Tambahkan ke Keranjang'}
                       </button>
                     </div>
 
+                    {/* B2B CTA Row */}
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Link 
                         to={`/contact?product=${product.id}`}
-                        className="flex-1 py-3 bg-white text-primary-700 font-bold rounded-xl border-2 border-primary-100 hover:bg-primary-50 transition-all flex items-center justify-center text-sm"
+                        className="flex-1 py-3 font-bold rounded-xl transition-all flex items-center justify-center text-sm"
+                        style={{ 
+                          backgroundColor: '#f0f9ff', 
+                          color: '#0369a1', 
+                          border: '2px solid #bae6fd',
+                        }}
                       >
                         Minta Penawaran B2B
                       </Link>
                       <Link 
                         to="/contact"
-                        className="flex-1 py-3 bg-white text-slate-700 font-bold rounded-xl border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all flex items-center justify-center text-sm"
+                        className="flex-1 py-3 font-bold rounded-xl transition-all flex items-center justify-center text-sm"
+                        style={{ 
+                          backgroundColor: '#ffffff', 
+                          color: '#475569', 
+                          border: '2px solid #e2e8f0',
+                        }}
                       >
                         Hubungi Sales
                       </Link>
