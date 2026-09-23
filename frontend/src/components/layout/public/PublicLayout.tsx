@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { ShoppingCart, User, Printer, List, X } from '@phosphor-icons/react';
 import { useRoleContext } from '../../../contexts/RoleContext';
 import { Footer } from './Footer';
+import { useCart } from '../../../hooks/useCart';
 
 const navLinks = [
   { to: '/products', label: 'Products' },
@@ -17,6 +18,7 @@ export const PublicLayout: React.FC = () => {
   const { role } = useRoleContext();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { totalItems } = useCart();
 
   const isHome = location.pathname === '/';
 
@@ -173,9 +175,7 @@ export const PublicLayout: React.FC = () => {
                 onMouseLeave={(e) => { e.currentTarget.style.color = navTextColor; }}
               >
                 <ShoppingCart size={20} weight="regular" />
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: 'var(--color-primary-600)' }}>
-                  0
-                </span>
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: 'var(--color-primary-600)' }}>{totalItems}</span>
               </Link>
 
               {role ? (
@@ -276,3 +276,4 @@ export const PublicLayout: React.FC = () => {
     </div>
   );
 };
+

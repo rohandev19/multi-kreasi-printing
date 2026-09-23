@@ -191,7 +191,10 @@ export const CheckoutPage: React.FC = () => {
                 <button 
                   type="submit"
                   disabled={loading}
-                  className="w-full h-14 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full h-14 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                  style={{ background: 'linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-700) 100%)' }}
+                  onMouseEnter={(e) => { if(!loading) e.currentTarget.style.filter = 'brightness(1.1)'; }}
+                  onMouseLeave={(e) => { if(!loading) e.currentTarget.style.filter = 'brightness(1)'; }}
                 >
                   {loading ? (
                     <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -212,3 +215,4 @@ export const CheckoutPage: React.FC = () => {
     </div>
   );
 };
+
