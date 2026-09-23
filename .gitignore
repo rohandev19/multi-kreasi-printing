@@ -11,3 +11,9 @@ coverage/
 package-lock.json
 
 k6.exe
+
+# AI Prompts & Instructions
+.agents/
+.kiro/
+SKILL/
+GEMINI.md
