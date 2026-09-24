@@ -47,11 +47,11 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       // Listen for notifications globally
       socketInstance.on('notification:new', (notification: any) => {
         console.log('New notification:', notification);
-        addToast({
-          title: 'Notifikasi Baru',
-          message: notification.message || 'Anda memiliki pemberitahuan baru.',
-          type: 'info',
-        });
+        addToast(
+          'info',
+          'Notifikasi Baru',
+          notification.message || 'Anda memiliki pemberitahuan baru.'
+        );
       });
 
       setSocket(socketInstance);
