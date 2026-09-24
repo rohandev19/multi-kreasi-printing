@@ -86,21 +86,25 @@ export function useCart() {
     }
   }, [isAuth]);
 
-  const addToCart = async (product: { id: string; name: string; basePrice?: number; price?: number }, quantity: number) => {
+  const addToCart = async (product: { id: string; name: string; basePrice?: number; price?: number; images?: any[] }, quantity: number) => {
     if (!isAuth) {
       const guestCart = getGuestCart();
       const existingIdx = guestCart.items.findIndex(i => i.productId === product.id);
       
+      const primaryImage = product.images?.find((img: any) => img.isPrimary)?.url || product.images?.[0]?.url;
+
       if (existingIdx >= 0) {
         guestCart.items[existingIdx].quantity += quantity;
-        guestCart.items[existingIdx].subtotal = guestCart.items[existingIdx].quantity * product.basePrice;
+        guestCart.items[existingIdx].subtotal = guestCart.items[existingIdx].quantity * (product.basePrice || product.price || 0);
+        guestCart.items[existingIdx].image = primaryImage || guestCart.items[existingIdx].image;
       } else {
         guestCart.items.push({
           productId: product.id,
           quantity: quantity,
           productName: product.name,
-          unitPrice: product.basePrice,
-          subtotal: quantity * product.basePrice
+          unitPrice: product.basePrice || product.price || 0,
+          subtotal: quantity * (product.basePrice || product.price || 0),
+          image: primaryImage
         });
       }
       saveGuestCart(guestCart);
