@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { NotificationsGateway } from './gateways/notifications.gateway';
 import { NotificationsController } from './notifications.controller';
 import { SendNotificationUseCase } from './use-cases/send-notification.usecase';
+import { NotificationEventListener } from './notification-event.listener';
 import { EmailNotificationProcessor } from './jobs/email-notification.processor';
 import { BullModule } from '@nestjs/bullmq';
 import { AuthModule } from '../auth/auth.module';
@@ -17,8 +18,10 @@ import { AuthModule } from '../auth/auth.module';
   providers: [
     NotificationsGateway,
     SendNotificationUseCase,
+    NotificationEventListener,
     EmailNotificationProcessor,
   ],
-  exports: [SendNotificationUseCase],
+  exports: [SendNotificationUseCase, NotificationsGateway],
 })
 export class NotificationsModule {}
+

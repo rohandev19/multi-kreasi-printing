@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../audit/audit.service';
 import { OrderLogic } from '../domain/order.entity';
@@ -12,6 +13,7 @@ export class CancelOrderUseCase {
   constructor(
     private prisma: PrismaService,
     private audit: AuditService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async execute(orderId: string, reason: string, currentUserId: string) {
@@ -58,6 +60,15 @@ export class CancelOrderUseCase {
       newValue: { status: updated.status, reason },
     });
 
+    // Emit event for real-time notification
+    this.eventEmitter.emit('order.cancelled', {
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      customerId: order.customerId,
+      reason,
+    });
+
     return updated;
   }
 }
+

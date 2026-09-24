@@ -56,10 +56,14 @@ const LoadingSpinner = () => (
   </div>
 );
 
+import { SocketProvider } from './contexts/SocketContext';
+
 const AppProviders = ({ children }: { children: React.ReactNode }) => (
   <ToastProvider>
     <RoleProvider>
-      {children}
+      <SocketProvider>
+        {children}
+      </SocketProvider>
     </RoleProvider>
   </ToastProvider>
 );

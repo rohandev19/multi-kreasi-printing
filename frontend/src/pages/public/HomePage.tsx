@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Headphones, Package, Printer, ShieldCheck, Truck, UploadSimple, Clock, ClipboardText, MagnifyingGlass } from '@phosphor-icons/react';
+import { ArrowRight, Headphones, Package, Printer, Truck, UploadSimple, ClipboardText, MagnifyingGlass } from '@phosphor-icons/react';
 import { HeroBackgroundImage } from '../../components/HeroBackgroundImage';
 import { HeroOverlay } from '../../components/HeroOverlay';
 import type { HeroImageConfig } from '../../types/heroImage';
@@ -50,12 +50,6 @@ const serviceCards = [
   },
 ];
 
-const supportPoints = [
-  { label: 'Waktu Respon', value: 'Dalam 1 hari kerja', icon: Clock },
-  { label: 'Kontrol Kualitas', value: 'Proof sebelum cetak', icon: ShieldCheck },
-  { label: 'Dukungan Pelanggan', value: 'Chat, telepon, & email', icon: Headphones },
-];
-
 export const HomePage: React.FC = () => {
   return (
     <div className="w-full" style={{ backgroundColor: 'var(--bg-base)' }}>
@@ -99,23 +93,6 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid w-full gap-4 lg:max-w-md">
-            {supportPoints.map(({ label, value, icon: Icon }) => (
-              <div
-                key={label}
-                className="flex items-start gap-4 rounded-xl border backdrop-blur-sm p-5 transition-all duration-200 hover:scale-[1.02]"
-                style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}
-              >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl" style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'var(--text-inverse)' }}>
-                  <Icon size={22} weight="bold" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.14em]" style={{ color: 'rgba(255,255,255,0.75)' }}>{label}</p>
-                  <p className="mt-1.5 text-base font-semibold" style={{ color: 'var(--text-inverse)' }}>{value}</p>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 

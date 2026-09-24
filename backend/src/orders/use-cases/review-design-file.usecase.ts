@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   DesignFileLogic,
@@ -16,6 +17,7 @@ export class ReviewDesignFileUseCase {
   constructor(
     private prisma: PrismaService,
     private audit: AuditService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async execute(
@@ -59,6 +61,17 @@ export class ReviewDesignFileUseCase {
       newValue: { status: updated.status, notes: dto.notes },
     });
 
+    // Emit event for real-time notification to the uploader
+    this.eventEmitter.emit('design.reviewed', {
+      fileId: file.id,
+      orderId: file.orderId,
+      fileName: file.originalName,
+      uploadedByUserId: file.uploadedBy,
+      newStatus: dto.status,
+      notes: dto.notes,
+    });
+
     return updated;
   }
 }
+

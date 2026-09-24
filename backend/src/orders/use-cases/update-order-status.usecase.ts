@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UpdateOrderStatusDto } from '../dto/update-order-status.dto';
 import { OrderLogic } from '../domain/order.entity';
@@ -13,6 +14,7 @@ export class UpdateOrderStatusUseCase {
   constructor(
     private prisma: PrismaService,
     private audit: AuditService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async execute(
@@ -59,6 +61,16 @@ export class UpdateOrderStatusUseCase {
       newValue: { status: updated.status },
     });
 
+    // Emit event for real-time notification
+    this.eventEmitter.emit('order.status.changed', {
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      customerId: order.customerId,
+      oldStatus: order.status,
+      newStatus: dto.status,
+    });
+
     return updated;
   }
 }
+

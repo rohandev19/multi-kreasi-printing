@@ -79,7 +79,12 @@ export class ApproveOrderUseCase {
       newValue: { status: updated.status },
     });
 
-    this.eventEmitter.emit('order.approved', { orderId: updated.id });
+    this.eventEmitter.emit('order.approved', {
+      orderId: updated.id,
+      orderNumber: order.orderNumber,
+      customerId: order.customerId,
+      approvedBy: currentUserRole,
+    });
 
     return updated;
   }
