@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { OrderLogic } from '../domain/order.entity';
@@ -13,6 +18,15 @@ export class CreateOrderUseCase {
   ) {}
 
   async execute(dto: CreateOrderDto, currentUserId: string) {
+    if (dto.idempotencyKey) {
+      const existingOrder = await this.prisma.order.findUnique({
+        where: { idempotencyKey: dto.idempotencyKey },
+        include: { items: true, timeline: true },
+      });
+      if (existingOrder) {
+        return existingOrder;
+      }
+    }
     if (dto.items.length === 0)
       throw new BadRequestException('Order must have at least one item');
 
@@ -90,46 +104,86 @@ export class CreateOrderUseCase {
     const { subtotal, tax, total } = OrderLogic.calculateTotal(orderItemsData);
     const orderNumber = OrderLogic.generateOrderNumber();
 
-    const order = await this.prisma.$transaction(async (tx) => {
-      const created = await tx.order.create({
-        data: {
-          orderNumber,
-          customerId: finalCustomerId,
-          priority: dto.priority || 'Normal',
-          subtotal,
-          tax,
-          shipping: 0, // Set to 0 for MVP
-          totalAmount: total,
-          estimatedDeliveryDate: dto.estimatedDeliveryDate
-            ? new Date(dto.estimatedDeliveryDate)
-            : null,
-          notes: dto.notes,
-          status: 'Draft',
-          items: {
-            create: orderItemsData,
-          },
-          timeline: {
-            create: {
+    try {
+      const order = await this.prisma.$transaction(
+        async (tx) => {
+          const created = await tx.order.create({
+            data: {
+              orderNumber,
+              customerId: finalCustomerId,
+              idempotencyKey: dto.idempotencyKey || null,
+              priority: dto.priority || 'Normal',
+              subtotal,
+              tax,
+              shipping: 0, // Set to 0 for MVP
+              totalAmount: total,
+              estimatedDeliveryDate: dto.estimatedDeliveryDate
+                ? new Date(dto.estimatedDeliveryDate)
+                : null,
+              notes: dto.notes,
               status: 'Draft',
-              createdBy: currentUserId,
-              notes: 'Pesanan dibuat (Draft)',
+              items: {
+                create: orderItemsData,
+              },
+              timeline: {
+                create: {
+                  status: 'Draft',
+                  createdBy: currentUserId,
+                  notes: 'Pesanan dibuat (Draft)',
+                },
+              },
             },
-          },
+            include: { items: true, timeline: true },
+          });
+
+          const signature = OrderLogic.generateLedgerSignature(
+            created.id,
+            created.status,
+            Number(created.totalAmount),
+          );
+
+          await tx.orderLedger.create({
+            data: {
+              orderId: created.id,
+              status: created.status,
+              amount: created.totalAmount,
+              signature,
+            },
+          });
+
+          return created;
         },
-        include: { items: true, timeline: true },
+        {
+          timeout: 5000, // Pilar 3: Resilience (Explicit Timeout)
+        },
+      );
+
+      await this.audit.log({
+        userId: currentUserId,
+        action: 'ORDER_CREATED',
+        entityType: 'Order',
+        entityId: order.id,
+        newValue: { orderNumber: order.orderNumber, total: order.totalAmount },
       });
 
-      return created;
-    });
-
-    await this.audit.log({
-      userId: currentUserId,
-      action: 'ORDER_CREATED',
-      entityType: 'Order',
-      entityId: order.id,
-      newValue: { orderNumber: order.orderNumber, total: order.totalAmount },
-    });
-
-    return order;
+      return order;
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        if (dto.idempotencyKey) {
+          const existingOrder = await this.prisma.order.findUnique({
+            where: { idempotencyKey: dto.idempotencyKey },
+            include: { items: true, timeline: true },
+          });
+          if (existingOrder) return existingOrder;
+        }
+        throw new ConflictException(
+          'Pesanan ganda terdeteksi (Race Condition)',
+        );
+      }
+      throw error;
+    }
   }
 }

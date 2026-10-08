@@ -8,6 +8,8 @@ import { CancelOrderUseCase } from './use-cases/cancel-order.usecase';
 import { SearchOrdersUseCase } from './use-cases/search-orders.usecase';
 import { GetOrderDetailsUseCase } from './use-cases/get-order-details.usecase';
 import { UploadDesignFileUseCase } from './use-cases/upload-design-file.usecase';
+import { PresignDesignFileUseCase } from './use-cases/presign-design-file.usecase';
+import { ConfirmDesignFileUseCase } from './use-cases/confirm-design-file.usecase';
 import { ReviewDesignFileUseCase } from './use-cases/review-design-file.usecase';
 import { GetDesignFileUseCase } from './use-cases/get-design-file.usecase';
 import { DownloadDesignFileUseCase } from './use-cases/download-design-file.usecase';
@@ -36,6 +38,8 @@ import { CustomerOrdersController } from './customer-orders.controller';
     SearchOrdersUseCase,
     GetOrderDetailsUseCase,
     UploadDesignFileUseCase,
+    PresignDesignFileUseCase,
+    ConfirmDesignFileUseCase,
     ReviewDesignFileUseCase,
     GetDesignFileUseCase,
     DownloadDesignFileUseCase,

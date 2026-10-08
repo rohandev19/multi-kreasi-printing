@@ -1,11 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class WorkflowService {
   private readonly logger = new Logger(WorkflowService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventEmitter: EventEmitter2,
+  ) {}
 
   determineApprovalRequired(totalAmount: number): string {
     if (totalAmount < 2000000) {
@@ -45,10 +49,13 @@ export class WorkflowService {
           },
         });
 
-        // Simulating notification sending
-        this.logger.log(
-          `Notification sent for auto-approval of order ${order.orderNumber}`,
-        );
+        // Emit actual event for auto-approval
+        this.eventEmitter.emit('order.approved', {
+          orderId: updated.id,
+          orderNumber: updated.orderNumber,
+          customerId: updated.customerId,
+          approvedBy: 'System (Auto)',
+        });
 
         return updated;
       });
@@ -68,10 +75,14 @@ export class WorkflowService {
           },
         });
 
-        // Simulating notification sending
-        this.logger.log(
-          `Notification sent to ${requiredRole} for approval of order ${order.orderNumber}`,
-        );
+        // Emit event for status change to Pending_Approval
+        this.eventEmitter.emit('order.status.changed', {
+          orderId: updated.id,
+          orderNumber: updated.orderNumber,
+          customerId: updated.customerId,
+          oldStatus: order.status,
+          newStatus: 'Pending_Approval',
+        });
 
         return updated;
       });

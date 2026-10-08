@@ -27,6 +27,7 @@ export class ReviewDesignFileUseCase {
   ) {
     const file = await this.prisma.designFile.findUnique({
       where: { id: fileId },
+      include: { order: true },
     });
     if (!file) throw new NotFoundException('File desain tidak ditemukan');
 
@@ -44,13 +45,46 @@ export class ReviewDesignFileUseCase {
       throw new BadRequestException('Alasan penolakan atau revisi harus diisi');
     }
 
-    const updated = await this.prisma.designFile.update({
-      where: { id: fileId },
-      data: {
-        status: dto.status,
-        notes: dto.notes,
+    const { updatedFile, updatedOrder } = await this.prisma.$transaction(
+      async (tx) => {
+        const updated = await tx.designFile.update({
+          where: { id: fileId },
+          data: {
+            status: dto.status,
+            notes: dto.notes,
+          },
+        });
+
+        let orderStatus = file.order.status;
+        if (dto.status === DesignFileStatus.Approved) {
+          orderStatus = 'Design_Approved';
+        } else if (
+          dto.status === DesignFileStatus.Rejected ||
+          dto.status === DesignFileStatus.Revision_Required
+        ) {
+          orderStatus = 'Design_In_Progress';
+        }
+
+        let updatedOrderInfo = file.order;
+        if (orderStatus !== file.order.status) {
+          updatedOrderInfo = await tx.order.update({
+            where: { id: file.orderId },
+            data: { status: orderStatus },
+          });
+
+          await tx.orderTimeline.create({
+            data: {
+              orderId: file.orderId,
+              status: orderStatus,
+              notes: `Status diperbarui karena file desain ${updated.originalName} direview (${dto.status})`,
+              createdBy: currentUserId,
+            },
+          });
+        }
+
+        return { updatedFile: updated, updatedOrder: updatedOrderInfo };
       },
-    });
+    );
 
     await this.audit.log({
       userId: currentUserId,
@@ -58,7 +92,7 @@ export class ReviewDesignFileUseCase {
       entityType: 'DesignFile',
       entityId: fileId,
       oldValue: { status: file.status },
-      newValue: { status: updated.status, notes: dto.notes },
+      newValue: { status: updatedFile.status, notes: dto.notes },
     });
 
     // Emit event for real-time notification to the uploader
@@ -71,7 +105,16 @@ export class ReviewDesignFileUseCase {
       notes: dto.notes,
     });
 
-    return updated;
+    if (updatedOrder.status !== file.order.status) {
+      this.eventEmitter.emit('order.status.changed', {
+        orderId: updatedOrder.id,
+        orderNumber: updatedOrder.orderNumber,
+        customerId: updatedOrder.customerId,
+        oldStatus: file.order.status,
+        newStatus: updatedOrder.status,
+      });
+    }
+
+    return updatedFile;
   }
 }
-

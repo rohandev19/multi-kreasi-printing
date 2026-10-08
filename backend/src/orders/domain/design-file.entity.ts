@@ -1,4 +1,5 @@
 export enum DesignFileStatus {
+  Pending_Upload = 'Pending_Upload',
   Uploaded = 'Uploaded',
   AI_Check = 'AI_Check',
   Manual_Review = 'Manual_Review',
@@ -14,6 +15,9 @@ export class DesignFileLogic {
 
   static isValidTransition(currentStatus: string, nextStatus: string): boolean {
     const transitions: Record<string, string[]> = {
+      [DesignFileStatus.Pending_Upload]: [
+        DesignFileStatus.Uploaded,
+      ],
       [DesignFileStatus.Uploaded]: [
         DesignFileStatus.AI_Check,
         DesignFileStatus.Manual_Review,

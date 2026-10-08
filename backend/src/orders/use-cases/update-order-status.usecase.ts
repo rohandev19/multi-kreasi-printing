@@ -73,4 +73,3 @@ export class UpdateOrderStatusUseCase {
     return updated;
   }
 }
-

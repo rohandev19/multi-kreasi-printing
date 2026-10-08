@@ -28,6 +28,10 @@ export class OrderItemDto {
 export class CreateOrderDto {
   @IsOptional()
   @IsString()
+  idempotencyKey?: string;
+
+  @IsOptional()
+  @IsString()
   customerId?: string;
 
   @IsArray()
