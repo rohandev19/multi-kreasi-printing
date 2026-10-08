@@ -4,9 +4,19 @@ import {
 } from 'nest-winston';
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
+import { ALS } from '../als/als.module';
+
+const addCorrelationId = winston.format((info) => {
+  const store = ALS?.getStore();
+  if (store) {
+    info.correlationId = store.get('correlationId') || 'SYSTEM';
+  }
+  return info;
+});
 
 // Define log formats
 const consoleFormat = winston.format.combine(
+  addCorrelationId(),
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.ms(),
   nestWinstonModuleUtilities.format.nestLike('MKP', {
@@ -16,6 +26,7 @@ const consoleFormat = winston.format.combine(
 );
 
 const fileFormat = winston.format.combine(
+  addCorrelationId(),
   winston.format.timestamp(),
   winston.format.uncolorize(),
   winston.format.json(),

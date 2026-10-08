@@ -10,40 +10,7 @@ import { loggerConfig } from './common/logger/logger.config';
 
 const bootstrapLogger = new Logger('Bootstrap');
 
-async function runPrismaCommands() {
-  const isProd = process.env.NODE_ENV === 'production';
-  const hasDbUrl = Boolean(process.env.DATABASE_URL);
-  const shouldRun = isProd || hasDbUrl || Boolean(process.env.FORCE_MIGRATE);
-  if (!shouldRun) return;
-
-  bootstrapLogger.log(
-    `[Bootstrap] Triggered (NODE_ENV=${process.env.NODE_ENV}, DATABASE_URL=${hasDbUrl ? 'set' : 'unset'})`,
-  );
-
-  bootstrapLogger.log('Running Prisma migrations (deploy)...');
-  try {
-    execSync('npx prisma migrate deploy', { stdio: 'inherit' });
-    bootstrapLogger.log('Migrations completed.');
-  } catch (err) {
-    bootstrapLogger.warn(
-      'Migration skipped or failed: ' + (err as Error).message,
-    );
-  }
-
-  bootstrapLogger.log('Running Prisma seed (idempotent via seed.ts)...');
-  try {
-    execSync('npx ts-node --transpile-only prisma/seed.ts', {
-      stdio: 'inherit',
-    });
-    bootstrapLogger.log('Seed completed.');
-  } catch (err) {
-    bootstrapLogger.warn('Seed skipped or failed: ' + (err as Error).message);
-  }
-}
-
 async function bootstrap() {
-  await runPrismaCommands();
-
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: loggerConfig,
   });

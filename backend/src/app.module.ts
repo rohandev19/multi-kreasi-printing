@@ -1,5 +1,8 @@
 import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { z } from 'zod';
+import { AlsModule } from './common/als/als.module';
+import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CacheModule } from './cache/cache.module';
@@ -29,7 +32,17 @@ import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    AlsModule,
+    ConfigModule.forRoot({ 
+      isGlobal: true,
+      validate: (config) => {
+        const schema = z.object({
+          DATABASE_URL: z.string().url().optional(),
+          JWT_SECRET: z.string().optional(), // In real enterprise this would be required
+        }).passthrough();
+        return schema.parse(config);
+      }
+    }),
     CacheModule,
     LoggerModule,
     PrismaModule,
@@ -108,7 +121,7 @@ import { SettingsModule } from './settings/settings.module';
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(LoggingMiddleware)
+      .apply(CorrelationIdMiddleware, LoggingMiddleware)
       .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }
