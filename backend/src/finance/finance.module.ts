@@ -14,6 +14,8 @@ import { SendInvoiceUseCase } from './use-cases/send-invoice.usecase';
 import { SendPaymentReminderUseCase } from './use-cases/send-payment-reminder.usecase';
 import { PdfGenerationProcessor } from './jobs/pdf-generation.processor';
 import { OrderApprovedListener } from './listeners/order-approved.listener';
+import { PaymentWebhookUseCase } from './use-cases/payment-webhook.usecase';
+import { WebhooksController } from './webhooks.controller';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { OrderApprovedListener } from './listeners/order-approved.listener';
       name: 'pdf-generation',
     }),
   ],
-  controllers: [FinanceController],
+  controllers: [FinanceController, WebhooksController],
   providers: [
     GenerateInvoiceUseCase,
     RecordPaymentUseCase,
@@ -35,6 +37,7 @@ import { OrderApprovedListener } from './listeners/order-approved.listener';
     SendPaymentReminderUseCase,
     PdfGenerationProcessor,
     OrderApprovedListener,
+    PaymentWebhookUseCase,
   ],
   exports: [GenerateInvoiceUseCase],
 })
