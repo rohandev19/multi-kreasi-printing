@@ -10,8 +10,8 @@ export class AuditService {
     action: string;
     entityType?: string;
     entityId?: string;
-    oldValue?: any;
-    newValue?: any;
+    oldValue?: unknown;
+    newValue?: unknown;
     ipAddress?: string;
     userAgent?: string;
   }) {
