@@ -103,9 +103,7 @@ export class NotificationEventListener {
   // ── Order Approved ────────────────────────────────────────────
   @OnEvent('order.approved')
   async handleOrderApproved(payload: OrderApprovedPayload) {
-    this.logger.log(
-      `[Event] order.approved → ${payload.orderNumber}`,
-    );
+    this.logger.log(`[Event] order.approved → ${payload.orderNumber}`);
 
     const userId = await this.resolveUserIdFromCustomer(payload.customerId);
     if (!userId) return;
@@ -125,9 +123,7 @@ export class NotificationEventListener {
   // ── Order Cancelled ───────────────────────────────────────────
   @OnEvent('order.cancelled')
   async handleOrderCancelled(payload: OrderCancelledPayload) {
-    this.logger.log(
-      `[Event] order.cancelled → ${payload.orderNumber}`,
-    );
+    this.logger.log(`[Event] order.cancelled → ${payload.orderNumber}`);
 
     const userId = await this.resolveUserIdFromCustomer(payload.customerId);
     if (!userId) return;
@@ -179,9 +175,7 @@ export class NotificationEventListener {
   // ── Invoice Issued ────────────────────────────────────────────
   @OnEvent('invoice.issued')
   async handleInvoiceIssued(payload: InvoiceIssuedPayload) {
-    this.logger.log(
-      `[Event] invoice.issued → ${payload.invoiceNumber}`,
-    );
+    this.logger.log(`[Event] invoice.issued → ${payload.invoiceNumber}`);
 
     // For invoices, customerId is already a userId
     await this.sendNotification.execute({
@@ -200,9 +194,7 @@ export class NotificationEventListener {
   // ── Production Job Completed ──────────────────────────────────
   @OnEvent('production.completed')
   async handleProductionCompleted(payload: ProductionJobCompletedPayload) {
-    this.logger.log(
-      `[Event] production.completed → job ${payload.jobNumber}`,
-    );
+    this.logger.log(`[Event] production.completed → job ${payload.jobNumber}`);
 
     const userId = await this.resolveUserIdFromCustomer(payload.customerId);
     if (!userId) return;

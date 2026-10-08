@@ -15,6 +15,11 @@ import { GetRevenueChartDataUseCase } from './use-cases/get-revenue-chart-data.u
 import { GetProductionStatusUseCase } from './use-cases/get-production-status.usecase';
 import { GetReportsMetricsUseCase } from './use-cases/get-reports-metrics.usecase';
 import { createPrismaClient } from '../prisma/prisma-client.helper';
+import type { Request as ExpressRequest } from 'express';
+
+interface AuthRequest extends ExpressRequest {
+  user: { sub: string; role: string; email: string };
+}
 import { UpdateWidgetPreferenceDto } from './dto/widget-preference.dto';
 
 import { GetOwnerMetricsUseCase } from './use-cases/get-owner-metrics.usecase';
@@ -58,7 +63,7 @@ export class DashboardController {
   }
 
   @Get('metrics/:role')
-  async getRoleMetrics(@Param('role') role: string, @Request() req: any) {
+  async getRoleMetrics(@Param('role') role: string, @Request() req: AuthRequest) {
     const userRole = req.user.role;
 
     if (userRole !== 'Owner' && userRole.toLowerCase() !== role.toLowerCase()) {
@@ -117,7 +122,7 @@ export class DashboardController {
   }
 
   @Get('preferences')
-  async getWidgetPreferences(@Request() req: any) {
+  async getWidgetPreferences(@Request() req: AuthRequest) {
     const userId = req.user.sub;
     let pref = await this.prisma.widgetPreference.findUnique({
       where: { userId },
@@ -139,7 +144,7 @@ export class DashboardController {
 
   @Patch('preferences')
   async updateWidgetPreferences(
-    @Request() req: any,
+    @Request() req: AuthRequest,
     @Body() body: UpdateWidgetPreferenceDto,
   ) {
     const userId = req.user.sub;

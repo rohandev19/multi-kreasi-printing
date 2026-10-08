@@ -18,8 +18,14 @@ export class PublicProductsController {
   @Get()
   @Public()
   async getProducts(@Query() query: GetPublicProductsDto) {
-    const queryKey = JSON.stringify(query);
-    const cacheKey = `/api/v1/public/products?query=${queryKey}`;
+    const {
+      page = 1,
+      limit = 20,
+      search = '',
+      categoryId = '',
+      sortBy = '',
+    } = query;
+    const cacheKey = `/api/v1/public/products?page=${page}&limit=${limit}&search=${search}&categoryId=${categoryId}&sortBy=${sortBy}`;
 
     const cached = await this.cacheService.get(cacheKey);
     if (cached) return cached;

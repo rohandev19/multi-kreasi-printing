@@ -48,7 +48,7 @@ export class GetPublicProductsUseCase {
         break;
     }
 
-    const [products, total, categoriesData] = await Promise.all([
+    const [products, total] = await Promise.all([
       this.prisma.product.findMany({
         where,
         orderBy,
@@ -63,9 +63,6 @@ export class GetPublicProductsUseCase {
         },
       }),
       this.prisma.product.count({ where }),
-      this.prisma.category.findMany({
-        orderBy: { name: 'asc' },
-      }),
     ]);
 
     return {
@@ -89,7 +86,6 @@ export class GetPublicProductsUseCase {
         limit,
         totalPages: Math.ceil(total / limit),
       },
-      categories: categoriesData.map((c) => ({ id: c.id, name: c.name })),
     };
   }
 }

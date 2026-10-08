@@ -1,5 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotificationEventListener, OrderStatusChangedPayload, OrderApprovedPayload, OrderCancelledPayload, DesignFileReviewedPayload, InvoiceIssuedPayload, ProductionJobCompletedPayload } from '../notification-event.listener';
+import {
+  NotificationEventListener,
+  OrderStatusChangedPayload,
+  OrderApprovedPayload,
+  OrderCancelledPayload,
+  DesignFileReviewedPayload,
+  InvoiceIssuedPayload,
+  ProductionJobCompletedPayload,
+} from '../notification-event.listener';
 import { SendNotificationUseCase } from '../use-cases/send-notification.usecase';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationType } from '../domain/notification.entity';
@@ -35,7 +43,9 @@ describe('NotificationEventListener', () => {
     }).compile();
 
     listener = module.get<NotificationEventListener>(NotificationEventListener);
-    sendNotificationUseCase = module.get<SendNotificationUseCase>(SendNotificationUseCase);
+    sendNotificationUseCase = module.get<SendNotificationUseCase>(
+      SendNotificationUseCase,
+    );
     prismaService = module.get<PrismaService>(PrismaService);
   });
 
@@ -50,8 +60,12 @@ describe('NotificationEventListener', () => {
         newStatus: 'Approved',
       };
 
-      vi.spyOn(prismaService.customer, 'findUnique').mockResolvedValue({ email: 'test@example.com' } as any);
-      vi.spyOn(prismaService.user, 'findFirst').mockResolvedValue({ id: 'user-1' } as any);
+      vi.spyOn(prismaService.customer, 'findUnique').mockResolvedValue({
+        email: 'test@example.com',
+      } as any);
+      vi.spyOn(prismaService.user, 'findFirst').mockResolvedValue({
+        id: 'user-1',
+      } as any);
 
       // Act
       await listener.handleOrderStatusChanged(payload);
@@ -69,7 +83,8 @@ describe('NotificationEventListener', () => {
         userId: 'user-1',
         type: NotificationType.ORDER_UPDATE,
         title: 'Pesanan ORD-001 — Disetujui',
-        message: 'Status pesanan Anda berubah dari "Draft" menjadi "Disetujui".',
+        message:
+          'Status pesanan Anda berubah dari "Draft" menjadi "Disetujui".',
         metadata: {
           orderId: 'order-1',
           orderNumber: 'ORD-001',
@@ -108,8 +123,12 @@ describe('NotificationEventListener', () => {
         approvedBy: 'Manager',
       };
 
-      vi.spyOn(prismaService.customer, 'findUnique').mockResolvedValue({ email: 'user2@example.com' } as any);
-      vi.spyOn(prismaService.user, 'findFirst').mockResolvedValue({ id: 'user-2' } as any);
+      vi.spyOn(prismaService.customer, 'findUnique').mockResolvedValue({
+        email: 'user2@example.com',
+      } as any);
+      vi.spyOn(prismaService.user, 'findFirst').mockResolvedValue({
+        id: 'user-2',
+      } as any);
 
       await listener.handleOrderApproved(payload);
 
@@ -117,7 +136,8 @@ describe('NotificationEventListener', () => {
         userId: 'user-2',
         type: NotificationType.ORDER_UPDATE,
         title: 'Pesanan ORD-002 Disetujui ✅',
-        message: 'Pesanan Anda telah disetujui dan siap diproses ke tahap produksi.',
+        message:
+          'Pesanan Anda telah disetujui dan siap diproses ke tahap produksi.',
         metadata: {
           orderId: 'order-2',
           orderNumber: 'ORD-002',
@@ -135,8 +155,12 @@ describe('NotificationEventListener', () => {
         reason: 'Out of stock',
       };
 
-      vi.spyOn(prismaService.customer, 'findUnique').mockResolvedValue({ email: 'user3@example.com' } as any);
-      vi.spyOn(prismaService.user, 'findFirst').mockResolvedValue({ id: 'user-3' } as any);
+      vi.spyOn(prismaService.customer, 'findUnique').mockResolvedValue({
+        email: 'user3@example.com',
+      } as any);
+      vi.spyOn(prismaService.user, 'findFirst').mockResolvedValue({
+        id: 'user-3',
+      } as any);
 
       await listener.handleOrderCancelled(payload);
 

@@ -8,5 +8,4 @@ export class ProductListResponseDto {
     limit: number;
     totalPages: number;
   };
-  categories: { id: string; name: string }[];
 }

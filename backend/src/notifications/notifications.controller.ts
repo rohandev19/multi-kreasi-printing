@@ -12,6 +12,11 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateNotificationPreferencesDto } from './dto/notification.dto';
+import type { Request } from 'express';
+
+interface AuthRequest extends Request {
+  user: { userId: string; role: string; email: string };
+}
 
 @Controller('api/v1/notifications')
 @UseGuards(JwtAuthGuard)
@@ -20,7 +25,7 @@ export class NotificationsController {
 
   @Get()
   async getNotifications(
-    @Req() req: any,
+    @Req() req: AuthRequest,
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '20',
   ) {
@@ -51,7 +56,7 @@ export class NotificationsController {
   }
 
   @Get('unread/count')
-  async getUnreadCount(@Req() req: any) {
+  async getUnreadCount(@Req() req: AuthRequest) {
     const userId = req.user.userId;
     const count = await this.prisma.notification.count({
       where: { userId, isRead: false },
@@ -60,7 +65,7 @@ export class NotificationsController {
   }
 
   @Patch(':id/read')
-  async markAsRead(@Req() req: any, @Param('id') id: string) {
+  async markAsRead(@Req() req: AuthRequest, @Param('id') id: string) {
     const userId = req.user.userId;
 
     // Ensure the notification belongs to the user
@@ -73,7 +78,7 @@ export class NotificationsController {
   }
 
   @Patch('read-all')
-  async markAllAsRead(@Req() req: any) {
+  async markAllAsRead(@Req() req: AuthRequest) {
     const userId = req.user.userId;
     await this.prisma.notification.updateMany({
       where: { userId, isRead: false },
@@ -83,7 +88,7 @@ export class NotificationsController {
   }
 
   @Delete(':id')
-  async deleteNotification(@Req() req: any, @Param('id') id: string) {
+  async deleteNotification(@Req() req: AuthRequest, @Param('id') id: string) {
     const userId = req.user.userId;
     await this.prisma.notification.deleteMany({
       where: { id, userId },
@@ -92,7 +97,7 @@ export class NotificationsController {
   }
 
   @Get('preferences')
-  async getPreferences(@Req() req: any) {
+  async getPreferences(@Req() req: AuthRequest) {
     const userId = req.user.userId;
     let prefs = await this.prisma.notificationPreference.findUnique({
       where: { userId },
@@ -108,7 +113,7 @@ export class NotificationsController {
 
   @Patch('preferences')
   async updatePreferences(
-    @Req() req: any,
+    @Req() req: AuthRequest,
     @Body() dto: UpdateNotificationPreferencesDto,
   ) {
     const userId = req.user.userId;

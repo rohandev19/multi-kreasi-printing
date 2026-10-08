@@ -11,6 +11,7 @@ import {
   NotFoundException,
   UseInterceptors,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -54,12 +55,12 @@ export class FinanceController {
   ) {
     const user = req.user;
 
-    const where: any = {};
-    if (filters.status) where.status = filters.status;
+    const where: Prisma.InvoiceWhereInput = {};
+    if (filters.status) where.status = filters.status as any;
 
     // Customers can only see their own invoices
     if (user.role === 'Customer') {
-      where.customerId = user.userId;
+      where.customerId = user.userId || user.sub;
     } else if (filters.customerId) {
       where.customerId = filters.customerId;
     }
@@ -93,16 +94,18 @@ export class FinanceController {
   @Roles('Customer', 'Finance_Staff', 'Owner', 'Manager')
   async getInvoice(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const user = req.user;
-    const invoice = await this.prisma.invoice.findUnique({
-      where: { id },
+    
+    const whereClause: Prisma.InvoiceWhereInput = { id };
+    if (user.role === 'Customer') {
+      whereClause.customerId = user.userId || user.sub;
+    }
+
+    const invoice = await this.prisma.invoice.findFirst({
+      where: whereClause,
       include: { payments: true },
     });
 
     if (!invoice) throw new NotFoundException('Invoice not found');
-
-    if (user.role === 'Customer' && invoice.customerId !== user.userId) {
-      throw new NotFoundException('Invoice not found');
-    }
 
     const outstandingInfo =
       await this.calculateOutstandingBalanceUseCase.execute(id);
@@ -137,15 +140,17 @@ export class FinanceController {
     @Req() req: AuthenticatedRequest,
   ) {
     const user = req.user;
-    const invoice = await this.prisma.invoice.findUnique({
-      where: { id },
+    
+    const whereClause: Prisma.InvoiceWhereInput = { id };
+    if (user.role === 'Customer') {
+      whereClause.customerId = user.userId || user.sub;
+    }
+
+    const invoice = await this.prisma.invoice.findFirst({
+      where: whereClause,
     });
 
     if (!invoice) throw new NotFoundException('Invoice not found');
-
-    if (user.role === 'Customer' && invoice.customerId !== user.userId) {
-      throw new NotFoundException('Invoice not found');
-    }
 
     if (!invoice.pdfUrl) {
       return { message: 'PDF not generated yet' };

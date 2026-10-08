@@ -91,7 +91,7 @@ export const ProductDetail: React.FC = () => {
 
   const fetchReviews = async () => {
     try {
-      const response = await api.get(`/products/${id}/reviews`);
+      const response = await api.get(`/api/v1/products/${id}/reviews`);
       setReviews(response.data.reviews || []);
       setReviewsTotal(response.data.total || 0);
     } catch (error) {
@@ -108,7 +108,7 @@ export const ProductDetail: React.FC = () => {
     
     setIsSubmittingReview(true);
     try {
-      await api.post(`/products/${id}/reviews`, {
+      await api.post(`/api/v1/products/${id}/reviews`, {
         rating: newRating,
         comment: newComment,
       });
