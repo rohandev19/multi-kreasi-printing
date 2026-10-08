@@ -87,9 +87,23 @@ export default function DesignFiles() {
     setPreviewFileId(id);
   };
 
-  const handleDownload = async (_id: string) => {
-    // In a real app, this would trigger a file download
-    success('Download Started', 'Your file is downloading.');
+  const handleDownload = async (id: string) => {
+    try {
+      const response = await api.get(`/api/v1/design-files/${id}/download`);
+      const { presignedUrl, originalName } = response.data.data || response.data;
+      
+      const link = document.createElement('a');
+      link.href = presignedUrl;
+      link.setAttribute('download', originalName || 'download');
+      // Some browsers require the link to be appended to the body to work
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      success('Download Started', 'Your file is downloading.');
+    } catch (err: any) {
+      toastError('Download Failed', err.response?.data?.message || 'Failed to get download link');
+    }
   };
 
   const handleApprove = async (id: string) => {

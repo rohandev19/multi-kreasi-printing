@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
+import axios from 'axios';
 import { useToast } from '../../contexts/ToastContext';
 import { CloudArrowUp } from '@phosphor-icons/react';
 
@@ -67,14 +68,27 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
 
     setLoading(true);
     try {
-      const formData = new FormData();
-      formData.append('orderId', orderId);
-      formData.append('file', file);
-      formData.append('version', version.toString());
-      if (notes) formData.append('notes', notes);
+      // 1. Get Presigned URL
+      const presignRes = await api.post('/api/v1/design-files/presign-upload', {
+        orderId,
+        originalName: file.name,
+        mimeType: file.type,
+        fileSize: file.size,
+      });
 
-      await api.post('/api/v1/design-files/upload', formData, { 
-        headers: { 'Content-Type': 'multipart/form-data' }
+      const { designFileId, presignedUrl } = presignRes.data;
+
+      // 2. Upload file directly to Azure/R2
+      await axios.put(presignedUrl, file, {
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+
+      // 3. Confirm upload
+      await api.post(`/api/v1/design-files/${designFileId}/confirm-upload`, {
+        orderId,
+        notes,
       });
       
       success('Upload Successful', `Design file ${file.name} uploaded successfully.`);
