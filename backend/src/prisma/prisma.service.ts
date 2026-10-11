@@ -7,6 +7,7 @@ import {
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+import { ALS } from '../common/als/als.module';
 
 @Injectable()
 export class PrismaService
@@ -52,6 +53,33 @@ export class PrismaService
 
     const adapter = new PrismaPg(pool);
     super({ adapter });
+  }
+
+  // Expose an extended client getter
+  get extended() {
+    return this.$extends({
+      query: {
+        $allModels: {
+          async $allOperations({ operation, model, args, query }) {
+            const store = ALS.getStore();
+            const user = store?.get('user');
+
+            // Example basic ABAC: Auto-inject tenantId or userId for specific models if needed
+            // if (user && operation === 'findMany' && model === 'Order' && user.role !== 'Admin') {
+            //   args.where = { ...args.where, userId: user.id };
+            // }
+
+            // Add basic query logging or mutation tracking
+            const start = performance.now();
+            const result = await query(args);
+            const end = performance.now();
+            // console.log(`Query ${model}.${operation} took ${end - start}ms`);
+
+            return result;
+          },
+        },
+      },
+    });
   }
 
   async onModuleInit() {

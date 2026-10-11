@@ -7,16 +7,30 @@ datasource db {
 }
 
 model Role {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String   @unique @db.VarChar(50)
-  displayName String   @map("display_name") @db.VarChar(100)
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String       @unique @db.VarChar(50)
+  displayName String       @map("display_name") @db.VarChar(100)
   description String?
-  permissions Json     @default("[]")
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   users       User[]
+  permissions Permission[]
 
   @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  action      String   @db.VarChar(50)
+  subject     String   @db.VarChar(100)
+  conditions  Json?
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  roles       Role[]
+
+  @@unique([action, subject])
+  @@map("permissions")
 }
 
 model User {
@@ -45,6 +59,8 @@ model User {
   role                    Role                     @relation(fields: [roleId], references: [id])
   widgetPreference        WidgetPreference?
   productReviews          ProductReview[]
+  chatRooms               ChatRoom[]               @relation("CustomerChat")
+  chatMessages            ChatMessage[]            @relation("SenderChat")
 
   @@index([email])
   @@index([roleId])
@@ -198,6 +214,7 @@ model Order {
   customer              Customer        @relation(fields: [customerId], references: [id])
   productionJobs        ProductionJob[]
   ledgers               OrderLedger[]
+  chatRooms             ChatRoom[]
 
   @@index([orderNumber])
   @@index([customerId])
@@ -588,3 +605,39 @@ model OrderLedger {
   @@index([orderId])
   @@map("order_ledgers")
 }
+
+model ChatRoom {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId  String        @map("customer_id") @db.Uuid
+  orderId     String?       @map("order_id") @db.Uuid
+  status      String        @default("Open") @db.VarChar(50)
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  
+  customer    User          @relation("CustomerChat", fields: [customerId], references: [id])
+  order       Order?        @relation(fields: [orderId], references: [id])
+  messages    ChatMessage[]
+
+  @@index([customerId])
+  @@index([orderId])
+  @@map("chat_rooms")
+}
+
+model ChatMessage {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roomId     String   @map("room_id") @db.Uuid
+  senderId   String   @map("sender_id") @db.Uuid
+  message    String   @db.Text
+  attachment String?  
+  isRead     Boolean  @default(false) @map("is_read")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  
+  room       ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender     User     @relation("SenderChat", fields: [senderId], references: [id])
+
+  @@index([roomId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@map("chat_messages")
+}
+

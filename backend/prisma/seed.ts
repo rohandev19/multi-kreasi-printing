@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
@@ -28,27 +29,56 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const roles = [
-    { name: 'Owner', displayName: 'System Owner', description: 'Full system access', permissions: ['*'] },
-    { name: 'Manager', displayName: 'Manager', description: 'Store and operational management', permissions: ['manage:users', 'manage:orders', 'view:reports'] },
-    { name: 'Sales', displayName: 'Sales Staff', description: 'Handles sales and customer relations', permissions: ['manage:orders', 'view:customers'] },
-    { name: 'Designer', displayName: 'Designer', description: 'Handles design assets', permissions: ['manage:designs', 'view:orders'] },
-    { name: 'Production_Staff', displayName: 'Production Staff', description: 'Handles printing and production', permissions: ['manage:production', 'view:orders'] },
-    { name: 'Warehouse_Staff', displayName: 'Warehouse Staff', description: 'Handles stock and materials', permissions: ['manage:inventory', 'view:orders'] },
-    { name: 'Finance_Staff', displayName: 'Finance Staff', description: 'Handles payments and invoices', permissions: ['manage:finance', 'view:orders'] },
-    { name: 'Customer', displayName: 'Customer', description: 'Standard user/customer', permissions: ['view:own_orders', 'create:order'] },
+    { name: 'Owner', displayName: 'System Owner', description: 'Full system access', permissions: [{ action: 'manage', subject: 'all' }] },
+    { name: 'Manager', displayName: 'Manager', description: 'Store and operational management', permissions: [{ action: 'manage', subject: 'User' }, { action: 'manage', subject: 'Order' }, { action: 'read', subject: 'Report' }] },
+    { name: 'Sales', displayName: 'Sales Staff', description: 'Handles sales and customer relations', permissions: [{ action: 'manage', subject: 'Order' }, { action: 'read', subject: 'Customer' }] },
+    { name: 'Designer', displayName: 'Designer', description: 'Handles design assets', permissions: [{ action: 'manage', subject: 'DesignFile' }, { action: 'read', subject: 'Order' }] },
+    { name: 'Production_Staff', displayName: 'Production Staff', description: 'Handles printing and production', permissions: [{ action: 'manage', subject: 'ProductionJob' }, { action: 'read', subject: 'Order' }] },
+    { name: 'Warehouse_Staff', displayName: 'Warehouse Staff', description: 'Handles stock and materials', permissions: [{ action: 'manage', subject: 'Material' }, { action: 'read', subject: 'Order' }] },
+    { name: 'Finance_Staff', displayName: 'Finance Staff', description: 'Handles payments and invoices', permissions: [{ action: 'manage', subject: 'Invoice' }, { action: 'manage', subject: 'Payment' }, { action: 'read', subject: 'Order' }] },
+    { name: 'Customer', displayName: 'Customer', description: 'Standard user/customer', permissions: [{ action: 'read', subject: 'Order' }, { action: 'create', subject: 'Order' }, { action: 'read', subject: 'Invoice' }] },
   ];
 
   for (const role of roles) {
-    await prisma.role.upsert({
+    const createdRole = await prisma.role.upsert({
       where: { name: role.name },
       update: {},
       create: {
         name: role.name,
         displayName: role.displayName,
         description: role.description,
-        permissions: role.permissions,
       },
     });
+
+    for (const perm of role.permissions) {
+      let permission = await prisma.permission.findFirst({
+        where: { action: perm.action, subject: perm.subject },
+      });
+
+      if (!permission) {
+        permission = await prisma.permission.create({
+          data: {
+            action: perm.action,
+            subject: perm.subject,
+            conditions: (perm as any).conditions ? ((perm as any).conditions as any) : undefined,
+          },
+        });
+      } else if (permission.conditions && !(perm as any).conditions) {
+        permission = await prisma.permission.update({
+          where: { id: permission.id },
+          data: { conditions: null as any },
+        });
+      }
+      
+      await prisma.role.update({
+        where: { id: createdRole.id },
+        data: {
+          permissions: {
+            connect: { id: permission.id }
+          }
+        }
+      });
+    }
   }
 
   // Create a default Owner user if none exists
@@ -66,9 +96,15 @@ async function main() {
           fullName: 'System Owner',
           roleId: ownerRole.id,
           status: 'ACTIVE',
+          emailVerified: true,
         },
       });
       console.log('Default admin created: admin@mkprinting.com / Admin@123!');
+    } else {
+      await prisma.user.update({
+        where: { id: existingAdmin.id },
+        data: { emailVerified: true, status: 'ACTIVE' },
+      });
     }
   }
 
@@ -95,9 +131,15 @@ async function main() {
             fullName: `Test ${user.name.replace('_', ' ')}`,
             roleId: role.id,
             status: 'ACTIVE',
+            emailVerified: true,
           },
         });
         console.log(`Default ${user.name} created: ${user.email} / ${user.pass}`);
+      } else {
+        await prisma.user.update({
+          where: { id: existingUser.id },
+          data: { emailVerified: true, status: 'ACTIVE' },
+        });
       }
     }
   }
