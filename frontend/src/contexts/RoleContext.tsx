@@ -18,6 +18,7 @@ export interface User {
   role: UserRole;
   name?: string;
   fullName?: string;
+  permissions?: { action: string; subject: string; conditions?: any }[];
 }
 
 export interface RoleContextType {
@@ -25,7 +26,7 @@ export interface RoleContextType {
   user: User | null;
   loading: boolean;
   hasAccess: (allowedRoles: UserRole[]) => boolean;
-  hasPermission: (permission: string) => boolean;
+  hasPermission: (action: string, subject: string, data?: any) => boolean;
   refreshRole: () => Promise<void>;
   loginUser: (userData: User) => void;
   logoutUser: () => void;
@@ -145,9 +146,27 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return allowedRoles.includes(role);
   };
 
-  const hasPermission = (_permission: string) => {
-    // Basic implementation for now, can be expanded if roles have distinct fine-grained permissions
-    return true; 
+  const hasPermission = (action: string, subject: string, data?: any) => {
+    // SuperAdmin wildcard check
+    if (user?.permissions?.some(p => p.action === 'manage' && p.subject === 'all')) {
+      return true;
+    }
+
+    return !!user?.permissions?.some(p => {
+      const actionMatch = p.action === action || p.action === 'manage';
+      const subjectMatch = p.subject === subject || p.subject === 'all';
+      
+      if (!actionMatch || !subjectMatch) return false;
+
+      // ABAC condition check
+      if (p.conditions && data) {
+        return Object.entries(p.conditions).every(([key, value]) => {
+          return data[key] === value;
+        });
+      }
+
+      return true;
+    });
   };
 
   return (

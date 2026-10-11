@@ -6,24 +6,33 @@ import type { UserRole } from '../contexts/RoleContext';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   allowedRoles?: UserRole[];
+  requiredAction?: string;
+  requiredSubject?: string;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
-  const { role, loading, hasAccess } = useRoleContext();
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles, requiredAction, requiredSubject }) => {
+  const { role, loading, hasAccess, hasPermission } = useRoleContext();
   const location = useLocation();
   const [showUnauthorizedMsg, setShowUnauthorizedMsg] = useState(false);
 
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    if (!loading && token && allowedRoles && !hasAccess(allowedRoles)) {
+    let authorized = true;
+    if (allowedRoles && !hasAccess(allowedRoles)) {
+      authorized = false;
+    }
+    if (requiredAction && requiredSubject && !hasPermission(requiredAction, requiredSubject)) {
+      authorized = false;
+    }
+
+    if (!loading && token && !authorized) {
       console.warn(`Unauthorized access attempt to ${location.pathname} by role: ${role}`);
       setShowUnauthorizedMsg(true);
-      // Optional: hide message after 3 seconds, or handle it globally with a toast
       const timer = setTimeout(() => setShowUnauthorizedMsg(false), 3000);
       return () => clearTimeout(timer);
     }
-  }, [loading, token, allowedRoles, hasAccess, location.pathname, role]);
+  }, [loading, token, allowedRoles, requiredAction, requiredSubject, hasAccess, hasPermission, location.pathname, role]);
 
   if (loading) {
     return (
@@ -37,13 +46,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  if (allowedRoles && !hasAccess(allowedRoles)) {
+  let authorized = true;
+  if (allowedRoles && !hasAccess(allowedRoles)) authorized = false;
+  if (requiredAction && requiredSubject && !hasPermission(requiredAction, requiredSubject)) authorized = false;
+
+  if (!authorized) {
     return (
       <>
         {showUnauthorizedMsg && (
           <div className="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50">
-            <p className="font-bold">Access Denied</p>
-            <p>You do not have permission to access this page.</p>
+            <p className="font-bold">Akses Ditolak</p>
+            <p>Anda tidak memiliki izin untuk mengakses halaman ini.</p>
           </div>
         )}
         <Navigate to="/" replace />
