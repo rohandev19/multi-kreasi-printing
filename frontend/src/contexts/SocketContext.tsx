@@ -35,12 +35,17 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       });
 
       socketInstance.on('connect', () => {
-        console.log('Socket connected:', socketInstance.id);
+        console.log('✅ Socket connected:', socketInstance.id);
         setIsConnected(true);
       });
 
-      socketInstance.on('disconnect', () => {
-        console.log('Socket disconnected');
+      socketInstance.on('disconnect', (reason) => {
+        console.log('❌ Socket disconnected:', reason);
+        setIsConnected(false);
+      });
+
+      socketInstance.on('connect_error', (error) => {
+        console.error('⚠️ Socket connect_error:', error.message);
         setIsConnected(false);
       });
 
