@@ -7,7 +7,7 @@ import api from '../../api/axios';
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
-  const { success } = useToast();
+  const { success, error: toastError } = useToast();
   
   const [loading, setLoading] = useState(false);
   const { items, fetchCart } = useCart();
@@ -26,7 +26,7 @@ export const CheckoutPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) {
-      success('Keranjang kosong', 'Tambahkan produk ke keranjang terlebih dahulu.');
+      toastError('Keranjang kosong', 'Tambahkan produk ke keranjang terlebih dahulu.');
       return;
     }
     setLoading(true);
@@ -54,7 +54,7 @@ export const CheckoutPage: React.FC = () => {
     } catch (error: any) {
       setLoading(false);
       console.error(error);
-      success('Gagal membuat pesanan', error.response?.data?.message || 'Terjadi kesalahan sistem');
+      toastError('Gagal membuat pesanan', error.response?.data?.message || 'Terjadi kesalahan sistem');
     }
   };
 
