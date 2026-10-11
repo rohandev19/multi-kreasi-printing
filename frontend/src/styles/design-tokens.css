@@ -53,17 +53,17 @@
    * Professional business color, not purple/black
    * Requirements: 2.1, 2.5, 2.6
    * ======================================== */
-  --color-primary-50: #f0f9ff;
-  --color-primary-100: #e0f2fe;
-  --color-primary-200: #bae6fd;
-  --color-primary-300: #7dd3fc;
-  --color-primary-400: #38bdf8;
-  --color-primary-500: #0ea5e9;  /* Main primary color */
-  --color-primary-600: #0284c7;  /* Hover/active state */
-  --color-primary-700: #0369a1;
-  --color-primary-800: #075985;
-  --color-primary-900: #0c4a6e;
-  --color-primary-950: #082f49;
+  --color-primary-50: #f8fafc;
+  --color-primary-100: #f1f5f9;
+  --color-primary-200: #e2e8f0;
+  --color-primary-300: #cbd5e1;
+  --color-primary-400: #94a3b8;
+  --color-primary-500: #000000;  /* Main primary color */
+  --color-primary-600: #000000;  /* Hover/active state */
+  --color-primary-700: #000000;
+  --color-primary-800: #000000;
+  --color-primary-900: #000000;
+  --color-primary-950: #000000;
   
   /* ========================================
    * Color Palette - Neutral (True Grays)

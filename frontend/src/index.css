@@ -29,6 +29,18 @@
   --font-sans: var(--font-sans, "IBM Plex Sans", "Work Sans", system-ui, -apple-system, sans-serif);
   --font-mono: var(--font-mono, "IBM Plex Mono", "SF Mono", "Consolas", monospace);
   
+  --color-primary-50: var(--color-primary-50);
+  --color-primary-100: var(--color-primary-100);
+  --color-primary-200: var(--color-primary-200);
+  --color-primary-300: var(--color-primary-300);
+  --color-primary-400: var(--color-primary-400);
+  --color-primary-500: var(--color-primary-500);
+  --color-primary-600: var(--color-primary-600);
+  --color-primary-700: var(--color-primary-700);
+  --color-primary-800: var(--color-primary-800);
+  --color-primary-900: var(--color-primary-900);
+  --color-primary-950: var(--color-primary-950);
+  
   /* Modal animation - max 200ms per requirements */
   /* Requirements: 8.1 */
   --animate-modal-in: modal-in 200ms ease-out;
@@ -139,13 +151,13 @@
    * Requirements: 4.1, 4.2, 8.1, 8.3
    */
   a {
-    color: var(--color-primary);
+    color: var(--text-primary);
     text-decoration: none;
     transition: color var(--transition-normal);
   }
   
   a:hover {
-    color: var(--color-primary-600);
+    color: #000000;
   }
   
   /**
@@ -212,8 +224,8 @@
    * Professional appearance
    */
   ::selection {
-    background-color: var(--color-primary-100);
-    color: var(--color-primary-900);
+    background-color: var(--color-neutral-200);
+    color: #000000;
   }
   
   /**

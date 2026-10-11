@@ -67,17 +67,17 @@ export const designTokens: DesignTokens = {
     // Primary color: Sky Blue (professional business color)
     // Requirements: 2.5, 2.6
     primary: {
-      50: '#f0f9ff',
-      100: '#e0f2fe',
-      200: '#bae6fd',
-      300: '#7dd3fc',
-      400: '#38bdf8',
-      500: '#0ea5e9',  // Main primary color
-      600: '#0284c7',  // Hover/active state
-      700: '#0369a1',
-      800: '#075985',
-      900: '#0c4a6e',
-      950: '#082f49'
+      50: '#f8fafc',
+      100: '#f1f5f9',
+      200: '#e2e8f0',
+      300: '#cbd5e1',
+      400: '#94a3b8',
+      500: '#000000',  // Main primary color - Black
+      600: '#000000',  // Hover/active state - Black
+      700: '#000000',
+      800: '#000000',
+      900: '#000000',
+      950: '#000000'
     },
     // Neutral colors: True grays (not pure white/black)
     // Requirements: 2.5, 2.7, 9.2
