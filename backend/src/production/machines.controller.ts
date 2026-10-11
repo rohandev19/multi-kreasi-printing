@@ -10,8 +10,7 @@ import {
 } from '@nestjs/common';
 import { ManageMachineUseCase } from './use-cases/manage-machine.usecase';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import {
   CreateMachineDto,
   UpdateMachineStatusDto,
@@ -30,12 +29,12 @@ export interface AuthenticatedRequest extends Request {
   user: AuthenticatedUser;
 }
 @Controller('api/v1/machines')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard)
 export class MachinesController {
   constructor(private readonly manageMachine: ManageMachineUseCase) {}
 
   @Post()
-  @Roles('Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Machine' })
   async createMachine(
     @Body() dto: CreateMachineDto,
     @Req() req: AuthenticatedRequest,
@@ -45,7 +44,7 @@ export class MachinesController {
   }
 
   @Patch(':id/status')
-  @Roles('Production', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Machine' })
   async updateStatus(
     @Param('id') id: string,
     @Body() dto: UpdateMachineStatusDto,
@@ -56,7 +55,7 @@ export class MachinesController {
   }
 
   @Patch(':id/maintenance')
-  @Roles('Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Machine' })
   async scheduleMaintenance(
     @Param('id') id: string,
     @Body() dto: ScheduleMaintenanceDto,
@@ -71,7 +70,7 @@ export class MachinesController {
   }
 
   @Get(':id/utilization')
-  @Roles('Manager', 'Owner', 'Sales')
+  @RequirePermissions({ action: 'read', subject: 'Machine' })
   async getUtilization(@Param('id') id: string) {
     return this.manageMachine.getMachineUtilization(id);
   }

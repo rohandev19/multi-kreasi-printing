@@ -29,7 +29,9 @@ export class ConfirmDesignFileUseCase {
     }
 
     if (designFile.status !== DesignFileStatus.Pending_Upload) {
-      throw new BadRequestException('File ini tidak dalam status Pending Upload');
+      throw new BadRequestException(
+        'File ini tidak dalam status Pending Upload',
+      );
     }
 
     // In a real world scenario, we might want to check the file size/type here

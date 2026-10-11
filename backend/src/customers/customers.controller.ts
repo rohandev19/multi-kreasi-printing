@@ -16,7 +16,7 @@ import { CreateCustomerUseCase } from './use-cases/create-customer.usecase';
 import { UpdateCustomerUseCase } from './use-cases/update-customer.usecase';
 import { SearchCustomersUseCase } from './use-cases/search-customers.usecase';
 import { PrismaService } from '../prisma/prisma.service';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import type { Request } from 'express';
 
 @Controller('api/v1/customers')
@@ -29,21 +29,14 @@ export class CustomersController {
   ) {}
 
   @Post()
-  @Roles(
-    'Owner',
-    'Manager',
-    'Finance_Staff',
-    'Production_Staff',
-    'Designer',
-    'Sales',
-  )
+  @RequirePermissions({ action: 'manage', subject: 'Customers' })
   async create(@Body() dto: CreateCustomerDto, @Req() req: Request) {
     const userId = (req as any).user.sub;
     return this.createCustomerUseCase.execute(dto, userId);
   }
 
   @Get()
-  @Roles('Owner', 'Manager', 'Finance_Staff', 'Sales')
+  @RequirePermissions({ action: 'manage', subject: 'Customers' })
   async search(@Query() query: SearchCustomersDto, @Req() req: Request) {
     const result = await this.searchCustomersUseCase.execute(query);
     const user = (req as any).user;
@@ -80,7 +73,7 @@ export class CustomersController {
   }
 
   @Get(':id')
-  @Roles('Owner', 'Manager', 'Finance_Staff', 'Sales')
+  @RequirePermissions({ action: 'manage', subject: 'Customers' })
   async findOne(@Param('id') id: string) {
     const customer = await this.prisma.customer.findUnique({
       where: { id },
@@ -104,7 +97,7 @@ export class CustomersController {
   }
 
   @Get(':id/payments')
-  @Roles('Owner', 'Manager', 'Finance_Staff', 'Sales')
+  @RequirePermissions({ action: 'manage', subject: 'Customers' })
   async getPaymentHistory(@Param('id') id: string) {
     const invoices = await this.prisma.invoice.findMany({
       where: { customerId: id },
@@ -127,7 +120,7 @@ export class CustomersController {
   }
 
   @Patch(':id')
-  @Roles('Owner', 'Manager', 'Finance_Staff', 'Sales')
+  @RequirePermissions({ action: 'manage', subject: 'Customers' })
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateCustomerDto,

@@ -38,7 +38,9 @@ export class PaymentWebhookUseCase {
       .digest('hex');
 
     if (signature !== expectedSignature) {
-      this.logger.warn(`Invalid webhook signature for transaction ${payload.transactionId}`);
+      this.logger.warn(
+        `Invalid webhook signature for transaction ${payload.transactionId}`,
+      );
       throw new BadRequestException('Invalid signature');
     }
 
@@ -48,19 +50,25 @@ export class PaymentWebhookUseCase {
     });
 
     if (existingPayment) {
-      this.logger.log(`Webhook ignored: Payment ${payload.transactionId} already processed.`);
+      this.logger.log(
+        `Webhook ignored: Payment ${payload.transactionId} already processed.`,
+      );
       return { status: 'IGNORED', reason: 'Already processed' };
     }
 
     // 3. Process Only Successful Payments
     if (payload.status !== 'SUCCESS') {
-      this.logger.log(`Webhook ignored: Payment ${payload.transactionId} status is ${payload.status}`);
+      this.logger.log(
+        `Webhook ignored: Payment ${payload.transactionId} status is ${payload.status}`,
+      );
       return { status: 'IGNORED', reason: `Status is ${payload.status}` };
     }
 
     // 4. Record Payment
-    this.logger.log(`Processing payment webhook for invoice ${payload.invoiceId}, amount: ${payload.amount}`);
-    
+    this.logger.log(
+      `Processing payment webhook for invoice ${payload.invoiceId}, amount: ${payload.amount}`,
+    );
+
     // We use a system user ID or simply mark it as 'SYSTEM_WEBHOOK'
     const recorded = await this.recordPaymentUseCase.execute(
       payload.invoiceId,

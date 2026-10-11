@@ -31,7 +31,7 @@ import { GetFinanceStaffMetricsUseCase } from './use-cases/get-finance-staff-met
 import { GetCustomerMetricsUseCase } from './use-cases/get-customer-metrics.usecase';
 import { GetSalesMetricsUseCase } from './use-cases/get-sales-metrics.usecase';
 import { Param, ForbiddenException } from '@nestjs/common';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 
 @Controller('api/v1/dashboard')
 @UseGuards(JwtAuthGuard)
@@ -63,7 +63,10 @@ export class DashboardController {
   }
 
   @Get('metrics/:role')
-  async getRoleMetrics(@Param('role') role: string, @Request() req: AuthRequest) {
+  async getRoleMetrics(
+    @Param('role') role: string,
+    @Request() req: AuthRequest,
+  ) {
     const userRole = req.user.role;
 
     if (userRole !== 'Owner' && userRole.toLowerCase() !== role.toLowerCase()) {

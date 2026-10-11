@@ -25,7 +25,7 @@ import { ManageProductImagesUseCase } from './use-cases/manage-product-images.us
 import { AddProductReviewDto } from './dto/add-product-review.dto';
 import { AddProductReviewUseCase } from './use-cases/add-product-review.usecase';
 import { GetProductReviewsUseCase } from './use-cases/get-product-reviews.usecase';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import type { Request } from 'express';
 import type { Express } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -60,7 +60,7 @@ export class ProductsController {
   ) {}
 
   @Post()
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Products' })
   async create(
     @Body() dto: CreateProductDto,
     @Req() req: AuthenticatedRequest,
@@ -73,7 +73,7 @@ export class ProductsController {
   }
 
   @Get('categories')
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Products' })
   async getCategories() {
     const categories = await this.prisma.category.findMany({
       orderBy: { name: 'asc' },
@@ -83,7 +83,7 @@ export class ProductsController {
   }
 
   @Post('categories')
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Products' })
   async createCategory(@Body() dto: { name: string; description?: string }) {
     const name = dto.name?.trim();
     if (!name) {
@@ -103,7 +103,7 @@ export class ProductsController {
   }
 
   @Patch('categories/:id')
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Products' })
   async updateCategory(
     @Param('id') id: string,
     @Body() dto: { name?: string; description?: string },
@@ -135,7 +135,7 @@ export class ProductsController {
   }
 
   @Delete('categories/:id')
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Products' })
   async deleteCategory(@Param('id') id: string) {
     const category = await this.prisma.category.findUnique({ where: { id } });
     if (!category) {
@@ -164,7 +164,7 @@ export class ProductsController {
   }
 
   @Get(':id')
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Products' })
   async getProductDetail(@Param('id') id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id },
@@ -207,7 +207,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Products' })
   async deleteProduct(@Param('id') id: string) {
     const product = await this.prisma.product.findUnique({ where: { id } });
     if (!product) {
@@ -234,7 +234,7 @@ export class ProductsController {
   }
 
   @Patch(':id')
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Products' })
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateProductDto,
@@ -248,7 +248,7 @@ export class ProductsController {
   }
 
   @Post(':id/pricing-tiers')
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Products' })
   async setPricingTiers(
     @Param('id') id: string,
     @Body() dto: SetPricingTiersDto,
@@ -261,7 +261,7 @@ export class ProductsController {
   }
 
   @Post(':id/images')
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Products' })
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(
     @Param('id') id: string,
@@ -284,7 +284,7 @@ export class ProductsController {
   }
 
   @Delete(':productId/images/:imageId')
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Products' })
   async deleteImage(
     @Param('productId') productId: string,
     @Param('imageId') imageId: string,
@@ -301,7 +301,7 @@ export class ProductsController {
   }
 
   @Patch(':productId/images/:imageId/set-primary')
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Products' })
   async setPrimaryImage(
     @Param('productId') productId: string,
     @Param('imageId') imageId: string,

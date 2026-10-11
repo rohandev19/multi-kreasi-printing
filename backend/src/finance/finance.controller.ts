@@ -14,8 +14,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { RecordPaymentDto, InvoiceFilterDto } from './dto/finance.dto';
 import { RecordPaymentUseCase } from './use-cases/record-payment.usecase';
 import { SendInvoiceUseCase } from './use-cases/send-invoice.usecase';
@@ -36,7 +35,7 @@ export interface AuthenticatedRequest extends Request {
   user: AuthenticatedUser;
 }
 @Controller('api/v1/invoices')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard)
 export class FinanceController {
   constructor(
     private readonly prisma: PrismaService,
@@ -48,7 +47,7 @@ export class FinanceController {
   ) {}
 
   @Get()
-  @Roles('Customer', 'Finance_Staff', 'Owner', 'Manager')
+  @RequirePermissions({ action: 'read', subject: 'Invoice' })
   async getInvoices(
     @Query() filters: InvoiceFilterDto,
     @Req() req: AuthenticatedRequest,
@@ -91,10 +90,10 @@ export class FinanceController {
   }
 
   @Get(':id')
-  @Roles('Customer', 'Finance_Staff', 'Owner', 'Manager')
+  @RequirePermissions({ action: 'read', subject: 'Invoice' })
   async getInvoice(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const user = req.user;
-    
+
     const whereClause: Prisma.InvoiceWhereInput = { id };
     if (user.role === 'Customer') {
       whereClause.customerId = user.userId || user.sub;
@@ -118,7 +117,7 @@ export class FinanceController {
 
   @Post(':id/payment')
   @UseInterceptors(IdempotencyInterceptor)
-  @Roles('Finance_Staff', 'Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Payment' })
   async recordPayment(
     @Param('id') id: string,
     @Body() dto: RecordPaymentDto,
@@ -134,13 +133,13 @@ export class FinanceController {
   }
 
   @Get(':id/pdf')
-  @Roles('Customer', 'Finance_Staff', 'Owner', 'Manager')
+  @RequirePermissions({ action: 'read', subject: 'Invoice' })
   async getInvoicePdf(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,
   ) {
     const user = req.user;
-    
+
     const whereClause: Prisma.InvoiceWhereInput = { id };
     if (user.role === 'Customer') {
       whereClause.customerId = user.userId || user.sub;
@@ -163,13 +162,13 @@ export class FinanceController {
   }
 
   @Post(':id/send')
-  @Roles('Finance_Staff', 'Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Invoice' })
   async sendInvoice(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.sendInvoiceUseCase.execute(id, req.user.userId || req.user.sub);
   }
 
   @Post()
-  @Roles('Finance_Staff', 'Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Invoice' })
   async createInvoice(@Body('orderId') orderId: string) {
     if (!orderId) throw new NotFoundException('orderId is required');
     await this.generateInvoiceUseCase.execute(orderId);
@@ -177,7 +176,7 @@ export class FinanceController {
   }
 
   @Patch(':id/cancel')
-  @Roles('Finance_Staff', 'Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Invoice' })
   async cancelInvoice(@Param('id') id: string) {
     const invoice = await this.prisma.invoice.update({
       where: { id },

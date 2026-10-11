@@ -19,7 +19,7 @@ export class DownloadDesignFileUseCase {
     user: { sub?: string; role?: string; email?: string },
   ) {
     const whereClause: Prisma.DesignFileWhereInput = { id: fileId };
-    
+
     if (user.role === 'Customer' && user.email) {
       whereClause.order = { customer: { email: user.email } };
     }
@@ -28,7 +28,7 @@ export class DownloadDesignFileUseCase {
       where: whereClause,
       include: { order: { include: { customer: true } } },
     });
-    
+
     if (!file) throw new NotFoundException('File desain tidak ditemukan');
 
     const url = await this.storage.getSignedUrl(file.r2Path);

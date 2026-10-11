@@ -35,9 +35,11 @@ export class StorageService {
       errorThresholdPercentage: 50, // Open breaker if 50% fails
       resetTimeout: 30000, // Wait 30s before retrying
     });
-    
+
     this.uploadBreaker.fallback(() => {
-      throw new Error('Storage Service (Azure) is currently unavailable. Circuit open.');
+      throw new Error(
+        'Storage Service (Azure) is currently unavailable. Circuit open.',
+      );
     });
   }
 
@@ -90,7 +92,11 @@ export class StorageService {
         return { url, r2Path };
       }
 
-      return await this.uploadBreaker.fire(r2Path, file.buffer, file.mimetype) as { url: string; r2Path: string };
+      return (await this.uploadBreaker.fire(
+        r2Path,
+        file.buffer,
+        file.mimetype,
+      )) as { url: string; r2Path: string };
     } catch (error) {
       this.logger.error('Failed to upload file to Azure', error);
       throw new Error('Gagal mengupload gambar produk');
@@ -118,7 +124,10 @@ export class StorageService {
         return { url, r2Path };
       }
 
-      return await this.uploadBreaker.fire(r2Path, buffer, mimeType) as { url: string; r2Path: string };
+      return (await this.uploadBreaker.fire(r2Path, buffer, mimeType)) as {
+        url: string;
+        r2Path: string;
+      };
     } catch (error) {
       throw new Error(`Gagal mengupload file: ${(error as Error).message}`);
     }

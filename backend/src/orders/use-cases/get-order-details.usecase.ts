@@ -12,7 +12,7 @@ export class GetOrderDetailsUseCase {
     user?: { id: string; role: string; email?: string; sub?: string },
   ) {
     const whereClause: Prisma.OrderWhereInput = { id: orderId };
-    
+
     // Prevent IDOR: If Customer, only query if it belongs to them
     if (user && user.role === 'Customer') {
       whereClause.customer = { email: user.email };

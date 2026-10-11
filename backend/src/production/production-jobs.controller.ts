@@ -15,8 +15,7 @@ import { CompleteProductionUseCase } from './use-cases/complete-production.useca
 import { RecordMaterialConsumptionUseCase } from './use-cases/record-material-consumption.usecase';
 import { CreateReworkJobUseCase } from './use-cases/create-rework-job.usecase';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import {
   AssignProductionJobDto,
   CompleteProductionDto,
@@ -37,7 +36,7 @@ export interface AuthenticatedRequest extends Request {
   user: AuthenticatedUser;
 }
 @Controller('api/v1/production-jobs')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard)
 export class ProductionJobsController {
   constructor(
     private readonly createProductionJob: CreateProductionJobUseCase,
@@ -50,7 +49,7 @@ export class ProductionJobsController {
   ) {}
 
   @Get()
-  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'read', subject: 'ProductionJob' })
   async list(@Req() req: AuthenticatedRequest) {
     const user = req.user;
     const page = parseInt(req.query.page as string) || 1;
@@ -103,13 +102,13 @@ export class ProductionJobsController {
   }
 
   @Post('from-order/:orderId')
-  @Roles('Sales', 'Manager', 'Owner', 'Production', 'Production_Staff')
+  @RequirePermissions({ action: 'manage', subject: 'ProductionJob' })
   async createJobFromOrder(@Param('orderId') orderId: string) {
     return this.createProductionJob.execute(orderId);
   }
 
   @Patch(':id/assign')
-  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'ProductionJob' })
   async assignJob(
     @Param('id') id: string,
     @Body() dto: AssignProductionJobDto,
@@ -125,14 +124,14 @@ export class ProductionJobsController {
   }
 
   @Patch(':id/start')
-  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'ProductionJob' })
   async startJob(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const userId = req.user.sub;
     return this.startProduction.execute(id, userId);
   }
 
   @Patch(':id/complete')
-  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'ProductionJob' })
   async completeJob(
     @Param('id') id: string,
     @Body() dto: CompleteProductionDto,
@@ -148,7 +147,7 @@ export class ProductionJobsController {
   }
 
   @Post(':id/materials')
-  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'MaterialConsumption' })
   async recordMaterial(
     @Param('id') id: string,
     @Body() dto: RecordMaterialConsumptionDto,
@@ -165,7 +164,7 @@ export class ProductionJobsController {
   }
 
   @Post(':id/rework')
-  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'ProductionJob' })
   async reworkJob(
     @Param('id') id: string,
     @Body() dto: CreateReworkJobDto,

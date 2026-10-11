@@ -18,7 +18,7 @@ import { PresignDesignFileDto } from './dto/presign-design-file.dto';
 import { ReviewDesignFileUseCase } from './use-cases/review-design-file.usecase';
 import { GetDesignFileUseCase } from './use-cases/get-design-file.usecase';
 import { DownloadDesignFileUseCase } from './use-cases/download-design-file.usecase';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { PrismaService } from '../prisma/prisma.service';
 import type { Request } from 'express';
 
@@ -46,7 +46,7 @@ export class DesignFilesController {
   ) {}
 
   @Get()
-  @Roles('Designer', 'Production', 'Production_Staff', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'DesignFiles' })
   async list(@Req() req: AuthenticatedRequest) {
     const user = req.user;
     let whereClause = {};
@@ -80,7 +80,7 @@ export class DesignFilesController {
   }
 
   @Post('upload')
-  @Roles('Sales', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'DesignFiles' })
   @UseInterceptors(FileInterceptor('file'))
   async uploadDesign(
     @Body('orderId') orderId: string,
@@ -95,7 +95,7 @@ export class DesignFilesController {
   }
 
   @Post('presign-upload')
-  @Roles('Sales', 'Manager', 'Owner', 'Customer')
+  @RequirePermissions({ action: 'manage', subject: 'DesignFiles' })
   async presignUpload(
     @Body('orderId') orderId: string,
     @Body() dto: PresignDesignFileDto,
@@ -112,7 +112,7 @@ export class DesignFilesController {
   }
 
   @Post(':id/confirm-upload')
-  @Roles('Sales', 'Manager', 'Owner', 'Customer')
+  @RequirePermissions({ action: 'manage', subject: 'DesignFiles' })
   async confirmUpload(
     @Param('id') id: string,
     @Body('orderId') orderId: string,
@@ -123,35 +123,21 @@ export class DesignFilesController {
   }
 
   @Get(':id')
-  @Roles(
-    'Customer',
-    'Production',
-    'Production_Staff',
-    'Sales',
-    'Manager',
-    'Owner',
-  )
+  @RequirePermissions({ action: 'manage', subject: 'DesignFiles' })
   async getDetails(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const user = req.user;
     return this.getDesignFile.execute(id, user);
   }
 
   @Get(':id/download')
-  @Roles(
-    'Customer',
-    'Production',
-    'Production_Staff',
-    'Sales',
-    'Manager',
-    'Owner',
-  )
+  @RequirePermissions({ action: 'manage', subject: 'DesignFiles' })
   async download(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const user = req.user;
     return this.downloadDesignFile.execute(id, user);
   }
 
   @Patch(':id/approve')
-  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'DesignFiles' })
   async approveDesign(
     @Param('id') id: string,
     @Body() dto: { notes?: string },
@@ -166,7 +152,7 @@ export class DesignFilesController {
   }
 
   @Patch(':id/reject')
-  @Roles('Production', 'Production_Staff', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'DesignFiles' })
   async rejectDesign(
     @Param('id') id: string,
     @Body() dto: { notes: string },
@@ -181,7 +167,7 @@ export class DesignFilesController {
   }
 
   @Patch(':id/request-revision')
-  @Roles('Designer', 'Production', 'Production_Staff', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'DesignFiles' })
   async requestRevision(
     @Param('id') id: string,
     @Body() dto: { notes: string },

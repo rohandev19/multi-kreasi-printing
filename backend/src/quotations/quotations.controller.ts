@@ -11,7 +11,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { QuotationsService } from './quotations.service';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { VerifiedGuard } from '../auth/guards/verified.guard';
 import { CreateQuotationDto, UpdateQuotationDto } from './dto/quotation.dto';
 import { ConvertQuotationToOrderUseCase } from './use-cases/convert-quotation.usecase';
@@ -30,13 +30,13 @@ export class QuotationsController {
   ) {}
 
   @Post()
-  @Roles('Sales', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Quotations' })
   create(@Body() createQuotationDto: CreateQuotationDto) {
     return this.quotationsService.create(createQuotationDto);
   }
 
   @Get()
-  @Roles('Sales', 'Manager', 'Owner', 'Customer')
+  @RequirePermissions({ action: 'manage', subject: 'Quotations' })
   findAll(@Req() req: AuthenticatedRequest) {
     const isCustomer = req.user.role === 'Customer';
     const customerId = req.user.customerId;
@@ -44,7 +44,7 @@ export class QuotationsController {
   }
 
   @Get(':id')
-  @Roles('Sales', 'Manager', 'Owner', 'Customer')
+  @RequirePermissions({ action: 'manage', subject: 'Quotations' })
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const quotation = await this.quotationsService.findOne(id);
     if (
@@ -59,7 +59,7 @@ export class QuotationsController {
   }
 
   @Patch(':id')
-  @Roles('Sales', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Quotations' })
   update(
     @Param('id') id: string,
     @Body() updateQuotationDto: UpdateQuotationDto,
@@ -68,13 +68,13 @@ export class QuotationsController {
   }
 
   @Delete(':id')
-  @Roles('Sales', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Quotations' })
   remove(@Param('id') id: string) {
     return this.quotationsService.remove(id);
   }
 
   @Post(':id/convert')
-  @Roles('Sales', 'Manager', 'Owner', 'Customer')
+  @RequirePermissions({ action: 'manage', subject: 'Quotations' })
   async convertToOrder(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,

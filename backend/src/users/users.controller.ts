@@ -20,7 +20,7 @@ import { SearchUsersUseCase } from './use-cases/search-users.usecase';
 import { GetRolesUseCase } from './use-cases/get-roles.usecase';
 import { ExportUserDataUseCase } from './use-cases/export-user-data.usecase';
 import { DeleteUserAccountUseCase } from './use-cases/delete-user-account.usecase';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import type { Request } from 'express';
@@ -31,7 +31,7 @@ export interface AuthenticatedRequest extends Request {
 
 @Controller('api/v1/users')
 @UseGuards(JwtAuthGuard)
-@Roles('Owner', 'Manager')
+@RequirePermissions({ action: 'manage', subject: 'Users' })
 export class UsersController {
   constructor(
     private createUserUseCase: CreateUserUseCase,
@@ -92,18 +92,18 @@ export class UsersController {
     return { success: true };
   }
 
-  // NOTE: In a real scenario, these endpoints might need to bypass the @Roles('Owner', 'Manager') guard
+  // NOTE: In a real scenario, these endpoints might need to bypass the @RequirePermissions({ action: 'manage', subject: 'Users' }) guard
   // so any logged-in user can delete/export their own data. But for this MVP, we place them here.
   // We can override the role requirement for these specific endpoints if needed by NestJS roles mechanisms.
   @Get('me/export')
-  @Roles()
+  @RequirePermissions({ action: 'manage', subject: 'Users' })
   async exportData(@Req() req: AuthenticatedRequest) {
     const userId = req.user.sub;
     return this.exportUserDataUseCase.execute(userId);
   }
 
   @Delete('me')
-  @Roles()
+  @RequirePermissions({ action: 'manage', subject: 'Users' })
   async deleteAccount(@Req() req: AuthenticatedRequest) {
     const userId = req.user.sub;
     return this.deleteUserAccountUseCase.execute(userId);

@@ -32,15 +32,19 @@ export class PresignDesignFileUseCase {
     if (!order) throw new NotFoundException('Pesanan tidak ditemukan');
 
     if (!DesignFileLogic.isValidFileSize(fileSize)) {
-      throw new BadRequestException('Ukuran file melebihi batas maksimal 100MB');
+      throw new BadRequestException(
+        'Ukuran file melebihi batas maksimal 100MB',
+      );
     }
 
     if (!DesignFileLogic.isValidFileType(mimeType)) {
-      throw new BadRequestException('Tipe file tidak diizinkan. Gunakan PSD, AI, PDF, JPG, atau PNG.');
+      throw new BadRequestException(
+        'Tipe file tidak diizinkan. Gunakan PSD, AI, PDF, JPG, atau PNG.',
+      );
     }
 
     const fileExtension = path.extname(originalName).toLowerCase();
-    
+
     // Determine the next version
     const lastVersionFile = await this.prisma.designFile.findFirst({
       where: { orderId },

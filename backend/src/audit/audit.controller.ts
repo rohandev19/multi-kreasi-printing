@@ -1,16 +1,15 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 
 @Controller('api/v1/audit')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard)
 export class AuditController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Get()
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'read', subject: 'Report' })
   async getAuditLogs(@Query('limit') limitStr?: string) {
     const limit = limitStr ? parseInt(limitStr, 10) : 50;
 

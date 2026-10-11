@@ -151,6 +151,15 @@ export class CreateOrderUseCase {
             },
           });
 
+          // Clear user's cart after successful order creation
+          await tx.cartItem.deleteMany({
+            where: {
+              cart: {
+                userId: currentUserId,
+              },
+            },
+          });
+
           return created;
         },
         {

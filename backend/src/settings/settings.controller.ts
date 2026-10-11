@@ -1,6 +1,6 @@
 import { Controller, Get, Body, Param, Put, UseGuards } from '@nestjs/common';
 import { SettingsService } from './settings.service';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { VerifiedGuard } from '../auth/guards/verified.guard';
 import { UpdateSettingDto } from './dto/update-setting.dto';
 
@@ -10,19 +10,19 @@ export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 
   @Get()
-  @Roles('Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Settings' })
   findAll() {
     return this.settingsService.findAll();
   }
 
   @Get(':key')
-  @Roles('Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Settings' })
   findOne(@Param('key') key: string) {
     return this.settingsService.findOne(key);
   }
 
   @Put(':key')
-  @Roles('Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Settings' })
   update(@Param('key') key: string, @Body() dto: UpdateSettingDto) {
     // If it's the main app_settings, we can theoretically add extra validation here
     // but the DTO handles basic validation of the incoming structure.

@@ -15,7 +15,7 @@ export class GetDesignFileUseCase {
     user: { sub?: string; role?: string; email?: string },
   ) {
     const whereClause: Prisma.DesignFileWhereInput = { id: fileId };
-    
+
     if (user.role === 'Customer' && user.email) {
       whereClause.order = { customer: { email: user.email } };
     }
@@ -24,7 +24,7 @@ export class GetDesignFileUseCase {
       where: whereClause,
       include: { order: { include: { customer: true } } },
     });
-    
+
     if (!file) throw new NotFoundException('File desain tidak ditemukan');
 
     return file;

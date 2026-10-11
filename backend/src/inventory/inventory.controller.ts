@@ -9,8 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { InventoryService } from './inventory.service';
 import { CreateMaterialDto } from './dto/create-material.dto';
 import { AdjustStockDto } from './dto/adjust-stock.dto';
@@ -28,25 +27,25 @@ export interface AuthenticatedRequest extends Request {
 }
 
 @Controller('api/v1/inventory')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard)
 export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 
   @Get()
-  @Roles('Owner', 'Manager', 'Warehouse_Staff', 'Production_Staff')
+  @RequirePermissions({ action: 'read', subject: 'Material' })
   async getInventory(@Req() req: AuthenticatedRequest) {
     const user = req.user;
     return this.inventoryService.getMaterials(user.role);
   }
 
   @Get(':id')
-  @Roles('Owner', 'Manager', 'Warehouse_Staff', 'Production_Staff')
+  @RequirePermissions({ action: 'read', subject: 'Material' })
   async getMaterialById(@Param('id') id: string) {
     return this.inventoryService.getMaterialById(id);
   }
 
   @Post()
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Material' })
   async createMaterial(
     @Req() req: AuthenticatedRequest,
     @Body() dto: CreateMaterialDto,
@@ -55,7 +54,7 @@ export class InventoryController {
   }
 
   @Put(':id')
-  @Roles('Owner', 'Manager')
+  @RequirePermissions({ action: 'manage', subject: 'Material' })
   async updateMaterial(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,
@@ -65,7 +64,7 @@ export class InventoryController {
   }
 
   @Post(':id/adjust')
-  @Roles('Owner', 'Manager', 'Warehouse_Staff')
+  @RequirePermissions({ action: 'manage', subject: 'Material' })
   async adjustStock(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,

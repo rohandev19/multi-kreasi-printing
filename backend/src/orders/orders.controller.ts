@@ -10,7 +10,7 @@ import { SearchOrdersUseCase } from './use-cases/search-orders.usecase';
 import type { SearchOrdersQuery } from './use-cases/search-orders.usecase';
 import { GetOrderDetailsUseCase } from './use-cases/get-order-details.usecase';
 import { PrismaService } from '../prisma/prisma.service';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { VerifiedGuard } from '../auth/guards/verified.guard';
 import { UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
@@ -39,24 +39,21 @@ export class OrdersController {
   ) {}
 
   @Post()
-  @Roles('Sales', 'Manager', 'Owner', 'Customer')
+  @RequirePermissions({ action: 'create', subject: 'Order' })
   @UseGuards(VerifiedGuard)
   async create(@Body() dto: CreateOrderDto, @Req() req: AuthenticatedRequest) {
     const userId = req.user.sub;
+
+    // Prevent IDOR: Customers cannot create orders for other customers
+    if (req.user.role === 'Customer') {
+      dto.customerId = undefined; // Force usecase to resolve their own customer profile
+    }
+
     return this.createOrder.execute(dto, userId);
   }
 
   @Get()
-  @Roles(
-    'Production',
-    'Sales',
-    'Manager',
-    'Owner',
-    'Designer',
-    'Production_Staff',
-    'Finance_Staff',
-    'Customer',
-  )
+  @RequirePermissions({ action: 'manage', subject: 'Orders' })
   async list(@Req() req: AuthenticatedRequest) {
     const user = req.user;
     const page = parseInt(req.query.page as string) || 1;
@@ -147,7 +144,7 @@ export class OrdersController {
   }
 
   @Patch(':id/status')
-  @Roles('Production', 'Sales', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Orders' })
   async updateStatus(
     @Param('id') id: string,
     @Body() dto: UpdateOrderStatusDto,
@@ -158,14 +155,14 @@ export class OrdersController {
   }
 
   @Post(':id/submit')
-  @Roles('Sales', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Orders' })
   async submit(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const userId = req.user.sub;
     return this.submitOrder.execute(id, userId);
   }
 
   @Post(':id/approve')
-  @Roles('Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Orders' })
   async approve(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const userId = req.user.sub;
     const userRole = req.user.role;
@@ -173,7 +170,7 @@ export class OrdersController {
   }
 
   @Post(':id/cancel')
-  @Roles('Sales', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Orders' })
   async cancel(
     @Param('id') id: string,
     @Body('reason') reason: string,
@@ -184,7 +181,7 @@ export class OrdersController {
   }
 
   @Post(':id/reject')
-  @Roles('Manager', 'Owner', 'Sales')
+  @RequirePermissions({ action: 'manage', subject: 'Orders' })
   async reject(
     @Param('id') id: string,
     @Body('reason') reason: string,
@@ -196,20 +193,20 @@ export class OrdersController {
   }
 
   @Post('search')
-  @Roles('Production', 'Sales', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Orders' })
   async search(@Body() query: SearchOrdersQuery) {
     return this.searchOrders.execute(query);
   }
 
   @Get(':id')
-  @Roles('Production', 'Sales', 'Manager', 'Owner', 'Customer')
+  @RequirePermissions({ action: 'manage', subject: 'Orders' })
   async getDetails(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const user = req.user;
     return this.getOrderDetails.execute(id, user);
   }
 
   @Get(':orderId/design-files')
-  @Roles('Customer', 'Production', 'Sales', 'Manager', 'Owner')
+  @RequirePermissions({ action: 'manage', subject: 'Orders' })
   async getOrderDesignFiles(
     @Param('orderId') orderId: string,
     @Req() req: AuthenticatedRequest,
