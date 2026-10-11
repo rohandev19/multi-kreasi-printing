@@ -18,7 +18,8 @@ import {
   CaretRight,
   User as UserIcon,
   DotsThreeVertical,
-  X
+  X,
+  ChatCircleDots
 } from '@phosphor-icons/react';
 import { useRoleContext } from '../../contexts/RoleContext';
 
@@ -33,7 +34,7 @@ const menuItems: MenuItem[] = [
   {
     path: '/products',
     icon: <Storefront size={20} weight="regular" />,
-    label: 'Catalog',
+    label: 'Katalog Produk',
     roles: ['Customer'],
   },
   {
@@ -45,79 +46,85 @@ const menuItems: MenuItem[] = [
   {
     path: '/dashboard/orders',
     icon: <ShoppingCart size={20} weight="regular" />,
-    label: 'Orders',
+    label: 'Pesanan',
     roles: ['Owner', 'Manager', 'Designer', 'Production_Staff', 'Finance_Staff', 'Sales'],
   },
   {
     path: '/dashboard/products',
     icon: <Package size={20} weight="regular" />,
-    label: 'Products',
+    label: 'Kelola Produk',
     roles: ['Owner', 'Manager'],
   },
   {
     path: '/dashboard/quotations',
     icon: <FileText size={20} weight="regular" />,
-    label: 'Quotations',
+    label: 'Penawaran',
     roles: ['Owner', 'Manager', 'Sales'],
   },
   {
     path: '/dashboard/production',
     icon: <Factory size={20} weight="regular" />,
-    label: 'Production',
+    label: 'Produksi',
     roles: ['Owner', 'Manager', 'Production_Staff'],
   },
   {
     path: '/dashboard/design',
     icon: <Palette size={20} weight="regular" />,
-    label: 'Design Files',
+    label: 'Berkas Desain',
     roles: ['Owner', 'Manager', 'Designer', 'Production_Staff'],
   },
   {
     path: '/dashboard/warehouse',
     icon: <Package size={20} weight="regular" />,
-    label: 'Warehouse',
+    label: 'Gudang & Stok',
     roles: ['Owner', 'Manager', 'Warehouse_Staff', 'Production_Staff'],
   },
   {
     path: '/dashboard/users',
     icon: <Users size={20} weight="regular" />,
-    label: 'Staff & Users',
+    label: 'Staf & Pengguna',
     roles: ['Owner', 'Manager'],
   },
   {
     path: '/dashboard/customers',
     icon: <Users size={20} weight="regular" />,
-    label: 'Customers',
+    label: 'Pelanggan',
     roles: ['Owner', 'Manager', 'Finance_Staff', 'Sales'],
   },
   {
     path: '/dashboard/invoices',
     icon: <FileText size={20} weight="regular" />,
-    label: 'Invoices',
+    label: 'Faktur & Tagihan',
     roles: ['Owner', 'Manager', 'Finance_Staff', 'Customer'],
+  },
+  {
+    path: '/dashboard/live-support',
+    icon: <ChatCircleDots size={20} weight="regular" />,
+    label: 'Bantuan Langsung',
+    roles: ['Owner', 'Manager', 'Sales'],
   },
   {
     path: '/dashboard/my-orders',
     icon: <ClipboardText size={20} weight="regular" />,
-    label: 'My Orders',
+    label: 'Pesanan Saya',
     roles: ['Customer'],
   },
   {
     path: '/dashboard/reports',
     icon: <ChartBar size={20} weight="regular" />,
-    label: 'Reports',
+    label: 'Laporan',
     roles: ['Owner', 'Manager', 'Finance_Staff'],
   },
   {
     path: '/dashboard/audit-log',
     icon: <Scroll size={20} weight="regular" />,
-    label: 'Audit Log',
+    label: 'Log Audit',
     roles: ['Owner', 'Manager'],
   },
   {
     path: '/dashboard/settings',
     icon: <Gear size={20} weight="regular" />,
-    label: 'Settings',
+    label: 'Pengaturan',
     roles: ['Owner'],
   },
 ];
@@ -183,14 +190,14 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
           {collapsed ? (
             <div
               className="mx-auto flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-lg font-black shadow-sm"
-              style={{ backgroundColor: 'var(--color-primary-600)', color: 'white' }}
+              style={{ backgroundColor: '#000000', color: 'white' }}
             >
               MK
             </div>
           ) : (
             <div className="flex flex-col">
               <h1 className="text-xl font-extrabold tracking-tight leading-tight" style={{ color: 'var(--text-primary)' }}>MK Printing</h1>
-              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--color-primary-600)' }}>Enterprise</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#000000' }}>Enterprise</span>
             </div>
           )}
         </Link>
@@ -275,7 +282,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
               onClick={() => setShowUserMenu(false)}
             >
               <UserIcon size={16} weight="regular" style={{ color: 'var(--text-tertiary)' }} />
-              Profile
+              Profil Saya
             </Link>
             {userRole === 'Owner' && (
               <Link
@@ -285,7 +292,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
                 onClick={() => setShowUserMenu(false)}
               >
                 <Gear size={16} weight="regular" style={{ color: 'var(--text-tertiary)' }} />
-                Settings
+                Pengaturan
               </Link>
             )}
             <div className="my-1 h-px" style={{ backgroundColor: 'var(--border-default)' }}></div>
@@ -295,7 +302,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
               style={{ color: 'var(--color-error-600)' }}
             >
               <SignOut size={16} weight="regular" />
-              Logout
+              Keluar
             </button>
           </div>
         )}

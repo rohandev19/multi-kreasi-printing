@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, User, Printer, List, X } from '@phosphor-icons/react';
+import { ShoppingCart, User, Printer, List, X, Package } from '@phosphor-icons/react';
 import { useRoleContext } from '../../../contexts/RoleContext';
 import { Footer } from './Footer';
 import { useCart } from '../../../hooks/useCart';
 
 const navLinks = [
-  { to: '/products', label: 'Products' },
-  { to: '/about', label: 'About Us' },
-  { to: '/custom-order', label: 'Custom Order' },
-  { to: '/contact', label: 'Contact' },
+  { to: '/products', label: 'Produk' },
+  { to: '/about', label: 'Tentang Kami' },
+  { to: '/custom-order', label: 'Pesanan Kustom' },
+  { to: '/contact', label: 'Kontak' },
   { to: '/faq', label: 'FAQ' },
-  { to: '/careers', label: 'Careers' },
+  { to: '/careers', label: 'Karir' },
 ];
 
 export const PublicLayout: React.FC = () => {
@@ -76,8 +76,8 @@ export const PublicLayout: React.FC = () => {
               onClick={closeMobileMenu}
               className="rounded-lg px-4 py-3 text-sm font-medium transition-colors duration-150 ease-out"
               style={{
-                color: location.pathname === link.to ? 'var(--color-primary-700)' : 'var(--text-primary)',
-                backgroundColor: location.pathname === link.to ? 'var(--color-primary-50)' : 'transparent',
+                color: location.pathname === link.to ? '#000000' : 'var(--text-primary)',
+                backgroundColor: location.pathname === link.to ? 'rgba(0, 0, 0, 0.06)' : 'transparent',
               }}
               onMouseEnter={(e) => { if (location.pathname !== link.to) e.currentTarget.style.backgroundColor = 'var(--color-neutral-50)'; }}
               onMouseLeave={(e) => { if (location.pathname !== link.to) e.currentTarget.style.backgroundColor = 'transparent'; }}
@@ -91,15 +91,27 @@ export const PublicLayout: React.FC = () => {
 
         <div className="flex flex-col gap-2 p-3">
           {role ? (
-            <Link
-              to="/dashboard"
-              onClick={closeMobileMenu}
-              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-150 ease-out"
-              style={{ backgroundColor: 'var(--color-primary-50)', color: 'var(--color-primary-700)' }}
-            >
-              <User size={18} weight="regular" />
-              Dashboard
-            </Link>
+            <>
+              {role === 'Customer' && (
+                <Link
+                  to="/dashboard/my-orders"
+                  onClick={closeMobileMenu}
+                  className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-150 ease-out border border-slate-200"
+                >
+                  <Package size={18} weight="regular" />
+                  Pesanan Saya
+                </Link>
+              )}
+              <Link
+                to="/dashboard"
+                onClick={closeMobileMenu}
+                className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-150 ease-out"
+                style={{ backgroundColor: 'var(--color-neutral-100)', color: '#000000' }}
+              >
+                <User size={18} weight="regular" />
+                Dashboard
+              </Link>
+            </>
           ) : (
             <>
               <Link
@@ -110,15 +122,15 @@ export const PublicLayout: React.FC = () => {
                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-neutral-50)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
               >
-                Log In
+                Masuk
               </Link>
               <Link
                 to="/register"
                 onClick={closeMobileMenu}
                 className="text-center rounded-xl px-4 py-3 text-sm font-semibold shadow-sm transition-all duration-150 ease-out"
-                style={{ backgroundColor: 'var(--color-primary-600)', color: 'white' }}
+                style={{ backgroundColor: '#000000', color: '#ffffff' }}
               >
-                Sign Up
+                Daftar
               </Link>
             </>
           )}
@@ -137,17 +149,26 @@ export const PublicLayout: React.FC = () => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex shrink-0 items-center">
-              <Link to="/" className="flex items-center gap-2 group">
+              <Link 
+                to="/" 
+                className="flex items-center gap-2 group"
+                style={{ color: isHome ? '#ffffff' : 'var(--text-primary)' }}
+              >
                 <div
                   className="flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-150"
                   style={{
-                    backgroundColor: isHome ? 'var(--color-primary-500)' : 'var(--color-primary-600)',
-                    color: 'white',
+                    backgroundColor: '#000000',
+                    color: '#ffffff',
                   }}
                 >
                   <Printer size={20} weight="regular" />
                 </div>
-                <span className="text-xl font-extrabold tracking-tight">MK Printing</span>
+                <span 
+                  className={`text-xl font-extrabold tracking-tight transition-colors duration-150 ${isHome ? 'text-white' : ''}`}
+                  style={{ color: isHome ? '#ffffff' : 'var(--text-primary)' }}
+                >
+                  MK Printing
+                </span>
               </Link>
             </div>
 
@@ -175,7 +196,7 @@ export const PublicLayout: React.FC = () => {
                 onMouseLeave={(e) => { e.currentTarget.style.color = navTextColor; }}
               >
                 <ShoppingCart size={20} weight="regular" />
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: 'var(--color-primary-600)' }}>{totalItems}</span>
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: '#000000' }}>{totalItems}</span>
               </Link>
 
               {role ? (
@@ -185,8 +206,8 @@ export const PublicLayout: React.FC = () => {
                     aria-label="Go to Dashboard"
                     className="flex items-center justify-center rounded-full p-2 transition-all duration-150 ease-out sm:hidden"
                     style={{
-                      backgroundColor: isHome ? 'rgba(255,255,255,0.08)' : 'var(--color-primary-50)',
-                      color: isHome ? 'white' : 'var(--color-primary-700)',
+                      backgroundColor: isHome ? 'rgba(255,255,255,0.08)' : 'var(--color-neutral-100)',
+                      color: isHome ? 'white' : '#000000',
                     }}
                     onMouseEnter={(e) => {
                       if (!isHome) { e.currentTarget.style.backgroundColor = 'var(--color-primary-100)'; }
@@ -197,10 +218,22 @@ export const PublicLayout: React.FC = () => {
                   >
                     <User size={20} weight="regular" />
                   </Link>
+                  {role === 'Customer' && (
+                    <Link
+                      to="/dashboard/my-orders"
+                      className="hidden items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold transition-all duration-150 ease-out sm:flex"
+                      style={{ color: navTextColor }}
+                      onMouseEnter={(e) => { e.currentTarget.style.color = isHome ? 'white' : 'var(--text-primary)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = navTextColor; }}
+                    >
+                      <Package size={16} weight="regular" />
+                      Pesanan Saya
+                    </Link>
+                  )}
                   <Link
                     to="/dashboard"
                     className="hidden items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-150 ease-out sm:flex"
-                    style={{ backgroundColor: isHome ? 'rgba(255,255,255,0.08)' : 'var(--color-primary-50)', color: isHome ? 'white' : 'var(--color-primary-700)' }}
+                    style={{ backgroundColor: isHome ? 'rgba(255,255,255,0.08)' : 'var(--color-neutral-100)', color: isHome ? 'white' : '#000000' }}
                     onMouseEnter={(e) => {
                       if (!isHome) { e.currentTarget.style.backgroundColor = 'var(--color-primary-100)'; }
                     }}
@@ -232,16 +265,16 @@ export const PublicLayout: React.FC = () => {
                       onMouseEnter={(e) => { e.currentTarget.style.color = isHome ? 'white' : 'var(--text-primary)'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.color = navTextColor; }}
                     >
-                      Log In
+                      Masuk
                     </Link>
                     <Link
                       to="/register"
                       className="rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition-all duration-150 ease-out"
-                      style={{ backgroundColor: 'var(--color-primary-600)', color: 'white' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary-700)'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary-600)'; }}
+                      style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1e293b'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#000000'; }}
                     >
-                      Sign Up
+                      Daftar
                     </Link>
                   </div>
                 </>

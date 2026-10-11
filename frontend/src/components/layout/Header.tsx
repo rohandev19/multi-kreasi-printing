@@ -100,7 +100,7 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
             className="font-medium transition-colors duration-150 ease-out"
             style={{ color: 'var(--text-secondary)' }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.color = 'var(--color-primary-600)';
+              e.currentTarget.style.color = 'var(--text-primary)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.color = 'var(--text-secondary)';
@@ -131,7 +131,7 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
             style={{ color: 'var(--text-secondary)' }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = 'var(--color-neutral-100)';
-              e.currentTarget.style.color = 'var(--color-primary-600)';
+              e.currentTarget.style.color = 'var(--text-primary)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
@@ -164,7 +164,7 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
               <input
                 autoFocus
                 type="text"
-                placeholder="Search orders, customers..."
+                placeholder="Cari pesanan, pelanggan..."
                 className="w-full bg-transparent px-3 py-2 text-sm outline-none"
                 style={{ color: 'var(--text-primary)' }}
               />
@@ -189,7 +189,7 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
               style={{ color: 'var(--text-secondary)' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = 'var(--color-neutral-100)';
-                e.currentTarget.style.color = 'var(--color-primary-600)';
+                e.currentTarget.style.color = 'var(--text-primary)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
@@ -218,7 +218,7 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
             style={{ color: 'var(--text-secondary)' }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = 'var(--color-neutral-100)';
-              e.currentTarget.style.color = 'var(--color-primary-600)';
+              e.currentTarget.style.color = 'var(--text-primary)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
@@ -244,24 +244,24 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
               }}
             >
               <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: 'var(--border-default)', backgroundColor: 'var(--color-neutral-50)' }}>
-                <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Notifications</h3>
-                <button className="text-xs font-medium hover:underline" style={{ color: 'var(--color-primary-600)' }}>
-                  Mark all as read
+                <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Notifikasi</h3>
+                <button className="text-xs font-medium hover:underline" style={{ color: 'var(--text-primary)' }}>
+                  Tandai semua sudah dibaca
                 </button>
               </div>
               <div className="max-h-[300px] overflow-y-auto">
                 <div className="cursor-pointer border-b p-4 transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-50)]" style={{ borderColor: 'var(--border-default)' }}>
-                  <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Order #ORD-2023-001 completed</p>
-                  <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>2 hours ago</p>
+                  <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Pesanan #ORD-2023-001 telah selesai</p>
+                  <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>2 jam yang lalu</p>
                 </div>
-                <div className="cursor-pointer p-4 transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-50)]">
-                  <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>New design uploaded for Review</p>
-                  <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>5 hours ago</p>
+                <div className="cursor-pointer p-4 transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-50)]" style={{ borderColor: 'var(--border-default)' }}>
+                  <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Desain baru diunggah untuk Ditinjau</p>
+                  <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>5 jam yang lalu</p>
                 </div>
               </div>
               <div className="border-t p-3 text-center" style={{ borderColor: 'var(--border-default)' }}>
-                <Link to="/dashboard/notifications" onClick={() => setShowNotifications(false)} className="text-sm font-medium hover:underline" style={{ color: 'var(--color-primary-600)' }}>
-                  View All Notifications
+                <Link to="/dashboard/notifications" onClick={() => setShowNotifications(false)} className="text-sm font-medium hover:underline" style={{ color: 'var(--text-primary)' }}>
+                  Lihat Semua Notifikasi
                 </Link>
               </div>
             </div>
@@ -284,9 +284,9 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
             <div
               className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold"
               style={{
-                backgroundColor: 'var(--color-primary-100)',
-                border: '1px solid var(--color-primary-200)',
-                color: 'var(--color-primary-700)',
+                backgroundColor: 'var(--color-neutral-100)',
+                border: '1px solid var(--color-neutral-200)',
+                color: 'var(--text-primary)',
               }}
             >
               {(user?.fullName || user?.name || 'G').charAt(0).toUpperCase()}
@@ -314,8 +314,8 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
                 <span
                   className="inline-block rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
                   style={{
-                    backgroundColor: 'var(--color-primary-50)',
-                    color: 'var(--color-primary-700)',
+                    backgroundColor: 'var(--color-neutral-100)',
+                    color: 'var(--text-primary)',
                   }}
                 >
                   {role?.replace('_', ' ')}
@@ -329,7 +329,7 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
                 style={{ color: 'var(--text-primary)' }}
               >
                 <User size={16} weight="regular" style={{ color: 'var(--text-tertiary)' }} />
-                My Profile
+                Profil Saya
               </Link>
 
               {role === 'Owner' && (
@@ -340,7 +340,7 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
                   style={{ color: 'var(--text-primary)' }}
                 >
                   <Gear size={16} weight="regular" style={{ color: 'var(--text-tertiary)' }} />
-                  Settings
+                  Pengaturan
                 </Link>
               )}
 
@@ -351,7 +351,7 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
                 style={{ color: 'var(--text-primary)' }}
               >
                 <Question size={16} weight="regular" style={{ color: 'var(--text-tertiary)' }} />
-                Help & Support
+                Bantuan &amp; Dukungan
               </Link>
 
               <div className="my-1 h-px" style={{ backgroundColor: 'var(--border-default)' }}></div>
@@ -362,7 +362,7 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
                 style={{ color: 'var(--color-error-600)' }}
               >
                 <SignOut size={16} weight="regular" />
-                Sign Out
+                Keluar
               </button>
             </div>
           )}
