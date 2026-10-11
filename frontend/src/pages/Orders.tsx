@@ -69,7 +69,7 @@ export default function Orders() {
       }));
       setOrders(mappedOrders);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load orders');
+      setError(err.response?.data?.message || 'Gagal memuat data pesanan');
       setOrders([]);
     } finally {
       setLoading(false);
@@ -101,39 +101,37 @@ export default function Orders() {
   const handleExport = (exportOrders: Order[], filename: string) => {
     if (!exportOrders.length) return;
     const data = exportOrders.map(o => ({
-      OrderNumber: o.orderNumber,
-      Customer: o.customer?.name || 'Unknown',
+      NoPesanan: o.orderNumber,
+      Pelanggan: o.customer?.name || 'Tidak Diketahui',
       Status: o.status,
-      Priority: o.priority,
-      Items: o.items,
-      TotalAmount: o.totalAmount,
-      PaymentStatus: o.paymentStatus,
-      CreatedAt: o.createdAt
+      Prioritas: o.priority,
+      Item: o.items,
+      TotalTagihan: o.totalAmount,
+      StatusPembayaran: o.paymentStatus,
+      TanggalDibuat: o.createdAt
     }));
     exportToCSV(data, filename);
   };
 
   const handleBulkApprove = async () => {
     if (!selectedIds.length) return;
-    if (!window.confirm(`Are you sure you want to approve ${selectedIds.length} orders?`)) return;
+    if (!window.confirm(`Apakah Anda yakin ingin menyetujui ${selectedIds.length} pesanan terpilih?`)) return;
     
     setIsApproving(true);
     try {
       await Promise.all(selectedIds.map(id => 
         api.patch(`/api/v1/orders/${id}/status`, { status: 'Approved' })
       ));
-      success('Bulk Action Complete', `${selectedIds.length} orders have been approved.`);
+      success('Tindakan Massal Selesai', `${selectedIds.length} pesanan berhasil disetujui.`);
       setSelectedIds([]);
       if (role) fetchOrders(role);
     } catch (err: any) {
-      showError('Action Failed', 'Failed to bulk approve orders.');
+      showError('Tindakan Gagal', 'Gagal menyetujui pesanan secara massal.');
       console.error(err);
     } finally {
       setIsApproving(false);
     }
   };
-
-
 
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -157,16 +155,16 @@ export default function Orders() {
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Orders</h2>
-          <p className="text-sm text-slate-500 mt-1">Manage and track all customer orders</p>
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Pesanan</h2>
+          <p className="text-sm text-slate-500 mt-1">Kelola dan pantau seluruh pesanan pelanggan</p>
         </div>
         {(role === 'Owner' || role === 'Manager' || role === 'Sales') && (
           <button 
             onClick={handleOpenCreateNew}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl font-bold shadow-sm shadow-primary-200 hover:bg-primary-700 hover:-translate-y-0.5 transition-all w-full md:w-auto"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl font-bold shadow-sm hover:bg-slate-800 hover:-translate-y-0.5 transition-all w-full md:w-auto"
           >
             <Plus size={18} weight="regular" />
-            Create Order
+            Buat Pesanan
           </button>
         )}
       </div>
@@ -184,7 +182,7 @@ export default function Orders() {
             <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" weight="regular" />
             <input 
               type="text" 
-              placeholder="Search by order or customer..."
+              placeholder="Cari nomor pesanan atau pelanggan..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
@@ -199,15 +197,15 @@ export default function Orders() {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full sm:w-auto pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm appearance-none focus:bg-white focus:ring-2 focus:ring-primary-500 outline-none"
               >
-                <option value="All">All Status</option>
-                <option value="Pending_Approval">Pending Approval</option>
-                <option value="Approved">Approved</option>
-                <option value="In_Production">In Production</option>
-                <option value="Quality_Check">Quality Check</option>
-                <option value="Ready">Ready</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Delivered">Delivered</option>
-                <option value="Cancelled">Cancelled</option>
+                <option value="All">Semua Status</option>
+                <option value="Pending_Approval">Menunggu Persetujuan</option>
+                <option value="Approved">Disetujui</option>
+                <option value="In_Production">Dalam Produksi</option>
+                <option value="Quality_Check">Pemeriksaan Kualitas</option>
+                <option value="Ready">Siap</option>
+                <option value="Shipped">Dikirim</option>
+                <option value="Delivered">Terkirim</option>
+                <option value="Cancelled">Dibatalkan</option>
               </select>
             </div>
             
@@ -216,10 +214,10 @@ export default function Orders() {
               onChange={(e) => setPriorityFilter(e.target.value)}
               className="flex-1 sm:flex-none px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-primary-500 outline-none"
             >
-              <option value="All">All Priority</option>
+              <option value="All">Semua Prioritas</option>
               <option value="Normal">Normal</option>
-              <option value="High">High</option>
-              <option value="Urgent">Urgent</option>
+              <option value="High">Tinggi</option>
+              <option value="Urgent">Kilat</option>
             </select>
           </div>
         </div>
@@ -231,7 +229,7 @@ export default function Orders() {
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               className="px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-slate-50 focus:bg-white transition-all w-full sm:w-auto"
-              title="Start Date"
+              title="Tanggal Mulai"
             />
             <span className="text-slate-400 hidden sm:inline">-</span>
             <input 
@@ -239,15 +237,15 @@ export default function Orders() {
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               className="px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-slate-50 focus:bg-white transition-all w-full sm:w-auto"
-              title="End Date"
+              title="Tanggal Selesai"
             />
           </div>
           <button 
-            onClick={() => handleExport(filteredOrders, 'orders_export')}
+            onClick={() => handleExport(filteredOrders, 'ekspor_pesanan')}
             className="flex items-center justify-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors w-full sm:w-auto"
           >
             <Download size={16} weight="regular" />
-            <span className="hidden sm:inline">Export CSV</span>
+            <span className="hidden sm:inline">Ekspor CSV</span>
           </button>
         </div>
       </div>
@@ -264,23 +262,23 @@ export default function Orders() {
 
       {/* BULK ACTIONS BAR */}
       {selectedIds.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-3xl bg-primary-600 text-white rounded-xl shadow-xl shadow-primary-600/30 p-4 flex items-center justify-between z-50 animate-modal-in">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-3xl bg-black text-white rounded-xl shadow-xl p-4 flex items-center justify-between z-50 animate-modal-in">
           <div className="font-semibold px-2">
-            {selectedIds.length} order{selectedIds.length > 1 ? 's' : ''} selected
+            {selectedIds.length} pesanan dipilih
           </div>
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => handleExport(filteredOrders.filter(o => selectedIds.includes(o.id)), 'orders_selected_export')}
+              onClick={() => handleExport(filteredOrders.filter(o => selectedIds.includes(o.id)), 'ekspor_pesanan_terpilih')}
               className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
             >
-              Export Selected
+              Ekspor Pilihan
             </button>
             <button 
               onClick={handleBulkApprove}
               disabled={isApproving}
               className="px-4 py-2 bg-white text-primary-700 hover:bg-primary-50 rounded-lg text-sm font-bold shadow-sm transition-colors disabled:opacity-50"
             >
-              {isApproving ? 'Approving...' : 'Approve All'}
+              {isApproving ? 'Menyetujui...' : 'Setujui Semua'}
             </button>
           </div>
         </div>

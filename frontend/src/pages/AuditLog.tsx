@@ -76,8 +76,8 @@ export default function AuditLog() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Audit Log</h1>
-          <p className="text-sm text-slate-500 mt-1">Complete activity history across the platform</p>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Log Audit & Aktivitas</h1>
+          <p className="text-sm text-slate-500 mt-1">Riwayat aktivitas lengkap di seluruh platform</p>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm hover:bg-slate-50 transition-colors">
@@ -94,20 +94,20 @@ export default function AuditLog() {
       {/* STATISTICS BAR */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 grid grid-cols-2 md:grid-cols-4 gap-4 divide-x divide-slate-100">
         <div className="px-4 text-center md:text-left">
-          <p className="text-sm text-slate-500 font-medium">Total Events Today</p>
-          <p className="text-2xl font-extrabold text-slate-900 mt-1">142</p>
+          <p className="text-sm text-slate-500 font-medium">Total Aktivitas Hari Ini</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-1">{logs.length || 142}</p>
         </div>
         <div className="px-4 text-center md:text-left">
-          <p className="text-sm text-slate-500 font-medium">Active Users Today</p>
+          <p className="text-sm text-slate-500 font-medium">Pengguna Aktif Hari Ini</p>
           <p className="text-2xl font-extrabold text-slate-900 mt-1">8</p>
         </div>
         <div className="px-4 text-center md:text-left">
-          <p className="text-sm text-slate-500 font-medium">Most Active User</p>
+          <p className="text-sm text-slate-500 font-medium">Pengguna Paling Aktif</p>
           <p className="text-lg font-bold text-slate-900 mt-1 truncate">Admin User</p>
         </div>
         <div className="px-4 text-center md:text-left">
-          <p className="text-sm text-slate-500 font-medium">Last Activity</p>
-          <p className="text-sm font-mono font-bold text-slate-900 mt-2 truncate">Just now</p>
+          <p className="text-sm text-slate-500 font-medium">Aktivitas Terakhir</p>
+          <p className="text-sm font-mono font-bold text-slate-900 mt-2 truncate">Baru saja</p>
         </div>
       </div>
 
@@ -122,7 +122,7 @@ export default function AuditLog() {
               </div>
               <input
                 type="text"
-                placeholder="Search logs..."
+                placeholder="Cari log audit..."
                 className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
               />
             </div>
@@ -132,10 +132,10 @@ export default function AuditLog() {
                 <Calendar className="h-4 w-4 text-slate-400" weight="regular" />
               </div>
               <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
-                <option>Today</option>
-                <option>Last 7 Days</option>
-                <option>Last 30 Days</option>
-                <option>Custom Range</option>
+                <option>Hari Ini</option>
+                <option>7 Hari Terakhir</option>
+                <option>30 Hari Terakhir</option>
+                <option>Rentang Khusus</option>
               </select>
               <CaretDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" weight="regular" />
             </div>
@@ -145,11 +145,11 @@ export default function AuditLog() {
                 <Funnel className="h-4 w-4 text-slate-400" weight="regular" />
               </div>
               <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
-                <option value="">All Actions</option>
-                <option value="Created">Created</option>
-                <option value="Updated">Updated</option>
-                <option value="Deleted">Deleted</option>
-                <option value="Approved">Approved</option>
+                <option value="">Semua Tindakan</option>
+                <option value="Created">Dibuat</option>
+                <option value="Updated">Diperbarui</option>
+                <option value="Deleted">Dihapus</option>
+                <option value="Approved">Disetujui</option>
               </select>
               <CaretDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" weight="regular" />
             </div>
@@ -159,11 +159,11 @@ export default function AuditLog() {
                 <FileText className="h-4 w-4 text-slate-400" weight="regular" />
               </div>
               <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
-                <option value="">All Resources</option>
-                <option value="Order">Order</option>
-                <option value="Invoice">Invoice</option>
-                <option value="Customer">Customer</option>
-                <option value="Settings">Settings</option>
+                <option value="">Semua Sumber Daya</option>
+                <option value="Order">Pesanan</option>
+                <option value="Invoice">Faktur</option>
+                <option value="Customer">Pelanggan</option>
+                <option value="Settings">Pengaturan</option>
               </select>
               <CaretDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" weight="regular" />
             </div>
@@ -173,14 +173,14 @@ export default function AuditLog() {
             <button 
               onClick={() => setViewMode('table')}
               className={`p-1.5 rounded-md flex items-center justify-center transition-colors ${viewMode === 'table' ? 'bg-white shadow-sm text-primary-600' : 'text-slate-500 hover:text-slate-700'}`}
-              title="Table View"
+              title="Tampilan Tabel"
             >
               <List size={18} weight="regular" />
             </button>
             <button 
               onClick={() => setViewMode('timeline')}
               className={`p-1.5 rounded-md flex items-center justify-center transition-colors ${viewMode === 'timeline' ? 'bg-white shadow-sm text-primary-600' : 'text-slate-500 hover:text-slate-700'}`}
-              title="Timeline View"
+              title="Tampilan Linimasa"
             >
               <ChartLine size={18} weight="regular" />
             </button>
@@ -204,11 +204,11 @@ export default function AuditLog() {
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Timestamp</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">User</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Action</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Resource</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Description</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Waktu</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Pengguna</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Tindakan</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Sumber Daya</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Deskripsi</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-slate-100">
@@ -262,7 +262,7 @@ export default function AuditLog() {
                             
                             {log.changes && log.changes.length > 0 && (
                               <div>
-                                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Changes</h4>
+                                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Perubahan Nilai</h4>
                                 <div className="bg-white rounded-lg p-3 border border-slate-200 overflow-x-auto">
                                   <table className="min-w-full text-sm font-mono">
                                     <tbody>
@@ -295,7 +295,7 @@ export default function AuditLog() {
               {/* Sticky Date Header (Mocked) */}
               <div className="sticky top-0 z-10 -ml-12 mb-8 mt-[-16px]">
                 <span className="bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-slate-200 shadow-sm">
-                  Today (August 8, 2026)
+                  Hari Ini
                 </span>
               </div>
 
@@ -329,7 +329,7 @@ export default function AuditLog() {
                     <p className="text-sm text-slate-700 mb-2">{log.description}</p>
                     
                     <div className="flex items-center gap-2 text-xs">
-                      <span className="text-slate-500 font-medium">Resource:</span>
+                      <span className="text-slate-500 font-medium">Sumber Daya:</span>
                       <span className="font-bold text-slate-900">{log.resourceType}</span>
                       <a href="#" className="font-mono text-primary-600 font-bold hover:underline">{log.resourceId}</a>
                     </div>
@@ -339,7 +339,7 @@ export default function AuditLog() {
 
               <div className="sticky top-0 z-10 -ml-12 mb-8 mt-8">
                 <span className="bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-slate-200 shadow-sm">
-                  Yesterday (August 7, 2026)
+                  Kemarin
                 </span>
               </div>
 
@@ -373,7 +373,7 @@ export default function AuditLog() {
                     <p className="text-sm text-slate-700 mb-2">{log.description}</p>
                     
                     <div className="flex items-center gap-2 text-xs">
-                      <span className="text-slate-500 font-medium">Resource:</span>
+                      <span className="text-slate-500 font-medium">Sumber Daya:</span>
                       <span className="font-bold text-slate-900">{log.resourceType}</span>
                       <a href="#" className="font-mono text-primary-600 font-bold hover:underline">{log.resourceId}</a>
                     </div>
@@ -387,7 +387,7 @@ export default function AuditLog() {
         {/* PAGINATION */}
         <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex items-center justify-between">
           <p className="text-sm text-slate-500">
-            Showing <span className="font-bold text-slate-900">1</span> to <span className="font-bold text-slate-900">50</span> of <span className="font-bold text-slate-900">1,234</span> events
+            Menampilkan <span className="font-bold text-slate-900">1</span> sampai <span className="font-bold text-slate-900">{logs.length}</span> aktivitas
           </p>
           <div className="flex gap-2">
             <button className="p-2 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-slate-700 disabled:opacity-50 transition-colors">

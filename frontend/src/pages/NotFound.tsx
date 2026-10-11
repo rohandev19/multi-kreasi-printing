@@ -14,9 +14,9 @@ export const NotFound = () => {
           </div>
         </div>
         
-        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-3">Page Not Found</h1>
+        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-3">Halaman Tidak Ditemukan</h1>
         <p className="text-lg text-slate-500 font-medium mb-10">
-          We couldn't find the page you're looking for. It might have been moved or deleted.
+          Halaman yang Anda tuju tidak ditemukan. Halaman mungkin telah dipindahkan atau dihapus.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -25,15 +25,15 @@ export const NotFound = () => {
             className="flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
           >
             <ArrowLeft size={18} weight="regular" />
-            Go Back
+            Kembali
           </button>
           
           <Link 
             to={user ? '/dashboard' : '/'}
-            className="flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-700 transition-all shadow-md shadow-primary-600/20"
+            className="flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-black text-white font-bold hover:bg-slate-800 transition-all shadow-md"
           >
             <House size={18} weight="regular" />
-            {user ? 'Dashboard' : 'Homepage'}
+            {user ? 'Dashboard' : 'Beranda'}
           </Link>
         </div>
       </div>

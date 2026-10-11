@@ -57,12 +57,13 @@ export default function Dashboard() {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 11) return 'Selamat pagi';
+    if (hour < 15) return 'Selamat siang';
+    if (hour < 18) return 'Selamat sore';
+    return 'Selamat malam';
   };
 
-  const todayStr = new Intl.DateTimeFormat('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(new Date());
+  const todayStr = new Intl.DateTimeFormat('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(new Date());
 
   if (roleLoading || loading) {
     return (
@@ -88,10 +89,10 @@ export default function Dashboard() {
       .slice(0, 5)
       .map(o => ({
         id: o.orderNumber || 'N/A',
-        customer: o.customer?.companyName || 'Unknown',
-        items: `${o.items?.length || 0} items`,
+        customer: o.customer?.companyName || 'Tidak Diketahui',
+        items: `${o.items?.length || 0} item`,
         value: Number(o.totalAmount) || 0,
-        date: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '-'
+        date: o.createdAt ? new Date(o.createdAt).toLocaleDateString('id-ID') : '-'
       }));
 
     const activeJobs = dashboardJobs
@@ -99,20 +100,20 @@ export default function Dashboard() {
       .slice(0, 5)
       .map(j => ({
         id: j.jobNumber || (j.id ? j.id.slice(0,8) : 'N/A'),
-        machine: j.machineId || 'Assigned Machine',
+        machine: j.machineId || 'Mesin Ditugaskan',
         progress: j.status === 'In_Progress' ? 50 : 90,
-        status: j.status === 'QC' ? 'QC' : 'In Progress'
+        status: j.status === 'QC' ? 'Kontrol Kualitas' : 'Dalam Proses'
       }));
 
     const recentOrders = dashboardOrders
       .slice(0, 5)
       .map(o => ({
         id: o.orderNumber || 'N/A',
-        customer: o.customer?.companyName || 'Unknown',
+        customer: o.customer?.companyName || 'Tidak Diketahui',
         items: o.items?.length || 0,
-        status: o.status || 'Unknown',
+        status: o.status || 'Tidak Diketahui',
         total: Number(o.totalAmount) || 0,
-        date: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '-'
+        date: o.createdAt ? new Date(o.createdAt).toLocaleDateString('id-ID') : '-'
       }));
 
     return (
@@ -121,15 +122,15 @@ export default function Dashboard() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-              {getGreeting()}, {user?.name?.split(' ')[0] || user?.fullName?.split(' ')[0] || 'User'}
+              {getGreeting()}, {user?.name?.split(' ')[0] || user?.fullName?.split(' ')[0] || 'Pengguna'}
             </h1>
             <p className="text-slate-500 font-medium mt-1">{todayStr}</p>
           </div>
           <div className="flex items-center gap-3">
             <select className="border px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-primary-500 focus:border-primary-500" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', color: 'var(--text-primary)', borderRadius: 'var(--radius-md)' }}>
-              <option>This Week</option>
-              <option>This Month</option>
-              <option>Last 30 Days</option>
+              <option>Minggu Ini</option>
+              <option>Bulan Ini</option>
+              <option>30 Hari Terakhir</option>
             </select>
             <button 
               onClick={() => setIsCustomizing(true)}
@@ -137,7 +138,7 @@ export default function Dashboard() {
               style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', color: 'var(--text-secondary)', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-sm)' }}
             >
               <Faders size={16} weight="regular" />
-              Customize
+              Kustomisasi
             </button>
           </div>
         </div>
@@ -151,27 +152,27 @@ export default function Dashboard() {
         {/* Metric Cards Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard 
-            title="Total Revenue" 
+            title="Total Pendapatan" 
             value={metrics?.kpis?.totalRevenue?.value || 0} 
-            change={metrics?.kpis?.totalRevenue?.trend || { value: 0, isPositive: true, label: "vs last month" }} 
+            change={metrics?.kpis?.totalRevenue?.trend || { value: 0, isPositive: true, label: "vs bulan lalu" }} 
             icon="revenue" 
             color="emerald" 
           />
           <MetricCard 
-            title="Orders Today" 
+            title="Pesanan Hari Ini" 
             value={metrics?.summary?.ordersToday || 0} 
-            change={{ value: 0, isPositive: true, label: "vs yesterday" }} 
+            change={{ value: 0, isPositive: true, label: "vs kemarin" }} 
             icon="cart" 
             color="blue" 
           />
           <MetricCard 
-            title="Pending Approvals" 
+            title="Menunggu Persetujuan" 
             value={metrics?.summary?.pendingApprovals || 0} 
             icon="clock" 
             color="amber" 
           />
           <MetricCard 
-            title="Low Stock Alerts" 
+            title="Peringatan Stok Rendah" 
             value={metrics?.summary?.lowStockAlerts || 0} 
             icon="alert" 
             color="red" 
@@ -183,7 +184,7 @@ export default function Dashboard() {
           <div className="flex flex-col overflow-hidden border lg:col-span-2" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
             <div className="flex items-center justify-between border-b p-5" style={{ backgroundColor: 'var(--color-neutral-50)', borderColor: 'var(--border-default)' }}>
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Pending Approvals</h2>
+                <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Menunggu Persetujuan</h2>
                 <span className="rounded-full px-2.5 py-0.5 text-xs font-bold" style={{ backgroundColor: 'var(--color-warning-100)', color: 'var(--color-warning-700)' }}>{pendingApprovals.length}</span>
               </div>
             </div>
@@ -191,16 +192,16 @@ export default function Dashboard() {
               <table className="w-full text-sm text-left">
                 <thead className="text-xs uppercase" style={{ backgroundColor: 'var(--color-neutral-50)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-default)' }}>
                   <tr>
-                    <th className="px-5 py-3 font-semibold">Order #</th>
-                    <th className="px-5 py-3 font-semibold">Customer</th>
-                    <th className="px-5 py-3 font-semibold">Total Value</th>
-                    <th className="px-5 py-3 font-semibold text-right">Actions</th>
+                    <th className="px-5 py-3 font-semibold">No. Pesanan</th>
+                    <th className="px-5 py-3 font-semibold">Pelanggan</th>
+                    <th className="px-5 py-3 font-semibold">Nilai Total</th>
+                    <th className="px-5 py-3 font-semibold text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody style={{ color: 'var(--text-primary)' }}>
                   {pendingApprovals.map((order, idx) => (
                     <tr key={idx} className="transition-colors duration-150 hover:bg-[var(--color-neutral-50)]" style={{ borderBottom: '1px solid var(--border-default)' }}>
-                      <td className="px-5 py-3 font-medium" style={{ color: 'var(--color-primary-600)' }}>{order.id}</td>
+                      <td className="px-5 py-3 font-bold" style={{ color: '#000000' }}>{order.id}</td>
                       <td className="px-5 py-3">
                         <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>{order.customer}</p>
                         <p className="max-w-[200px] truncate text-xs" style={{ color: 'var(--text-secondary)' }}>{order.items}</p>
@@ -208,10 +209,10 @@ export default function Dashboard() {
                       <td className="px-5 py-3 font-medium" style={{ color: 'var(--text-primary)' }}>Rp {Number(order.value).toLocaleString('id-ID')}</td>
                       <td className="px-5 py-3">
                         <div className="flex justify-end gap-2">
-                          <button className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-150" title="Approve" style={{ backgroundColor: 'var(--color-success-50)', color: 'var(--color-success-600)' }}>
+                          <button className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-150" title="Setujui" style={{ backgroundColor: 'var(--color-success-50)', color: 'var(--color-success-600)' }}>
                             <Check size={16} weight="regular" />
                           </button>
-                          <button className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-150" title="Reject" style={{ backgroundColor: 'var(--color-error-50)', color: 'var(--color-error-600)' }}>
+                          <button className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-150" title="Tolak" style={{ backgroundColor: 'var(--color-error-50)', color: 'var(--color-error-600)' }}>
                             <X size={16} weight="regular" />
                           </button>
                         </div>
@@ -220,7 +221,7 @@ export default function Dashboard() {
                   ))}
                   {pendingApprovals.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-5 py-8 text-center" style={{ color: 'var(--text-secondary)' }}>No pending orders require approval.</td>
+                      <td colSpan={4} className="px-5 py-8 text-center" style={{ color: 'var(--text-secondary)' }}>Tidak ada pesanan yang memerlukan persetujuan.</td>
                     </tr>
                   )}
                 </tbody>
@@ -231,20 +232,20 @@ export default function Dashboard() {
           {/* Production Status */}
           <div className="flex flex-col overflow-hidden border" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
             <div className="border-b p-5" style={{ backgroundColor: 'var(--color-neutral-50)', borderColor: 'var(--border-default)' }}>
-              <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Active Production Jobs</h2>
+              <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Pekerjaan Produksi Aktif</h2>
             </div>
             <div className="p-5 space-y-5 flex-1">
               {activeJobs.map((job, idx) => (
                 <div key={idx}>
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{job.id} <span className="ml-1 font-normal" style={{ color: 'var(--text-secondary)' }}>· {job.machine}</span></span>
-                    <span className="text-xs font-bold" style={{ color: 'var(--color-primary-600)' }}>{job.progress}%</span>
+                    <span className="text-xs font-bold" style={{ color: '#000000' }}>{job.progress}%</span>
                   </div>
                   <div className="mb-2 h-2 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--color-neutral-100)' }}>
-                    <div className="h-full rounded-full transition-all duration-300" style={{ width: `${job.progress}%`, backgroundColor: 'var(--color-primary-600)' }}></div>
+                    <div className="h-full rounded-full transition-all duration-300" style={{ width: `${job.progress}%`, backgroundColor: '#000000' }}></div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: job.status === 'QC' ? 'var(--color-primary-100)' : 'var(--color-info-100)', color: job.status === 'QC' ? 'var(--color-primary-700)' : 'var(--color-info-700)' }}>
+                    <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--color-neutral-100)', color: '#000000' }}>
                       {job.status}
                     </span>
                   </div>
@@ -257,7 +258,7 @@ export default function Dashboard() {
         {/* Revenue Chart & Recent Orders */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="border p-5" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
-            <h2 className="mb-4 text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Revenue Trend (Last 7 Days)</h2>
+            <h2 className="mb-4 text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Tren Pendapatan (7 Hari Terakhir)</h2>
             <div className="h-64 w-full">
               {metrics?.revenue?.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -271,21 +272,21 @@ export default function Dashboard() {
                       allowDecimals={false}
                       domain={[0, (dataMax: number) => (dataMax === 0 ? 1000000 : dataMax)]}
                       tickFormatter={(v) => {
-                        if (v >= 1000000) return `Rp ${(v/1000000).toFixed(1)}M`;
-                        if (v >= 1000) return `Rp ${(v/1000).toFixed(0)}K`;
+                        if (v >= 1000000) return `Rp ${(v/1000000).toFixed(1)}Jt`;
+                        if (v >= 1000) return `Rp ${(v/1000).toFixed(0)}Rb`;
                         return `Rp ${v}`;
                       }} 
                     />
                     <Tooltip 
-                      formatter={(value: any) => [`Rp ${Number(value).toLocaleString('id-ID')}`, 'Revenue']} 
+                      formatter={(value: any) => [`Rp ${Number(value).toLocaleString('id-ID')}`, 'Pendapatan']} 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                     />
-                    <Line type="monotone" dataKey="total" stroke="var(--color-primary-600)" strokeWidth={2} dot={{r: 3, fill: 'var(--color-primary-600)', strokeWidth: 2, stroke: 'var(--bg-elevated)'}} activeDot={{r: 5}} />
+                    <Line type="monotone" dataKey="total" stroke="#000000" strokeWidth={2} dot={{r: 3, fill: '#000000', strokeWidth: 2, stroke: 'var(--bg-elevated)'}} activeDot={{r: 5}} />
                   </LineChart>
                 </ResponsiveContainer>
               ) : (
                 <div className="flex h-full w-full items-center justify-center rounded-lg border-2 border-dashed" style={{ backgroundColor: 'var(--color-neutral-50)', borderColor: 'var(--border-default)', color: 'var(--text-secondary)' }}>
-                  Insufficient data for chart
+                  Data belum mencukupi untuk grafik
                 </div>
               )}
             </div>
@@ -293,15 +294,15 @@ export default function Dashboard() {
 
           <div className="flex flex-col overflow-hidden border" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
             <div className="flex items-center justify-between border-b p-5" style={{ backgroundColor: 'var(--color-neutral-50)', borderColor: 'var(--border-default)' }}>
-              <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Recent Orders</h2>
-              <Link to="/dashboard/orders" className="text-sm font-semibold" style={{ color: 'var(--color-primary-600)' }}>View All &rarr;</Link>
+              <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Pesanan Terbaru</h2>
+              <Link to="/dashboard/orders" className="text-sm font-bold hover:underline" style={{ color: '#000000' }}>Lihat Semua &rarr;</Link>
             </div>
             <div className="overflow-x-auto flex-1">
               <table className="w-full text-sm text-left">
                 <thead className="text-xs uppercase" style={{ backgroundColor: 'var(--color-neutral-50)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-default)' }}>
                   <tr>
-                    <th className="px-5 py-3 font-semibold">Order</th>
-                    <th className="px-5 py-3 font-semibold">Customer</th>
+                    <th className="px-5 py-3 font-semibold">Pesanan</th>
+                    <th className="px-5 py-3 font-semibold">Pelanggan</th>
                     <th className="px-5 py-3 font-semibold">Status</th>
                     <th className="px-5 py-3 font-semibold text-right">Total</th>
                   </tr>
@@ -347,7 +348,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-slate-800">Dashboard</h2>
+        <h2 className="text-2xl font-bold text-slate-800">Dasbor</h2>
       </div>
       
       {error && (
@@ -375,7 +376,7 @@ export default function Dashboard() {
         
         {(!metrics?.widgets || metrics.widgets.length === 0) && !loading && (
           <div className="col-span-full bg-white p-8 rounded-xl border border-dashed border-slate-300 text-center text-slate-500">
-            No dashboard widgets available for your role.
+            Tidak ada widget dasbor yang tersedia untuk peran Anda.
           </div>
         )}
       </div>

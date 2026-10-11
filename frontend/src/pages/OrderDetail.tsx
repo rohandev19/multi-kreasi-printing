@@ -72,11 +72,25 @@ export const OrderDetail = () => {
   if (!order) {
     return (
       <div className="p-8 text-center">
-        <h2 className="text-2xl font-bold text-slate-800">Order not found</h2>
-        <Link to="/dashboard/orders" className="text-primary-600 hover:underline mt-4 inline-block">Back to Orders</Link>
+        <h2 className="text-2xl font-bold text-slate-800">Pesanan tidak ditemukan</h2>
+        <Link to="/dashboard/orders" className="text-primary-600 hover:underline mt-4 inline-block">Kembali ke Pesanan</Link>
       </div>
     );
   }
+
+  const getStatusLabel = (status: string) => {
+    const map: Record<string, string> = {
+      Pending: 'Menunggu',
+      Pending_Approval: 'Menunggu Persetujuan',
+      Approved: 'Disetujui',
+      In_Production: 'Dalam Produksi',
+      Quality_Check: 'Pemeriksaan Kualitas',
+      Completed: 'Selesai',
+      Delivered: 'Terkirim',
+      Cancelled: 'Dibatalkan',
+    };
+    return map[status] || status.replace(/_/g, ' ');
+  };
 
   return (
     <div className="space-y-6 animate-fade-in max-w-6xl mx-auto">
@@ -89,10 +103,10 @@ export const OrderDetail = () => {
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
             {order.orderNumber}
             <span className={`px-3 py-1 text-xs font-bold rounded-full ${getStatusColor(order.status)}`}>
-              {order.status.replace(/_/g, ' ')}
+              {getStatusLabel(order.status)}
             </span>
           </h1>
-          <p className="text-sm text-slate-500 font-medium mt-1">Placed on {formatDate(order.createdAt)}</p>
+          <p className="text-sm text-slate-500 font-medium mt-1">Dibuat pada {formatDate(order.createdAt)}</p>
         </div>
       </div>
 
@@ -102,7 +116,7 @@ export const OrderDetail = () => {
           {/* Timeline / Progress */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-              <Clock className="text-slate-400" size={20} weight="regular" /> Order Progress
+              <Clock className="text-slate-400" size={20} weight="regular" /> Progres Pesanan
             </h3>
             <div className="relative">
               <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-100"></div>
@@ -112,7 +126,7 @@ export const OrderDetail = () => {
                     <CheckCircle size={16} weight="regular" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900">Order Placed</h4>
+                    <h4 className="font-bold text-slate-900">Pesanan Dibuat</h4>
                     <p className="text-sm text-slate-500">{formatDate(order.createdAt)}</p>
                   </div>
                 </div>
@@ -121,7 +135,7 @@ export const OrderDetail = () => {
                     <CheckCircle size={16} weight="regular" />
                   </div>
                   <div>
-                    <h4 className={`font-bold ${['Approved', 'In_Production', 'Completed'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Order Approved</h4>
+                    <h4 className={`font-bold ${['Approved', 'In_Production', 'Completed'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Pesanan Disetujui</h4>
                   </div>
                 </div>
                 <div className="flex gap-4">
@@ -129,7 +143,7 @@ export const OrderDetail = () => {
                     <CheckCircle size={16} weight="regular" />
                   </div>
                   <div>
-                    <h4 className={`font-bold ${['In_Production', 'Completed'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>In Production</h4>
+                    <h4 className={`font-bold ${['In_Production', 'Completed'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Dalam Produksi</h4>
                   </div>
                 </div>
                 <div className="flex gap-4">
@@ -137,7 +151,7 @@ export const OrderDetail = () => {
                     <CheckCircle size={16} weight="regular" />
                   </div>
                   <div>
-                    <h4 className={`font-bold ${['Completed'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Completed & Delivered</h4>
+                    <h4 className={`font-bold ${['Completed'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Selesai & Terkirim</h4>
                   </div>
                 </div>
               </div>
@@ -148,7 +162,7 @@ export const OrderDetail = () => {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div className="p-6 border-b border-slate-100">
               <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <Package className="text-slate-400" size={20} weight="regular" /> Order Items
+                <Package className="text-slate-400" size={20} weight="regular" /> Item Pesanan
               </h3>
             </div>
             <div className="divide-y divide-slate-100">
@@ -158,17 +172,17 @@ export const OrderDetail = () => {
                     <Package size={24} weight="regular" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-bold text-slate-900">{item.product?.name || 'Custom Product'}</h4>
-                    <p className="text-sm text-slate-500 mt-1">{(item as any).specifications ? JSON.stringify((item as any).specifications) : 'Standard spec'}</p>
+                    <h4 className="font-bold text-slate-900">{item.product?.name || 'Produk Kustom'}</h4>
+                    <p className="text-sm text-slate-500 mt-1">{(item as any).specifications ? JSON.stringify((item as any).specifications) : 'Spesifikasi standar'}</p>
                     <div className="flex justify-between items-center mt-4">
-                      <span className="text-sm font-medium text-slate-600">Qty: {item.quantity}</span>
+                      <span className="text-sm font-medium text-slate-600">Jumlah: {item.quantity}</span>
                       <span className="font-bold text-slate-900 tabular-nums">{formatCurrency(item.unitPrice * item.quantity)}</span>
                     </div>
                   </div>
                 </div>
               ))}
               {(!order.items || order.items.length === 0) && (
-                <div className="p-6 text-center text-slate-500 font-medium">No items detailed in this order.</div>
+                <div className="p-6 text-center text-slate-500 font-medium">Tidak ada rincian item dalam pesanan ini.</div>
               )}
             </div>
           </div>
@@ -178,18 +192,18 @@ export const OrderDetail = () => {
         <div className="space-y-6">
           {/* Customer Info */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Customer Details</h3>
+            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Detail Pelanggan</h3>
             <div className="space-y-3">
               <div>
-                <p className="text-xs text-slate-500 font-medium mb-0.5">Name</p>
-                <p className="font-bold text-slate-900">{order.customer?.name || 'Unknown'}</p>
+                <p className="text-xs text-slate-500 font-medium mb-0.5">Nama</p>
+                <p className="font-bold text-slate-900">{order.customer?.name || 'Tidak Diketahui'}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 font-medium mb-0.5">Email</p>
-                <p className="font-medium text-slate-900">{order.customer?.email || 'Unknown'}</p>
+                <p className="font-medium text-slate-900">{order.customer?.email || 'Tidak Diketahui'}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-500 font-medium mb-0.5">Phone</p>
+                <p className="text-xs text-slate-500 font-medium mb-0.5">Telepon</p>
                 <p className="font-medium text-slate-900">{order.customer?.phone || '-'}</p>
               </div>
             </div>
@@ -198,7 +212,7 @@ export const OrderDetail = () => {
           {/* Payment Summary */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <CreditCard size={16} weight="regular" /> Payment Summary
+              <CreditCard size={16} weight="regular" /> Ringkasan Pembayaran
             </h3>
             <div className="space-y-3 mb-6">
               <div className="flex justify-between text-sm">
@@ -206,32 +220,32 @@ export const OrderDetail = () => {
                 <span className="font-medium text-slate-900 tabular-nums">{formatCurrency(order.totalAmount)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Tax</span>
+                <span className="text-slate-500">Pajak (PPN)</span>
                 <span className="font-medium text-slate-900 tabular-nums">{formatCurrency(0)}</span>
               </div>
               <div className="pt-3 border-t border-slate-100 flex justify-between">
                 <span className="font-bold text-slate-900">Total</span>
-                <span className="font-black text-primary-600 tabular-nums text-lg">{formatCurrency(order.totalAmount)}</span>
+                <span className="font-black text-slate-900 tabular-nums text-lg">{formatCurrency(order.totalAmount)}</span>
               </div>
             </div>
             <div className={`p-3 rounded-xl flex justify-between items-center ${order.paymentStatus === 'Paid' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-amber-50 text-amber-700 border border-amber-100'}`}>
-              <span className="text-sm font-bold">Status</span>
-              <span className="font-bold uppercase tracking-wide text-xs">{order.paymentStatus}</span>
+              <span className="text-sm font-bold">Status Pembayaran</span>
+              <span className="font-bold uppercase tracking-wide text-xs">{order.paymentStatus === 'Paid' ? 'Lunas' : order.paymentStatus || 'Menunggu'}</span>
             </div>
           </div>
           
           {/* Connected Documents */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <FileText size={16} weight="regular" /> Connected Documents
+              <FileText size={16} weight="regular" /> Dokumen Terkait
             </h3>
             <div className="space-y-3">
               <Link to="/dashboard/design" className="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors group">
-                <span className="text-sm font-medium text-slate-700 group-hover:text-primary-600">Design File</span>
+                <span className="text-sm font-medium text-slate-700 group-hover:text-primary-600">Berkas Desain</span>
                 <ArrowLeft size={16} className="rotate-135 text-slate-400" weight="regular" />
               </Link>
               <Link to="/dashboard/invoices" className="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors group">
-                <span className="text-sm font-medium text-slate-700 group-hover:text-primary-600">Invoice</span>
+                <span className="text-sm font-medium text-slate-700 group-hover:text-primary-600">Faktur / Tagihan</span>
                 <ArrowLeft size={16} className="rotate-135 text-slate-400" weight="regular" />
               </Link>
             </div>

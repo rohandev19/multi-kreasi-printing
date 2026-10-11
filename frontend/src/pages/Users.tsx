@@ -79,10 +79,10 @@ export default function Users() {
     setIsDeleting(true);
     try {
       await api.delete(`/api/v1/users/${deleteId}`);
-      success('User Deleted', 'The user account has been deleted.');
+      success('Pengguna Dihapus', 'Akun pengguna telah berhasil dihapus.');
       fetchUsers();
     } catch (err: any) {
-      toastError('Failed to delete', err.response?.data?.message || 'Please try again.');
+      toastError('Gagal Menghapus', err.response?.data?.message || 'Silakan coba lagi.');
     } finally {
       setIsDeleting(false);
       setDeleteId(null);
@@ -106,8 +106,8 @@ export default function Users() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-slate-900">Access Denied</h3>
-        <p className="text-slate-500 mt-1">You do not have permission to view staff management.</p>
+        <h3 className="text-lg font-medium text-slate-900">Akses Ditolak</h3>
+        <p className="text-slate-500 mt-1">Anda tidak memiliki izin untuk mengelola staf dan pengguna.</p>
       </div>
     );
   }
@@ -116,15 +116,15 @@ export default function Users() {
     <div className="max-w-6xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Staff & Users</h1>
-          <p className="text-slate-500 text-sm mt-1">Manage system access and roles for your team</p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Staf & Pengguna</h1>
+          <p className="text-slate-500 text-sm mt-1">Kelola akses sistem dan hak peran pengguna tim Anda</p>
         </div>
         <button
           onClick={handleAddUser}
-          className="inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl font-medium transition-all shadow-sm shadow-primary-200"
+          className="inline-flex items-center justify-center gap-2 bg-black hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl font-medium transition-all shadow-sm"
         >
           <Plus size={18} weight="regular" />
-          Add User
+          Tambah Pengguna
         </button>
       </div>
 
@@ -134,7 +134,7 @@ export default function Users() {
             <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} weight="regular" />
             <input
               type="text"
-              placeholder="Search by name or email..."
+              placeholder="Cari berdasarkan nama atau email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 text-sm transition-all"
@@ -170,10 +170,10 @@ export default function Users() {
         isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}
         onConfirm={confirmDelete}
-        title="Delete User Account"
-        message="Are you sure you want to delete this user? They will lose access immediately. This action cannot be undone."
-        confirmLabel="Yes, Delete User"
-        cancelLabel="Cancel"
+        title="Hapus Akun Pengguna"
+        message="Apakah Anda yakin ingin menghapus pengguna ini? Akses mereka akan segera dicabut. Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Ya, Hapus Pengguna"
+        cancelLabel="Batal"
         variant="danger"
         loading={isDeleting}
       />

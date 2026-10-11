@@ -17,7 +17,7 @@ export default function Profile() {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      showError('New passwords do not match');
+      showError('Kata sandi baru tidak cocok');
       return;
     }
     
@@ -27,13 +27,13 @@ export default function Profile() {
         currentPassword,
         newPassword
       });
-      success('Password changed successfully!');
+      success('Kata sandi berhasil diubah!');
       setIsPasswordModalOpen(false);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (error: any) {
-      showError(error.response?.data?.message || 'Failed to change password');
+      showError(error.response?.data?.message || 'Gagal mengubah kata sandi');
     } finally {
       setIsSubmitting(false);
     }
@@ -50,9 +50,9 @@ export default function Profile() {
             </div>
           </div>
           <div className="text-center md:text-left flex-1">
-            <h1 className="text-2xl font-bold text-slate-800">{user?.fullName || user?.name || 'Guest User'}</h1>
+            <h1 className="text-2xl font-bold text-slate-800">{user?.fullName || user?.name || 'Pengguna Tamu'}</h1>
             <p className="text-slate-500 flex items-center justify-center md:justify-start gap-2">
-              <Envelope className="w-4 h-4" weight="regular" /> {user?.email || 'No email provided'}
+              <Envelope className="w-4 h-4" weight="regular" /> {user?.email || 'Email tidak tersedia'}
             </p>
           </div>
           <div>
@@ -65,31 +65,31 @@ export default function Profile() {
 
         <div className="px-8 py-6 border-t border-slate-100">
           <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-            <User className="w-5 h-5 text-slate-400" weight="regular" /> Account Details
+            <User className="w-5 h-5 text-slate-400" weight="regular" /> Detail Akun
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-slate-500 mb-1">Full Name</label>
+              <label className="block text-sm font-medium text-slate-500 mb-1">Nama Lengkap</label>
               <div className="text-slate-800 font-medium p-3 bg-slate-50 rounded-lg border border-slate-100">
                 {user?.fullName || user?.name || 'N/A'}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-500 mb-1">Email Address</label>
+              <label className="block text-sm font-medium text-slate-500 mb-1">Alamat Email</label>
               <div className="text-slate-800 font-medium p-3 bg-slate-50 rounded-lg border border-slate-100">
                 {user?.email || 'N/A'}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-500 mb-1">Account Role</label>
+              <label className="block text-sm font-medium text-slate-500 mb-1">Peran Akun</label>
               <div className="text-slate-800 font-medium p-3 bg-slate-50 rounded-lg border border-slate-100 capitalize">
                 {roleName.replace('_', ' ')}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-500 mb-1">Account Status</label>
+              <label className="block text-sm font-medium text-slate-500 mb-1">Status Akun</label>
               <div className="text-emerald-700 font-medium p-3 bg-emerald-50 rounded-lg border border-emerald-100">
-                Active
+                Aktif
               </div>
             </div>
           </div>
@@ -97,18 +97,18 @@ export default function Profile() {
 
         <div className="px-8 py-6 border-t border-slate-100">
           <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-            <Key className="w-5 h-5 text-slate-400" weight="regular" /> Security
+            <Key className="w-5 h-5 text-slate-400" weight="regular" /> Keamanan
           </h2>
           <div className="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
             <div>
-              <h3 className="font-medium text-slate-800">Password</h3>
-              <p className="text-sm text-slate-500">Last changed recently</p>
+              <h3 className="font-medium text-slate-800">Kata Sandi</h3>
+              <p className="text-sm text-slate-500">Terakhir diubah baru-baru ini</p>
             </div>
             <button 
               onClick={() => setIsPasswordModalOpen(true)}
               className="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
             >
-              Change Password
+              Ubah Kata Sandi
             </button>
           </div>
         </div>
@@ -119,7 +119,7 @@ export default function Profile() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden">
             <div className="flex justify-between items-center p-6 border-b border-slate-100">
-              <h3 className="font-bold text-lg text-slate-800">Change Password</h3>
+              <h3 className="font-bold text-lg text-slate-800">Ubah Kata Sandi</h3>
               <button 
                 onClick={() => setIsPasswordModalOpen(false)}
                 className="text-slate-400 hover:text-slate-600 transition-colors"
@@ -130,18 +130,18 @@ export default function Profile() {
             
             <form onSubmit={handleChangePassword} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Current Password</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Kata Sandi Saat Ini</label>
                 <input
                   type="password"
                   required
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
-                  placeholder="Enter current password"
+                  placeholder="Masukkan kata sandi saat ini"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">New Password</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Kata Sandi Baru</label>
                 <input
                   type="password"
                   required
@@ -149,18 +149,18 @@ export default function Profile() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
-                  placeholder="At least 8 characters"
+                  placeholder="Minimal 8 karakter"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Confirm New Password</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Konfirmasi Kata Sandi Baru</label>
                 <input
                   type="password"
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
-                  placeholder="Must match new password"
+                  placeholder="Harus cocok dengan kata sandi baru"
                 />
               </div>
               
@@ -170,14 +170,14 @@ export default function Profile() {
                   onClick={() => setIsPasswordModalOpen(false)}
                   className="flex-1 px-4 py-2 border border-slate-200 text-slate-600 rounded-lg font-medium hover:bg-slate-50 transition-colors"
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-black text-white rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Saving...' : 'Save Password'}
+                  {isSubmitting ? 'Menyimpan...' : 'Simpan Kata Sandi'}
                 </button>
               </div>
             </form>

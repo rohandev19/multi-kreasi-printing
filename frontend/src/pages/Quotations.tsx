@@ -28,17 +28,17 @@ export default function Quotations() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Draft':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600"><PencilSimple size={12} weight="regular" /> Draft</span>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600"><PencilSimple size={12} weight="regular" /> Draf</span>;
       case 'Sent':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-100 text-primary-700"><PaperPlaneTilt size={12} weight="regular" /> Sent</span>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-100 text-primary-700"><PaperPlaneTilt size={12} weight="regular" /> Terkirim</span>;
       case 'Viewed':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-100 text-primary-700"><Eye size={12} weight="regular" /> Viewed</span>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-100 text-primary-700"><Eye size={12} weight="regular" /> Dilihat</span>;
       case 'Accepted':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><CheckCircle size={12} weight="regular" /> Accepted</span>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><CheckCircle size={12} weight="regular" /> Diterima</span>;
       case 'Declined':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700"><XCircle size={12} weight="regular" /> Declined</span>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700"><XCircle size={12} weight="regular" /> Ditolak</span>;
       case 'Expired':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500"><Clock size={12} weight="regular" /> Expired</span>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500"><Clock size={12} weight="regular" /> Kedaluwarsa</span>;
       default:
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-800">{status}</span>;
     }
@@ -63,12 +63,12 @@ export default function Quotations() {
   };
 
   const getItemsSummary = (items: { product?: { name?: string }; quantity?: number }[]) => {
-    if (!items || items.length === 0) return 'No items';
+    if (!items || items.length === 0) return 'Tidak ada item';
     const firstItem = items[0];
     const name = firstItem.product?.name || 'Item';
     const qty = firstItem.quantity || 0;
     if (items.length > 1) {
-      return `${name} × ${qty}, +${items.length - 1} more`;
+      return `${name} × ${qty}, +${items.length - 1} lainnya`;
     }
     return `${name} × ${qty}`;
   };
@@ -80,16 +80,16 @@ export default function Quotations() {
   );
 
   const handleConvertToOrder = async (id: string) => {
-    if (!window.confirm('Are you sure you want to convert this quotation into a real order?')) return;
+    if (!window.confirm('Apakah Anda yakin ingin mengubah penawaran ini menjadi pesanan produksi?')) return;
     setIsConverting(true);
     try {
       const res = await api.post(`/api/v1/quotations/${id}/convert`);
-      success('Converted', 'Quotation successfully converted to an order');
+      success('Berhasil Diubah', 'Penawaran berhasil diubah menjadi pesanan produksi.');
       fetchQuotations(); // Refresh list
       // Optionally navigate to the new order
       navigate(`/dashboard/orders/${res.data.id}`);
     } catch (err: any) {
-      showError('Conversion Failed', err.response?.data?.message || 'Could not convert quotation');
+      showError('Gagal Mengubah', err.response?.data?.message || 'Gagal mengubah penawaran menjadi pesanan');
     } finally {
       setIsConverting(false);
     }
@@ -101,18 +101,18 @@ export default function Quotations() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Quotations</h1>
-          <p className="text-sm text-slate-500 mt-1">Create and manage price quotations for clients</p>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Penawaran Harga</h1>
+          <p className="text-sm text-slate-500 mt-1">Buat dan kelola penawaran harga untuk klien</p>
         </div>
         <button
           onClick={() => {
             setSelectedQuotation(null);
             setIsCreateModalOpen(true);
           }}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-600 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-primary-700 focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all active:scale-95"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-black text-white text-sm font-bold rounded-xl shadow-sm hover:bg-slate-800 focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-all active:scale-95"
         >
           <Plus size={18} weight="regular" />
-          Create Quotation
+          Buat Penawaran
         </button>
       </div>
 
@@ -123,7 +123,7 @@ export default function Quotations() {
             <FileText size={24} weight="regular" />
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500">Pending Quotations</p>
+            <p className="text-sm font-medium text-slate-500">Penawaran Menunggu</p>
             <h3 className="text-2xl font-extrabold text-slate-900">24</h3>
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function Quotations() {
             <CheckCircle size={24} weight="regular" />
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500">Accepted This Month</p>
+            <p className="text-sm font-medium text-slate-500">Diterima Bulan Ini</p>
             <div className="flex items-baseline gap-2">
               <h3 className="text-2xl font-extrabold text-slate-900">18</h3>
               <span className="text-sm font-bold text-emerald-600">{formatCurrency(145000000)}</span>
@@ -144,7 +144,7 @@ export default function Quotations() {
             <TrendUp size={24} weight="regular" />
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500">Conversion Rate</p>
+            <p className="text-sm font-medium text-slate-500">Tingkat Konversi</p>
             <h3 className="text-2xl font-extrabold text-slate-900">68%</h3>
           </div>
         </div>
@@ -161,7 +161,7 @@ export default function Quotations() {
               </div>
               <input
                 type="text"
-                placeholder="Search quotations..."
+                placeholder="Cari penawaran..."
                 className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
               />
             </div>
@@ -171,13 +171,13 @@ export default function Quotations() {
                 <Funnel className="h-4 w-4 text-slate-400" weight="regular" />
               </div>
               <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
-                <option value="">All Statuses</option>
-                <option value="Draft">Draft</option>
-                <option value="Sent">Sent</option>
-                <option value="Viewed">Viewed</option>
-                <option value="Accepted">Accepted</option>
-                <option value="Declined">Declined</option>
-                <option value="Expired">Expired</option>
+                <option value="">Semua Status</option>
+                <option value="Draft">Draf</option>
+                <option value="Sent">Terkirim</option>
+                <option value="Viewed">Dilihat</option>
+                <option value="Accepted">Diterima</option>
+                <option value="Declined">Ditolak</option>
+                <option value="Expired">Kedaluwarsa</option>
               </select>
               <CaretDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" weight="regular" />
             </div>
@@ -187,9 +187,9 @@ export default function Quotations() {
                 <Calendar className="h-4 w-4 text-slate-400" weight="regular" />
               </div>
               <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
-                <option>All Time</option>
-                <option>This Month</option>
-                <option>Last 30 Days</option>
+                <option>Semua Waktu</option>
+                <option>Bulan Ini</option>
+                <option>30 Hari Terakhir</option>
               </select>
               <CaretDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" weight="regular" />
             </div>
@@ -199,7 +199,7 @@ export default function Quotations() {
                 <Users className="h-4 w-4 text-slate-400" weight="regular" />
               </div>
               <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
-                <option value="">All Sales Staff</option>
+                <option value="">Semua Staf Penjualan</option>
                 <option value="John">John Sales</option>
                 <option value="Sarah">Sarah Manager</option>
               </select>
@@ -215,13 +215,13 @@ export default function Quotations() {
           <table className="min-w-full divide-y divide-slate-200">
             <thead className="bg-slate-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Quotation #</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Customer</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:table-cell">Items Summary</th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Total Amount</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Valid Until</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">No. Penawaran</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Pelanggan</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:table-cell">Ringkasan Item</th>
+                <th scope="col" className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Total Nilai</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Berlaku Sampai</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+                <th scope="col" className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Aksi</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-slate-100">
@@ -233,7 +233,7 @@ export default function Quotations() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-bold text-slate-900">{quo.customer?.companyName || 'Unknown'}</div>
+                    <div className="text-sm font-bold text-slate-900">{quo.customer?.companyName || 'Tidak Diketahui'}</div>
                     <div className="text-xs text-slate-500">{quo.customer?.email}</div>
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-600 hidden md:table-cell truncate max-w-[200px]" title={getItemsSummary(quo.items)}>
@@ -246,7 +246,7 @@ export default function Quotations() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <span className={`text-slate-600`}>
-                      {quo.validUntil ? new Date(quo.validUntil).toLocaleDateString() : '-'}
+                      {quo.validUntil ? new Date(quo.validUntil).toLocaleDateString('id-ID') : '-'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -257,7 +257,7 @@ export default function Quotations() {
                       <button 
                         onClick={() => { setSelectedQuotation(quo.id); setIsDetailModalOpen(true); }}
                         className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                        title="View Quotation"
+                        title="Lihat Penawaran"
                       >
                         <Eye size={18} weight="regular" />
                       </button>
@@ -266,20 +266,20 @@ export default function Quotations() {
                         <>
                           <button 
                             className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                            title="Edit"
+                            title="Ubah Penawaran"
                             onClick={() => { setSelectedQuotation(quo.id); setIsCreateModalOpen(true); }}
                           >
                             <PencilSimple size={18} weight="regular" />
                           </button>
                           <button 
                             className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                            title="Send to Customer"
+                            title="Kirim ke Pelanggan"
                           >
                             <PaperPlaneTilt size={18} weight="regular" />
                           </button>
                           <button 
                             className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Delete"
+                            title="Hapus"
                             onClick={() => setIsDeleteModalOpen(true)}
                           >
                             <Trash size={18} weight="regular" />
@@ -292,7 +292,7 @@ export default function Quotations() {
                           onClick={() => handleConvertToOrder(quo.id)}
                           disabled={isConverting}
                           className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors disabled:opacity-50"
-                          title="Convert to Order"
+                          title="Ubah Menjadi Pesanan"
                         >
                           <ShoppingBag size={18} weight="regular" />
                         </button>
@@ -300,14 +300,14 @@ export default function Quotations() {
 
                       <button 
                         className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                        title="Download PDF"
+                        title="Unduh PDF"
                       >
                         <Download size={18} weight="regular" />
                       </button>
 
                       <button 
                         className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                        title="Duplicate"
+                        title="Duplikat"
                       >
                         <Copy size={18} weight="regular" />
                       </button>
@@ -322,7 +322,7 @@ export default function Quotations() {
         {/* PAGINATION */}
         <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex items-center justify-between">
           <p className="text-sm text-slate-500">
-            Showing <span className="font-bold text-slate-900">{quotations.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-bold text-slate-900">{Math.min(currentPage * itemsPerPage, quotations.length)}</span> of <span className="font-bold text-slate-900">{quotations.length}</span> quotations
+            Menampilkan <span className="font-bold text-slate-900">{quotations.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> sampai <span className="font-bold text-slate-900">{Math.min(currentPage * itemsPerPage, quotations.length)}</span> dari <span className="font-bold text-slate-900">{quotations.length}</span> penawaran
           </p>
           <div className="flex gap-2">
             <button 
@@ -357,10 +357,10 @@ export default function Quotations() {
 
       <ConfirmDialog
         isOpen={isDeleteModalOpen}
-        title="Delete Quotation"
-        message="Are you sure you want to delete this draft quotation? This action cannot be undone."
-        confirmLabel="Yes, Delete"
-        cancelLabel="Cancel"
+        title="Hapus Penawaran"
+        message="Apakah Anda yakin ingin menghapus draf penawaran ini? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Ya, Hapus"
+        cancelLabel="Batal"
         onConfirm={() => setIsDeleteModalOpen(false)}
         onClose={() => setIsDeleteModalOpen(false)}
         variant="danger"

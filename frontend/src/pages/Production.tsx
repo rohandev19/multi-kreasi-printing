@@ -78,34 +78,38 @@ export default function Production() {
   const handleStartJob = async (id: string) => {
     try {
       await api.patch(`/api/v1/production-jobs/${id}/start`);
-      success('Job Started', 'The production job has been marked as in-progress.');
+      success('Pekerjaan Dimulai', 'Pekerjaan produksi telah ditandai sedang berjalan.');
       fetchJobs();
     } catch (err: any) {
-      toastError('Failed to start job', err.response?.data?.message || 'Please try again.');
+      toastError('Gagal memulai pekerjaan', err.response?.data?.message || 'Silakan coba lagi.');
     }
   };
 
   const handleMarkQC = async (id: string) => {
-    // QC is purely a UI visual step before completion in this flow, or could trigger a rework if it fails.
-    // For now, we update local state to reflect it's ready for final QC sign-off.
-    success('QC Required', 'Sent to quality check.');
+    success('Perlu QC', 'Pekerjaan dikirim ke pemeriksaan kualitas.');
     setJobs(prev => prev.map(j => j.id === id ? { ...j, status: 'Quality Check', progress: 90 } : j));
   };
 
   const handleCompleteJob = async (id: string) => {
     try {
       await api.patch(`/api/v1/production-jobs/${id}/complete`, { passedQualityCheck: true });
-      success('Job Completed', 'The production job has been completed.');
+      success('Pekerjaan Selesai', 'Pekerjaan produksi telah berhasil diselesaikan.');
       fetchJobs();
     } catch (err: any) {
-      toastError('Failed to complete job', err.response?.data?.message || 'Please try again.');
+      toastError('Gagal menyelesaikan pekerjaan', err.response?.data?.message || 'Silakan coba lagi.');
     }
   };
 
   const confirmDelete = async () => {
-    // Production jobs shouldn't be hard deleted in a real system. 
-    // Usually they are cancelled, but we'll mock this for the UI.
     setDeleteJobId(null);
+  };
+
+  const statusDisplayMap: Record<string, string> = {
+    'All': 'Semua',
+    'Queued': 'Dalam Antrean',
+    'In Progress': 'Sedang Diproses',
+    'Quality Check': 'Pemeriksaan Kualitas',
+    'Completed': 'Selesai'
   };
 
   const statuses = ['All', 'Queued', 'In Progress', 'Quality Check', 'Completed'];
@@ -126,19 +130,19 @@ export default function Production() {
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Production Queue</h2>
-          <p className="text-sm text-slate-500 mt-1">{jobs.length} jobs currently tracked</p>
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Antrean Produksi</h2>
+          <p className="text-sm text-slate-500 mt-1">{jobs.length} pekerjaan sedang dipantau</p>
         </div>
         <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
           <button 
             onClick={() => setViewMode('table')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'table' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'table' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
           >
-            <ListBullets size={16} weight="regular" /> Table
+            <ListBullets size={16} weight="regular" /> Tabel
           </button>
           <button 
             onClick={() => setViewMode('kanban')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'kanban' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'kanban' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
           >
             <Columns size={16} weight="regular" /> Kanban
           </button>
@@ -161,10 +165,10 @@ export default function Production() {
               <button 
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${isActive ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${isActive ? 'bg-black text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}
               >
-                {status}
-                <span className={`px-2 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-primary-500 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                {statusDisplayMap[status] || status}
+                <span className={`px-2 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-500'}`}>
                   {count}
                 </span>
               </button>
@@ -179,9 +183,9 @@ export default function Production() {
           <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
             <Factory className="w-8 h-8 text-slate-300" weight="regular" />
           </div>
-          <h3 className="text-lg font-bold text-slate-900 mb-1">Production queue is empty</h3>
+          <h3 className="text-lg font-bold text-slate-900 mb-1">Antrean produksi kosong</h3>
           <p className="text-sm text-slate-500 max-w-sm">
-            All caught up! No jobs waiting for production at the moment.
+            Semua selesai! Tidak ada pekerjaan produksi yang tertunda saat ini.
           </p>
         </div>
       )}
@@ -193,18 +197,18 @@ export default function Production() {
             <table className="w-full text-left text-sm whitespace-nowrap">
               <thead className="bg-slate-50/50 border-b border-slate-200 text-slate-500 font-semibold">
                 <tr>
-                  <th className="px-5 py-4">Job ID</th>
-                  <th className="px-5 py-4">Product</th>
-                  <th className="px-5 py-4">Machine & Assignee</th>
-                  <th className="px-5 py-4">Status & Progress</th>
-                  <th className="px-5 py-4 text-right">Actions</th>
+                  <th className="px-5 py-4">ID Pekerjaan</th>
+                  <th className="px-5 py-4">Produk</th>
+                  <th className="px-5 py-4">Mesin & Petugas</th>
+                  <th className="px-5 py-4">Status & Progres</th>
+                  <th className="px-5 py-4 text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredJobs.map(job => (
-                  <tr key={job.id} className={`hover:bg-slate-50/80 transition-colors ${job.status === 'In Progress' ? 'border-l-4 border-primary-600' : 'border-l-4 border-transparent'}`}>
+                  <tr key={job.id} className={`hover:bg-slate-50/80 transition-colors ${job.status === 'In Progress' ? 'border-l-4 border-slate-900' : 'border-l-4 border-transparent'}`}>
                     <td className="px-5 py-4">
-                      <div className="font-bold text-primary-600">{job.id}</div>
+                      <div className="font-bold text-slate-900">{job.id}</div>
                       <div className="text-xs text-slate-500">{job.orderNumber}</div>
                     </td>
                     <td className="px-5 py-4 font-semibold text-slate-800">
@@ -223,20 +227,20 @@ export default function Production() {
                             'bg-emerald-100 text-emerald-700'
                           }
                         `}>
-                          {job.status === 'In Progress' && <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse"></span>}
-                          {job.status}
+                          {job.status === 'In Progress' && <span className="w-1.5 h-1.5 rounded-full bg-slate-900 animate-pulse"></span>}
+                          {statusDisplayMap[job.status] || job.status}
                         </span>
                         <span className="text-xs font-bold text-slate-500">{job.progress}%</span>
                       </div>
                       <div className="h-2 rounded-full bg-slate-100 overflow-hidden w-48">
-                        <div className={`h-full rounded-full transition-all duration-500 ${job.progress === 100 ? 'bg-emerald-500' : 'bg-primary-500'}`} style={{ width: `${job.progress}%` }}></div>
+                        <div className={`h-full rounded-full transition-all duration-500 ${job.progress === 100 ? 'bg-emerald-500' : 'bg-black'}`} style={{ width: `${job.progress}%` }}></div>
                       </div>
                     </td>
                     <td className="px-5 py-4 text-right">
                       <div className="flex justify-end gap-2">
                         {job.status === 'Queued' && (
-                          <button onClick={() => handleStartJob(job.id)} className="flex items-center gap-1 px-3 py-1.5 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg text-xs font-bold transition-colors">
-                            <Play size={14} weight="regular" /> Start
+                          <button onClick={() => handleStartJob(job.id)} className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 text-slate-900 hover:bg-slate-200 rounded-lg text-xs font-bold transition-colors">
+                            <Play size={14} weight="regular" /> Mulai
                           </button>
                         )}
                         {job.status === 'In Progress' && (
@@ -246,13 +250,13 @@ export default function Production() {
                         )}
                         {job.status === 'Quality Check' && (
                           <button onClick={() => handleCompleteJob(job.id)} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg text-xs font-bold transition-colors">
-                            <CheckCircle size={14} weight="regular" /> Done
+                            <CheckCircle size={14} weight="regular" /> Selesai
                           </button>
                         )}
-                        <button onClick={() => setReassignJobId(job.id)} className="p-1.5 border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600 rounded-lg transition-colors" title="Reassign">
+                        <button onClick={() => setReassignJobId(job.id)} className="p-1.5 border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600 rounded-lg transition-colors" title="Tugaskan Ulang">
                           <Gear size={16} weight="regular" />
                         </button>
-                        <button onClick={() => setReportIssueJobId(job.id)} className="p-1.5 border border-red-200 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Report Issue">
+                        <button onClick={() => setReportIssueJobId(job.id)} className="p-1.5 border border-red-200 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Laporkan Kendala">
                           <Warning size={16} weight="regular" />
                         </button>
                       </div>
@@ -273,7 +277,7 @@ export default function Production() {
             return (
               <div key={status} className="flex-none w-80 bg-slate-50/80 rounded-2xl p-4 min-h-[400px] border border-slate-200 snap-center">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-bold text-slate-800">{status}</h3>
+                  <h3 className="font-bold text-slate-800">{statusDisplayMap[status] || status}</h3>
                   <span className="bg-slate-200 text-slate-600 text-xs font-bold px-2 py-0.5 rounded-full">{colJobs.length}</span>
                 </div>
                 
@@ -282,7 +286,7 @@ export default function Production() {
                     <div key={job.id} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow cursor-grab group">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <div className="text-xs font-bold text-primary-600">{job.id}</div>
+                          <div className="text-xs font-bold text-slate-900">{job.id}</div>
                           <div className="font-semibold text-slate-800 mt-0.5">{job.product}</div>
                         </div>
                         <DotsSixVertical size={16} className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" weight="regular" />
@@ -297,25 +301,25 @@ export default function Production() {
                           job.priority === 'Urgent' ? 'text-red-500' :
                           job.priority === 'High' ? 'text-amber-500' : 'text-slate-400'
                         }`}>
-                          {job.priority} Priority
+                          {job.priority === 'Urgent' ? 'Prioritas Kilat' : job.priority === 'High' ? 'Prioritas Tinggi' : 'Prioritas Normal'}
                         </span>
                         <span className="text-[10px] font-bold text-slate-400">{job.progress}%</span>
                       </div>
                       <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                        <div className={`h-full rounded-full ${job.progress === 100 ? 'bg-emerald-500' : 'bg-primary-500'}`} style={{ width: `${job.progress}%` }}></div>
+                        <div className={`h-full rounded-full ${job.progress === 100 ? 'bg-emerald-500' : 'bg-black'}`} style={{ width: `${job.progress}%` }}></div>
                       </div>
                       
                       <div className="mt-4 flex gap-2">
                         {job.status === 'Queued' && (
-                          <button onClick={() => handleStartJob(job.id)} className="flex-1 py-1.5 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg text-xs font-bold transition-colors">Start</button>
+                          <button onClick={() => handleStartJob(job.id)} className="flex-1 py-1.5 bg-black text-white hover:bg-slate-800 rounded-lg text-xs font-bold transition-colors">Mulai</button>
                         )}
                         {job.status === 'In Progress' && (
-                          <button onClick={() => handleMarkQC(job.id)} className="flex-1 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-bold transition-colors">Send QC</button>
+                          <button onClick={() => handleMarkQC(job.id)} className="flex-1 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-bold transition-colors">Kirim QC</button>
                         )}
                         {job.status === 'Quality Check' && (
-                          <button onClick={() => handleCompleteJob(job.id)} className="flex-1 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg text-xs font-bold transition-colors">Done</button>
+                          <button onClick={() => handleCompleteJob(job.id)} className="flex-1 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg text-xs font-bold transition-colors">Selesai</button>
                         )}
-                        <button onClick={() => setReportIssueJobId(job.id)} className="px-2 py-1.5 border border-red-200 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                        <button onClick={() => setReportIssueJobId(job.id)} className="px-2 py-1.5 border border-red-200 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Laporkan Kendala">
                           <Warning size={14} weight="regular" />
                         </button>
                       </div>
@@ -323,7 +327,7 @@ export default function Production() {
                   ))}
                   {colJobs.length === 0 && (
                     <div className="text-center p-4 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 text-sm font-medium">
-                      Drop jobs here
+                      Tarik pekerjaan ke sini
                     </div>
                   )}
                 </div>
@@ -350,9 +354,9 @@ export default function Production() {
 
       <ConfirmDialog
         isOpen={!!deleteJobId}
-        title="Delete Production Job"
-        message="Are you sure you want to delete this job? This action cannot be undone."
-        confirmLabel="Delete"
+        title="Hapus Pekerjaan Produksi"
+        message="Apakah Anda yakin ingin menghapus pekerjaan ini? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Hapus"
         variant="danger"
         onClose={() => setDeleteJobId(null)}
         onConfirm={confirmDelete}

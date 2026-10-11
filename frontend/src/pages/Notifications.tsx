@@ -20,24 +20,24 @@ export const Notifications = () => {
       setNotifications([
         {
           id: '1',
-          title: 'New Order Received',
-          message: 'Order #ORD-2026-0089 has been placed and is waiting for approval.',
+          title: 'Pesanan Baru Diterima',
+          message: 'Pesanan #ORD-2026-0089 telah dibuat dan menunggu persetujuan.',
           type: 'order',
           isRead: false,
           createdAt: new Date().toISOString()
         },
         {
           id: '2',
-          title: 'Payment Confirmed',
-          message: 'Payment for Invoice #INV-2026-0045 has been verified.',
+          title: 'Pembayaran Dikonfirmasi',
+          message: 'Pembayaran untuk Faktur #INV-2026-0045 telah berhasil diverifikasi.',
           type: 'payment',
           isRead: false,
           createdAt: new Date(Date.now() - 3600000).toISOString()
         },
         {
           id: '3',
-          title: 'Low Material Stock',
-          message: 'Premium Glossy Paper A4 is running low (below 500 sheets).',
+          title: 'Stok Bahan Menipis',
+          message: 'Kertas Art Paper Glossy A4 menipis (tersisa di bawah 500 lembar).',
           type: 'alert',
           isRead: true,
           createdAt: new Date(Date.now() - 86400000).toISOString()
@@ -73,11 +73,11 @@ export const Notifications = () => {
     const now = new Date();
     const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
     
-    if (diff < 60) return 'Just now';
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    if (diff < 172800) return 'Yesterday';
-    return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(date);
+    if (diff < 60) return 'Baru saja';
+    if (diff < 3600) return `${Math.floor(diff / 60)} mnt lalu`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} jam lalu`;
+    if (diff < 172800) return 'Kemarin';
+    return new Intl.DateTimeFormat('id-ID', { month: 'short', day: 'numeric' }).format(date);
   };
 
   if (loading) {
@@ -97,8 +97,8 @@ export const Notifications = () => {
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Notifications</h1>
-          <p className="text-sm text-slate-500 mt-1 font-medium">You have {unreadCount} unread messages</p>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Notifikasi</h1>
+          <p className="text-sm text-slate-500 mt-1 font-medium">Anda memiliki {unreadCount} pesan belum dibaca</p>
         </div>
         
         {unreadCount > 0 && (
@@ -107,7 +107,7 @@ export const Notifications = () => {
             className="flex items-center gap-2 text-sm font-bold text-primary-600 hover:text-primary-800 transition-colors px-4 py-2 rounded-lg hover:bg-primary-50"
           >
             <Check size={16} strokeWidth={2.5} weight="regular" />
-            Mark all as read
+            Tandai semua telah dibaca
           </button>
         )}
       </div>
@@ -117,8 +117,8 @@ export const Notifications = () => {
           <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 mb-4">
             <Bell size={32} weight="regular" />
           </div>
-          <h3 className="text-lg font-bold text-slate-900 mb-2">You're all caught up!</h3>
-          <p className="text-slate-500 font-medium">No new notifications right now.</p>
+          <h3 className="text-lg font-bold text-slate-900 mb-2">Semua sudah terbaca!</h3>
+          <p className="text-slate-500 font-medium">Tidak ada notifikasi baru saat ini.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -155,7 +155,7 @@ export const Notifications = () => {
                     <button 
                       onClick={() => markAsRead(notification.id)}
                       className="p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                      title="Mark as read"
+                      title="Tandai sudah dibaca"
                     >
                       <Check size={16} weight="regular" />
                     </button>
@@ -163,7 +163,7 @@ export const Notifications = () => {
                   <button 
                     onClick={() => deleteNotification(notification.id)}
                     className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Delete"
+                    title="Hapus"
                   >
                     <Trash size={16} weight="regular" />
                   </button>

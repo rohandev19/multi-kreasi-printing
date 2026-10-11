@@ -69,9 +69,9 @@ export default function Invoices() {
   const handleSendReminder = async (id: string) => {
     try {
       await api.post(`/api/v1/invoices/${id}/reminder`);
-      success('Reminder Sent', 'Payment reminder has been sent to the customer.');
+      success('Pengingat Terkirim', 'Pengingat pembayaran telah dikirim ke pelanggan.');
     } catch (err: any) {
-      toastError('Failed to send reminder', err.response?.data?.message || 'Please try again.');
+      toastError('Gagal Mengirim Pengingat', err.response?.data?.message || 'Silakan coba lagi.');
     }
   };
 
@@ -84,10 +84,10 @@ export default function Invoices() {
     setIsDeleting(true);
     try {
       await api.delete(`/api/v1/invoices/${deleteInvoiceId}`);
-      success('Invoice Deleted', 'The invoice has been deleted.');
+      success('Faktur Dihapus', 'Faktur telah berhasil dihapus.');
       fetchInvoices();
     } catch (err: any) {
-      toastError('Failed to delete', err.response?.data?.message || 'Please try again.');
+      toastError('Gagal Menghapus', err.response?.data?.message || 'Silakan coba lagi.');
     } finally {
       setIsDeleting(false);
       setDeleteInvoiceId(null);
@@ -109,14 +109,14 @@ export default function Invoices() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-800">
-          {isCustomer ? 'My Invoices' : 'Invoices'}
+          {isCustomer ? 'Faktur Saya' : 'Daftar Faktur'}
         </h2>
         {canManage && (
           <button 
             onClick={() => setIsCreateOpen(true)}
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
+            className="px-4 py-2 bg-black text-white rounded-lg font-medium hover:bg-slate-800 transition-colors"
           >
-            Create Invoice
+            Buat Faktur
           </button>
         )}
       </div>
@@ -160,9 +160,9 @@ export default function Invoices() {
 
       <ConfirmDialog
         isOpen={!!deleteInvoiceId}
-        title="Delete Invoice"
-        message="Are you sure you want to delete this invoice? This action cannot be undone."
-        confirmLabel="Delete"
+        title="Hapus Faktur"
+        message="Apakah Anda yakin ingin menghapus faktur ini? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Hapus"
         variant="danger"
         loading={isDeleting}
         onClose={() => setDeleteInvoiceId(null)}

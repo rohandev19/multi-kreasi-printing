@@ -80,10 +80,10 @@ export default function Customers() {
     setIsDeleting(true);
     try {
       await api.delete(`/api/v1/customers/${deleteId}`);
-      success('Customer Deleted', 'The customer has been deleted.');
+      success('Pelanggan Dihapus', 'Data pelanggan telah berhasil dihapus.');
       fetchCustomers();
     } catch (err: any) {
-      toastError('Failed to delete', err.response?.data?.message || 'Please try again.');
+      toastError('Gagal Menghapus', err.response?.data?.message || 'Silakan coba lagi.');
     } finally {
       setIsDeleting(false);
       setDeleteId(null);
@@ -108,13 +108,13 @@ export default function Customers() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-800">Customers</h2>
+        <h2 className="text-2xl font-bold text-slate-800">Data Pelanggan</h2>
         {canManage && (
           <button 
             onClick={handleAddCustomer}
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
+            className="px-4 py-2 bg-black text-white rounded-lg font-medium hover:bg-slate-800 transition-colors"
           >
-            Add Customer
+            Tambah Pelanggan
           </button>
         )}
       </div>
@@ -157,9 +157,9 @@ export default function Customers() {
 
       <ConfirmDialog
         isOpen={!!deleteId}
-        title="Delete Customer"
-        message="Are you sure you want to delete this customer? This action cannot be undone."
-        confirmLabel="Delete"
+        title="Hapus Pelanggan"
+        message="Apakah Anda yakin ingin menghapus pelanggan ini? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Hapus"
         variant="danger"
         loading={isDeleting}
         onClose={() => setDeleteId(null)}

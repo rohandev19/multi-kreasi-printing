@@ -7,16 +7,16 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 const bankSchema = z.object({
-  name: z.string().min(1, 'Bank name is required'),
-  accountName: z.string().min(1, 'Account name is required'),
-  accountNo: z.string().min(1, 'Account number is required'),
-  branch: z.string().min(1, 'Branch is required'),
+  name: z.string().min(1, 'Nama bank wajib diisi'),
+  accountName: z.string().min(1, 'Nama pemilik rekening wajib diisi'),
+  accountNo: z.string().min(1, 'Nomor rekening wajib diisi'),
+  branch: z.string().min(1, 'Kantor cabang wajib diisi'),
 });
 
 type BankFormValues = z.infer<typeof bankSchema>;
 
 export default function Settings() {
-  const [activeTab, setActiveTab] = useState('General');
+  const [activeTab, setActiveTab] = useState('Umum');
   const [isDirty, setIsDirty] = useState(false);
   const { success } = useToast();
 
@@ -24,7 +24,7 @@ export default function Settings() {
     general: {
       appName: 'Multi Kreasi Printing',
       timezone: 'Asia/Jakarta',
-      language: 'English',
+      language: 'Bahasa Indonesia',
       currency: 'IDR',
       dateFormat: 'DD/MM/YYYY',
       taxRate: 11,
@@ -119,7 +119,7 @@ export default function Settings() {
       });
       setSettings(dirtyState);
       setIsDirty(false);
-      success('Settings saved', 'Your configuration has been updated successfully.');
+      success('Pengaturan disimpan', 'Konfigurasi Anda telah berhasil diperbarui.');
     } catch (err: any) {
       console.error(err);
     }
@@ -175,12 +175,12 @@ export default function Settings() {
   };
 
   const tabs = [
-    { id: 'General', icon: Gear },
-    { id: 'Business Info', icon: BuildingOffice },
-    { id: 'Payment', icon: CreditCard },
-    { id: 'Notifications', icon: Bell },
+    { id: 'Umum', icon: Gear },
+    { id: 'Informasi Bisnis', icon: BuildingOffice },
+    { id: 'Pembayaran', icon: CreditCard },
+    { id: 'Notifikasi', icon: Bell },
     { id: 'Branding', icon: Palette },
-    { id: 'Integrations', icon: LinkSimple },
+    { id: 'Integrasi', icon: LinkSimple },
   ];
 
   const handleAddBank = (data: BankFormValues) => {
@@ -197,7 +197,7 @@ export default function Settings() {
   };
 
   const handleDeleteBank = (bankId: number) => {
-    if (!window.confirm('Are you sure you want to remove this bank account?')) return;
+    if (!window.confirm('Apakah Anda yakin ingin menghapus rekening bank ini?')) return;
     setDirtyState(prev => ({
       ...prev,
       payment: {
@@ -240,16 +240,16 @@ export default function Settings() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Settings</h1>
-          <p className="text-sm text-slate-500 mt-1">Manage your application configuration</p>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Pengaturan</h1>
+          <p className="text-sm text-slate-500 mt-1">Kelola konfigurasi dan preferensi aplikasi Anda</p>
         </div>
         <button
           onClick={handleSave}
           disabled={!isDirty}
-          className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-primary-700 focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-6 py-2.5 bg-black text-white text-sm font-bold rounded-xl shadow-sm hover:bg-slate-800 focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <FloppyDisk size={18} weight="regular" />
-          Save All Changes
+          Simpan Semua Perubahan
         </button>
       </div>
 
@@ -290,13 +290,13 @@ export default function Settings() {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sm:p-8">
             
             {/* GENERAL SETTINGS */}
-            {activeTab === 'General' && (
+            {activeTab === 'Umum' && (
               <div className="space-y-6 animate-fade-in">
-                <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">General Settings</h2>
+                <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Pengaturan Umum</h2>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Application Name</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Nama Aplikasi</label>
                     <input 
                       type="text" 
                       value={dirtyState.general.appName} 
@@ -305,29 +305,31 @@ export default function Settings() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Timezone</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Zona Waktu</label>
                     <select 
                       value={dirtyState.general.timezone}
                       onChange={(e) => handleGeneralChange('timezone', e.target.value)}
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                     >
-                      <option value="Asia/Jakarta">Asia/Jakarta</option>
+                      <option value="Asia/Jakarta">Asia/Jakarta (WIB)</option>
+                      <option value="Asia/Makassar">Asia/Makassar (WITA)</option>
+                      <option value="Asia/Jayapura">Asia/Jayapura (WIT)</option>
                       <option value="UTC">UTC</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Default Language</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Bahasa Utama</label>
                     <select 
                       value={dirtyState.general.language}
                       onChange={(e) => handleGeneralChange('language', e.target.value)}
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
                     >
-                      <option value="English">English</option>
                       <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                      <option value="English">English</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Currency</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Mata Uang</label>
                     <input 
                       type="text" 
                       value={dirtyState.general.currency} 
@@ -336,7 +338,7 @@ export default function Settings() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Date Format</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Format Tanggal</label>
                     <select 
                       value={dirtyState.general.dateFormat}
                       onChange={(e) => handleGeneralChange('dateFormat', e.target.value)}
@@ -348,7 +350,7 @@ export default function Settings() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Tax Rate (%)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Tarif Pajak (PPN %)</label>
                     <input 
                       type="number" 
                       value={dirtyState.general.taxRate} 
@@ -357,17 +359,17 @@ export default function Settings() {
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Auto-approve orders under (IDR)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Persetujuan Otomatis Pesanan di Bawah (IDR)</label>
                     <input 
                       type="number" 
                       value={dirtyState.general.autoApproveLimit} 
                       onChange={(e) => handleGeneralChange('autoApproveLimit', parseInt(e.target.value))}
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm font-mono"
                     />
-                    <p className="mt-1 text-xs text-slate-500">Orders below this value will skip manual approval. Currently: {formatCurrency(dirtyState.general.autoApproveLimit)}</p>
+                    <p className="mt-1 text-xs text-slate-500">Pesanan di bawah nominal ini akan disetujui otomatis tanpa peninjauan manual. Saat ini: {formatCurrency(dirtyState.general.autoApproveLimit)}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Order Number Prefix</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Awalan Nomor Pesanan</label>
                     <input 
                       type="text" 
                       value={dirtyState.general.orderPrefix} 
@@ -376,7 +378,7 @@ export default function Settings() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Invoice Number Prefix</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Awalan Nomor Faktur</label>
                     <input 
                       type="text" 
                       value={dirtyState.general.invoicePrefix} 
@@ -389,29 +391,29 @@ export default function Settings() {
             )}
 
             {/* BUSINESS INFORMATION */}
-            {activeTab === 'Business Info' && (
+            {activeTab === 'Informasi Bisnis' && (
               <div className="space-y-6 animate-fade-in">
-                <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Business Information</h2>
+                <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Informasi Bisnis & Perusahaan</h2>
                 
                 <div className="flex gap-6 items-start mb-6">
                   <div className="w-32 h-32 shrink-0 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-slate-50 overflow-hidden relative group cursor-pointer hover:border-primary-400">
                     <span className="text-2xl font-black text-primary-600">MK</span>
                     <div className="absolute inset-0 bg-slate-900/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="text-white text-xs font-bold">Change Logo</span>
+                      <span className="text-white text-xs font-bold">Ganti Logo</span>
                     </div>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-bold text-slate-700 mb-1">Company Logo</h3>
-                    <p className="text-xs text-slate-500 mb-3">Accepted: PNG, SVG, JPG (Max 2MB)</p>
+                    <h3 className="text-sm font-bold text-slate-700 mb-1">Logo Perusahaan</h3>
+                    <p className="text-xs text-slate-500 mb-3">Format diterima: PNG, SVG, JPG (Maks 2MB)</p>
                     <button className="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm hover:bg-slate-50">
-                      Upload File
+                      Unggah Berkas
                     </button>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Company Legal Name</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Nama Legal Perusahaan</label>
                     <input 
                       type="text" 
                       value={dirtyState.business.companyName} 
@@ -420,7 +422,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">NPWP (Tax ID)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">NPWP (Nomor Pokok Wajib Pajak)</label>
                     <input 
                       type="text" 
                       value={dirtyState.business.npwp} 
@@ -429,7 +431,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Address</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Alamat Lengkap</label>
                     <textarea 
                       value={dirtyState.business.address} 
                       onChange={(e) => handleBusinessChange('address', e.target.value)}
@@ -438,7 +440,7 @@ export default function Settings() {
                     ></textarea>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">City</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Kota / Kabupaten</label>
                     <input 
                       type="text" 
                       value={dirtyState.business.city} 
@@ -447,7 +449,7 @@ export default function Settings() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Province</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Provinsi</label>
                     <input 
                       type="text" 
                       value={dirtyState.business.province} 
@@ -456,7 +458,7 @@ export default function Settings() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Postal Code</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Kode Pos</label>
                     <input 
                       type="text" 
                       value={dirtyState.business.postalCode} 
@@ -465,7 +467,7 @@ export default function Settings() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Phone</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Nomor Telepon</label>
                     <input 
                       type="tel" 
                       value={dirtyState.business.phone} 
@@ -474,7 +476,7 @@ export default function Settings() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Alamat Email</label>
                     <input 
                       type="email" 
                       value={dirtyState.business.email} 
@@ -483,7 +485,7 @@ export default function Settings() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Website</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Situs Web</label>
                     <input 
                       type="url" 
                       value={dirtyState.business.website} 
@@ -496,22 +498,22 @@ export default function Settings() {
             )}
 
             {/* PAYMENT SETTINGS */}
-            {activeTab === 'Payment' && (
+            {activeTab === 'Pembayaran' && (
               <div className="space-y-8 animate-fade-in">
                 
                 <div>
-                  <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Bank Accounts</h2>
+                  <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Rekening Bank</h2>
                   <div className="space-y-4">
                     {dirtyState.payment.banks.map(bank => (
                       <div key={bank.id} className="border border-slate-200 rounded-xl p-4 flex justify-between items-center bg-slate-50">
                         <div>
                           <p className="font-bold text-slate-900">{bank.name}</p>
                           <p className="text-sm text-slate-600">{bank.accountNo} a/n {bank.accountName}</p>
-                          <p className="text-xs text-slate-500 mt-0.5">Branch: {bank.branch}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">Cabang: {bank.branch}</p>
                         </div>
                         <div className="flex gap-2">
-                          <button className="p-2 text-slate-400 hover:text-primary-600 bg-white rounded-lg border border-slate-200 shadow-sm">
-                            Edit
+                          <button className="p-2 text-slate-400 hover:text-slate-900 bg-white rounded-lg border border-slate-200 shadow-sm text-xs font-semibold">
+                            Ubah
                           </button>
                           <button onClick={() => handleDeleteBank(bank.id)} className="p-2 text-slate-400 hover:text-red-600 bg-white rounded-lg border border-slate-200 shadow-sm">
                             <Trash size={16} weight="regular" />
@@ -519,40 +521,40 @@ export default function Settings() {
                         </div>
                       </div>
                     ))}
-                    <button onClick={() => setIsBankModalOpen(true)} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-xl text-primary-600 font-bold hover:bg-primary-50 transition-colors flex justify-center items-center gap-2">
+                    <button onClick={() => setIsBankModalOpen(true)} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-xl text-slate-700 font-bold hover:bg-slate-50 transition-colors flex justify-center items-center gap-2">
                       <Plus size={18} weight="regular" />
-                      Add Bank Account
+                      Tambah Rekening Bank
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Payment Terms</h2>
+                  <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Ketentuan Pembayaran</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Payment Deadline (hours)</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Batas Waktu Pembayaran (jam)</label>
                       <input 
                         type="number" 
                         value={dirtyState.payment.deadlineHours} 
                         onChange={(e) => handlePaymentChange('deadlineHours', parseInt(e.target.value))}
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-sm"
                       />
                     </div>
                     <div className="flex items-center">
                       <ToggleSwitch 
                         checked={dirtyState.payment.allowPartial} 
                         onChange={(val) => handlePaymentChange('allowPartial', val)} 
-                        label="Allow Partial Payment (Downpayment)"
+                        label="Izinkan Pembayaran Bertahap (Uang Muka / DP)"
                       />
                     </div>
                     {dirtyState.payment.allowPartial && (
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Minimum Partial Payment (%)</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Uang Muka Minimum (%)</label>
                         <input 
                           type="number" 
                           value={dirtyState.payment.minPartialPercent} 
                           onChange={(e) => handlePaymentChange('minPartialPercent', parseInt(e.target.value))}
-                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-sm"
                         />
                       </div>
                     )}
@@ -560,22 +562,22 @@ export default function Settings() {
                 </div>
 
                 <div>
-                  <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Payment Methods</h2>
+                  <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Metode Pembayaran</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="border border-slate-200 rounded-xl p-4 flex justify-between items-center">
-                      <span className="font-medium text-slate-700">Bank Transfer</span>
+                      <span className="font-medium text-slate-700">Transfer Bank</span>
                       <ToggleSwitch checked={dirtyState.payment.methods.bankTransfer} onChange={(val) => handlePaymentMethodChange('bankTransfer', val)} />
                     </div>
                     <div className="border border-slate-200 rounded-xl p-4 flex justify-between items-center">
-                      <span className="font-medium text-slate-700">Cash</span>
+                      <span className="font-medium text-slate-700">Tunai</span>
                       <ToggleSwitch checked={dirtyState.payment.methods.cash} onChange={(val) => handlePaymentMethodChange('cash', val)} />
                     </div>
                     <div className="border border-slate-200 rounded-xl p-4 flex justify-between items-center">
-                      <span className="font-medium text-slate-700">Credit Card</span>
+                      <span className="font-medium text-slate-700">Kartu Kredit</span>
                       <ToggleSwitch checked={dirtyState.payment.methods.creditCard} onChange={(val) => handlePaymentMethodChange('creditCard', val)} />
                     </div>
                     <div className="border border-slate-200 rounded-xl p-4 flex justify-between items-center">
-                      <span className="font-medium text-slate-700">Giro / Cheque</span>
+                      <span className="font-medium text-slate-700">Giro / Cek</span>
                       <ToggleSwitch checked={dirtyState.payment.methods.giro} onChange={(val) => handlePaymentMethodChange('giro', val)} />
                     </div>
                   </div>
@@ -585,62 +587,62 @@ export default function Settings() {
             )}
 
             {/* NOTIFICATION SETTINGS */}
-            {activeTab === 'Notifications' && (
+            {activeTab === 'Notifikasi' && (
               <div className="space-y-6 animate-fade-in">
                 <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4 flex justify-between items-center">
-                  Email Notifications
-                  <span className="text-sm font-normal text-primary-600 hover:underline cursor-pointer flex items-center gap-1 opacity-50">
-                    Customize Templates <span className="text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded-md font-bold">Coming Soon</span>
+                  Notifikasi Email
+                  <span className="text-sm font-normal text-slate-500 flex items-center gap-1 opacity-70">
+                    Kustomisasi Templat <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-bold">Segera Hadir</span>
                   </span>
                 </h2>
                 
                 <div className="space-y-4 max-w-2xl">
                   <div className="flex justify-between items-center py-3 border-b border-slate-100">
                     <div>
-                      <p className="font-bold text-slate-700">New order received</p>
-                      <p className="text-xs text-slate-500">Sent to Owner, Manager</p>
+                      <p className="font-bold text-slate-700">Pesanan baru diterima</p>
+                      <p className="text-xs text-slate-500">Dikirim ke Pemilik, Manajer</p>
                     </div>
                     <ToggleSwitch checked={dirtyState.notifications.email.newOrder} onChange={(val) => handleNotificationChange('newOrder', val)} />
                   </div>
                   <div className="flex justify-between items-center py-3 border-b border-slate-100">
                     <div>
-                      <p className="font-bold text-slate-700">Order approved</p>
-                      <p className="text-xs text-slate-500">Sent to Customer</p>
+                      <p className="font-bold text-slate-700">Pesanan disetujui</p>
+                      <p className="text-xs text-slate-500">Dikirim ke Pelanggan</p>
                     </div>
                     <ToggleSwitch checked={dirtyState.notifications.email.orderApproved} onChange={(val) => handleNotificationChange('orderApproved', val)} />
                   </div>
                   <div className="flex justify-between items-center py-3 border-b border-slate-100">
                     <div>
-                      <p className="font-bold text-slate-700">Payment received</p>
-                      <p className="text-xs text-slate-500">Sent to Finance, Customer</p>
+                      <p className="font-bold text-slate-700">Pembayaran diterima</p>
+                      <p className="text-xs text-slate-500">Dikirim ke Keuangan, Pelanggan</p>
                     </div>
                     <ToggleSwitch checked={dirtyState.notifications.email.paymentReceived} onChange={(val) => handleNotificationChange('paymentReceived', val)} />
                   </div>
                   <div className="flex justify-between items-center py-3 border-b border-slate-100">
                     <div>
-                      <p className="font-bold text-slate-700">Production started</p>
-                      <p className="text-xs text-slate-500">Sent to Customer</p>
+                      <p className="font-bold text-slate-700">Produksi dimulai</p>
+                      <p className="text-xs text-slate-500">Dikirim ke Pelanggan</p>
                     </div>
                     <ToggleSwitch checked={dirtyState.notifications.email.productionStarted} onChange={(val) => handleNotificationChange('productionStarted', val)} />
                   </div>
                   <div className="flex justify-between items-center py-3 border-b border-slate-100">
                     <div>
-                      <p className="font-bold text-slate-700">Order ready for delivery/pickup</p>
-                      <p className="text-xs text-slate-500">Sent to Customer, Warehouse</p>
+                      <p className="font-bold text-slate-700">Pesanan siap dikirim / diambil</p>
+                      <p className="text-xs text-slate-500">Dikirim ke Pelanggan, Gudang</p>
                     </div>
                     <ToggleSwitch checked={dirtyState.notifications.email.orderReady} onChange={(val) => handleNotificationChange('orderReady', val)} />
                   </div>
                   <div className="flex justify-between items-center py-3 border-b border-slate-100">
                     <div>
-                      <p className="font-bold text-slate-700">Low stock alert</p>
-                      <p className="text-xs text-slate-500">Sent to Owner, Manager, Warehouse</p>
+                      <p className="font-bold text-slate-700">Peringatan stok menipis</p>
+                      <p className="text-xs text-slate-500">Dikirim ke Pemilik, Manajer, Gudang</p>
                     </div>
                     <ToggleSwitch checked={dirtyState.notifications.email.lowStock} onChange={(val) => handleNotificationChange('lowStock', val)} />
                   </div>
                   <div className="flex justify-between items-center py-3">
                     <div>
-                      <p className="font-bold text-slate-700">Overdue invoice reminder</p>
-                      <p className="text-xs text-slate-500">Sent to Finance</p>
+                      <p className="font-bold text-slate-700">Pengingat faktur jatuh tempo</p>
+                      <p className="text-xs text-slate-500">Dikirim ke Keuangan</p>
                     </div>
                     <ToggleSwitch checked={dirtyState.notifications.email.overdueInvoice} onChange={(val) => handleNotificationChange('overdueInvoice', val)} />
                   </div>
@@ -651,11 +653,11 @@ export default function Settings() {
             {/* BRANDING */}
             {activeTab === 'Branding' && (
               <div className="space-y-6 animate-fade-in">
-                <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Branding</h2>
+                <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Identitas & Tampilan Brand</h2>
                 
                 <div className="grid grid-cols-1 gap-6 max-w-2xl">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Primary Color (Hex)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Warna Utama (Hex)</label>
                     <div className="flex items-center gap-3">
                       <input 
                         type="color" 
@@ -667,34 +669,34 @@ export default function Settings() {
                         type="text" 
                         value={dirtyState.branding.primaryColor}
                         onChange={(e) => handleBrandingChange('primaryColor', e.target.value)}
-                        className="px-4 py-2 rounded-lg border border-slate-200 font-mono text-sm w-32 focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+                        className="px-4 py-2 rounded-lg border border-slate-200 font-mono text-sm w-32 focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
                       />
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Invoice/Quotation Default Header Note</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Catatan Header Standar Faktur / Penawaran</label>
                     <textarea 
                       value={dirtyState.branding.invoiceHeader}
                       onChange={(e) => handleBrandingChange('invoiceHeader', e.target.value)}
                       rows={2}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm resize-none"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-sm resize-none"
                     ></textarea>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Invoice/Quotation Default Footer Note (T&C)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Catatan Footer Standar Faktur / Penawaran (Syarat & Ketentuan)</label>
                     <textarea 
                       value={dirtyState.branding.invoiceFooter}
                       onChange={(e) => handleBrandingChange('invoiceFooter', e.target.value)}
                       rows={3}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm resize-none"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-sm resize-none"
                     ></textarea>
                   </div>
 
                   <div>
-                    <button className="px-4 py-2 bg-primary-50 text-primary-700 font-bold rounded-lg hover:bg-primary-100 transition-colors">
-                      Preview Invoice Example
+                    <button className="px-4 py-2 bg-slate-100 text-slate-800 font-bold rounded-lg hover:bg-slate-200 transition-colors text-sm">
+                      Pratinjau Contoh Faktur
                     </button>
                   </div>
                 </div>
@@ -702,9 +704,9 @@ export default function Settings() {
             )}
 
             {/* INTEGRATIONS */}
-            {activeTab === 'Integrations' && (
+            {activeTab === 'Integrasi' && (
               <div className="space-y-6 animate-fade-in">
-                <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Integrations</h2>
+                <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Integrasi</h2>
                 
                 <div className="space-y-4">
                   <div className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -716,18 +718,18 @@ export default function Settings() {
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-bold text-slate-900">WhatsApp Business API</h3>
                           {dirtyState.integrations.whatsapp.enabled ? (
-                            <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Connected</span>
+                            <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Terhubung</span>
                           ) : (
-                            <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Disabled</span>
+                            <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Nonaktif</span>
                           )}
                         </div>
-                        <p className="text-sm text-slate-500">Send order updates and invoices via WhatsApp</p>
+                        <p className="text-sm text-slate-500">Kirim pembaruan pesanan dan faktur melalui WhatsApp</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 w-full sm:w-auto">
                       {dirtyState.integrations.whatsapp.enabled ? (
-                        <button className="text-sm font-bold text-primary-600 hover:text-primary-700 px-3 py-1.5 border border-primary-200 rounded-lg hover:bg-primary-50">
-                          Configure
+                        <button className="text-sm font-bold text-slate-700 hover:text-slate-900 px-3 py-1.5 border border-slate-200 rounded-lg hover:bg-slate-50">
+                          Konfigurasi
                         </button>
                       ) : null}
                       <ToggleSwitch 
@@ -739,29 +741,29 @@ export default function Settings() {
 
                   <div className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex gap-4">
-                      <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center shrink-0">
-                        <Envelope className="w-6 h-6 text-primary-600" weight="regular" />
+                      <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center shrink-0">
+                        <Envelope className="w-6 h-6 text-slate-700" weight="regular" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold text-slate-900">Email Provider</h3>
-                          <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Connected</span>
+                          <h3 className="font-bold text-slate-900">Penyedia Layanan Email</h3>
+                          <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Terhubung</span>
                         </div>
-                        <p className="text-sm text-slate-500">Currently using: {dirtyState.integrations.emailProvider}</p>
+                        <p className="text-sm text-slate-500">Saat ini menggunakan: {dirtyState.integrations.emailProvider}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 w-full sm:w-auto">
                       <select 
                         value={dirtyState.integrations.emailProvider}
                         onChange={(e) => handleIntegrationChange('emailProvider', e.target.value)}
-                        className="px-3 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-600 font-medium text-sm"
+                        className="px-3 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-900 font-medium text-sm"
                       >
                         <option value="SMTP">SMTP</option>
                         <option value="SendGrid">SendGrid</option>
                         <option value="Mailgun">Mailgun</option>
                       </select>
-                      <button className="text-sm font-bold text-primary-600 hover:text-primary-700 px-3 py-1.5 border border-primary-200 rounded-lg hover:bg-primary-50">
-                        Configure
+                      <button className="text-sm font-bold text-slate-700 hover:text-slate-900 px-3 py-1.5 border border-slate-200 rounded-lg hover:bg-slate-50">
+                        Konfigurasi
                       </button>
                     </div>
                   </div>
@@ -776,9 +778,9 @@ export default function Settings() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-fade-in">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <h2 className="text-lg font-bold text-slate-900">Add Bank Account</h2>
+              <h2 className="text-lg font-bold text-slate-900">Tambah Rekening Bank</h2>
               <button onClick={() => setIsBankModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
-                <Trash size={20} className="hidden" weight="regular" /> {/* Using Trash2 as a placeholder just to keep imports happy, but actually just rendering an X manually */}
+                <Trash size={20} className="hidden" weight="regular" />
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
               </button>
             </div>
@@ -786,41 +788,41 @@ export default function Settings() {
             <form onSubmit={handleSubmit(handleAddBank)} className="p-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Bank Name</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Nama Bank</label>
                   <input
                     {...register('name')}
-                    placeholder="e.g. Bank Central Asia (BCA)"
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
+                    placeholder="contoh: Bank Central Asia (BCA)"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-sm"
                   />
                   {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Account Number</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Nomor Rekening</label>
                   <input
                     {...register('accountNo')}
-                    placeholder="e.g. 1234567890"
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm font-mono"
+                    placeholder="contoh: 1234567890"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-sm font-mono"
                   />
                   {errors.accountNo && <p className="mt-1 text-sm text-red-600">{errors.accountNo.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Account Name</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Nama Pemilik Rekening</label>
                   <input
                     {...register('accountName')}
-                    placeholder="e.g. PT Multi Kreasi Printing"
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
+                    placeholder="contoh: PT Multi Kreasi Printing"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-sm"
                   />
                   {errors.accountName && <p className="mt-1 text-sm text-red-600">{errors.accountName.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Branch</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Kantor Cabang</label>
                   <input
                     {...register('branch')}
-                    placeholder="e.g. Sudirman"
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 text-sm"
+                    placeholder="contoh: Sudirman"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-sm"
                   />
                   {errors.branch && <p className="mt-1 text-sm text-red-600">{errors.branch.message}</p>}
                 </div>
@@ -832,13 +834,13 @@ export default function Settings() {
                   onClick={() => setIsBankModalOpen(false)}
                   className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors"
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-primary-600 text-white text-sm font-bold rounded-lg shadow-sm hover:bg-primary-700 transition-colors"
+                  className="px-6 py-2 bg-black text-white text-sm font-bold rounded-lg shadow-sm hover:bg-slate-800 transition-colors"
                 >
-                  Add Account
+                  Simpan Rekening
                 </button>
               </div>
             </form>

@@ -1,39 +1,81 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { ShoppingBag, Eye, FileText } from '@phosphor-icons/react';
+import { 
+  ShoppingBag, 
+  Eye, 
+  CreditCard, 
+  Clock, 
+  MagnifyingGlass, 
+  DownloadSimple,
+  CalendarBlank,
+  Tag
+} from '@phosphor-icons/react';
+import { useToast } from '../contexts/ToastContext';
 import { OrderDetailsModal } from '../components/OrderDetailsModal';
+
+interface OrderItem {
+  product: { name: string };
+  quantity: number;
+}
 
 interface Order {
   id: string;
   orderNumber: string;
   status: string;
   totalAmount: number;
+  paymentStatus?: string;
   estimatedDeliveryDate: string | null;
   createdAt: string;
-  items: Array<{
-    product: { name: string };
-    quantity: number;
-  }>;
+  items: OrderItem[];
 }
 
 const statusColors: Record<string, string> = {
-  Draft: 'bg-gray-100 text-gray-700',
-  Pending_Approval: 'bg-amber-100 text-amber-700',
-  Approved: 'bg-primary-100 text-primary-700',
-  In_Production: 'bg-primary-100 text-primary-700',
-  Quality_Check: 'bg-primary-100 text-primary-700',
-  Completed: 'bg-emerald-100 text-emerald-700',
-  Delivered: 'bg-green-100 text-green-700',
-  Cancelled: 'bg-red-100 text-red-700',
+  Draft: 'bg-slate-100 text-slate-700 border-slate-200',
+  Pending: 'bg-amber-100 text-amber-800 border-amber-200',
+  Pending_Approval: 'bg-amber-100 text-amber-800 border-amber-200',
+  Approved: 'bg-slate-100 text-slate-900 border-slate-200',
+  In_Production: 'bg-slate-200 text-slate-900 border-slate-300',
+  Quality_Check: 'bg-purple-100 text-purple-800 border-purple-200',
+  Completed: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  Delivered: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  Cancelled: 'bg-red-100 text-red-800 border-red-200',
 };
+
+type FilterTab = 'ALL' | 'UNPAID' | 'VERIFYING' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED';
+
+const statusLabels: Record<string, string> = {
+  Draft: 'Draf',
+  Pending: 'Menunggu Pembayaran',
+  Pending_Approval: 'Menunggu Persetujuan',
+  Approved: 'Disetujui',
+  In_Production: 'Dalam Produksi',
+  Quality_Check: 'Pemeriksaan Kualitas',
+  Completed: 'Selesai',
+  Delivered: 'Terkirim',
+  Cancelled: 'Dibatalkan',
+};
+
+const filterTabs: Array<{ id: FilterTab; label: string }> = [
+  { id: 'ALL', label: 'Semua Pesanan' },
+  { id: 'UNPAID', label: 'Menunggu Bayar' },
+  { id: 'VERIFYING', label: 'Verifikasi' },
+  { id: 'PROCESSING', label: 'Diproses' },
+  { id: 'COMPLETED', label: 'Selesai' },
+  { id: 'CANCELLED', label: 'Dibatalkan' },
+];
 
 export default function MyOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<FilterTab>('ALL');
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
   const navigate = useNavigate();
+  const { success, error: toastError } = useToast();
 
   useEffect(() => {
     fetchMyOrders();
@@ -41,13 +83,13 @@ export default function MyOrders() {
 
   const fetchMyOrders = async () => {
     try {
-      const response = await api.get('/api/v1/orders');
+      const response = await api.get('/api/v1/my-orders');
       const orderData = Array.isArray(response.data) 
         ? response.data 
         : response.data.data || [];
       setOrders(orderData);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load your orders');
+      setError(err.response?.data?.message || 'Gagal memuat daftar pesanan Anda');
       setOrders([]);
     } finally {
       setLoading(false);
@@ -63,119 +105,273 @@ export default function MyOrders() {
   };
 
   const formatStatus = (status: string) => {
-    return status.replace(/_/g, ' ');
+    return statusLabels[status] || status.replace(/_/g, ' ');
   };
+
+  const handleDownloadInvoice = async (order: Order) => {
+    setDownloadingId(order.id);
+    try {
+      const res = await api.get(`/api/v1/my-orders/${order.id}/invoice`, { responseType: 'blob' });
+      const blob = new Blob([res.data], { type: 'text/plain;charset=utf-8' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Faktur-${order.orderNumber}.txt`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      success('Faktur Berhasil Diunduh', `Faktur #${order.orderNumber} telah tersimpan.`);
+    } catch (err: any) {
+      toastError('Gagal Mengunduh', err.response?.data?.message || 'Faktur belum tersedia.');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      const query = searchQuery.trim().toLowerCase();
+      const matchesSearch = 
+        !query ||
+        order.orderNumber.toLowerCase().includes(query) ||
+        order.items?.some((item) => item.product?.name.toLowerCase().includes(query));
+
+      if (!matchesSearch) return false;
+
+      if (activeTab === 'ALL') return true;
+      if (activeTab === 'UNPAID') return order.status === 'Draft';
+      if (activeTab === 'VERIFYING') return order.status === 'Pending' || order.status === 'Pending_Approval';
+      if (activeTab === 'PROCESSING') return ['Approved', 'In_Production', 'Quality_Check'].includes(order.status);
+      if (activeTab === 'COMPLETED') return ['Completed', 'Delivered'].includes(order.status);
+      if (activeTab === 'CANCELLED') return order.status === 'Cancelled';
+
+      return true;
+    });
+  }, [orders, searchQuery, activeTab]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex flex-col items-center justify-center h-64 gap-3">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <p className="text-sm text-slate-500">Memuat pesanan Anda...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-        {error}
+      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center justify-between">
+        <span>{error}</span>
+        <button 
+          onClick={fetchMyOrders}
+          className="text-sm font-semibold underline hover:no-underline"
+        >
+          Coba Lagi
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-800">My Orders</h2>
+    <div className="space-y-6 animate-in fade-in duration-300">
+      
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Pesanan Saya</h2>
+          <p className="text-sm text-slate-500 mt-1">Pantau status, instruksi pembayaran, dan riwayat berkas cetak Anda.</p>
+        </div>
         <button 
           onClick={() => navigate('/products')}
-          className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors flex items-center gap-2"
+          className="px-5 py-2.5 bg-black text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-sm flex items-center justify-center gap-2 self-start sm:self-auto"
         >
-          <ShoppingBag size={18} weight="regular" />
-          New Order
+          <ShoppingBag size={18} weight="bold" />
+          Pesan Baru
         </button>
       </div>
 
-      {orders.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
+      {/* Filter Tabs & Search Bar */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          {filterTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${
+                activeTab === tab.id
+                  ? 'bg-black text-white shadow-sm'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              {tab.label}
+              {tab.id === 'ALL' ? ` (${orders.length})` : ''}
+            </button>
+          ))}
+        </div>
+
+        <div className="relative">
+          <MagnifyingGlass size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Cari berdasarkan nomor pesanan (ORD-...) atau nama produk..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+          />
+        </div>
+      </div>
+
+      {/* Orders List */}
+      {filteredOrders.length === 0 ? (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
           <ShoppingBag size={64} className="mx-auto mb-4 text-slate-300" weight="regular" />
-          <h3 className="text-lg font-semibold text-slate-800 mb-2">No orders yet</h3>
-          <p className="text-slate-500 mb-6">Create your first order to get started with MK Printing</p>
-          <button 
-            onClick={() => navigate('/products')}
-            className="px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
-          >
-            Create Order
-          </button>
+          <h3 className="text-lg font-bold text-slate-800 mb-1">
+            {orders.length === 0 ? 'Belum Ada Pesanan' : 'Tidak Ada Pesanan yang Cocok'}
+          </h3>
+          <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">
+            {orders.length === 0
+              ? 'Mulai pesanan cetak pertama Anda dari katalog produk kami.'
+              : 'Tidak ditemukan pesanan dengan filter atau pencarian saat ini.'}
+          </p>
+          {orders.length === 0 ? (
+            <button 
+              onClick={() => navigate('/products')}
+              className="px-6 py-3 bg-black text-white rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-sm"
+            >
+              Lihat Katalog Produk
+            </button>
+          ) : (
+            <button 
+              onClick={() => { setActiveTab('ALL'); setSearchQuery(''); }}
+              className="px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition-colors text-sm"
+            >
+              Reset Filter Pencarian
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {orders.map((order) => (
-            <div key={order.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between mb-4">
+          {filteredOrders.map((order) => {
+            const isDraft = order.status === 'Draft';
+            const isVerifying = order.status === 'Pending' || order.status === 'Pending_Approval';
+            const isReadyForInvoice = !isDraft && order.status !== 'Cancelled';
+
+            return (
+              <div 
+                key={order.id} 
+                className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 hover:shadow-md transition-all flex flex-col justify-between"
+              >
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-bold text-slate-900">{order.orderNumber}</h3>
-                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[order.status] || 'bg-gray-100 text-gray-700'}`}>
-                      {formatStatus(order.status)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-slate-600">
-                    Ordered on {new Date(order.createdAt).toLocaleDateString('id-ID', { 
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric'
-                    })}
-                  </p>
-                  {order.estimatedDeliveryDate && (
-                    <p className="text-sm text-slate-600 mt-1">
-                      Estimated delivery: {new Date(order.estimatedDeliveryDate).toLocaleDateString('id-ID', {
+                  {/* Top Bar */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-4 border-b border-slate-100">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">{order.orderNumber}</h3>
+                      <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold border ${statusColors[order.status] || 'bg-slate-100 text-slate-700'}`}>
+                        {formatStatus(order.status)}
+                      </span>
+                    </div>
+                    <div className="text-slate-500 text-xs sm:text-right">
+                      Dibuat: {new Date(order.createdAt).toLocaleDateString('id-ID', { 
                         day: 'numeric',
-                        month: 'long',
+                        month: 'short',
                         year: 'numeric'
                       })}
-                    </p>
-                  )}
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-slate-600 mb-1">Total</p>
-                  <p className="text-2xl font-bold text-slate-900">{formatCurrency(order.totalAmount)}</p>
-                </div>
-              </div>
+                    </div>
+                  </div>
 
-              {order.items && order.items.length > 0 && (
-                <div className="mb-4 p-4 bg-slate-50 rounded-lg">
-                  <p className="text-xs font-semibold text-slate-600 uppercase mb-2">Order Items</p>
-                  <div className="space-y-1">
-                    {order.items.map((item, idx) => (
-                      <p key={idx} className="text-sm text-slate-700">
-                        {item.quantity}x {item.product.name}
+                  {/* Body Info */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                    {/* Items preview */}
+                    <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <Tag size={14} weight="bold" /> Item Cetak
                       </p>
-                    ))}
+                      {order.items && order.items.length > 0 ? (
+                        <div className="space-y-1">
+                          {order.items.map((item, idx) => (
+                            <p key={idx} className="text-sm font-semibold text-slate-800 truncate">
+                              <span className="text-slate-900 font-bold">{item.quantity}x</span> {item.product?.name}
+                            </p>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-400">Tidak ada rincian item</p>
+                      )}
+                    </div>
+
+                    {/* Delivery & Pricing Info */}
+                    <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex flex-col justify-between">
+                      <div>
+                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                          <CalendarBlank size={14} weight="bold" /> Estimasi Pengiriman
+                        </p>
+                        <p className="text-sm text-slate-700 font-medium">
+                          {order.estimatedDeliveryDate 
+                            ? new Date(order.estimatedDeliveryDate).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                              })
+                            : 'Mengikuti antrian produksi'}
+                        </p>
+                      </div>
+                      <div className="pt-2 border-t border-slate-200/60 mt-2 flex items-baseline justify-between">
+                        <span className="text-xs text-slate-500 font-semibold">Total Tagihan:</span>
+                        <span className="text-lg font-extrabold text-slate-900">{formatCurrency(order.totalAmount)}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              )}
 
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => setSelectedOrderId(order.id)}
-                  className="flex-1 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Eye size={16} weight="regular" />
-                  View Details
-                </button>
-                <button 
-                  onClick={() => navigate('/dashboard/invoices')}
-                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
-                >
-                  <FileText size={16} weight="regular" />
-                  View Invoice
-                </button>
+                {/* Bottom Actions */}
+                <div className="flex flex-wrap sm:flex-nowrap gap-3 pt-2">
+                  <button 
+                    onClick={() => setSelectedOrderId(order.id)}
+                    className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Eye size={18} weight="bold" />
+                    Lihat Detail
+                  </button>
+
+                  {isDraft && (
+                    <button 
+                      onClick={() => navigate(`/payment/${order.id}`)}
+                      className="flex-1 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-2"
+                    >
+                      <CreditCard size={18} weight="bold" />
+                      Bayar Sekarang
+                    </button>
+                  )}
+
+                  {isVerifying && (
+                    <button 
+                      onClick={() => navigate(`/payment/${order.id}`)}
+                      className="flex-1 px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Clock size={18} weight="bold" />
+                      Cek Bukti Transfer
+                    </button>
+                  )}
+
+                  {isReadyForInvoice && (
+                    <button 
+                      onClick={() => handleDownloadInvoice(order)}
+                      disabled={downloadingId === order.id}
+                      className="flex-1 px-4 py-2.5 bg-black hover:bg-slate-800 text-white rounded-xl text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      <DownloadSimple size={18} weight="bold" />
+                      {downloadingId === order.id ? 'Mengunduh...' : 'Unduh Faktur'}
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
+      {/* Modal Detail */}
       <OrderDetailsModal 
         isOpen={!!selectedOrderId}
         orderId={selectedOrderId}
@@ -184,3 +380,4 @@ export default function MyOrders() {
     </div>
   );
 }
+

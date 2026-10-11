@@ -88,10 +88,10 @@ export default function Warehouse() {
     setIsDeleting(true);
     try {
       await api.delete(`/api/v1/inventory/${deleteMaterialId}`);
-      success('Material Deleted', 'The material has been removed from inventory.');
+      success('Bahan Baku Dihapus', 'Bahan baku telah berhasil dihapus dari inventaris.');
       fetchMaterials();
     } catch (err: any) {
-      toastError('Failed to delete', err.response?.data?.message || 'Please try again.');
+      toastError('Gagal Menghapus', err.response?.data?.message || 'Silakan coba lagi.');
     } finally {
       setIsDeleting(false);
       setDeleteMaterialId(null);
@@ -118,13 +118,13 @@ export default function Warehouse() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-800">Warehouse Inventory</h2>
+        <h2 className="text-2xl font-bold text-slate-800">Gudang & Inventaris Stok</h2>
         {canManageCatalog && (
           <button 
             onClick={handleAddMaterial}
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
+            className="px-4 py-2 bg-black text-white rounded-lg font-medium hover:bg-slate-800 transition-colors"
           >
-            Add Material
+            Tambah Bahan Baku
           </button>
         )}
       </div>
@@ -134,16 +134,16 @@ export default function Warehouse() {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600">Total Materials</p>
+              <p className="text-sm font-medium text-slate-600">Total Bahan Baku</p>
               <p className="text-2xl font-bold text-slate-900 mt-1">{stats.total}</p>
             </div>
-            <Package className="text-primary-500" size={32} weight="regular" />
+            <Package className="text-slate-900" size={32} weight="regular" />
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600">In Stock</p>
+              <p className="text-sm font-medium text-slate-600">Stok Tersedia</p>
               <p className="text-2xl font-bold text-emerald-600 mt-1">{stats.inStock}</p>
             </div>
             <TrendUp className="text-emerald-500" size={32} weight="regular" />
@@ -152,7 +152,7 @@ export default function Warehouse() {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600">Low Stock</p>
+              <p className="text-sm font-medium text-slate-600">Stok Menipis</p>
               <p className="text-2xl font-bold text-amber-600 mt-1">{stats.lowStock}</p>
             </div>
             <Warning className="text-amber-500" size={32} weight="regular" />
@@ -161,7 +161,7 @@ export default function Warehouse() {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600">Out of Stock</p>
+              <p className="text-sm font-medium text-slate-600">Stok Habis</p>
               <p className="text-2xl font-bold text-red-600 mt-1">{stats.outOfStock}</p>
             </div>
             <TrendDown className="text-red-500" size={32} weight="regular" />
@@ -208,9 +208,9 @@ export default function Warehouse() {
 
       <ConfirmDialog
         isOpen={!!deleteMaterialId}
-        title="Delete Material"
-        message="Are you sure you want to delete this material? This action cannot be undone."
-        confirmLabel="Delete"
+        title="Hapus Bahan Baku"
+        message="Apakah Anda yakin ingin menghapus bahan baku ini? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Hapus"
         variant="danger"
         loading={isDeleting}
         onClose={() => setDeleteMaterialId(null)}

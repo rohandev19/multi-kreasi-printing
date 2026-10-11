@@ -100,39 +100,39 @@ export default function DesignFiles() {
       link.click();
       link.remove();
       
-      success('Download Started', 'Your file is downloading.');
+      success('Pengunduhan Dimulai', 'Berkas Anda sedang diunduh.');
     } catch (err: any) {
-      toastError('Download Failed', err.response?.data?.message || 'Failed to get download link');
+      toastError('Gagal Mengunduh', err.response?.data?.message || 'Gagal mendapatkan tautan unduhan');
     }
   };
 
   const handleApprove = async (id: string) => {
     try {
       await api.patch(`/api/v1/design-files/${id}/approve`);
-      success('File Approved', 'The design file has been approved.');
+      success('Desain Disetujui', 'Berkas desain telah berhasil disetujui.');
       fetchDesignFiles();
     } catch (err: any) {
-      toastError('Error', err.response?.data?.message || 'Failed to approve design file');
+      toastError('Kesalahan', err.response?.data?.message || 'Gagal menyetujui berkas desain');
     }
   };
 
   const handleReject = async (id: string) => {
     try {
-      await api.patch(`/api/v1/design-files/${id}/reject`, { notes: 'Rejected by review' });
-      success('File Rejected', 'The design file has been rejected.');
+      await api.patch(`/api/v1/design-files/${id}/reject`, { notes: 'Ditolak saat peninjauan' });
+      success('Desain Ditolak', 'Berkas desain telah ditolak.');
       fetchDesignFiles();
     } catch (err: any) {
-      toastError('Error', err.response?.data?.message || 'Failed to reject design file');
+      toastError('Kesalahan', err.response?.data?.message || 'Gagal menolak berkas desain');
     }
   };
 
   const handleRevisionRequest = async (id: string) => {
     try {
-      await api.patch(`/api/v1/design-files/${id}/request-revision`, { notes: 'Revision requested' });
-      success('Revision Requested', 'A revision has been requested for this file.');
+      await api.patch(`/api/v1/design-files/${id}/request-revision`, { notes: 'Revisi diperlukan' });
+      success('Permintaan Revisi Terkirim', 'Permintaan revisi telah diajukan untuk berkas ini.');
       fetchDesignFiles();
     } catch (err: any) {
-      toastError('Error', err.response?.data?.message || 'Failed to request revision for design file');
+      toastError('Kesalahan', err.response?.data?.message || 'Gagal mengajukan revisi berkas desain');
     }
   };
 
@@ -145,10 +145,10 @@ export default function DesignFiles() {
     setIsDeleting(true);
     try {
       await api.delete(`/api/v1/design-files/${deleteFileId}`);
-      success('File Deleted', 'The design file has been deleted.');
+      success('Berkas Dihapus', 'Berkas desain telah berhasil dihapus.');
       fetchDesignFiles();
     } catch (err: any) {
-      toastError('Failed to delete', err.response?.data?.message || 'Please try again.');
+      toastError('Gagal Menghapus', err.response?.data?.message || 'Silakan coba lagi.');
     } finally {
       setIsDeleting(false);
       setDeleteFileId(null);
@@ -166,13 +166,13 @@ export default function DesignFiles() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-800">Design Files</h2>
+        <h2 className="text-2xl font-bold text-slate-800">Berkas Desain</h2>
         {(role === 'Owner' || role === 'Manager') && (
           <button 
             onClick={() => setIsUploadOpen(true)}
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
+            className="px-4 py-2 bg-black text-white rounded-lg font-medium hover:bg-slate-800 transition-colors"
           >
-            Upload Design
+            Unggah Desain
           </button>
         )}
       </div>
@@ -209,9 +209,9 @@ export default function DesignFiles() {
 
       <ConfirmDialog
         isOpen={!!deleteFileId}
-        title="Delete Design File"
-        message="Are you sure you want to delete this design file? This action cannot be undone."
-        confirmLabel="Delete"
+        title="Hapus Berkas Desain"
+        message="Apakah Anda yakin ingin menghapus berkas desain ini? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Hapus"
         variant="danger"
         loading={isDeleting}
         onClose={() => setDeleteFileId(null)}

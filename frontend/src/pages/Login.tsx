@@ -8,8 +8,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 const loginSchema = z.object({
-  email: z.string().min(1, 'Email is required').email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.string().min(1, 'Email wajib diisi').email('Format email tidak valid'),
+  password: z.string().min(1, 'Kata sandi wajib diisi'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -49,7 +49,7 @@ export default function Login() {
       
       navigate(redirectUrl);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      setError(err.response?.data?.message || 'Gagal masuk. Silakan periksa kembali email dan kata sandi Anda.');
     } finally {
       setLoading(false);
     }
@@ -63,11 +63,11 @@ export default function Login() {
           className="absolute top-4 left-4 sm:top-6 sm:left-6 text-slate-400 hover:text-primary-600 transition-colors flex items-center gap-1 text-sm font-medium"
         >
           <ArrowLeft className="w-4 h-4" weight="regular" />
-          Back
+          Kembali
         </Link>
         <div className="mb-6 sm:mb-8 mt-4 sm:mt-6 text-center">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-2 tracking-tight">MK Printing</h2>
-          <p className="text-sm sm:text-base text-slate-500">Sign in to your account</p>
+          <p className="text-sm sm:text-base text-slate-500">Masuk ke akun Anda</p>
         </div>
         
         {error && (
@@ -83,13 +83,13 @@ export default function Login() {
               type="email" 
               {...register('email')}
               className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.email ? 'border-red-500' : 'border-slate-300'}`} 
-              placeholder="admin@mkprinting.com" 
+              placeholder="nama@email.com" 
               disabled={loading}
             />
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-1">Kata Sandi</label>
             <div className="relative">
               <input 
                 type={showPassword ? "text" : "password"}
@@ -111,32 +111,32 @@ export default function Login() {
 
           <div className="flex items-center justify-between">
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 text-primary-600 border-slate-300 rounded focus:ring-primary-500" />
-              <span className="text-sm text-slate-600">Remember me</span>
+              <input type="checkbox" className="w-4 h-4 text-black border-slate-300 rounded focus:ring-black" />
+              <span className="text-sm text-slate-600">Ingat saya</span>
             </label>
-            <Link to="/forgot-password" className="text-sm text-primary-600 hover:text-primary-500 font-medium transition-colors">
-              Forgot password?
+            <Link to="/forgot-password" className="text-sm text-slate-900 hover:underline font-bold transition-colors">
+              Lupa kata sandi?
             </Link>
           </div>
 
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full bg-primary-600 text-white p-3 rounded-lg font-bold shadow-md hover:bg-primary-700 hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mt-2 relative z-10"
-            style={{ backgroundColor: loading ? undefined : '#0284c7', color: '#ffffff' }}
+            className="w-full bg-black text-white p-3 rounded-lg font-bold shadow-md hover:bg-slate-800 hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mt-2 relative z-10"
+            style={{ backgroundColor: loading ? undefined : '#000000', color: '#ffffff' }}
           >
-            {loading ? 'Logging in...' : 'Log In'}
+            {loading ? 'Memproses...' : 'Masuk'}
           </button>
         </form>
 
         <div className="flex items-center gap-4 my-5 sm:my-6">
           <div className="flex-1 h-px bg-slate-200"></div>
-          <span className="text-sm text-slate-400">or</span>
+          <span className="text-sm text-slate-400">atau</span>
           <div className="flex-1 h-px bg-slate-200"></div>
         </div>
 
         <div className="text-center text-sm text-slate-500">
-          Don't have an account? <Link to="/register" className="text-primary-600 hover:text-primary-500 font-medium">Create one</Link>
+          Belum memiliki akun? <Link to="/register" className="text-slate-900 font-bold hover:underline">Daftar sekarang</Link>
         </div>
       </div>
     </div>
