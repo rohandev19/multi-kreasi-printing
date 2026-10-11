@@ -30,20 +30,32 @@ export class NotificationsGateway
     try {
       const token = this.extractTokenFromHeader(client.handshake);
       if (!token) {
+        this.logger.warn(
+          `NotificationsGateway: No token provided by client ${client.id}`,
+        );
         throw new Error('No token provided');
       }
 
       const payload = this.jwtService.verifyToken(token);
+      if (!payload) {
+        this.logger.warn(
+          `NotificationsGateway: Invalid token by client ${client.id}`,
+        );
+        throw new Error('Invalid token');
+      }
 
       // Join a room specifically for this user
       const userId = payload.sub;
       client.join(userId);
-      this.logger.log(`Client connected: ${client.id} (UserId: ${userId})`);
+      this.logger.log(
+        `NotificationsGateway: Client connected: ${client.id} (UserId: ${userId})`,
+      );
     } catch (error) {
       this.logger.warn(
-        `Client connection failed: ${client.id} - ${error.message}`,
+        `NotificationsGateway: Client connection failed: ${client.id} - ${error.message}`,
       );
-      client.disconnect();
+      // Wait before disconnecting so client receives error if needed
+      setTimeout(() => client.disconnect(), 100);
     }
   }
 
