@@ -45,7 +45,7 @@ export class PermissionsGuard implements CanActivate {
       return false;
     }
 
-    const cacheKey = `user_permissions_${user.sub}`;
+    const cacheKey = `user_permissions_v2_${user.sub}`;
     let userDb: any = await this.cache.get(cacheKey);
 
     if (!userDb) {
@@ -55,7 +55,7 @@ export class PermissionsGuard implements CanActivate {
       });
 
       if (userDb) {
-        await this.cache.set(cacheKey, userDb, 3600);
+        await this.cache.set(cacheKey, userDb, 30);
       }
     }
 
