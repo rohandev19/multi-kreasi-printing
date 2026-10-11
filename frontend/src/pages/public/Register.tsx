@@ -205,8 +205,6 @@ export const RegisterPage = () => {
             </div>
           </>
         )}
-          </>
-        )}
       </div>
     </div>
   );
