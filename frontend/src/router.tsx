@@ -22,6 +22,7 @@ const Reports = lazy(() => import('./pages/Reports'));
 const Quotations = lazy(() => import('./pages/Quotations'));
 const Login = lazy(() => import('./pages/Login'));
 const Profile = lazy(() => import('./pages/Profile'));
+const LiveSupport = lazy(() => import('./pages/LiveSupport'));
 import { RoleProvider } from './contexts/RoleContext';
 import { ToastProvider } from './contexts/ToastContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -57,12 +58,14 @@ const LoadingSpinner = () => (
 );
 
 import { SocketProvider } from './contexts/SocketContext';
+import { ChatWidget } from './components/chat/ChatWidget';
 
 const AppProviders = ({ children }: { children: React.ReactNode }) => (
   <ToastProvider>
     <RoleProvider>
       <SocketProvider>
         {children}
+        <ChatWidget />
       </SocketProvider>
     </RoleProvider>
   </ToastProvider>
@@ -354,6 +357,16 @@ export const router = createBrowserRouter([
               <ProtectedRoute>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Notifications />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'live-support',
+            element: (
+              <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Sales']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <LiveSupport />
                 </Suspense>
               </ProtectedRoute>
             ),

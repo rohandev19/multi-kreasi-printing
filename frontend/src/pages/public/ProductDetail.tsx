@@ -83,7 +83,7 @@ export const ProductDetail: React.FC = () => {
       setPricingTiers(response.data.pricingTiers || []);
     } catch (error) {
       console.error('Error fetching product details:', error);
-      addToast('error', 'Failed to load product details');
+      addToast('error', 'Gagal memuat detail produk');
     } finally {
       setLoading(false);
     }
@@ -102,7 +102,7 @@ export const ProductDetail: React.FC = () => {
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      addToast('info', 'Please login to submit a review');
+      addToast('info', 'Silakan masuk terlebih dahulu untuk memberikan ulasan');
       return;
     }
     
@@ -112,12 +112,12 @@ export const ProductDetail: React.FC = () => {
         rating: newRating,
         comment: newComment,
       });
-      addToast('success', 'Review submitted successfully!');
+      addToast('success', 'Ulasan berhasil dikirim!');
       setNewComment('');
       setNewRating(5);
       fetchReviews(); // Refresh the list
     } catch (error: any) {
-      addToast('error', error.response?.data?.message || 'Failed to submit review');
+      addToast('error', error.response?.data?.message || 'Gagal mengirim ulasan');
     } finally {
       setIsSubmittingReview(false);
     }
@@ -129,20 +129,20 @@ export const ProductDetail: React.FC = () => {
         
         {loading ? (
           <div className="flex items-center justify-center min-h-[50vh]">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-primary-600"></div>
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-black"></div>
           </div>
         ) : !product ? (
           <div className="text-center py-20">
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">Product not found</h2>
-            <Link to="/products" className="text-primary-600 hover:underline">Return to catalog</Link>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Produk tidak ditemukan</h2>
+            <Link to="/products" className="text-slate-900 font-bold hover:underline">Kembali ke katalog</Link>
           </div>
         ) : (
           <>
             {/* Breadcrumb */}
             <div className="text-sm text-slate-500 font-medium mb-8">
-              <Link to="/" className="hover:text-primary-600">Beranda</Link> <span className="mx-2">&gt;</span> 
-              <Link to="/products" className="hover:text-primary-600">Produk</Link> <span className="mx-2">&gt;</span> 
-              <span className="text-slate-900">{product.categoryName || 'Uncategorized'}</span>
+              <Link to="/" className="hover:text-slate-900">Beranda</Link> <span className="mx-2">&gt;</span> 
+              <Link to="/products" className="hover:text-slate-900">Produk</Link> <span className="mx-2">&gt;</span> 
+              <span className="text-slate-900">{product.categoryName || 'Lainnya'}</span>
             </div>
 
             <div className="flex flex-col lg:flex-row gap-12">
@@ -157,7 +157,7 @@ export const ProductDetail: React.FC = () => {
                       className="object-contain w-full h-full group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
-                    <span className="text-slate-400">No Image</span>
+                    <span className="text-slate-400">Tidak ada gambar</span>
                   )}
                 </div>
                 {/* Thumbnails */}
@@ -182,7 +182,7 @@ export const ProductDetail: React.FC = () => {
               <div className="lg:w-1/2">
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-primary-600 uppercase tracking-wider">{product.categoryName || 'Uncategorized'}</span>
+                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">{product.categoryName || 'Lainnya'}</span>
                     {product.sku && <span className="text-[11px] font-mono font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">SKU: {product.sku}</span>}
                   </div>
                   <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">{product.name}</h1>
@@ -204,7 +204,7 @@ export const ProductDetail: React.FC = () => {
                         <table className="w-full text-sm text-left">
                           <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
                             <tr>
-                              <th className="px-4 py-3 font-bold">Minimum Qty</th>
+                              <th className="px-4 py-3 font-bold">Jumlah Minimal</th>
                               <th className="px-4 py-3 font-bold">Harga per {product.unitOfMeasure || 'unit'}</th>
                             </tr>
                           </thead>
@@ -212,7 +212,7 @@ export const ProductDetail: React.FC = () => {
                             {pricingTiers.map((tier, idx) => (
                               <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                                 <td className="px-4 py-3 font-medium text-slate-900">≥ {tier.minQuantity} {product.unitOfMeasure || ''}</td>
-                                <td className="px-4 py-3 font-bold text-primary-700">{formatIDR(tier.pricePerUnit)}</td>
+                                <td className="px-4 py-3 font-bold text-slate-900">{formatIDR(tier.pricePerUnit)}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -253,12 +253,12 @@ export const ProductDetail: React.FC = () => {
                         disabled={cartLoading}
                         className="flex-1 h-12 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-base disabled:opacity-70 disabled:cursor-not-allowed"
                         style={{ 
-                          background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)', 
+                          background: '#000000', 
                           color: '#ffffff',
-                          boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)',
+                          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.3)',
                         }}
-                        onMouseEnter={e => (e.currentTarget.style.background = 'linear-gradient(135deg, #0369a1 0%, #075985 100%)')}
-                        onMouseLeave={e => (e.currentTarget.style.background = 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)')}
+                        onMouseEnter={e => (e.currentTarget.style.background = '#1e293b')}
+                        onMouseLeave={e => (e.currentTarget.style.background = '#000000')}
                       >
                         <ShoppingCart size={20} weight="bold" />
                         {cartLoading ? 'Menambahkan...' : 'Tambahkan ke Keranjang'}
@@ -271,10 +271,12 @@ export const ProductDetail: React.FC = () => {
                         to={`/contact?product=${product.id}`}
                         className="flex-1 py-3 font-bold rounded-xl transition-all flex items-center justify-center text-sm"
                         style={{ 
-                          backgroundColor: '#f0f9ff', 
-                          color: '#0369a1', 
-                          border: '2px solid #bae6fd',
+                          backgroundColor: '#000000', 
+                          color: '#ffffff', 
+                          border: '2px solid #000000',
                         }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#1e293b'; }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#000000'; }}
                       >
                         Minta Penawaran B2B
                       </Link>
@@ -300,13 +302,13 @@ export const ProductDetail: React.FC = () => {
           <div className="flex gap-8 border-b border-slate-200 mb-8 overflow-x-auto no-scrollbar">
             <button 
               onClick={() => setActiveTab('description')}
-              className={`pb-4 text-base font-bold whitespace-nowrap transition-colors ${activeTab === 'description' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-slate-500 hover:text-slate-800'}`}
+              className={`pb-4 text-base font-bold whitespace-nowrap transition-colors ${activeTab === 'description' ? 'border-b-2 border-black text-black' : 'text-slate-500 hover:text-slate-800'}`}
             >
               Deskripsi
             </button>
             <button 
               onClick={() => setActiveTab('reviews')}
-              className={`pb-4 text-base font-bold whitespace-nowrap transition-colors ${activeTab === 'reviews' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-slate-500 hover:text-slate-800'}`}
+              className={`pb-4 text-base font-bold whitespace-nowrap transition-colors ${activeTab === 'reviews' ? 'border-b-2 border-black text-black' : 'text-slate-500 hover:text-slate-800'}`}
             >
               Ulasan ({reviewsTotal})
             </button>
@@ -324,9 +326,9 @@ export const ProductDetail: React.FC = () => {
                 {/* Review Form */}
                 {user ? (
                   <form onSubmit={handleReviewSubmit} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 className="font-bold text-slate-900 mb-4">Write a Review</h3>
+                    <h3 className="font-bold text-slate-900 mb-4">Tulis Ulasan</h3>
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Rating</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Penilaian</label>
                       <div className="flex gap-2">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <button
@@ -341,28 +343,28 @@ export const ProductDetail: React.FC = () => {
                       </div>
                     </div>
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Comment</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Komentar</label>
                       <textarea
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                         className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 p-3 border"
                         rows={3}
-                        placeholder="What do you think about this product?"
+                        placeholder="Bagaimana pendapat Anda tentang kualitas produk ini?"
                         required
                       ></textarea>
                     </div>
                     <button
                       type="submit"
                       disabled={isSubmittingReview}
-                      className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50"
+                      className="px-4 py-2 bg-black text-white rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50"
                     >
-                      {isSubmittingReview ? 'Submitting...' : 'Submit Review'}
+                      {isSubmittingReview ? 'Mengirim...' : 'Kirim Ulasan'}
                     </button>
                   </form>
                 ) : (
                   <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center">
-                    <p className="text-slate-600 mb-2">Please log in to write a review for this product.</p>
-                    <Link to="/login" className="text-primary-600 font-medium hover:underline">Log in now</Link>
+                    <p className="text-slate-600 mb-2">Silakan masuk ke akun Anda untuk menulis ulasan produk ini.</p>
+                    <Link to="/login" className="text-slate-900 font-bold hover:underline">Masuk sekarang</Link>
                   </div>
                 )}
 
@@ -390,14 +392,14 @@ export const ProductDetail: React.FC = () => {
                             </div>
                           </div>
                           <span className="text-xs text-slate-400">
-                            {new Date(review.createdAt).toLocaleDateString()}
+                            {new Date(review.createdAt).toLocaleDateString('id-ID')}
                           </span>
                         </div>
                         <p className="text-slate-600 text-sm mt-2">{review.comment}</p>
                       </div>
                     ))
                   ) : (
-                    <p className="text-slate-500 text-center py-8">No reviews yet. Be the first to review this product!</p>
+                    <p className="text-slate-500 text-center py-8">Belum ada ulasan. Jadilah yang pertama memberikan ulasan untuk produk ini!</p>
                   )}
                 </div>
               </div>

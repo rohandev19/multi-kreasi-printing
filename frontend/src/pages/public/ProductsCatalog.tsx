@@ -69,7 +69,7 @@ export const ProductsCatalog: React.FC = () => {
       {/* 1. PAGE HEADER */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
         <div className="text-sm text-slate-500 font-medium mb-4">
-          <Link to="/" className="hover:text-primary-600">Beranda</Link> <span className="mx-2">&gt;</span> Katalog Produk
+          <Link to="/" className="hover:text-slate-900">Beranda</Link> <span className="mx-2">&gt;</span> Katalog Produk
         </div>
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Katalog Produk</h1>
         <p className="text-slate-500 font-medium mt-2">Layanan cetak berkualitas tinggi untuk kebutuhan bisnis Anda</p>
@@ -83,7 +83,7 @@ export const ProductsCatalog: React.FC = () => {
             <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} weight="regular" />
             <input 
               type="text" 
-              placeholder="Search products..." 
+              placeholder="Cari produk percetakan..." 
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm placeholder:text-slate-400 outline-none transition-all"
@@ -95,11 +95,11 @@ export const ProductsCatalog: React.FC = () => {
               onClick={() => setActiveCategoryId('all')}
               className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
                 activeCategoryId === 'all'
-                  ? 'bg-primary-600 text-white' 
+                  ? 'bg-black text-white shadow-sm' 
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
-              All
+              Semua
             </button>
             {categories.map(cat => (
               <button
@@ -107,7 +107,7 @@ export const ProductsCatalog: React.FC = () => {
                 onClick={() => setActiveCategoryId(cat.id)}
                 className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
                   activeCategoryId === cat.id
-                    ? 'bg-primary-600 text-white' 
+                    ? 'bg-black text-white shadow-sm' 
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
@@ -120,15 +120,15 @@ export const ProductsCatalog: React.FC = () => {
             <div className="flex bg-slate-100 p-1 rounded-lg">
               <button 
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                aria-label="Grid View"
+                className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white text-black shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                aria-label="Tampilan Grid"
               >
                 <GridFour size={18} weight="regular" />
               </button>
               <button 
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                aria-label="List View"
+                className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white text-black shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                aria-label="Tampilan Daftar"
               >
                 <List size={18} weight="regular" />
               </button>
@@ -139,10 +139,10 @@ export const ProductsCatalog: React.FC = () => {
               onChange={e => setSortBy(e.target.value)}
               className="px-4 py-2.5 border border-slate-200 rounded-xl bg-white text-sm text-slate-600 focus:ring-2 focus:ring-primary-500 outline-none cursor-pointer"
             >
-              <option value="newest">Newest</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="popular">Popular</option>
+              <option value="newest">Terbaru</option>
+              <option value="price-low">Harga: Terendah ke Tertinggi</option>
+              <option value="price-high">Harga: Tertinggi ke Terendah</option>
+              <option value="popular">Terpopuler</option>
             </select>
           </div>
         </div>
@@ -153,8 +153,8 @@ export const ProductsCatalog: React.FC = () => {
         {loading ? (
           <div className="flex items-center justify-center min-h-[40vh]">
              <div className="flex flex-col items-center gap-4">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-primary-600"></div>
-                <p className="text-sm font-medium text-slate-500">Loading catalog...</p>
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-black"></div>
+                <p className="text-sm font-medium text-slate-500">Memuat katalog produk...</p>
              </div>
           </div>
         ) : filteredProducts.length === 0 ? (
@@ -165,7 +165,7 @@ export const ProductsCatalog: React.FC = () => {
             <div className="flex flex-wrap items-center justify-center gap-3">
               <button 
                 onClick={() => { setSearchQuery(''); setActiveCategoryId('all'); }}
-                className="px-6 py-2.5 bg-primary-50 text-primary-700 font-bold rounded-xl hover:bg-primary-100 transition-colors"
+                className="px-6 py-2.5 bg-slate-100 text-slate-900 font-bold rounded-xl hover:bg-slate-200 transition-colors"
               >
                 Reset Filter
               </button>
@@ -182,21 +182,21 @@ export const ProductsCatalog: React.FC = () => {
                   {product.images && product.images.length > 0 ? (
                     <img src={product.images[0].url} alt={product.name} className="object-contain w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   ) : (
-                    <div className="flex items-center justify-center h-full w-full text-slate-400">No Image</div>
+                    <div className="flex items-center justify-center h-full w-full text-slate-400">Tidak ada gambar</div>
                   )}
                   {product.isNew && (
-                    <span className="absolute top-3 left-3 bg-primary-600 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-sm z-10">NEW</span>
+                    <span className="absolute top-3 left-3 bg-black text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-sm z-10">BARU</span>
                   )}
                   <Link to={`/products/${product.id}`} className="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 backdrop-blur-[2px]">
-                    <span className="bg-white text-slate-900 font-bold text-sm px-6 py-2.5 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Quick View</span>
+                    <span className="bg-white text-slate-900 font-bold text-sm px-6 py-2.5 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Lihat Detail Cepat</span>
                   </Link>
                 </div>
                 <div className="p-5 flex flex-col flex-1">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-primary-600 uppercase tracking-wider">{product.categoryName || 'Uncategorized'}</span>
+                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">{product.categoryName || 'Lainnya'}</span>
                     {product.sku && <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">SKU: {product.sku}</span>}
                   </div>
-                  <Link to={`/products/${product.id}`} className="text-base font-bold text-slate-900 mb-1 line-clamp-2 hover:text-primary-600 transition-colors">{product.name}</Link>
+                  <Link to={`/products/${product.id}`} className="text-base font-bold text-slate-900 mb-1 line-clamp-2 hover:text-black transition-colors">{product.name}</Link>
                   <p className="text-sm text-slate-500 line-clamp-2 mb-4 flex-1">{product.description}</p>
                   <div className="flex flex-col gap-1 mb-4">
                     <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Mulai dari</span>
@@ -208,13 +208,13 @@ export const ProductsCatalog: React.FC = () => {
                   <div className="grid grid-cols-2 gap-2 mt-auto">
                     <Link 
                       to={`/products/${product.id}`}
-                      className="h-10 bg-slate-50 text-slate-700 text-sm font-bold rounded-xl hover:bg-slate-100 transition-all flex items-center justify-center border border-slate-200"
+                      className="h-9 bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-100 transition-all flex items-center justify-center border border-slate-200 px-2 text-center"
                     >
                       Lihat Detail
                     </Link>
                     <Link 
                       to={`/contact?product=${product.id}`}
-                      className="h-10 bg-primary-50 text-primary-700 text-sm font-bold rounded-xl hover:bg-primary-600 hover:text-white transition-all flex items-center justify-center border border-primary-100 hover:border-primary-600"
+                      className="h-9 bg-black text-white text-xs font-semibold rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center border border-black hover:border-slate-800 px-2 text-center shadow-sm"
                     >
                       Minta Penawaran
                     </Link>
@@ -231,15 +231,15 @@ export const ProductsCatalog: React.FC = () => {
                   {product.images && product.images.length > 0 ? (
                     <img src={product.images[0].url} alt={product.name} className="w-full h-full object-contain" />
                   ) : (
-                    <span className="text-slate-400">No Image</span>
+                    <span className="text-slate-400">Tidak ada gambar</span>
                   )}
                   {product.isNew && (
-                    <span className="absolute top-2 left-2 bg-primary-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">NEW</span>
+                    <span className="absolute top-2 left-2 bg-black text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">BARU</span>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold text-primary-600 uppercase tracking-wider">{product.categoryName || 'Uncategorized'}</span>
+                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">{product.categoryName || 'Lainnya'}</span>
                     {product.sku && <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">SKU: {product.sku}</span>}
                   </div>
                   <h3 className="text-lg font-bold text-slate-900 mb-1 truncate">{product.name}</h3>
@@ -262,7 +262,7 @@ export const ProductsCatalog: React.FC = () => {
                     </Link>
                     <Link 
                       to={`/contact?product=${product.id}`}
-                      className="flex-1 sm:flex-none px-6 h-10 bg-primary-600 text-white text-sm font-semibold rounded-xl hover:bg-primary-700 transition-colors flex items-center justify-center"
+                      className="flex-1 sm:flex-none px-6 h-10 bg-black text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center shadow-sm"
                     >
                       Minta Penawaran
                     </Link>
@@ -277,12 +277,12 @@ export const ProductsCatalog: React.FC = () => {
         {filteredProducts.length > 0 && (
           <div className="mt-12 flex items-center justify-between border-t border-slate-200 pt-6">
             <div className="text-sm text-slate-500 font-medium">
-              Showing <span className="font-bold text-slate-900">1-{filteredProducts.length}</span> of <span className="font-bold text-slate-900">{filteredProducts.length}</span> results
+              Menampilkan <span className="font-bold text-slate-900">1-{filteredProducts.length}</span> dari <span className="font-bold text-slate-900">{filteredProducts.length}</span> produk
             </div>
             <div className="flex gap-1">
-              <button disabled className="px-3 py-1.5 bg-slate-50 text-slate-400 border border-slate-200 rounded-lg text-sm font-medium cursor-not-allowed">Previous</button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium bg-primary-600 text-white border-primary-600 border shadow-sm">1</button>
-              <button disabled className="px-3 py-1.5 bg-slate-50 text-slate-400 border border-slate-200 rounded-lg text-sm font-medium cursor-not-allowed">Next</button>
+              <button disabled className="px-3 py-1.5 bg-slate-50 text-slate-400 border border-slate-200 rounded-lg text-sm font-medium cursor-not-allowed">Sebelumnya</button>
+              <button className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium bg-black text-white border-black border shadow-sm">1</button>
+              <button disabled className="px-3 py-1.5 bg-slate-50 text-slate-400 border border-slate-200 rounded-lg text-sm font-medium cursor-not-allowed">Berikutnya</button>
             </div>
           </div>
         )}

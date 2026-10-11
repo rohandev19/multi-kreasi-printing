@@ -12,7 +12,7 @@ export const VerifyEmailPage = () => {
     const verifyEmail = async () => {
       if (!token) {
         setStatus('error');
-        setErrorMessage('Invalid verification token.');
+        setErrorMessage('Token verifikasi tidak valid.');
         return;
       }
       
@@ -21,7 +21,7 @@ export const VerifyEmailPage = () => {
         setStatus('success');
       } catch (err: any) {
         setStatus('error');
-        setErrorMessage(err.response?.data?.message || 'This link may have expired or already been used.');
+        setErrorMessage(err.response?.data?.message || 'Tautan ini mungkin sudah kedaluwarsa atau pernah digunakan sebelumnya.');
       }
     };
 
@@ -35,8 +35,8 @@ export const VerifyEmailPage = () => {
         {status === 'verifying' && (
           <div className="flex flex-col items-center">
             <div className="animate-spin h-16 w-16 border-4 border-primary-200 border-t-primary-600 rounded-full mb-6"></div>
-            <h2 className="text-xl font-bold text-slate-900">Verifying your email...</h2>
-            <p className="text-slate-500 mt-2 text-sm">Please wait while we confirm your email address.</p>
+            <h2 className="text-xl font-bold text-slate-900">Memverifikasi email Anda...</h2>
+            <p className="text-slate-500 mt-2 text-sm">Mohon tunggu selagi kami mengonfirmasi alamat email Anda.</p>
           </div>
         )}
 
@@ -45,15 +45,15 @@ export const VerifyEmailPage = () => {
             <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
               <CheckCircle size={48} className="text-emerald-600" weight="regular" />
             </div>
-            <h2 className="text-2xl font-extrabold text-slate-900 mb-3">Email Verified!</h2>
+            <h2 className="text-2xl font-extrabold text-slate-900 mb-3">Email Berhasil Diverifikasi!</h2>
             <p className="text-slate-500 text-sm mb-8">
-              Your account is now active. You can log in to start placing orders.
+              Akun Anda sekarang telah aktif. Silakan masuk untuk mulai membuat dan memantau pesanan percetakan.
             </p>
             <Link 
               to="/login"
-              className="w-full h-12 bg-primary-600 text-white rounded-xl font-semibold flex items-center justify-center hover:bg-primary-700 transition-colors"
+              className="w-full h-12 bg-black text-white rounded-xl font-semibold flex items-center justify-center hover:bg-slate-800 transition-colors"
             >
-              Go to Login
+              Masuk ke Akun
             </Link>
           </div>
         )}
@@ -63,22 +63,22 @@ export const VerifyEmailPage = () => {
             <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
               <XCircle size={48} className="text-red-600" weight="regular" />
             </div>
-            <h2 className="text-2xl font-extrabold text-slate-900 mb-3">Verification Failed</h2>
+            <h2 className="text-2xl font-extrabold text-slate-900 mb-3">Verifikasi Gagal</h2>
             <p className="text-slate-500 text-sm mb-8">
               {errorMessage}
             </p>
             <div className="flex flex-col w-full gap-4">
               <button 
                 onClick={() => window.location.reload()}
-                className="w-full h-12 bg-primary-600 text-white rounded-xl font-semibold flex items-center justify-center hover:bg-primary-700 transition-colors"
+                className="w-full h-12 bg-black text-white rounded-xl font-semibold flex items-center justify-center hover:bg-slate-800 transition-colors"
               >
-                Try Again
+                Coba Lagi
               </button>
               <Link 
                 to="/"
                 className="text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
               >
-                Back to Home
+                Kembali ke Beranda
               </Link>
             </div>
           </div>

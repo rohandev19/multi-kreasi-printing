@@ -27,10 +27,10 @@ export const ResetPassword = () => {
     const normalizedScore = Math.min(Math.ceil((score / 5) * 4), 4);
     
     switch (normalizedScore) {
-      case 1: return { score: 1, label: 'Weak', color: 'bg-red-500' };
-      case 2: return { score: 2, label: 'Fair', color: 'bg-amber-500' };
-      case 3: return { score: 3, label: 'Good', color: 'bg-blue-500' };
-      case 4: return { score: 4, label: 'Strong', color: 'bg-emerald-500' };
+      case 1: return { score: 1, label: 'Lemah', color: 'bg-red-500' };
+      case 2: return { score: 2, label: 'Cukup', color: 'bg-amber-500' };
+      case 3: return { score: 3, label: 'Bagus', color: 'bg-blue-500' };
+      case 4: return { score: 4, label: 'Kuat', color: 'bg-emerald-500' };
       default: return { score: 0, label: '', color: 'bg-slate-200' };
     }
   };
@@ -41,12 +41,12 @@ export const ResetPassword = () => {
     e.preventDefault();
     
     if (password !== confirmPassword) {
-      error('Error', 'Passwords do not match');
+      error('Kesalahan', 'Kata sandi tidak cocok');
       return;
     }
 
     if (password.length < 8) {
-      error('Error', 'Password must be at least 8 characters long');
+      error('Kesalahan', 'Kata sandi minimal harus 8 karakter');
       return;
     }
 
@@ -59,7 +59,7 @@ export const ResetPassword = () => {
       setIsSuccess(true);
     } catch (err: any) {
       console.error('Failed to reset password', err);
-      error('Reset Failed', err.response?.data?.message || 'Failed to reset password. The link might be expired.');
+      error('Gagal Mengatur Ulang', err.response?.data?.message || 'Gagal mengatur ulang kata sandi. Tautan mungkin telah kedaluwarsa.');
     } finally {
       setLoading(false);
     }
@@ -69,15 +69,15 @@ export const ResetPassword = () => {
     <div className="bg-slate-50 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
       
       {/* Decorative background elements */}
-      <div className="absolute bottom-0 right-0 w-full h-96 bg-primary-600 rounded-t-[4rem] sm:rounded-t-[8rem] translate-y-20 shadow-lg hidden sm:block"></div>
-      <div className="absolute bottom-20 left-20 w-64 h-64 bg-primary-500/30 rounded-full blur-3xl hidden lg:block"></div>
+      <div className="absolute bottom-0 right-0 w-full h-96 bg-black rounded-t-[4rem] sm:rounded-t-[8rem] translate-y-20 shadow-lg hidden sm:block"></div>
+      <div className="absolute bottom-20 left-20 w-64 h-64 bg-slate-800/20 rounded-full blur-3xl hidden lg:block"></div>
 
       <div className="max-w-md w-full relative z-10">
         
         <div className="text-center mb-8 sm:mb-10">
           <Link to="/" className="inline-block">
             <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4 border border-slate-100">
-              <span className="text-2xl font-black text-primary-600 tracking-tighter">MK</span>
+              <span className="text-2xl font-black text-slate-900 tracking-tighter">MK</span>
             </div>
           </Link>
         </div>
@@ -90,32 +90,32 @@ export const ResetPassword = () => {
                 <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
                   <CheckCircle className="w-10 h-10 text-emerald-600" weight="regular" />
                 </div>
-                <h2 className="text-2xl font-extrabold text-slate-900 mb-3 tracking-tight">Password Reset Successfully</h2>
+                <h2 className="text-2xl font-extrabold text-slate-900 mb-3 tracking-tight">Kata Sandi Berhasil Diperbarui</h2>
                 <p className="text-slate-500 font-medium mb-8 leading-relaxed">
-                  Your password has been successfully updated. You can now use your new password to log in.
+                  Kata sandi Anda telah berhasil diperbarui. Anda sekarang dapat menggunakan kata sandi baru untuk masuk.
                 </p>
                 
                 <Link 
                   to="/login"
-                  className="w-full flex items-center justify-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-sm text-base font-bold text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all active:scale-[0.98]"
+                  className="w-full flex items-center justify-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-sm text-base font-bold text-white bg-black hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all active:scale-[0.98]"
                 >
-                  Proceed to Login
+                  Lanjut ke Halaman Masuk
                   <ArrowRight size={20} weight="regular" />
                 </Link>
               </div>
             ) : (
               <div className="animate-fade-in">
                 <div className="text-center mb-8">
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3 tracking-tight">Set new password</h2>
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3 tracking-tight">Buat Kata Sandi Baru</h2>
                   <p className="text-slate-500 font-medium text-sm sm:text-base leading-relaxed">
-                    Your new password must be different to previously used passwords.
+                    Kata sandi baru Anda harus berbeda dari kata sandi yang digunakan sebelumnya.
                   </p>
                 </div>
 
                 <form className="space-y-6" onSubmit={handleSubmit}>
                   <div>
                     <label className="block text-sm font-bold text-slate-700 mb-2">
-                      New Password
+                      Kata Sandi Baru
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -127,12 +127,12 @@ export const ResetPassword = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="block w-full pl-12 pr-12 py-4 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600 font-medium transition-colors"
-                        placeholder="Must be at least 8 characters"
+                        placeholder="Minimal 8 karakter"
                       />
                       <button 
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-primary-600 focus:outline-none"
+                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-900 focus:outline-none"
                       >
                         {showPassword ? <EyeSlash className="h-5 w-5" weight="regular" /> : <Eye className="h-5 w-5" weight="regular" />}
                       </button>
@@ -160,7 +160,7 @@ export const ResetPassword = () => {
 
                   <div>
                     <label className="block text-sm font-bold text-slate-700 mb-2">
-                      Confirm New Password
+                      Konfirmasi Kata Sandi Baru
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -172,26 +172,26 @@ export const ResetPassword = () => {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         className={`block w-full pl-12 pr-4 py-4 border rounded-xl bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 font-medium transition-colors ${confirmPassword && password !== confirmPassword ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-slate-200 focus:ring-primary-600 focus:border-primary-600'}`}
-                        placeholder="Confirm your password"
+                        placeholder="Ulangi kata sandi baru Anda"
                       />
                     </div>
                     {confirmPassword && password !== confirmPassword && (
-                      <p className="mt-2 text-xs font-bold text-red-600">Passwords do not match</p>
+                      <p className="mt-2 text-xs font-bold text-red-600">Kata sandi tidak cocok</p>
                     )}
                   </div>
 
                   <button
                     type="submit"
                     disabled={loading || !password || password !== confirmPassword}
-                    className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-md shadow-primary-600/20 text-base font-bold text-white bg-primary-600 hover:bg-primary-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-all active:scale-[0.98]"
+                    className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-md text-base font-bold text-white bg-black hover:bg-slate-800 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:opacity-50 transition-all active:scale-[0.98]"
                   >
                     {loading ? (
                       <div className="flex items-center gap-2">
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        <span>Resetting...</span>
+                        <span>Memperbarui...</span>
                       </div>
                     ) : (
-                      'Reset Password'
+                      'Perbarui Kata Sandi'
                     )}
                   </button>
                 </form>

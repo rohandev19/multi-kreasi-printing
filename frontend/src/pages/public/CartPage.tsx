@@ -33,18 +33,18 @@ export const CartPage: React.FC = () => {
           <div className="lg:w-2/3">
             {/* Header */}
             <div className="mb-8">
-              <Link to="/products" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-primary-600 mb-4 transition-colors">
-                <ArrowLeft size={16} className="mr-1" weight="regular" /> Back to Catalog
+              <Link to="/products" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-black mb-4 transition-colors">
+                <ArrowLeft size={16} className="mr-1" weight="regular" /> Kembali ke Katalog
               </Link>
               <div className="flex items-end justify-between">
-                <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Shopping Cart</h1>
-                <span className="text-slate-400 text-lg font-medium">{items.length} items</span>
+                <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Keranjang Belanja</h1>
+                <span className="text-slate-400 text-lg font-medium">{items.length} produk</span>
               </div>
             </div>
 
             {loading && items.length === 0 ? (
               <div className="bg-white rounded-2xl border border-slate-100 p-16 flex flex-col items-center justify-center text-center shadow-sm">
-                <CircleNotch size={48} className="text-primary-600 animate-spin mb-4" />
+                <CircleNotch size={48} className="text-black animate-spin mb-4" />
                 <h2 className="text-2xl font-bold text-slate-900 mb-2">Memuat keranjang...</h2>
               </div>
             ) : items.length === 0 ? (
@@ -54,7 +54,7 @@ export const CartPage: React.FC = () => {
                 </div>
                 <h2 className="text-2xl font-bold text-slate-900 mb-2">Keranjang Anda masih kosong</h2>
                 <p className="text-slate-500 mb-8">Belum ada item yang ditambahkan. Katalog produk akan muncul setelah data tersedia.</p>
-                <Link to="/products" className="px-8 py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-colors shadow-sm">
+                <Link to="/products" className="px-8 py-3 bg-black text-white font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-sm">
                   Lihat Katalog
                 </Link>
               </div>
@@ -66,13 +66,13 @@ export const CartPage: React.FC = () => {
                       {item.image ? (
                         <img src={item.image} alt={item.productName} className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-xs text-slate-400 font-medium">No Image</span>
+                        <span className="text-xs text-slate-400 font-medium">Tidak ada gambar</span>
                       )}
                     </div>
                     
                     <div className="flex-1 min-w-0">
                       <h3 className="text-base font-bold text-slate-900 mb-1 truncate">{item.productName}</h3>
-                      <p className="text-sm text-slate-500 mb-2 truncate">B2B Standard Quality</p>
+                      <p className="text-sm text-slate-500 mb-2 truncate">Standar Percetakan Industri</p>
                       <span className="text-xs text-slate-400 font-mono bg-slate-100 px-2 py-1 rounded-md">PROD-{item.productId.slice(0,6).toUpperCase()}</span>
                     </div>
 
@@ -106,7 +106,7 @@ export const CartPage: React.FC = () => {
                         onClick={() => removeItem(item.productId)}
                         disabled={loading}
                         className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0 disabled:opacity-50"
-                        title="Remove item"
+                        title="Hapus produk"
                       >
                         <Trash size={18} weight="regular" />
                       </button>
@@ -120,7 +120,7 @@ export const CartPage: React.FC = () => {
           {/* RIGHT COLUMN: Order Summary */}
           <div className="lg:w-1/3">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sticky top-24">
-              <h2 className="text-lg font-bold text-slate-900 mb-6">Order Summary</h2>
+              <h2 className="text-lg font-bold text-slate-900 mb-6">Ringkasan Pesanan</h2>
               
               {items.length > 0 && (
                 <div className="max-h-60 overflow-y-auto no-scrollbar mb-6 space-y-3 pr-2">
@@ -139,12 +139,12 @@ export const CartPage: React.FC = () => {
                   <span className="text-slate-900 font-semibold">{formatIDR(subtotal)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-medium text-sm">Tax (11% PPN)</span>
+                  <span className="text-slate-500 font-medium text-sm">Pajak (PPN 11%)</span>
                   <span className="text-slate-900 font-semibold">{formatIDR(tax)}</span>
                 </div>
                 <div className="border-t border-slate-100 pt-4 mt-2 flex justify-between items-end">
                   <span className="text-slate-900 font-bold">Total</span>
-                  <span className="text-2xl font-extrabold" style={{ color: '#0284c7' }}>{formatIDR(total)}</span>
+                  <span className="text-2xl font-extrabold text-black">{formatIDR(total)}</span>
                 </div>
               </div>
 
@@ -157,29 +157,29 @@ export const CartPage: React.FC = () => {
                       : ''
                   }`}
                   style={items.length > 0 ? {
-                    background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)', 
+                    background: '#000000', 
                     color: '#ffffff',
-                    boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)',
+                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.3)',
                   } : {}}
                   onMouseEnter={e => {
-                    if (items.length > 0) e.currentTarget.style.background = 'linear-gradient(135deg, #0369a1 0%, #075985 100%)';
+                    if (items.length > 0) e.currentTarget.style.background = '#1e293b';
                   }}
                   onMouseLeave={e => {
-                    if (items.length > 0) e.currentTarget.style.background = 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)';
+                    if (items.length > 0) e.currentTarget.style.background = '#000000';
                   }}
                 >
-                  Proceed to Checkout <ArrowRight size={20} weight="regular" />
+                  Lanjut ke Pembayaran <ArrowRight size={20} weight="regular" />
                 </Link>
                 
                 <div className="text-center mt-4">
-                  <Link to="/products" className="text-sm font-semibold transition-colors" style={{ color: '#0284c7' }} onMouseEnter={e => e.currentTarget.style.color = '#0369a1'} onMouseLeave={e => e.currentTarget.style.color = '#0284c7'}>
-                    Continue Shopping
+                  <Link to="/products" className="text-sm font-semibold transition-colors text-black hover:underline">
+                    Lanjutkan Belanja
                   </Link>
                 </div>
               </div>
 
               <div className="mt-6 pt-6 border-t border-slate-100 flex items-center justify-center gap-2 text-xs text-slate-400 font-medium">
-                <Lock size={14} weight="regular" /> Secure B2B Checkout
+                <Lock size={14} weight="regular" /> Pembayaran B2B Terenkripsi &amp; Aman
               </div>
             </div>
           </div>
