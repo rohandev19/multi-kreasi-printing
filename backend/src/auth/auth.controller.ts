@@ -85,7 +85,7 @@ export class AuthController {
     }
     const dbUser = await this.prisma.user.findUnique({
       where: { id: user.sub },
-      include: { role: true },
+      include: { role: { include: { permissions: true } } },
     });
     if (!dbUser) {
       throw new UnauthorizedException();
@@ -93,8 +93,13 @@ export class AuthController {
     return {
       id: dbUser.id,
       email: dbUser.email,
-      role: dbUser.role.name,
+      role: dbUser.role?.name || '',
       name: dbUser.fullName,
+      permissions: (dbUser.role?.permissions || []).map((p) => ({
+        action: p.action,
+        subject: p.subject,
+        conditions: p.conditions,
+      })),
     };
   }
 

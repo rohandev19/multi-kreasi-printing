@@ -9,7 +9,7 @@ import { RegisterUseCase } from './use-cases/register.usecase';
 import { ChangePasswordUseCase } from './use-cases/change-password.usecase';
 import { EmailVerificationService } from './services/email-verification.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RolesGuard } from './guards/roles.guard';
+import { PermissionsGuard } from './guards/permissions.guard';
 
 @Global()
 @Module({
@@ -28,7 +28,7 @@ import { RolesGuard } from './guards/roles.guard';
     },
     {
       provide: APP_GUARD,
-      useClass: RolesGuard,
+      useClass: PermissionsGuard,
     },
   ],
   exports: [JwtService],

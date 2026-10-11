@@ -38,7 +38,6 @@ export class RegisterUseCase {
           name: 'Customer',
           displayName: 'Customer',
           description: 'Regular customer',
-          permissions: [],
         },
       });
     }

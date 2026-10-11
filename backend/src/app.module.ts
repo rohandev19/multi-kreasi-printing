@@ -29,19 +29,23 @@ import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis'
 import { APP_GUARD } from '@nestjs/core';
 import { QuotationsModule } from './quotations/quotations.module';
 import { SettingsModule } from './settings/settings.module';
+import { RolesModule } from './roles/roles.module';
+import { ChatsModule } from './chats/chats.module';
 
 @Module({
   imports: [
     AlsModule,
-    ConfigModule.forRoot({ 
+    ConfigModule.forRoot({
       isGlobal: true,
       validate: (config) => {
-        const schema = z.object({
-          DATABASE_URL: z.string().url().optional(),
-          JWT_SECRET: z.string().optional(), // In real enterprise this would be required
-        }).passthrough();
+        const schema = z
+          .object({
+            DATABASE_URL: z.string().url().optional(),
+            JWT_SECRET: z.string().optional(), // In real enterprise this would be required
+          })
+          .passthrough();
         return schema.parse(config);
-      }
+      },
     }),
     CacheModule,
     LoggerModule,
@@ -108,6 +112,8 @@ import { SettingsModule } from './settings/settings.module';
     }),
     QuotationsModule,
     SettingsModule,
+    RolesModule,
+    ChatsModule,
   ],
   controllers: [AppController],
   providers: [

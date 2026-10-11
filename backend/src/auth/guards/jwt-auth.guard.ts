@@ -7,6 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '../jwt.service';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { ALS } from '../../common/als/als.module';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -43,6 +44,12 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     request.user = { ...payload, id: payload.sub };
+
+    const store = ALS.getStore();
+    if (store) {
+      store.set('user', request.user);
+    }
+
     return true;
   }
 }
