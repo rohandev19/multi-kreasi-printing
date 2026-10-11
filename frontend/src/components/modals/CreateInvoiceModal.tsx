@@ -14,8 +14,8 @@ interface CreateInvoiceModalProps {
 }
 
 const invoiceSchema = z.object({
-  orderId: z.string().min(1, 'Order is required'),
-  dueDate: z.string().min(1, 'Due date is required'),
+  orderId: z.string().min(1, 'Pesanan wajib dipilih'),
+  dueDate: z.string().min(1, 'Tanggal jatuh tempo wajib diisi'),
 });
 
 type InvoiceFormValues = z.infer<typeof invoiceSchema>;
@@ -63,7 +63,7 @@ export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
       }));
       setOrders(Array.isArray(response.data) ? response.data : response.data.data || []);
     } catch {
-      console.error('Failed to fetch orders');
+      console.error('Gagal mengambil daftar pesanan');
     } finally {
       setFetchingOrders(false);
     }
@@ -81,34 +81,34 @@ export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
     setLoading(true);
     try {
       await api.post('/api/v1/invoices', data);
-      success('Invoice Created', 'New invoice has been generated successfully.');
+      success('Faktur Berhasil Dibuat', 'Faktur tagihan baru telah berhasil diterbitkan.');
       onSuccess();
       onClose();
     } catch (err: any) {
-      error('Creation Failed', err.response?.data?.message || 'Please try again later.');
+      error('Pembuatan Faktur Gagal', err.response?.data?.message || 'Silakan coba beberapa saat lagi.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create Invoice" size="md">
+    <Modal isOpen={isOpen} onClose={onClose} title="Buat Faktur Tagihan" size="md">
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Select Order <span className="text-red-500">*</span>
+              Pilih Pesanan <span className="text-red-500">*</span>
             </label>
             {fetchingOrders ? (
               <div className="h-10 border border-slate-200 rounded-lg flex items-center px-3 bg-slate-50 text-sm text-slate-500">
-                Loading orders...
+                Memuat daftar pesanan...
               </div>
             ) : (
               <select
                 {...register('orderId')}
-                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.orderId ? 'border-red-500' : ''}`}
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.orderId ? 'border-red-500' : ''}`}
               >
-                <option value="">Select an order to invoice...</option>
+                <option value="">Pilih pesanan yang akan dibuatkan faktur...</option>
                 {orders.map(o => (
                   <option key={o.id} value={o.id}>
                     {o.orderNumber} - {o.customer?.name} ({formatCurrency(o.totalAmount || 0)})
@@ -121,12 +121,12 @@ export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
           
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Due Date <span className="text-red-500">*</span>
+              Tanggal Jatuh Tempo <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
               {...register('dueDate')}
-              className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.dueDate ? 'border-red-500' : ''}`}
+              className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.dueDate ? 'border-red-500' : ''}`}
             />
             {errors.dueDate && <p className="text-red-500 text-xs mt-1">{errors.dueDate.message}</p>}
           </div>
@@ -138,14 +138,14 @@ export const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
             disabled={loading}
             className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
           >
-            Cancel
+            Batal
           </button>
           <button
             type="submit"
             disabled={loading || fetchingOrders}
-            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 disabled:opacity-50"
           >
-            {loading ? 'Creating...' : 'Generate Invoice'}
+            {loading ? 'Membuat...' : 'Terbitkan Faktur'}
           </button>
         </div>
       </form>

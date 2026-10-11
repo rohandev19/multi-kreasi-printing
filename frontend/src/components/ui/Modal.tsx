@@ -74,7 +74,7 @@ export const Modal: React.FC<ModalProps> = ({
               onClick={onClose}
               className="rounded-full p-1.5 transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-100)]"
               style={{ color: 'var(--text-secondary)' }}
-              aria-label="Close"
+              aria-label="Tutup"
             >
               <X size={18} weight="regular" />
             </button>

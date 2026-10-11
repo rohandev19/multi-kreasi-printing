@@ -33,11 +33,11 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
 }) => {
   const getStatusBadge = (status: string) => {
     const config = {
-      In_Stock: { color: 'bg-emerald-100 text-emerald-700', icon: <TrendUp size={14} weight="regular" /> },
-      Low_Stock: { color: 'bg-amber-100 text-amber-700', icon: <Warning size={14} weight="regular" /> },
-      Out_of_Stock: { color: 'bg-red-100 text-red-700', icon: <TrendDown size={14} weight="regular" /> },
+      In_Stock: { label: 'Stok Tersedia', color: 'bg-emerald-100 text-emerald-700', icon: <TrendUp size={14} weight="regular" /> },
+      Low_Stock: { label: 'Stok Menipis', color: 'bg-amber-100 text-amber-700', icon: <Warning size={14} weight="regular" /> },
+      Out_of_Stock: { label: 'Stok Habis', color: 'bg-red-100 text-red-700', icon: <TrendDown size={14} weight="regular" /> },
     };
-    return config[status as keyof typeof config] || config.In_Stock;
+    return config[status as keyof typeof config] || { label: status, color: 'bg-slate-100 text-slate-700', icon: null };
   };
 
   if (loading) {
@@ -67,38 +67,38 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
                 </div>
                 <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${badge.color}`}>
                   {badge.icon}
-                  {material.status.replace(/_/g, ' ')}
+                  {badge.label}
                 </span>
               </div>
               
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <span className="text-slate-500 block text-xs">Category</span>
+                  <span className="text-slate-500 block text-xs">Kategori</span>
                   <span className="text-slate-900">{material.category}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-slate-500 block text-xs">Quantity</span>
+                  <span className="text-slate-500 block text-xs">Jumlah</span>
                   <span className={`font-medium ${isLow ? 'text-red-600' : 'text-slate-900'}`}>
                     {material.quantity} {material.unit}
                   </span>
                 </div>
                 <div className="col-span-2 flex justify-between text-xs text-slate-500 border-t border-slate-100 pt-2 mt-1">
-                  <span>Min Stock: {material.minStock} {material.unit}</span>
+                  <span>Stok Min: {material.minStock} {material.unit}</span>
                 </div>
               </div>
               
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <button
                   onClick={() => onAdjustStock(material.id)}
-                  className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                  title="Adjust Stock"
+                  className="p-1.5 text-slate-400 hover:text-black hover:bg-slate-100 rounded-lg transition-colors"
+                  title="Sesuaikan Stok"
                 >
                   <ArrowsLeftRight size={18} weight="regular" />
                 </button>
                 <button
                   onClick={() => onRecordShipment(material.id)}
                   className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                  title="Record Shipment"
+                  title="Catat Stok Masuk"
                 >
                   <Plus size={18} weight="regular" />
                 </button>
@@ -107,7 +107,7 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
                   <button
                     onClick={() => onEditMaterial(material.id)}
                     className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                    title="Edit Material"
+                    title="Ubah Bahan Baku"
                   >
                     <NotePencil size={18} weight="regular" />
                   </button>
@@ -117,7 +117,7 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
                   <button
                     onClick={() => onDeleteMaterial(material.id)}
                     className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Delete Material"
+                    title="Hapus Bahan Baku"
                   >
                     <Trash size={18} weight="regular" />
                   </button>
@@ -129,7 +129,7 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
         {materials.length === 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-slate-500">
             <Package size={48} className="mx-auto mb-3 text-slate-300" weight="regular" />
-            <p>No materials found in warehouse.</p>
+            <p>Tidak ada bahan baku di gudang.</p>
           </div>
         )}
       </div>
@@ -141,25 +141,25 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Material
+                Bahan Baku
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                 SKU
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Category
+                Kategori
               </th>
               <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Quantity
+                Jumlah
               </th>
               <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Min Stock
+                Stok Min
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                 Status
               </th>
               <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Actions
+                Aksi
               </th>
             </tr>
           </thead>
@@ -168,7 +168,7 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
               <tr>
                 <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
                   <Package size={48} className="mx-auto mb-3 text-slate-300" weight="regular" />
-                  <p>No materials found in warehouse.</p>
+                  <p>Tidak ada bahan baku di gudang.</p>
                 </td>
               </tr>
             ) : (
@@ -196,21 +196,21 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${badge.color}`}>
                         {badge.icon}
-                        {material.status.replace(/_/g, ' ')}
+                        {badge.label}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
                       <button
                         onClick={() => onAdjustStock(material.id)}
-                        className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
-                        title="Adjust Stock"
+                        className="p-1 text-slate-400 hover:text-black transition-colors"
+                        title="Sesuaikan Stok"
                       >
                         <ArrowsLeftRight size={18} weight="regular" />
                       </button>
                       <button
                         onClick={() => onRecordShipment(material.id)}
                         className="p-1 text-slate-400 hover:text-emerald-600 transition-colors"
-                        title="Record Shipment"
+                        title="Catat Stok Masuk"
                       >
                         <Plus size={18} weight="regular" />
                       </button>
@@ -219,7 +219,7 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
                         <button
                           onClick={() => onEditMaterial(material.id)}
                           className="p-1 text-slate-400 hover:text-primary-600 transition-colors"
-                          title="Edit Material"
+                          title="Ubah Bahan Baku"
                         >
                           <NotePencil size={18} weight="regular" />
                         </button>
@@ -229,7 +229,7 @@ export const WarehouseTable: React.FC<WarehouseTableProps> = ({
                         <button
                           onClick={() => onDeleteMaterial(material.id)}
                           className="p-1 text-slate-400 hover:text-red-600 transition-colors"
-                          title="Delete Material"
+                          title="Hapus Bahan Baku"
                         >
                           <Trash size={18} weight="regular" />
                         </button>

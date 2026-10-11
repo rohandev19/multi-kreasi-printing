@@ -33,14 +33,14 @@ export function DataTable<T>({
   data,
   columns,
   loading = false,
-  searchPlaceholder = 'Search...',
+  searchPlaceholder = 'Cari...',
   onSearch,
   searchValue = '',
   filters,
   actions,
   pagination,
-  emptyTitle = 'No data found',
-  emptySubtitle = 'Try adjusting your search or filters',
+  emptyTitle = 'Data tidak ditemukan',
+  emptySubtitle = 'Coba sesuaikan kata kunci pencarian atau filter Anda',
   emptyAction,
   keyExtractor,
 }: DataTableProps<T>) {
@@ -145,9 +145,9 @@ export function DataTable<T>({
       {pagination && data.length > 0 && !loading && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-2">
           <div className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-            Showing {(pagination.currentPage - 1) * pagination.itemsPerPage + 1}-
-            {Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)} of{' '}
-            {pagination.totalItems} results
+            Menampilkan {(pagination.currentPage - 1) * pagination.itemsPerPage + 1}-
+            {Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)} dari{' '}
+            {pagination.totalItems} data
           </div>
           <div className="flex gap-1">
             <button
@@ -156,7 +156,7 @@ export function DataTable<T>({
               className="rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50"
               style={{ backgroundColor: 'var(--bg-elevated)', color: 'var(--text-primary)', borderColor: 'var(--border-default)' }}
             >
-              Previous
+              Sebelumnya
             </button>
             {Array.from({ length: pagination.totalPages }).map((_, i) => {
               const page = i + 1;
@@ -175,7 +175,7 @@ export function DataTable<T>({
                         ? 'border text-white'
                         : 'border'
                     }`}
-                    style={pagination.currentPage === page ? { backgroundColor: 'var(--color-primary-600)', borderColor: 'var(--color-primary-600)' } : { backgroundColor: 'var(--bg-elevated)', color: 'var(--text-primary)', borderColor: 'var(--border-default)' }}
+                    style={pagination.currentPage === page ? { backgroundColor: '#000000', borderColor: '#000000' } : { backgroundColor: 'var(--bg-elevated)', color: 'var(--text-primary)', borderColor: 'var(--border-default)' }}
                   >
                     {page}
                   </button>
@@ -192,7 +192,7 @@ export function DataTable<T>({
               className="rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50"
               style={{ backgroundColor: 'var(--bg-elevated)', color: 'var(--text-primary)', borderColor: 'var(--border-default)' }}
             >
-              Next
+              Selanjutnya
             </button>
           </div>
         </div>

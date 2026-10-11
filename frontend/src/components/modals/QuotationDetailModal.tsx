@@ -33,7 +33,7 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
       const res = await api.get(`/api/v1/quotations/${quotationId}`);
       setQuotation(res.data);
     } catch (err: any) {
-      error('Failed to load', err.response?.data?.message || 'Could not load quotation details.');
+      error('Gagal memuat', err.response?.data?.message || 'Tidak dapat memuat detail penawaran.');
       onClose();
     } finally {
       setLoading(false);
@@ -52,25 +52,31 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
     try {
       await api.post(`/api/v1/quotations/${quotationId}/convert`);
       setIsConvertModalOpen(false);
-      success('Order Created', `Order created from Quotation ${quotationId}`);
+      success('Pesanan Dibuat', `Pesanan berhasil dibuat dari Penawaran ${quotationId}`);
       onClose();
     } catch (err: any) {
-      error('Convert Failed', err.response?.data?.message || 'Please try again.');
+      error('Konversi Gagal', err.response?.data?.message || 'Silakan coba beberapa saat lagi.');
     }
   };
 
   const handleSend = () => {
     setIsSendModalOpen(false);
-    success('Quotation Sent', `Quotation ${quotationId} has been sent.`);
+    success('Penawaran Terkirim', `Penawaran ${quotationId} telah berhasil dikirim.`);
   };
 
-
+  const statusLabels: Record<string, string> = {
+    Accepted: 'Disetujui',
+    Draft: 'Draf',
+    Sent: 'Terkirim',
+    Viewed: 'Dilihat',
+    Declined: 'Ditolak',
+  };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Quotation Details`} size="2xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Detail Penawaran Harga" size="2xl">
       {loading || !quotation ? (
         <div className="p-12 flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
         </div>
       ) : (
       <>
@@ -83,7 +89,7 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
             {/* QUOTATION HEADER */}
             <div className="flex flex-col sm:flex-row justify-between items-start border-b border-slate-200 pb-8 mb-8 gap-6">
               <div className="flex gap-4 items-center">
-                <div className="w-16 h-16 rounded-2xl bg-primary-600 flex items-center justify-center text-white font-black text-2xl shadow-sm print:shadow-none">
+                <div className="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-white font-black text-2xl shadow-sm print:shadow-none">
                   MK
                 </div>
                 <div>
@@ -93,23 +99,23 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
               </div>
               
               <div className="text-left sm:text-right w-full sm:w-auto bg-slate-50 p-4 rounded-xl border border-slate-100 sm:bg-transparent sm:p-0 sm:border-0 print:bg-transparent print:border-0">
-                <h2 className="text-2xl font-black tracking-widest text-slate-300 uppercase mb-2">Quotation</h2>
-                <div className="text-lg font-mono font-bold text-primary-600 mb-2">{quotation.id}</div>
+                <h2 className="text-2xl font-black tracking-widest text-slate-300 uppercase mb-2">Penawaran Harga</h2>
+                <div className="text-lg font-mono font-bold text-slate-900 mb-2">{quotation.id}</div>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:block">
-                  <div className="text-slate-500 mb-1"><span className="font-bold text-slate-700">Date:</span> {quotation.date}</div>
-                  <div className="text-slate-500"><span className="font-bold text-slate-700">Valid Until:</span> {quotation.validUntil}</div>
+                  <div className="text-slate-500 mb-1"><span className="font-bold text-slate-700">Tanggal:</span> {quotation.date}</div>
+                  <div className="text-slate-500"><span className="font-bold text-slate-700">Berlaku Sampai:</span> {quotation.validUntil}</div>
                 </div>
                 <div className="mt-4 sm:flex justify-end hidden print:hidden">
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
                     quotation.status === 'Accepted' ? 'bg-emerald-100 text-emerald-700' :
                     quotation.status === 'Draft' ? 'bg-slate-100 text-slate-600' :
-                    quotation.status === 'Sent' ? 'bg-blue-100 text-blue-700' :
-                    quotation.status === 'Viewed' ? 'bg-primary-100 text-primary-700' :
+                    quotation.status === 'Sent' ? 'bg-slate-100 text-slate-900' :
+                    quotation.status === 'Viewed' ? 'bg-slate-200 text-slate-800' :
                     quotation.status === 'Declined' ? 'bg-red-100 text-red-700' :
                     'bg-slate-100 text-slate-500'
                   }`}>
                     {quotation.status === 'Accepted' && <CheckCircle size={14} weight="regular" />}
-                    {quotation.status}
+                    {statusLabels[quotation.status] || quotation.status}
                   </span>
                 </div>
               </div>
@@ -117,11 +123,11 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
 
             {/* CUSTOMER INFO */}
             <div className="mb-8">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Quotation For</h3>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Ditujukan Kepada</h3>
               <div className="text-sm">
                 <p className="font-bold text-slate-900 text-base">{quotation.customer?.companyName || quotation.customer?.name}</p>
-                <p className="text-slate-700 font-medium mt-1">Attn: {quotation.customer?.name}</p>
-                <p className="text-slate-600 mt-1">{quotation.customer?.address || 'No address provided'}</p>
+                <p className="text-slate-700 font-medium mt-1">U.p.: {quotation.customer?.name}</p>
+                <p className="text-slate-600 mt-1">{quotation.customer?.address || 'Alamat tidak dicantumkan'}</p>
                 <p className="text-slate-600 mt-1">{quotation.customer?.email} • {quotation.customer?.phone}</p>
               </div>
             </div>
@@ -132,11 +138,11 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
                 <thead className="bg-slate-50 print:bg-slate-100">
                   <tr>
                     <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-12">#</th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Description & Specs</th>
-                    <th scope="col" className="px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Qty</th>
-                    <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Unit Price</th>
-                    <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Disc</th>
-                    <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Amount</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Deskripsi & Spesifikasi</th>
+                    <th scope="col" className="px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Jumlah</th>
+                    <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Harga Satuan</th>
+                    <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Diskon</th>
+                    <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Total</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-100">
@@ -144,8 +150,8 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
                     <tr key={item.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50 print:bg-white'}>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-500">{idx + 1}</td>
                       <td className="px-4 py-3">
-                        <div className="text-sm font-bold text-slate-900">{item.product?.name || 'Custom Product'}</div>
-                        <div className="text-xs text-slate-500">{item.product?.description || 'Standard specs'}</div>
+                        <div className="text-sm font-bold text-slate-900">{item.product?.name || 'Produk Kustom'}</div>
+                        <div className="text-xs text-slate-500">{item.product?.description || 'Spesifikasi standar'}</div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-700 text-center">{item.quantity}</td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-700 text-right font-mono">{formatCurrency(item.unitPrice)}</td>
@@ -160,7 +166,7 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
             {/* TOTALS & TERMS */}
             <div className="flex flex-col md:flex-row justify-between gap-8 mb-8">
               <div className="w-full md:w-1/2 order-2 md:order-1">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Terms & Conditions</h3>
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Syarat & Ketentuan</h3>
                 <div className="text-xs text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50 p-4 rounded-xl border border-slate-100">
                   {quotation.terms}
                 </div>
@@ -174,12 +180,12 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
                       <span className="font-mono text-slate-900 font-bold">{formatCurrency(quotation.totalAmount)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-medium">Tax (11%)</span>
+                      <span className="text-slate-600 font-medium">PPN (11%)</span>
                       <span className="font-mono text-slate-900">{formatCurrency(quotation.totalAmount * 0.11)}</span>
                     </div>
                     <div className="pt-3 mt-3 border-t border-slate-200 flex justify-between items-center">
-                      <span className="font-bold text-slate-900 text-base">Grand Total</span>
-                      <span className="text-2xl font-extrabold text-primary-600 tracking-tight font-mono">{formatCurrency(quotation.totalAmount * 1.11)}</span>
+                      <span className="font-bold text-slate-900 text-base">Total Akhir</span>
+                      <span className="text-2xl font-extrabold text-slate-900 tracking-tight font-mono">{formatCurrency(quotation.totalAmount * 1.11)}</span>
                     </div>
                   </div>
                 </div>
@@ -190,22 +196,22 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
             <div className="print:hidden border-t border-slate-200 pt-8 mt-4">
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-4">
                 <Clock size={16} className="text-slate-400" weight="regular" />
-                Quotation Timeline
+                Riwayat Penawaran
               </h3>
               <div className="relative border-l-2 border-slate-200 ml-2 space-y-4 py-2">
                 <div className="relative pl-6">
                   <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-slate-400"></div>
                   <div className="text-sm">
-                    <span className="font-bold text-slate-700">Created</span>
+                    <span className="font-bold text-slate-700">Dibuat</span>
                   </div>
-                  <div className="text-xs font-mono text-slate-400 mt-0.5">{new Date(quotation.createdAt).toLocaleString()}</div>
+                  <div className="text-xs font-mono text-slate-400 mt-0.5">{new Date(quotation.createdAt).toLocaleString('id-ID')}</div>
                 </div>
                 <div className="relative pl-6">
                   <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-slate-400"></div>
                   <div className="text-sm">
-                    <span className="font-bold text-slate-700">Last Updated</span>
+                    <span className="font-bold text-slate-700">Terakhir Diperbarui</span>
                   </div>
-                  <div className="text-xs font-mono text-slate-400 mt-0.5">{new Date(quotation.updatedAt).toLocaleString()}</div>
+                  <div className="text-xs font-mono text-slate-400 mt-0.5">{new Date(quotation.updatedAt).toLocaleString('id-ID')}</div>
                 </div>
               </div>
             </div>
@@ -219,14 +225,14 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
             <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
               <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 shadow-sm transition-colors min-w-max">
                 <Download size={18} weight="regular" />
-                Download PDF
+                Unduh PDF
               </button>
               <button 
                 onClick={() => window.print()}
                 className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 shadow-sm transition-colors min-w-max"
               >
                 <Printer size={18} weight="regular" />
-                Print
+                Cetak
               </button>
             </div>
             
@@ -234,27 +240,27 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
               {quotation.status === 'Draft' && (
                 <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-100 transition-colors shadow-sm">
                   <PencilSimple size={18} weight="regular" />
-                  Edit
+                  Ubah
                 </button>
               )}
               
               {(quotation.status === 'Draft' || quotation.status === 'Viewed') && (
                 <button 
                   onClick={() => setIsSendModalOpen(true)}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-primary-100 text-primary-700 font-bold rounded-xl hover:bg-primary-200 transition-colors shadow-sm"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-200 text-slate-800 font-bold rounded-xl hover:bg-slate-300 transition-colors shadow-sm"
                 >
                   <PaperPlaneTilt size={18} weight="regular" />
-                  Send to Customer
+                  Kirim ke Pelanggan
                 </button>
               )}
 
               {quotation.status === 'Accepted' && (
                 <button 
                   onClick={() => setIsConvertModalOpen(true)}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm active:scale-95"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-black text-white font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-sm active:scale-95"
                 >
                   <ShoppingBag size={18} weight="regular" />
-                  Convert to Order
+                  Konversi ke Pesanan
                 </button>
               )}
             </div>
@@ -264,10 +270,10 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
 
         <ConfirmDialog
           isOpen={isConvertModalOpen}
-          title="Convert to Order"
-          message={`This will create a new order based on Quotation ${quotation.id}. Proceed?`}
-          confirmLabel="Yes, convert to order"
-          cancelLabel="Cancel"
+          title="Konversi ke Pesanan"
+          message={`Tindakan ini akan membuat pesanan baru berdasarkan Penawaran ${quotation.id}. Lanjutkan?`}
+          confirmLabel="Ya, konversi ke pesanan"
+          cancelLabel="Batal"
           onConfirm={handleConvert}
           onClose={() => setIsConvertModalOpen(false)}
           variant="info"
@@ -276,10 +282,10 @@ export default function QuotationDetailModal({ isOpen, onClose, quotationId }: P
         {/* Send Email Mock Dialog */}
         <ConfirmDialog
           isOpen={isSendModalOpen}
-          title="Send Quotation"
-          message={`Are you sure you want to send this quotation to the customer?`}
-          confirmLabel="Send Email"
-          cancelLabel="Cancel"
+          title="Kirim Penawaran"
+          message={`Apakah Anda yakin ingin mengirim penawaran harga ini ke pelanggan?`}
+          confirmLabel="Kirim Sekarang"
+          cancelLabel="Batal"
           onConfirm={handleSend}
           onClose={() => setIsSendModalOpen(false)}
           variant="info"

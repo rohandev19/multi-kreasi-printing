@@ -15,11 +15,11 @@ interface MaterialFormModalProps {
 }
 
 const materialSchema = z.object({
-  name: z.string().min(1, 'Material Name is required'),
-  sku: z.string().min(1, 'SKU is required'),
+  name: z.string().min(1, 'Nama bahan baku wajib diisi'),
+  sku: z.string().min(1, 'Kode SKU wajib diisi'),
   category: z.enum(['Paper', 'Ink', 'Vinyl', 'Laminate', 'Packaging', 'Other']).default('Paper'),
   unit: z.enum(['sheets', 'm²', 'liters', 'kg', 'pieces', 'boxes']).default('sheets'),
-  minStock: z.coerce.number().min(0, 'Minimum stock cannot be negative'),
+  minStock: z.coerce.number().min(0, 'Batas stok minimum tidak boleh bernilai negatif'),
 });
 
 type MaterialFormValues = z.infer<typeof materialSchema>;
@@ -67,7 +67,7 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
           minStock: material.minStock || 0,
         });
       } catch {
-        error('Error', 'Failed to load material details');
+        error('Gagal', 'Gagal memuat detail bahan baku');
         onClose();
       } finally {
         setFetchingData(false);
@@ -95,16 +95,16 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
     try {
       if (isEditMode) {
         await api.put(`/api/v1/inventory/${materialId}`, data);
-        success('Material Updated', `${data.name} has been updated successfully.`);
+        success('Bahan Baku Diperbarui', `${data.name} berhasil diperbarui.`);
       } else {
         await api.post('/api/v1/inventory', data);
-        success('Material Added', `${data.name} has been added to inventory.`);
+        success('Bahan Baku Ditambahkan', `${data.name} berhasil ditambahkan ke inventaris.`);
       }
       
       onSuccess();
       onClose();
     } catch (err: any) {
-      error('Failed to save material', err.response?.data?.message || 'Please try again later.');
+      error('Gagal menyimpan bahan baku', err.response?.data?.message || 'Silakan coba beberapa saat lagi.');
     } finally {
       setLoading(false);
     }
@@ -114,50 +114,50 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditMode ? 'Edit Material' : 'Add New Material'}
+      title={isEditMode ? 'Ubah Bahan Baku' : 'Tambah Bahan Baku Baru'}
       size="md"
     >
       {fetchingData ? (
         <div className="p-12 flex justify-center items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="p-6 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Material Name <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Nama Bahan Baku <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 {...register('name')}
-                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.name ? 'border-red-500' : ''}`}
-                placeholder="e.g., A4 Paper 80gsm"
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.name ? 'border-red-500' : ''}`}
+                placeholder="contoh: Kertas HVS A4 80gsm"
               />
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">SKU <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Kode SKU <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   {...register('sku')}
-                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.sku ? 'border-red-500' : ''}`}
-                  placeholder="e.g., PPR-A4-80"
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.sku ? 'border-red-500' : ''}`}
+                  placeholder="contoh: PPR-A4-80"
                 />
                 {errors.sku && <p className="text-red-500 text-xs mt-1">{errors.sku.message}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Kategori</label>
                 <select
                   {...register('category')}
-                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.category ? 'border-red-500' : ''}`}
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.category ? 'border-red-500' : ''}`}
                 >
-                  <option value="Paper">Paper</option>
-                  <option value="Ink">Ink</option>
+                  <option value="Paper">Kertas (Paper)</option>
+                  <option value="Ink">Tinta (Ink)</option>
                   <option value="Vinyl">Vinyl</option>
-                  <option value="Laminate">Laminate</option>
-                  <option value="Packaging">Packaging</option>
-                  <option value="Other">Other</option>
+                  <option value="Laminate">Laminasi (Laminate)</option>
+                  <option value="Packaging">Kemasan (Packaging)</option>
+                  <option value="Other">Lainnya</option>
                 </select>
                 {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category.message}</p>}
               </div>
@@ -165,28 +165,28 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Unit of Measure <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Satuan Pengukuran <span className="text-red-500">*</span></label>
                 <select
                   {...register('unit')}
-                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.unit ? 'border-red-500' : ''}`}
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.unit ? 'border-red-500' : ''}`}
                 >
-                  <option value="sheets">Sheets</option>
-                  <option value="m²">Square Meters (m²)</option>
-                  <option value="liters">Liters</option>
-                  <option value="kg">Kilograms</option>
-                  <option value="pieces">Pieces</option>
-                  <option value="boxes">Boxes</option>
+                  <option value="sheets">Lembar (Sheets)</option>
+                  <option value="m²">Meter Persegi (m²)</option>
+                  <option value="liters">Liter</option>
+                  <option value="kg">Kilogram (kg)</option>
+                  <option value="pieces">Pcs / Buah</option>
+                  <option value="boxes">Kotak / Box</option>
                 </select>
                 {errors.unit && <p className="text-red-500 text-xs mt-1">{errors.unit.message}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Min. Stock Alert <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Peringatan Min. Stok <span className="text-red-500">*</span></label>
                 <input
                   type="number"
                   min="0"
                   {...register('minStock')}
-                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.minStock ? 'border-red-500' : ''}`}
-                  placeholder="e.g., 1000"
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.minStock ? 'border-red-500' : ''}`}
+                  placeholder="contoh: 1000"
                 />
                 {errors.minStock && <p className="text-red-500 text-xs mt-1">{errors.minStock.message}</p>}
               </div>
@@ -200,14 +200,14 @@ export const MaterialFormModal: React.FC<MaterialFormModalProps> = ({
               disabled={loading}
               className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
             >
-              Cancel
+              Batal
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+              className="px-6 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 disabled:opacity-50"
             >
-              {loading ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Add Material')}
+              {loading ? 'Menyimpan...' : (isEditMode ? 'Simpan Perubahan' : 'Tambah Bahan Baku')}
             </button>
           </div>
         </form>

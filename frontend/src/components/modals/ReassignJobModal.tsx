@@ -14,7 +14,7 @@ interface ReassignJobModalProps {
 }
 
 const reassignSchema = z.object({
-  assignedTo: z.string().min(1, 'Please select a staff member'),
+  assignedTo: z.string().min(1, 'Silakan pilih anggota staf'),
 });
 
 type ReassignFormValues = z.infer<typeof reassignSchema>;
@@ -68,38 +68,38 @@ export const ReassignJobModal: React.FC<ReassignJobModalProps> = ({
     setLoading(true);
     try {
       await api.patch(`/api/v1/production-jobs/${jobId}/assign`, { assigneeId: data.assignedTo });
-      success('Job Reassigned', `Job #${jobId} has been reassigned successfully.`);
+      success('Tugas Dialihkan', `Pekerjaan #${jobId} berhasil dialihkan.`);
       onSuccess();
       onClose();
     } catch (err: any) {
-      error('Reassignment Failed', err.response?.data?.message || 'Please try again later.');
+      error('Gagal Mengalihkan', err.response?.data?.message || 'Silakan coba lagi nanti.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Reassign Production Job" size="md">
+    <Modal isOpen={isOpen} onClose={onClose} title="Alihkan Tugas Produksi" size="md">
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-6">
           <p className="text-sm text-slate-600 mb-4">
-            Select a new staff member to take over this production job.
+            Pilih staf baru untuk mengambil alih tugas produksi ini.
           </p>
           
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Assign To <span className="text-red-500">*</span>
+              Tugaskan Ke <span className="text-red-500">*</span>
             </label>
             {fetchingStaff ? (
               <div className="h-10 border border-slate-200 rounded-lg flex items-center px-3 bg-slate-50 text-sm text-slate-500">
-                Loading staff list...
+                Memuat daftar staf...
               </div>
             ) : (
               <select
                 {...register('assignedTo')}
                 className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.assignedTo ? 'border-red-500' : ''}`}
               >
-                <option value="">Select staff member...</option>
+                <option value="">Pilih anggota staf...</option>
                 {staff.map(s => (
                   <option key={s.id} value={s.id}>{s.name || s.fullName}</option>
                 ))}
@@ -115,14 +115,14 @@ export const ReassignJobModal: React.FC<ReassignJobModalProps> = ({
             disabled={loading}
             className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
           >
-            Cancel
+            Batal
           </button>
           <button
             type="submit"
             disabled={loading || fetchingStaff}
-            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 disabled:opacity-50"
           >
-            {loading ? 'Reassigning...' : 'Confirm Reassign'}
+            {loading ? 'Mengalihkan...' : 'Konfirmasi Pengalihan'}
           </button>
         </div>
       </form>

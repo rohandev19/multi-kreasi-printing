@@ -27,7 +27,7 @@ const tierColors: Record<string, string> = {
   Bronze: 'bg-amber-100 text-amber-700',
   Silver: 'bg-gray-100 text-gray-700',
   Gold: 'bg-yellow-100 text-yellow-700',
-  Platinum: 'bg-cyan-100 text-cyan-700',
+  Platinum: 'bg-slate-100 text-slate-900',
 };
 
 export const CustomersTable: React.FC<CustomersTableProps> = ({
@@ -67,26 +67,26 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
             </div>
             
             <div className="text-sm text-slate-700">
-              <span className="text-slate-500 mr-2">Phone:</span>
+              <span className="text-slate-500 mr-2">Telepon:</span>
               {customer.phone || '-'}
             </div>
             
             <div className="grid grid-cols-2 gap-2 text-sm border-t border-slate-100 pt-2">
               <div>
-                <span className="text-slate-500 block text-xs">Total Orders</span>
+                <span className="text-slate-500 block text-xs">Total Pesanan</span>
                 <span className="font-medium text-slate-900">{customer.totalOrders || 0}</span>
               </div>
               
               {(isFinance || canManage) && (
                 <>
                   <div className="text-right">
-                    <span className="text-slate-500 block text-xs">Total Revenue</span>
+                    <span className="text-slate-500 block text-xs">Total Pendapatan</span>
                     <span className="font-medium text-slate-900">
                       Rp {(customer.totalRevenue || 0).toLocaleString('id-ID')}
                     </span>
                   </div>
                   <div className="col-span-2 flex justify-between items-center text-xs pt-1 border-t border-slate-50">
-                    <span className="text-slate-500">Outstanding Bal.</span>
+                    <span className="text-slate-500">Sisa Tagihan</span>
                     <span className={`font-medium ${(customer.outstandingBalance || 0) > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
                       Rp {(customer.outstandingBalance || 0).toLocaleString('id-ID')}
                     </span>
@@ -98,8 +98,8 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
             <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
               <button
                 onClick={() => onViewCustomer(customer.id)}
-                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                title="View Details"
+                className="p-1.5 text-slate-400 hover:text-black hover:bg-slate-100 rounded-lg transition-colors"
+                title="Lihat Detail"
               >
                 <Eye size={18} weight="regular" />
               </button>
@@ -107,7 +107,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                 <button
                   onClick={() => onViewPaymentHistory(customer.id)}
                   className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                  title="Payment History"
+                  title="Riwayat Pembayaran"
                 >
                   <CreditCard size={18} weight="regular" />
                 </button>
@@ -116,7 +116,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                 <button
                   onClick={() => onEditCustomer(customer.id)}
                   className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                  title="Edit Customer"
+                  title="Ubah Pelanggan"
                 >
                   <NotePencil size={18} weight="regular" />
                 </button>
@@ -125,7 +125,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                 <button
                   onClick={() => onDeleteCustomer(customer.id)}
                   className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Delete Customer"
+                  title="Hapus Pelanggan"
                 >
                   <Trash size={18} weight="regular" />
                 </button>
@@ -135,7 +135,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
         ))}
         {customers.length === 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-slate-500">
-            No customers found.
+            Tidak ada data pelanggan ditemukan.
           </div>
         )}
       </div>
@@ -147,32 +147,32 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Company Name
+                Perusahaan / Pelanggan
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                 Email
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Phone
+                Telepon
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Loyalty Tier
+                Tingkat Loyalitas
               </th>
               <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Total Orders
+                Total Pesanan
               </th>
               {(isFinance || canManage) && (
                 <>
                   <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                    Total Revenue
+                    Total Pendapatan
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                    Outstanding Bal.
+                    Sisa Tagihan
                   </th>
                 </>
               )}
               <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Actions
+                Aksi
               </th>
             </tr>
           </thead>
@@ -180,7 +180,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
             {customers.length === 0 ? (
               <tr>
                 <td colSpan={isFinance || canManage ? 8 : 6} className="px-6 py-12 text-center text-slate-500">
-                  No customers found.
+                  Tidak ada data pelanggan ditemukan.
                 </td>
               </tr>
             ) : (
@@ -216,8 +216,8 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                   <td className="px-6 py-4 text-right space-x-2">
                     <button
                       onClick={() => onViewCustomer(customer.id)}
-                      className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
-                      title="View Details"
+                      className="p-1 text-slate-400 hover:text-black transition-colors"
+                      title="Lihat Detail"
                     >
                       <Eye size={18} weight="regular" />
                     </button>
@@ -225,7 +225,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                       <button
                         onClick={() => onViewPaymentHistory(customer.id)}
                         className="p-1 text-slate-400 hover:text-primary-600 transition-colors"
-                        title="Payment History"
+                        title="Riwayat Pembayaran"
                       >
                         <CreditCard size={18} weight="regular" />
                       </button>
@@ -234,7 +234,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                       <button
                         onClick={() => onEditCustomer(customer.id)}
                         className="p-1 text-slate-400 hover:text-amber-600 transition-colors"
-                        title="Edit Customer"
+                        title="Ubah Pelanggan"
                       >
                         <NotePencil size={18} weight="regular" />
                       </button>
@@ -243,7 +243,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                       <button
                         onClick={() => onDeleteCustomer(customer.id)}
                         className="p-1 text-slate-400 hover:text-red-600 transition-colors"
-                        title="Delete Customer"
+                        title="Hapus Pelanggan"
                       >
                         <Trash size={18} weight="regular" />
                       </button>

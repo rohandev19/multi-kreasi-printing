@@ -15,7 +15,7 @@ interface ReportIssueModalProps {
 }
 
 const issueSchema = z.object({
-  issue: z.string().min(5, 'Please provide a detailed description of the issue'),
+  issue: z.string().min(5, 'Silakan berikan deskripsi kendala secara detail'),
 });
 
 type IssueFormValues = z.infer<typeof issueSchema>;
@@ -52,37 +52,37 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
     try {
       // Assuming endpoint allows patching status and adding a note
       await api.patch(`/api/v1/production-jobs/${jobId}/issue`, { issue: data.issue });
-      success('Issue Reported', `An issue has been logged for job #${jobId}.`);
+      success('Kendala Dilaporkan', `Kendala telah dicatat untuk tugas #${jobId}.`);
       onSuccess();
       onClose();
     } catch (err: any) {
-      error('Failed to report issue', err.response?.data?.message || 'Please try again later.');
+      error('Gagal melaporkan kendala', err.response?.data?.message || 'Silakan coba lagi nanti.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Report Production Issue" size="md">
+    <Modal isOpen={isOpen} onClose={onClose} title="Laporkan Kendala Produksi" size="md">
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
             <Warning className="text-amber-500 w-6 h-6 flex-shrink-0" weight="regular" />
             <p className="text-sm text-amber-800">
-              Reporting an issue will pause this production job and notify the manager.
+              Melaporkan kendala akan menjeda pekerjaan produksi ini dan memberitahu manajer.
             </p>
           </div>
           
           <div>
             <label htmlFor="issue" className="block text-sm font-medium text-slate-700 mb-1">
-              Describe the Issue <span className="text-red-500">*</span>
+              Deskripsi Kendala <span className="text-red-500">*</span>
             </label>
             <textarea
               id="issue"
               rows={4}
               {...register('issue')}
               className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm ${errors.issue ? 'border-red-500' : ''}`}
-              placeholder="E.g., Out of paper, printer jam, design error..."
+              placeholder="cth., Kehabisan kertas, mesin cetak macet, kesalahan desain..."
             ></textarea>
             {errors.issue && <p className="text-red-500 text-xs mt-1">{errors.issue.message}</p>}
           </div>
@@ -94,14 +94,14 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
             disabled={loading}
             className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
           >
-            Cancel
+            Batal
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 disabled:opacity-50"
           >
-            {loading ? 'Submitting...' : 'Report Issue'}
+            {loading ? 'Mengirim...' : 'Laporkan Kendala'}
           </button>
         </div>
       </form>

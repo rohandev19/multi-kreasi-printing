@@ -11,6 +11,7 @@ export interface CartItem {
   unitPrice: number;
   subtotal: number;
   image?: string;
+  notes?: string;
 }
 
 export interface Cart {
@@ -226,5 +227,6 @@ export function useCart() {
     updateCartItem,
     clearCart,
     refetch: fetchCart,
+    fetchCart,
   };
 }

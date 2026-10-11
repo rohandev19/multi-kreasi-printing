@@ -54,13 +54,13 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                 : toast.type === 'error'
                 ? 'bg-red-50 border-red-200 text-red-800'
-                : 'bg-blue-50 border-blue-200 text-blue-800'
+                : 'bg-slate-100 border-slate-300 text-slate-900'
             }`}
           >
             <div className="shrink-0 mt-0.5">
               {toast.type === 'success' && <CheckCircle size={20} className="text-emerald-500" weight="regular" />}
               {toast.type === 'error' && <WarningCircle size={20} className="text-red-500" weight="regular" />}
-              {toast.type === 'info' && <Info size={20} className="text-blue-500" weight="regular" />}
+              {toast.type === 'info' && <Info size={20} className="text-slate-900" weight="regular" />}
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-sm">{toast.title}</h4>

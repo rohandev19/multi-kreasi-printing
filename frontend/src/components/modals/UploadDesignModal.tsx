@@ -62,7 +62,7 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!orderId || !file) {
-      error('Validation Error', 'Please select an order and choose a file to upload.');
+      error('Validasi Gagal', 'Silakan pilih pesanan dan tentukan berkas untuk diunggah.');
       return;
     }
 
@@ -91,27 +91,27 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
         notes,
       });
       
-      success('Upload Successful', `Design file ${file.name} uploaded successfully.`);
+      success('Unggah Berhasil', `Berkas desain ${file.name} berhasil diunggah.`);
       onSuccess();
       onClose();
     } catch (err: any) {
-      error('Upload Failed', err.response?.data?.message || 'Please try again later.');
+      error('Unggah Gagal', err.response?.data?.message || 'Silakan coba lagi nanti.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Upload Design File" size="md">
+    <Modal isOpen={isOpen} onClose={onClose} title="Unggah Berkas Desain" size="md">
       <form onSubmit={handleSubmit}>
         <div className="p-6 space-y-5">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Select Order <span className="text-red-500">*</span>
+              Pilih Pesanan <span className="text-red-500">*</span>
             </label>
             {fetchingOrders ? (
               <div className="h-10 border border-slate-200 rounded-lg flex items-center px-3 bg-slate-50 text-sm text-slate-500">
-                Loading orders...
+                Memuat daftar pesanan...
               </div>
             ) : (
               <select
@@ -120,7 +120,7 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
                 className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 required
               >
-                <option value="">Select an order...</option>
+                <option value="">Pilih pesanan...</option>
                 {orders.map(o => (
                   <option key={o.id} value={o.id}>
                     {o.orderNumber} - {o.customer?.name}
@@ -132,7 +132,7 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
           
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              File <span className="text-red-500">*</span>
+              Berkas Desain <span className="text-red-500">*</span>
             </label>
             <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-lg hover:border-primary-500 transition-colors bg-slate-50">
               <div className="space-y-1 text-center">
@@ -142,22 +142,22 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
                     htmlFor="file-upload"
                     className="relative cursor-pointer rounded-md bg-white font-medium text-primary-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2 hover:text-primary-500"
                   >
-                    <span>Upload a file</span>
+                    <span>Pilih berkas</span>
                     <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} required />
                   </label>
-                  <p className="pl-1">or drag and drop</p>
+                  <p className="pl-1">atau seret dan lepas di sini</p>
                 </div>
-                <p className="text-xs text-slate-500">PNG, JPG, PDF, AI, PSD up to 50MB</p>
+                <p className="text-xs text-slate-500">PNG, JPG, PDF, AI, PSD hingga 50MB</p>
               </div>
             </div>
             {file && (
-              <p className="mt-2 text-sm text-emerald-600 font-medium">Selected: {file.name}</p>
+              <p className="mt-2 text-sm text-emerald-600 font-medium">Dipilih: {file.name}</p>
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Version</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Versi</label>
               <input
                 type="number"
                 min="1"
@@ -168,12 +168,12 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Notes / Changelog</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Catatan / Perubahan</label>
               <input
                 type="text"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="e.g., Fixed logo color"
+                placeholder="cth., Perbaikan warna logo"
                 className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
               />
             </div>
@@ -187,14 +187,14 @@ export const UploadDesignModal: React.FC<UploadDesignModalProps> = ({
             disabled={loading}
             className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
           >
-            Cancel
+            Batal
           </button>
           <button
             type="submit"
             disabled={loading || !orderId || !file}
-            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 disabled:opacity-50"
           >
-            {loading ? 'Uploading...' : 'Upload File'}
+            {loading ? 'Mengunggah...' : 'Unggah Berkas'}
           </button>
         </div>
       </form>

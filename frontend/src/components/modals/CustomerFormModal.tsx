@@ -15,8 +15,8 @@ interface CustomerFormModalProps {
 }
 
 const customerSchema = z.object({
-  name: z.string().min(1, 'Company / Name is required'),
-  email: z.string().email('Invalid email address'),
+  name: z.string().min(1, 'Nama atau perusahaan wajib diisi'),
+  email: z.string().email('Format email tidak valid'),
   phone: z.string().optional(),
   loyaltyTier: z.enum(['Standard', 'Silver', 'Gold', 'Platinum']).default('Standard'),
 });
@@ -64,7 +64,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
           loyaltyTier: customer.loyaltyTier || 'Standard',
         });
       } catch {
-        error('Error', 'Failed to load customer details');
+        error('Gagal', 'Gagal memuat detail pelanggan');
         onClose();
       } finally {
         setFetchingData(false);
@@ -91,16 +91,16 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
     try {
       if (isEditMode) {
         await api.put(`/api/v1/customers/${customerId}`, data);
-        success('Customer Updated', `${data.name} has been updated successfully.`);
+        success('Pelanggan Diperbarui', `${data.name} berhasil diperbarui.`);
       } else {
         await api.post('/api/v1/customers', data);
-        success('Customer Added', `${data.name} has been added to your customers.`);
+        success('Pelanggan Ditambahkan', `${data.name} berhasil ditambahkan ke daftar pelanggan.`);
       }
       
       onSuccess();
       onClose();
     } catch (err: any) {
-      error('Failed to save customer', err.response?.data?.message || 'Please try again later.');
+      error('Gagal menyimpan pelanggan', err.response?.data?.message || 'Silakan coba beberapa saat lagi.');
     } finally {
       setLoading(false);
     }
@@ -110,54 +110,54 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditMode ? 'Edit Customer' : 'Add New Customer'}
+      title={isEditMode ? 'Ubah Pelanggan' : 'Tambah Pelanggan Baru'}
       size="md"
     >
       {fetchingData ? (
         <div className="p-12 flex justify-center items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="p-6 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Company / Name <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Perusahaan / Nama Pelanggan <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 {...register('name')}
-                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.name ? 'border-red-500' : ''}`}
-                placeholder="e.g., PT Maju Mundur"
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.name ? 'border-red-500' : ''}`}
+                placeholder="contoh: PT Maju Mundur"
               />
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Email <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Alamat Email <span className="text-red-500">*</span></label>
               <input
                 type="email"
                 {...register('email')}
-                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.email ? 'border-red-500' : ''}`}
-                placeholder="contact@company.com"
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.email ? 'border-red-500' : ''}`}
+                placeholder="kontak@perusahaan.com"
               />
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Nomor Telepon</label>
               <input
                 type="tel"
                 {...register('phone')}
-                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.phone ? 'border-red-500' : ''}`}
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.phone ? 'border-red-500' : ''}`}
                 placeholder="+62 812 3456 7890"
               />
               {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Loyalty Tier</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Tingkat Loyalitas</label>
               <select
                 {...register('loyaltyTier')}
-                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.loyaltyTier ? 'border-red-500' : ''}`}
+                className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.loyaltyTier ? 'border-red-500' : ''}`}
               >
                 <option value="Standard">Standard</option>
                 <option value="Silver">Silver</option>
@@ -175,14 +175,14 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
               disabled={loading}
               className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
             >
-              Cancel
+              Batal
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+              className="px-6 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 disabled:opacity-50"
             >
-              {loading ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Add Customer')}
+              {loading ? 'Menyimpan...' : (isEditMode ? 'Simpan Perubahan' : 'Tambah Pelanggan')}
             </button>
           </div>
         </form>

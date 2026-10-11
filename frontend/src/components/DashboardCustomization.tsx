@@ -220,7 +220,7 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
         onClose();
       }, 1000);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to save preferences');
+      setError(err.response?.data?.message || 'Gagal menyimpan preferensi');
     } finally {
       setSaving(false);
     }
@@ -232,7 +232,7 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'var(--bg-overlay)', backdropFilter: 'blur(8px)' }}>
       <div className="flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-lg border" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-md)' }}>
         <div className="flex items-center justify-between border-b px-6 py-4" style={{ backgroundColor: 'var(--color-neutral-50)', borderColor: 'var(--border-default)' }}>
-          <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Customize Dashboard</h2>
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Sesuaikan Dasbor</h2>
           <button
             onClick={onClose}
             className="transition-colors duration-150 hover:text-[var(--text-primary)]"
@@ -251,7 +251,7 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
           
           {success && (
             <div className="mb-4 rounded-lg p-3 text-sm" style={{ backgroundColor: 'var(--color-success-50)', color: 'var(--color-success-700)' }}>
-              Preferences saved successfully!
+              Preferensi berhasil disimpan!
             </div>
           )}
 
@@ -262,7 +262,7 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
           ) : (
             <div className="space-y-4">
               <p className="mb-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                Drag to reorder widgets, or check/uncheck to show/hide them on your dashboard.
+                Tarik untuk mengatur ulang posisi widget, atau centang untuk menampilkan/menyembunyikannya di dasbor Anda.
               </p>
               
               <DndContext 
@@ -302,14 +302,14 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
             className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors"
             disabled={saving}
           >
-            Cancel
+            Batal
           </button>
           <button
             onClick={handleSave}
             disabled={saving || loading}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-black hover:bg-slate-800 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Save Preferences'}
+            {saving ? 'Menyimpan...' : 'Simpan Preferensi'}
           </button>
         </div>
       </div>

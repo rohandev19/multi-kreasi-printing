@@ -59,9 +59,9 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
         <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
           <Package className="w-8 h-8 text-slate-300" weight="regular" />
         </div>
-        <h3 className="text-lg font-bold text-slate-900 mb-1">No orders found</h3>
+        <h3 className="text-lg font-bold text-slate-900 mb-1">Tidak ada pesanan ditemukan</h3>
         <p className="text-sm text-slate-500 max-w-sm mb-6">
-          Create your first order or adjust your filters to see results.
+          Buat pesanan baru atau sesuaikan filter Anda untuk melihat data pesanan.
         </p>
       </div>
     );
@@ -89,7 +89,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Pending_Approval': return 'bg-amber-100 text-amber-700';
-      case 'Approved': return 'bg-blue-100 text-blue-700';
+      case 'Approved': return 'bg-slate-100 text-slate-900';
       case 'In_Production': return 'bg-primary-100 text-primary-700';
       case 'Quality_Check': return 'bg-primary-100 text-primary-700';
       case 'Ready': return 'bg-teal-100 text-teal-700';
@@ -97,6 +97,28 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
       case 'Delivered': return 'bg-slate-800 text-white';
       case 'Cancelled': return 'bg-red-100 text-red-700';
       default: return 'bg-slate-100 text-slate-700';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    const map: Record<string, string> = {
+      Pending_Approval: 'Menunggu Persetujuan',
+      Approved: 'Disetujui',
+      In_Production: 'Dalam Produksi',
+      Quality_Check: 'Pemeriksaan Kualitas',
+      Ready: 'Siap',
+      Shipped: 'Dikirim',
+      Delivered: 'Terkirim',
+      Cancelled: 'Dibatalkan',
+    };
+    return map[status] || status.replace(/_/g, ' ');
+  };
+
+  const getPriorityLabel = (priority: string) => {
+    switch (priority) {
+      case 'High': return 'Tinggi';
+      case 'Urgent': return 'Kilat';
+      default: return 'Normal';
     }
   };
 
@@ -132,14 +154,14 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                   onChange={toggleAll}
                 />
               </th>
-              <th className="px-5 py-4">Order #</th>
-              <th className="px-5 py-4">Customer</th>
-              <th className="px-5 py-4">Items</th>
-              <th className="px-5 py-4">Priority</th>
+              <th className="px-5 py-4">No. Pesanan</th>
+              <th className="px-5 py-4">Pelanggan</th>
+              <th className="px-5 py-4">Item</th>
+              <th className="px-5 py-4">Prioritas</th>
               <th className="px-5 py-4">Status</th>
               <th className="px-5 py-4 text-right">Total (IDR)</th>
-              <th className="px-5 py-4">Created Date</th>
-              <th className="px-5 py-4 text-right">Actions</th>
+              <th className="px-5 py-4">Tanggal Dibuat</th>
+              <th className="px-5 py-4 text-right">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -159,19 +181,19 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                     {order.orderNumber}
                   </td>
                   <td className="px-5 py-4 font-semibold text-slate-800">
-                    {order.customer?.name || 'Walk-in Customer'}
+                    {order.customer?.name || 'Pelanggan Langsung'}
                   </td>
                   <td className="px-5 py-4 text-slate-600">
-                    {order.items} {order.items === 1 ? 'item' : 'items'}
+                    {order.items} item
                   </td>
                   <td className="px-5 py-4">
                     <span className={`px-2.5 py-1 text-[10px] uppercase tracking-wider rounded-md ${getPriorityStyle(order.priority)}`}>
-                      {order.priority}
+                      {getPriorityLabel(order.priority)}
                     </span>
                   </td>
                   <td className="px-5 py-4">
                     <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md ${getStatusColor(order.status)}`}>
-                      {order.status.replace(/_/g, ' ')}
+                      {getStatusLabel(order.status)}
                     </span>
                   </td>
                   <td className="px-5 py-4 font-medium text-slate-700 text-right">
@@ -185,7 +207,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                       <button 
                         onClick={() => onView(order.id)}
                         className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                        title="View Details"
+                        title="Lihat Detail"
                       >
                         <Eye size={18} weight="regular" />
                       </button>
@@ -204,26 +226,26 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                               {(userRole === 'Owner' || userRole === 'Manager') && (
                                 <>
                                   <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                                    <Check size={14} className="text-emerald-600" weight="regular" /> Approve Order
+                                    <Check size={14} className="text-emerald-600" weight="regular" /> Setujui Pesanan
                                   </button>
                                   <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                                    <X size={14} className="text-red-600" weight="regular" /> Reject Order
+                                    <X size={14} className="text-red-600" weight="regular" /> Tolak Pesanan
                                   </button>
                                 </>
                               )}
                               {(userRole === 'Production_Staff' || userRole === 'Owner') && (
                                 <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                                  <Printer size={14} className="text-primary-600" weight="regular" /> Start Production
+                                  <Printer size={14} className="text-primary-600" weight="regular" /> Mulai Produksi
                                 </button>
                               )}
                               {(userRole === 'Finance_Staff' || userRole === 'Owner') && (
                                 <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                                  <CurrencyDollar size={14} className="text-emerald-600" weight="regular" /> Record Payment
+                                  <CurrencyDollar size={14} className="text-emerald-600" weight="regular" /> Catat Pembayaran
                                 </button>
                               )}
                               {(userRole === 'Owner' || userRole === 'Manager') && (
                                 <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
-                                  <X size={14} weight="regular" /> Cancel Order
+                                  <X size={14} weight="regular" /> Batalkan Pesanan
                                 </button>
                               )}
                             </div>
@@ -241,12 +263,12 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
       
       {/* Pagination */}
       <div className="p-4 border-t border-slate-200 bg-slate-50/50 flex items-center justify-between">
-        <span className="text-sm text-slate-500">Showing <span className="font-medium text-slate-900">1</span> to <span className="font-medium text-slate-900">{orders.length}</span> of <span className="font-medium text-slate-900">{orders.length}</span> results</span>
+        <span className="text-sm text-slate-500">Menampilkan <span className="font-medium text-slate-900">1</span> sampai <span className="font-medium text-slate-900">{orders.length}</span> dari <span className="font-medium text-slate-900">{orders.length}</span> data</span>
         <div className="flex gap-1">
           <button className="p-1 rounded-md text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition-colors" disabled>
             <CaretLeft size={20} weight="regular" />
           </button>
-          <button className="w-8 h-8 rounded-md bg-primary-600 text-white font-medium text-sm flex items-center justify-center">1</button>
+          <button className="w-8 h-8 rounded-md bg-black text-white font-medium text-sm flex items-center justify-center">1</button>
           <button className="p-1 rounded-md text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition-colors">
             <CaretRight size={20} weight="regular" />
           </button>

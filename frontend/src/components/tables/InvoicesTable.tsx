@@ -22,13 +22,13 @@ interface InvoicesTableProps {
   onDelete?: (id: string) => void;
 }
 
-const statusColors: Record<string, string> = {
-  Draft: 'bg-gray-100 text-gray-700',
-  Sent: 'bg-blue-100 text-blue-700',
-  Partially_Paid: 'bg-amber-100 text-amber-700',
-  Fully_Paid: 'bg-emerald-100 text-emerald-700',
-  Overdue: 'bg-red-100 text-red-700',
-  Cancelled: 'bg-slate-100 text-slate-700',
+const statusConfig: Record<string, { label: string; color: string }> = {
+  Draft: { label: 'Draf', color: 'bg-gray-100 text-gray-700' },
+  Sent: { label: 'Terkirim', color: 'bg-slate-100 text-slate-900' },
+  Partially_Paid: { label: 'Dibayar Sebagian', color: 'bg-amber-100 text-amber-700' },
+  Fully_Paid: { label: 'Lunas', color: 'bg-emerald-100 text-emerald-700' },
+  Overdue: { label: 'Jatuh Tempo', color: 'bg-red-100 text-red-700' },
+  Cancelled: { label: 'Dibatalkan', color: 'bg-slate-100 text-slate-700' },
 };
 
 export const InvoicesTable: React.FC<InvoicesTableProps> = ({
@@ -45,7 +45,9 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(amount);
   };
 
-  const formatStatus = (status: string) => status.replace(/_/g, ' ');
+  const formatStatus = (status: string) => {
+    return statusConfig[status]?.label || status.replace(/_/g, ' ');
+  };
 
   if (loading) {
     return (
@@ -70,10 +72,10 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
               <div>
                 <div className="font-medium text-slate-900">{invoice.invoiceNumber}</div>
                 <div className="text-xs text-slate-500">
-                  Due: {new Date(invoice.dueDate).toLocaleDateString('id-ID')}
+                  Jatuh Tempo: {new Date(invoice.dueDate).toLocaleDateString('id-ID')}
                 </div>
               </div>
-              <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${statusColors[invoice.status] || 'bg-gray-100 text-gray-700'}`}>
+              <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${statusConfig[invoice.status]?.color || 'bg-gray-100 text-gray-700'}`}>
                 {formatStatus(invoice.status)}
               </span>
             </div>
@@ -81,18 +83,18 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
             <div className="text-sm space-y-1">
               {!isCustomer && (
                 <div>
-                  <span className="text-slate-500 mr-2">Customer:</span>
-                  <span className="font-medium text-slate-900">{invoice.customer?.companyName || 'N/A'}</span>
+                  <span className="text-slate-500 mr-2">Pelanggan:</span>
+                  <span className="font-medium text-slate-900">{invoice.customer?.companyName || '-'}</span>
                 </div>
               )}
               <div>
-                <span className="text-slate-500 mr-2">Order:</span>
+                <span className="text-slate-500 mr-2">Pesanan:</span>
                 <span className="text-slate-900">{invoice.order?.orderNumber || '-'}</span>
               </div>
             </div>
             
             <div className="flex justify-between items-center border-t border-slate-100 pt-3">
-              <span className="text-sm text-slate-500 font-medium">Amount:</span>
+              <span className="text-sm text-slate-500 font-medium">Jumlah:</span>
               <span className="font-bold text-slate-900">{formatCurrency(invoice.amount)}</span>
             </div>
             
@@ -100,8 +102,8 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
               {isCustomer ? (
                 <button
                   onClick={() => onDownload(invoice.id)}
-                  className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                  title="Download Invoice"
+                  className="p-1.5 text-slate-400 hover:text-black hover:bg-slate-100 rounded-lg transition-colors"
+                  title="Unduh Faktur"
                 >
                   <Download size={18} weight="regular" />
                 </button>
@@ -109,15 +111,15 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                 <>
                   <button
                     onClick={() => onViewDetails?.(invoice.id)}
-                    className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    title="View Details"
+                    className="p-1.5 text-slate-400 hover:text-black hover:bg-slate-100 rounded-lg transition-colors"
+                    title="Lihat Detail"
                   >
                     <Eye size={18} weight="regular" />
                   </button>
                   <button
                     onClick={() => onDownload(invoice.id)}
                     className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                    title="Download Invoice"
+                    title="Unduh Faktur"
                   >
                     <Download size={18} weight="regular" />
                   </button>
@@ -126,7 +128,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                     <button
                       onClick={() => onRecordPayment?.(invoice.id)}
                       className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                      title="Record Payment"
+                      title="Catat Pembayaran"
                     >
                       <CreditCard size={18} weight="regular" />
                     </button>
@@ -136,7 +138,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                     <button
                       onClick={() => onSendReminder?.(invoice.id)}
                       className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                      title="Send Reminder"
+                      title="Kirim Pengingat"
                     >
                       <Bell size={18} weight="regular" />
                     </button>
@@ -146,7 +148,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                     <button
                       onClick={() => onDelete(invoice.id)}
                       className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete Invoice"
+                      title="Hapus Faktur"
                     >
                       <Trash size={18} weight="regular" />
                     </button>
@@ -158,7 +160,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
         ))}
         {invoices.length === 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-slate-500">
-            No invoices found.
+            Tidak ada faktur ditemukan.
           </div>
         )}
       </div>
@@ -170,27 +172,27 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Invoice Number
+                Nomor Faktur
               </th>
               {!isCustomer && (
                 <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Customer
+                  Pelanggan
                 </th>
               )}
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Order
+                Pesanan
               </th>
               <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Amount
+                Jumlah
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Due Date
+                Jatuh Tempo
               </th>
               <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Actions
+                Aksi
               </th>
             </tr>
           </thead>
@@ -198,7 +200,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
             {invoices.length === 0 ? (
               <tr>
                 <td colSpan={isCustomer ? 6 : 7} className="px-6 py-12 text-center text-slate-500">
-                  No invoices found.
+                  Tidak ada faktur ditemukan.
                 </td>
               </tr>
             ) : (
@@ -209,7 +211,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                   </td>
                   {!isCustomer && (
                     <td className="px-6 py-4 text-sm text-slate-700">
-                      {invoice.customer?.companyName || 'N/A'}
+                      {invoice.customer?.companyName || '-'}
                     </td>
                   )}
                   <td className="px-6 py-4 text-sm text-slate-700">
@@ -219,7 +221,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                     {formatCurrency(invoice.amount)}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[invoice.status] || 'bg-gray-100 text-gray-700'}`}>
+                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig[invoice.status]?.color || 'bg-gray-100 text-gray-700'}`}>
                       {formatStatus(invoice.status)}
                     </span>
                   </td>
@@ -230,8 +232,8 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                     {isCustomer ? (
                       <button
                         onClick={() => onDownload(invoice.id)}
-                        className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
-                        title="Download Invoice"
+                        className="p-1 text-slate-400 hover:text-black transition-colors"
+                        title="Unduh Faktur"
                       >
                         <Download size={18} weight="regular" />
                       </button>
@@ -239,15 +241,15 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                       <>
                         <button
                           onClick={() => onViewDetails?.(invoice.id)}
-                          className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
-                          title="View Details"
+                          className="p-1 text-slate-400 hover:text-black transition-colors"
+                          title="Lihat Detail"
                         >
                           <Eye size={18} weight="regular" />
                         </button>
                         <button
                           onClick={() => onDownload(invoice.id)}
                           className="p-1 text-slate-400 hover:text-primary-600 transition-colors"
-                          title="Download Invoice"
+                          title="Unduh Faktur"
                         >
                           <Download size={18} weight="regular" />
                         </button>
@@ -256,7 +258,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                           <button
                             onClick={() => onRecordPayment?.(invoice.id)}
                             className="p-1 text-slate-400 hover:text-emerald-600 transition-colors"
-                            title="Record Payment"
+                            title="Catat Pembayaran"
                           >
                             <CreditCard size={18} weight="regular" />
                           </button>
@@ -266,7 +268,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                           <button
                             onClick={() => onSendReminder?.(invoice.id)}
                             className="p-1 text-slate-400 hover:text-amber-600 transition-colors"
-                            title="Send Reminder"
+                            title="Kirim Pengingat"
                           >
                             <Bell size={18} weight="regular" />
                           </button>
@@ -276,7 +278,7 @@ export const InvoicesTable: React.FC<InvoicesTableProps> = ({
                           <button
                             onClick={() => onDelete(invoice.id)}
                             className="p-1 text-slate-400 hover:text-red-600 transition-colors"
-                            title="Delete Invoice"
+                            title="Hapus Faktur"
                           >
                             <Trash size={18} weight="regular" />
                           </button>

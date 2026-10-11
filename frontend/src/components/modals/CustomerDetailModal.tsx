@@ -26,7 +26,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
         const response = await api.get(`/api/v1/customers/${customerId}`);
         setCustomer(response.data);
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to load customer details');
+        setError(err.response?.data?.message || 'Gagal memuat detail pelanggan');
       } finally {
         setLoading(false);
       }
@@ -52,15 +52,15 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
     Standard: 'bg-slate-100 text-slate-700',
     Silver: 'bg-gray-200 text-gray-800',
     Gold: 'bg-amber-100 text-amber-700',
-    Platinum: 'bg-primary-100 text-primary-700',
+    Platinum: 'bg-slate-900 text-white',
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Customer Profile" size="md">
+    <Modal isOpen={isOpen} onClose={onClose} title="Profil Pelanggan" size="md">
       <div className="p-6">
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
           </div>
         ) : error ? (
           <div className="bg-red-50 text-red-600 p-4 rounded-lg text-sm">{error}</div>
@@ -88,7 +88,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                 <div className="flex items-center gap-2 text-slate-500 mb-1">
                   <ShoppingBag size={16} weight="regular" />
-                  <span className="text-xs font-semibold uppercase tracking-wider">Total Orders</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider">Total Pesanan</span>
                 </div>
                 <div className="text-2xl font-bold text-slate-900">{customer.totalOrders || 0}</div>
               </div>
@@ -96,7 +96,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                 <div className="flex items-center gap-2 text-slate-500 mb-1">
                   <CreditCard size={16} weight="regular" />
-                  <span className="text-xs font-semibold uppercase tracking-wider">Total Revenue</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider">Total Pengeluaran</span>
                 </div>
                 <div className="text-xl font-bold text-slate-900">{formatCurrency(customer.totalRevenue || 0)}</div>
               </div>
@@ -106,8 +106,8 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
             {customer.outstandingBalance > 0 && (
               <div className="bg-red-50 p-4 rounded-xl border border-red-100 flex justify-between items-center">
                 <div>
-                  <h4 className="text-sm font-bold text-red-800">Outstanding Balance</h4>
-                  <p className="text-xs text-red-600">Needs to be settled</p>
+                  <h4 className="text-sm font-bold text-red-800">Sisa Tagihan Tertunggak</h4>
+                  <p className="text-xs text-red-600">Perlu segera dilunasi</p>
                 </div>
                 <div className="text-lg font-bold text-red-700">
                   {formatCurrency(customer.outstandingBalance)}
@@ -116,7 +116,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
             )}
           </div>
         ) : (
-          <div className="text-center py-8 text-slate-500">Customer data not found.</div>
+          <div className="text-center py-8 text-slate-500">Data pelanggan tidak ditemukan.</div>
         )}
       </div>
       <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end rounded-b-xl">
@@ -124,7 +124,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
           onClick={onClose}
           className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
         >
-          Close
+          Tutup
         </button>
       </div>
     </Modal>

@@ -15,7 +15,7 @@ interface RecordPaymentModalProps {
 }
 
 const paymentSchema = z.object({
-  amount: z.coerce.number().min(1, 'Amount must be greater than 0'),
+  amount: z.coerce.number().min(1, 'Nominal pembayaran harus lebih dari 0'),
   method: z.enum(['Bank Transfer', 'Cash', 'Credit Card', 'QRIS']).default('Bank Transfer'),
 });
 
@@ -56,23 +56,23 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
     setLoading(true);
     try {
       await api.post(`/api/v1/invoices/${invoiceId}/payment`, data);
-      success('Payment Recorded', `Payment of Rp ${data.amount.toLocaleString('id-ID')} has been recorded.`);
+      success('Pembayaran Dicatat', `Pembayaran sebesar Rp ${data.amount.toLocaleString('id-ID')} berhasil dicatat.`);
       onSuccess();
       onClose();
     } catch (err: any) {
-      error('Payment Failed', err.response?.data?.message || 'Please try again later.');
+      error('Gagal Mencatat Pembayaran', err.response?.data?.message || 'Silakan coba lagi nanti.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Record Payment" size="sm">
+    <Modal isOpen={isOpen} onClose={onClose} title="Catat Pembayaran" size="sm">
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Payment Amount (IDR) <span className="text-red-500">*</span>
+              Nominal Pembayaran (IDR) <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -90,15 +90,15 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
           
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Payment Method <span className="text-red-500">*</span>
+              Metode Pembayaran <span className="text-red-500">*</span>
             </label>
             <select
               {...register('method')}
               className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.method ? 'border-red-500' : ''}`}
             >
-              <option value="Bank Transfer">Bank Transfer</option>
-              <option value="Cash">Cash</option>
-              <option value="Credit Card">Credit Card</option>
+              <option value="Bank Transfer">Transfer Bank</option>
+              <option value="Cash">Tunai (Cash)</option>
+              <option value="Credit Card">Kartu Kredit</option>
               <option value="QRIS">QRIS / E-Wallet</option>
             </select>
             {errors.method && <p className="text-red-500 text-xs mt-1">{errors.method.message}</p>}
@@ -111,14 +111,14 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
             disabled={loading}
             className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
           >
-            Cancel
+            Batal
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 disabled:opacity-50"
           >
-            {loading ? 'Recording...' : 'Record Payment'}
+            {loading ? 'Mencatat...' : 'Catat Pembayaran'}
           </button>
         </div>
       </form>

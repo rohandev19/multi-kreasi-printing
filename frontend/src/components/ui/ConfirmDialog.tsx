@@ -20,8 +20,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onConfirm,
   title,
   message,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel = 'Konfirmasi',
+  cancelLabel = 'Batal',
   variant = 'danger',
   loading = false,
 }) => {
@@ -77,7 +77,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors duration-150 disabled:opacity-50"
           style={{ backgroundColor: styles.btn }}
         >
-          {loading ? 'Processing...' : confirmLabel}
+          {loading ? 'Memproses...' : confirmLabel}
         </button>
       </div>
     </Modal>

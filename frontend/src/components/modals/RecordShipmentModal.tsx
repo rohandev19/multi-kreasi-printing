@@ -18,7 +18,7 @@ interface RecordShipmentModalProps {
 }
 
 const shipmentSchema = z.object({
-  quantity: z.coerce.number().min(1, 'Quantity must be at least 1'),
+  quantity: z.coerce.number().min(1, 'Jumlah minimal 1'),
   supplier: z.string().optional(),
   referenceNumber: z.string().optional(),
 });
@@ -30,8 +30,8 @@ export const RecordShipmentModal: React.FC<RecordShipmentModalProps> = ({
   onClose,
   onSuccess,
   materialId,
-  materialName = 'Material',
-  unit = 'units'
+  materialName = 'Bahan Baku',
+  unit = 'unit'
 }) => {
   const [loading, setLoading] = useState(false);
   const { success, error } = useToast();
@@ -64,31 +64,31 @@ export const RecordShipmentModal: React.FC<RecordShipmentModalProps> = ({
     setLoading(true);
     try {
       await api.post(`/api/v1/inventory/${materialId}/shipment`, data);
-      success('Shipment Recorded', `Received ${data.quantity} ${unit} of ${materialName}.`);
+      success('Pengiriman Dicatat', `Diterima ${data.quantity} ${unit} untuk ${materialName}.`);
       onSuccess();
       onClose();
     } catch (err: any) {
-      error('Failed to record shipment', err.response?.data?.message || 'Please try again later.');
+      error('Gagal mencatat pengiriman', err.response?.data?.message || 'Silakan coba lagi nanti.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Record Incoming Shipment" size="sm">
+    <Modal isOpen={isOpen} onClose={onClose} title="Catat Pasokan Masuk" size="sm">
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-6 space-y-4">
           <div className="flex items-center gap-3 mb-2 p-4 bg-primary-50 rounded-lg border border-primary-100">
             <Truck className="text-primary-500 w-6 h-6 flex-shrink-0" weight="regular" />
             <div>
               <p className="text-sm font-semibold text-primary-900">{materialName}</p>
-              <p className="text-xs text-primary-700">Record newly arrived stock from suppliers.</p>
+              <p className="text-xs text-primary-700">Catat stok bahan baku yang baru masuk dari pemasok.</p>
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Quantity Received <span className="text-red-500">*</span>
+              Jumlah Diterima <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <input
@@ -105,23 +105,23 @@ export const RecordShipmentModal: React.FC<RecordShipmentModalProps> = ({
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Supplier / Vendor</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Pemasok / Vendor</label>
             <input
               type="text"
               {...register('supplier')}
               className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.supplier ? 'border-red-500' : ''}`}
-              placeholder="e.g., CV Paper Supplier"
+              placeholder="cth., CV Kertas Jaya"
             />
             {errors.supplier && <p className="text-red-500 text-xs mt-1">{errors.supplier.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">PO / Reference Number</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">No. PO / Nomor Referensi</label>
             <input
               type="text"
               {...register('referenceNumber')}
               className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.referenceNumber ? 'border-red-500' : ''}`}
-              placeholder="e.g., PO-2026-045"
+              placeholder="cth., PO-2026-045"
             />
             {errors.referenceNumber && <p className="text-red-500 text-xs mt-1">{errors.referenceNumber.message}</p>}
           </div>
@@ -133,14 +133,14 @@ export const RecordShipmentModal: React.FC<RecordShipmentModalProps> = ({
             disabled={loading}
             className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
           >
-            Cancel
+            Batal
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 disabled:opacity-50"
           >
-            {loading ? 'Saving...' : 'Record Shipment'}
+            {loading ? 'Menyimpan...' : 'Catat Pasokan'}
           </button>
         </div>
       </form>

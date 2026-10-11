@@ -33,7 +33,7 @@ export const AdjustStockModal: React.FC<AdjustStockModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!quantity || quantity <= 0) {
-      error('Invalid Quantity', 'Please enter a valid quantity.');
+      error('Jumlah Tidak Valid', 'Silakan masukkan jumlah stok yang valid.');
       return;
     }
 
@@ -44,24 +44,24 @@ export const AdjustStockModal: React.FC<AdjustStockModalProps> = ({
         quantity: adjustment,
         reason
       });
-      success('Stock Adjusted', `Stock for ${materialName} has been updated.`);
+      success('Stok Berhasil Disesuaikan', `Stok untuk ${materialName} telah berhasil diperbarui.`);
       onSuccess();
       onClose();
       setQuantity('');
       setReason('');
     } catch (err: any) {
-      error('Adjustment Failed', err.response?.data?.message || 'Please try again later.');
+      error('Penyesuaian Gagal', err.response?.data?.message || 'Silakan coba beberapa saat lagi.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Adjust Stock" size="sm">
+    <Modal isOpen={isOpen} onClose={onClose} title="Sesuaikan Stok" size="sm">
       <form onSubmit={handleSubmit}>
         <div className="p-6 space-y-5">
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-2">
-            <p className="text-sm text-slate-500 mb-1">Current Stock</p>
+            <p className="text-sm text-slate-500 mb-1">Stok Saat Ini</p>
             <p className="text-xl font-bold text-slate-900">{currentQuantity} <span className="text-sm font-normal text-slate-500">{unit}</span></p>
           </div>
           
@@ -79,7 +79,7 @@ export const AdjustStockModal: React.FC<AdjustStockModalProps> = ({
                 <Package size={20} className={adjustmentType === 'add' ? 'text-emerald-500' : ''} weight="regular" />
                 <Plus size={16} className={adjustmentType === 'add' ? 'text-emerald-500' : ''} weight="bold" />
               </div>
-              <span className="text-sm font-medium">Add Stock</span>
+              <span className="text-sm font-medium">Tambah Stok</span>
             </button>
             <button
               type="button"
@@ -94,13 +94,13 @@ export const AdjustStockModal: React.FC<AdjustStockModalProps> = ({
                 <Package size={20} className={adjustmentType === 'subtract' ? 'text-red-500' : ''} weight="regular" />
                 <Minus size={16} className={adjustmentType === 'subtract' ? 'text-red-500' : ''} weight="bold" />
               </div>
-              <span className="text-sm font-medium">Subtract Stock</span>
+              <span className="text-sm font-medium">Kurangi Stok</span>
             </button>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Quantity to {adjustmentType === 'add' ? 'Add' : 'Subtract'} <span className="text-red-500">*</span>
+              Jumlah untuk {adjustmentType === 'add' ? 'Ditambahkan' : 'Dikurangkan'} <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <input
@@ -108,7 +108,7 @@ export const AdjustStockModal: React.FC<AdjustStockModalProps> = ({
                 min="1"
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
-                className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm"
                 required
               />
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -117,7 +117,7 @@ export const AdjustStockModal: React.FC<AdjustStockModalProps> = ({
             </div>
             {quantity && typeof quantity === 'number' && (
               <p className="text-xs text-slate-500 mt-2">
-                New total will be: <span className="font-bold text-slate-700">
+                Total stok baru akan menjadi: <span className="font-bold text-slate-700">
                   {adjustmentType === 'add' ? currentQuantity + quantity : Math.max(0, currentQuantity - quantity)} {unit}
                 </span>
               </p>
@@ -125,13 +125,13 @@ export const AdjustStockModal: React.FC<AdjustStockModalProps> = ({
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Reason (Optional)</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Alasan Penyesuaian (Opsional)</label>
             <input
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-              placeholder={adjustmentType === 'add' ? 'e.g., Manual stock count correction' : 'e.g., Damaged goods, waste'}
+              className="w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm"
+              placeholder={adjustmentType === 'add' ? 'contoh: Koreksi opname stok fisik' : 'contoh: Bahan rusak, terbuang (waste)'}
             />
           </div>
         </div>
@@ -142,18 +142,18 @@ export const AdjustStockModal: React.FC<AdjustStockModalProps> = ({
             disabled={loading}
             className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
           >
-            Cancel
+            Batal
           </button>
           <button
             type="submit"
             disabled={loading || !quantity}
             className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors focus:ring-2 focus:ring-offset-2 disabled:opacity-50 ${
               adjustmentType === 'add' 
-                ? 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500' 
+                ? 'bg-black hover:bg-slate-800 focus:ring-slate-900' 
                 : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
             }`}
           >
-            {loading ? 'Saving...' : 'Confirm Adjustment'}
+            {loading ? 'Menyimpan...' : 'Konfirmasi Penyesuaian'}
           </button>
         </div>
       </form>

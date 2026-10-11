@@ -26,13 +26,13 @@ interface DesignFilesTableProps {
   onDelete?: (id: string) => void;
 }
 
-const statusConfig: Record<string, { color: string; icon: React.ReactNode }> = {
-  Uploaded: { color: 'bg-blue-100 text-blue-700', icon: <Clock size={14} weight="regular" /> },
-  AI_Check: { color: 'bg-primary-100 text-primary-700', icon: <Clock size={14} weight="regular" /> },
-  Manual_Review: { color: 'bg-amber-100 text-amber-700', icon: <Clock size={14} weight="regular" /> },
-  Approved: { color: 'bg-emerald-100 text-emerald-700', icon: <Check size={14} weight="regular" /> },
-  Rejected: { color: 'bg-red-100 text-red-700', icon: <X size={14} weight="regular" /> },
-  Revision_Required: { color: 'bg-orange-100 text-orange-700', icon: <X size={14} weight="regular" /> },
+const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+  Uploaded: { label: 'Diunggah', color: 'bg-slate-100 text-slate-900', icon: <Clock size={14} weight="regular" /> },
+  AI_Check: { label: 'Pengecekan AI', color: 'bg-primary-100 text-primary-700', icon: <Clock size={14} weight="regular" /> },
+  Manual_Review: { label: 'Tinjauan Manual', color: 'bg-amber-100 text-amber-700', icon: <Clock size={14} weight="regular" /> },
+  Approved: { label: 'Disetujui', color: 'bg-emerald-100 text-emerald-700', icon: <Check size={14} weight="regular" /> },
+  Rejected: { label: 'Ditolak', color: 'bg-red-100 text-red-700', icon: <X size={14} weight="regular" /> },
+  Revision_Required: { label: 'Perlu Revisi', color: 'bg-orange-100 text-orange-700', icon: <X size={14} weight="regular" /> },
 };
 
 export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
@@ -53,7 +53,9 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
     return `${(bytes / 1024).toFixed(2)} KB`;
   };
 
-  const formatStatus = (status: string) => status.replace(/_/g, ' ');
+  const formatStatus = (status: string) => {
+    return statusConfig[status]?.label || status.replace(/_/g, ' ');
+  };
 
   if (loading) {
     return (
@@ -74,7 +76,7 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
           <div key={file.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3 flex flex-col">
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-2">
-                <FileImage size={16} className="text-blue-500 flex-shrink-0" weight="regular" />
+                <FileImage size={16} className="text-slate-900 flex-shrink-0" weight="regular" />
                 <div className="font-medium text-slate-900 break-all">{file.originalName}</div>
               </div>
             </div>
@@ -89,15 +91,15 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
             
             <div className="text-sm space-y-1">
               <div>
-                <span className="text-slate-500 mr-2">Order:</span>
-                <span className="font-medium text-slate-900">{file.order?.orderNumber || 'N/A'}</span>
+                <span className="text-slate-500 mr-2">Pesanan:</span>
+                <span className="font-medium text-slate-900">{file.order?.orderNumber || '-'}</span>
               </div>
               <div>
-                <span className="text-slate-500 mr-2">Customer:</span>
-                <span className="text-slate-900">{file.order?.customer?.companyName || 'N/A'}</span>
+                <span className="text-slate-500 mr-2">Pelanggan:</span>
+                <span className="text-slate-900">{file.order?.customer?.companyName || '-'}</span>
               </div>
               <div>
-                <span className="text-slate-500 mr-2">Uploaded:</span>
+                <span className="text-slate-500 mr-2">Diunggah:</span>
                 <span className="text-slate-900">{new Date(file.createdAt).toLocaleDateString('id-ID')}</span>
               </div>
             </div>
@@ -105,15 +107,15 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
             <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
               <button
                 onClick={() => onPreview(file.id)}
-                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                title="Preview"
+                className="p-1.5 text-slate-400 hover:text-black hover:bg-slate-100 rounded-lg transition-colors"
+                title="Pratinjau"
               >
                 <Eye size={18} weight="regular" />
               </button>
               <button
                 onClick={() => onDownload(file.id)}
-                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                title="Download"
+                className="p-1.5 text-slate-400 hover:text-black hover:bg-slate-100 rounded-lg transition-colors"
+                title="Unduh"
               >
                 <Download size={18} weight="regular" />
               </button>
@@ -122,21 +124,21 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
                   <button
                     onClick={() => onApprove(file.id)}
                     className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                    title="Approve"
+                    title="Setujui"
                   >
                     <Check size={18} weight="regular" />
                   </button>
                   <button
                     onClick={() => onReject(file.id)}
                     className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Reject"
+                    title="Tolak"
                   >
                     <X size={18} weight="regular" />
                   </button>
                   <button
                     onClick={() => onRevisionRequest(file.id)}
                     className="p-1.5 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                    title="Request Revision"
+                    title="Minta Revisi"
                   >
                     <NotePencil size={18} weight="regular" />
                   </button>
@@ -146,7 +148,7 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
                 <button
                   onClick={() => onDelete(file.id)}
                   className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Delete"
+                  title="Hapus"
                 >
                   <Trash size={18} weight="regular" />
                 </button>
@@ -157,7 +159,7 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
         {files.length === 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-slate-500">
             <FileImage size={48} className="mx-auto mb-3 text-slate-300" weight="regular" />
-            <p>No design files found.</p>
+            <p>Tidak ada berkas desain ditemukan.</p>
           </div>
         )}
       </div>
@@ -169,28 +171,28 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                File Name
+                Nama Berkas
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Order
+                Pesanan
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Customer
+                Pelanggan
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Version
+                Versi
               </th>
               <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Size
+                Ukuran
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Uploaded
+                Diunggah
               </th>
               <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Actions
+                Aksi
               </th>
             </tr>
           </thead>
@@ -199,21 +201,21 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
               <tr>
                 <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
                   <FileImage size={48} className="mx-auto mb-3 text-slate-300" weight="regular" />
-                  <p>No design files found.</p>
+                  <p>Tidak ada berkas desain ditemukan.</p>
                 </td>
               </tr>
             ) : (
               files.map((file) => (
                 <tr key={file.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4 text-sm font-medium text-slate-900 flex items-center gap-2">
-                    <FileImage size={16} className="text-blue-500" weight="regular" />
+                    <FileImage size={16} className="text-slate-900" weight="regular" />
                     {file.originalName}
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-700">
-                    {file.order?.orderNumber || 'N/A'}
+                    {file.order?.orderNumber || '-'}
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-700">
-                    {file.order?.customer?.companyName || 'N/A'}
+                    {file.order?.customer?.companyName || '-'}
                   </td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig[file.status]?.color || 'bg-gray-100 text-gray-700'}`}>
@@ -233,15 +235,15 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
                   <td className="px-6 py-4 text-right space-x-2">
                     <button
                       onClick={() => onPreview(file.id)}
-                      className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
-                      title="Preview"
+                      className="p-1 text-slate-400 hover:text-black transition-colors"
+                      title="Pratinjau"
                     >
                       <Eye size={18} weight="regular" />
                     </button>
                     <button
                       onClick={() => onDownload(file.id)}
-                      className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
-                      title="Download"
+                      className="p-1 text-slate-400 hover:text-black transition-colors"
+                      title="Unduh"
                     >
                       <Download size={18} weight="regular" />
                     </button>
@@ -250,21 +252,21 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
                         <button
                           onClick={() => onApprove(file.id)}
                           className="p-1 text-slate-400 hover:text-emerald-600 transition-colors"
-                          title="Approve"
+                          title="Setujui"
                         >
                           <Check size={18} weight="regular" />
                         </button>
                         <button
                           onClick={() => onReject(file.id)}
                           className="p-1 text-slate-400 hover:text-red-600 transition-colors"
-                          title="Reject"
+                          title="Tolak"
                         >
                           <X size={18} weight="regular" />
                         </button>
                         <button
                           onClick={() => onRevisionRequest(file.id)}
                           className="p-1 text-slate-400 hover:text-orange-600 transition-colors"
-                          title="Request Revision"
+                          title="Minta Revisi"
                         >
                           <NotePencil size={18} weight="regular" />
                         </button>
@@ -274,7 +276,7 @@ export const DesignFilesTable: React.FC<DesignFilesTableProps> = ({
                       <button
                         onClick={() => onDelete(file.id)}
                         className="p-1 text-slate-400 hover:text-red-600 transition-colors"
-                        title="Delete"
+                        title="Hapus"
                       >
                         <Trash size={18} weight="regular" />
                       </button>

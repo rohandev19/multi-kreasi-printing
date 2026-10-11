@@ -15,13 +15,13 @@ interface UserFormModalProps {
 }
 
 const getUserSchema = (isEditMode: boolean) => z.object({
-  fullName: z.string().min(1, 'Full name is required'),
-  email: z.string().email('Invalid email address'),
+  fullName: z.string().min(1, 'Nama lengkap wajib diisi'),
+  email: z.string().email('Format email tidak valid'),
   password: isEditMode 
     ? z.string().optional().or(z.literal('')) 
-    : z.string().min(8, 'Password must be at least 8 characters'),
+    : z.string().min(8, 'Kata sandi minimal 8 karakter'),
   phone: z.string().optional(),
-  roleId: z.string().min(1, 'Role is required'),
+  roleId: z.string().min(1, 'Peran wajib dipilih'),
   status: z.enum(['Active', 'Inactive', 'Suspended']).default('Active'),
 });
 
@@ -91,7 +91,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
           password: '',
         });
       } catch {
-        error('Error', 'Failed to load user details');
+        error('Kesalahan', 'Gagal memuat detail pengguna');
         onClose();
       } finally {
         setFetchingData(false);
@@ -113,7 +113,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
         });
       }
     }
-  }, [isOpen, userId, isEditMode, error, onClose, reset, setValue, roles]); // Need to be careful with roles dependency here
+  }, [isOpen, userId, isEditMode, error, onClose, reset, setValue, roles]);
 
   const onSubmit = async (data: any) => {
     setLoading(true);
@@ -133,16 +133,16 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
     try {
       if (isEditMode) {
         await api.patch(`/api/v1/users/${userId}`, payload);
-        success('User Updated', `${data.fullName} has been updated successfully.`);
+        success('Pengguna Diperbarui', `${data.fullName} berhasil diperbarui.`);
       } else {
         await api.post('/api/v1/users', payload);
-        success('User Added', `${data.fullName} has been added successfully.`);
+        success('Pengguna Ditambahkan', `${data.fullName} berhasil ditambahkan.`);
       }
       
       onSuccess();
       onClose();
     } catch (err: any) {
-      error('Failed to save user', err.response?.data?.message || 'Please try again later.');
+      error('Gagal menyimpan pengguna', err.response?.data?.message || 'Silakan coba lagi nanti.');
     } finally {
       setLoading(false);
     }
@@ -152,7 +152,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditMode ? 'Edit Staff / User' : 'Add New Staff / User'}
+      title={isEditMode ? 'Ubah Staf / Pengguna' : 'Tambah Staf / Pengguna Baru'}
       size="md"
     >
       {fetchingData ? (
@@ -162,12 +162,12 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
             <input
               type="text"
               {...register('fullName')}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${errors.fullName ? 'border-red-500' : 'border-gray-300'}`}
-              placeholder="e.g. John Doe"
+              placeholder="cth. Budi Santoso"
             />
             {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
           </div>
@@ -178,26 +178,26 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
               type="email"
               {...register('email')}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
-              placeholder="john@example.com"
+              placeholder="budi@example.com"
             />
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {isEditMode ? 'Password (leave blank to keep current)' : 'Password'}
+              {isEditMode ? 'Kata Sandi (kosongkan jika tidak diubah)' : 'Kata Sandi'}
             </label>
             <input
               type="password"
               {...register('password')}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
-              placeholder={isEditMode ? '••••••••' : 'Enter password (min 8 chars)'}
+              placeholder={isEditMode ? '••••••••' : 'Masukkan kata sandi (min 8 karakter)'}
             />
             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number (Optional)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon (Opsional)</label>
             <input
               type="tel"
               {...register('phone')}
@@ -209,12 +209,12 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Peran</label>
               <select
                 {...register('roleId')}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors bg-white ${errors.roleId ? 'border-red-500' : 'border-gray-300'}`}
               >
-                <option value="" disabled>Select a role...</option>
+                <option value="" disabled>Pilih peran...</option>
                 {roles.map(role => (
                   <option key={role.id} value={role.id}>
                     {role.displayName}
@@ -231,9 +231,9 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
                   {...register('status')}
                   className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors bg-white ${errors.status ? 'border-red-500' : 'border-gray-300'}`}
                 >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                  <option value="Suspended">Suspended</option>
+                  <option value="Active">Aktif</option>
+                  <option value="Inactive">Nonaktif</option>
+                  <option value="Suspended">Ditangguhkan</option>
                 </select>
                 {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status.message}</p>}
               </div>
@@ -247,12 +247,12 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
               disabled={loading}
               className="px-4 py-2 text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors font-medium disabled:opacity-50"
             >
-              Cancel
+              Batal
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 flex items-center"
+              className="px-4 py-2 bg-black hover:bg-slate-800 text-white rounded-lg transition-colors font-medium disabled:opacity-50 flex items-center"
             >
               {loading ? (
                 <>
@@ -260,10 +260,10 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Saving...
+                  Menyimpan...
                 </>
               ) : (
-                'Save User'
+                isEditMode ? 'Simpan Perubahan' : 'Tambah Pengguna'
               )}
             </button>
           </div>

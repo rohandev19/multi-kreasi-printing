@@ -28,7 +28,7 @@ export const PaymentHistoryModal: React.FC<PaymentHistoryModalProps> = ({
         const response = await api.get(`/api/v1/customers/${customerId}/payments`);
         setPayments(Array.isArray(response.data) ? response.data : response.data.data || []);
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to load payment history');
+        setError(err.response?.data?.message || 'Gagal memuat riwayat pembayaran');
       } finally {
         setLoading(false);
       }
@@ -58,11 +58,11 @@ export const PaymentHistoryModal: React.FC<PaymentHistoryModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Payment History" size="md">
+    <Modal isOpen={isOpen} onClose={onClose} title="Riwayat Pembayaran" size="md">
       <div className="p-0">
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
           </div>
         ) : error ? (
           <div className="p-6">
@@ -71,7 +71,7 @@ export const PaymentHistoryModal: React.FC<PaymentHistoryModalProps> = ({
         ) : payments.length === 0 ? (
           <div className="text-center py-12 text-slate-500">
             <CreditCard size={48} className="mx-auto text-slate-300 mb-4" weight="regular" />
-            <p>No payment history found for this customer.</p>
+            <p>Belum ada riwayat pembayaran untuk pelanggan ini.</p>
           </div>
         ) : (
           <div className="max-h-[60vh] overflow-y-auto">
@@ -87,7 +87,7 @@ export const PaymentHistoryModal: React.FC<PaymentHistoryModalProps> = ({
                       {payment.invoiceNumber && (
                         <>
                           <span>•</span>
-                          <span className="font-medium text-primary-600">{payment.invoiceNumber}</span>
+                          <span className="font-medium text-slate-800">{payment.invoiceNumber}</span>
                         </>
                       )}
                     </div>
@@ -106,7 +106,7 @@ export const PaymentHistoryModal: React.FC<PaymentHistoryModalProps> = ({
           onClick={onClose}
           className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
         >
-          Close
+          Tutup
         </button>
       </div>
     </Modal>

@@ -4,19 +4,19 @@ import { Warning, House, ArrowClockwise } from '@phosphor-icons/react';
 export function GlobalErrorBoundary() {
   const error = useRouteError();
   
-  let title = 'Something went wrong';
-  let message = 'An unexpected error occurred while processing your request.';
+  let title = 'Terjadi Kesalahan';
+  let message = 'Terjadi kesalahan yang tidak terduga saat memproses permintaan Anda.';
 
   if (isRouteErrorResponse(error)) {
     if (error.status === 404) {
-      title = 'Page Not Found';
-      message = 'The page you are looking for does not exist or has been moved.';
+      title = 'Halaman Tidak Ditemukan';
+      message = 'Halaman yang Anda cari tidak ada atau telah dipindahkan.';
     } else if (error.status === 401) {
-      title = 'Unauthorized';
-      message = 'You do not have permission to access this page. Please log in.';
+      title = 'Akses Tidak Sah';
+      message = 'Anda tidak memiliki izin untuk mengakses halaman ini. Silakan masuk terlebih dahulu.';
     } else if (error.status === 403) {
-      title = 'Forbidden';
-      message = 'You are not authorized to view this content with your current role.';
+      title = 'Akses Ditolak';
+      message = 'Peran akun Anda saat ini tidak memiliki izin untuk melihat konten ini.';
     } else {
       title = `${error.status} ${error.statusText}`;
       message = error.data?.message || message;
@@ -44,14 +44,14 @@ export function GlobalErrorBoundary() {
               className="flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-colors"
             >
               <ArrowClockwise className="w-4 h-4" weight="regular" />
-              Try Again
+              Coba Lagi
             </button>
             <Link 
               to="/"
-              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-black hover:bg-slate-800 text-white rounded-xl font-medium transition-colors"
             >
               <House className="w-4 h-4" weight="regular" />
-              Back to Home
+              Kembali ke Beranda
             </Link>
           </div>
         </div>

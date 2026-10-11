@@ -28,16 +28,16 @@ interface Customer {
 }
 
 const orderItemSchema = z.object({
-  productId: z.string().min(1, 'Product is required'),
-  quantity: z.coerce.number().min(1, 'Quantity must be at least 1'),
-  price: z.coerce.number().min(0, 'Price cannot be negative'),
+  productId: z.string().min(1, 'Produk wajib dipilih'),
+  quantity: z.coerce.number().min(1, 'Jumlah minimal 1'),
+  price: z.coerce.number().min(0, 'Harga tidak boleh negatif'),
 });
 
 const orderSchema = z.object({
-  customerId: z.string().min(1, 'Customer is required'),
+  customerId: z.string().min(1, 'Pelanggan wajib dipilih'),
   status: z.enum(['Draft', 'Pending_Approval', 'Approved', 'In_Production', 'Completed']).default('Pending_Approval'),
   paymentStatus: z.enum(['Unpaid', 'Partial', 'Paid']).default('Unpaid'),
-  items: z.array(orderItemSchema).min(1, 'At least one item is required'),
+  items: z.array(orderItemSchema).min(1, 'Minimal 1 item produk diperlukan'),
 });
 
 type OrderFormValues = z.infer<typeof orderSchema>;
@@ -92,8 +92,8 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
         
         setProducts(Array.isArray(productsRes.data) ? productsRes.data : productsRes.data.data || []);
         setCustomers(Array.isArray(customersRes.data) ? customersRes.data : customersRes.data.data || []);
-      } catch {
-        console.error('Error fetching dropdown data', _err);
+      } catch (err: any) {
+        console.error('Error fetching dropdown data', err);
       }
     };
 
@@ -116,7 +116,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
             : [{ productId: '', quantity: 1, price: 0 }]
         });
       } catch {
-        error('Error', 'Failed to load order details');
+        error('Gagal', 'Gagal memuat detail pesanan');
         onClose();
       } finally {
         setFetchingData(false);
@@ -137,8 +137,6 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
       }
     }
   }, [isOpen, orderId, isEditMode, reset, error, onClose]);
-
-
 
   const calculateTotal = () => {
     return watchItems.reduce((total, item) => total + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
@@ -168,16 +166,16 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
 
       if (isEditMode) {
         await api.put(`/api/v1/orders/${orderId}`, payload);
-        success('Order Updated', `Order has been updated successfully.`);
+        success('Pesanan Diperbarui', `Pesanan telah berhasil diperbarui.`);
       } else {
         await api.post('/api/v1/orders', payload);
-        success('Order Created', `New order has been created successfully.`);
+        success('Pesanan Dibuat', `Pesanan baru telah berhasil dibuat.`);
       }
       
       onSuccess();
       onClose();
     } catch (err: any) {
-      error('Failed to save order', err.response?.data?.message || 'Please try again later.');
+      error('Gagal menyimpan pesanan', err.response?.data?.message || 'Silakan coba beberapa saat lagi.');
     } finally {
       setLoading(false);
     }
@@ -187,12 +185,12 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditMode ? 'Edit Order' : 'Create New Order'}
+      title={isEditMode ? 'Ubah Pesanan' : 'Buat Pesanan Baru'}
       size="2xl"
     >
       {fetchingData ? (
         <div className="p-12 flex justify-center items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[80vh]">
@@ -201,12 +199,12 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
             {/* General Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Customer <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Pelanggan <span className="text-red-500">*</span></label>
                 <select
                   {...register('customerId')}
-                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.customerId ? 'border-red-500' : ''}`}
+                  className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.customerId ? 'border-red-500' : ''}`}
                 >
-                  <option value="">Select a customer...</option>
+                  <option value="">Pilih pelanggan...</option>
                   {customers.map(c => (
                     <option key={c.id} value={c.id}>{c.name} ({c.email})</option>
                   ))}
@@ -216,28 +214,28 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Order Status</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Status Pesanan</label>
                   <select
                     {...register('status')}
-                    className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.status ? 'border-red-500' : ''}`}
+                    className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.status ? 'border-red-500' : ''}`}
                   >
-                    <option value="Draft">Draft</option>
-                    <option value="Pending_Approval">Pending Approval</option>
-                    <option value="Approved">Approved</option>
-                    <option value="In_Production">In Production</option>
-                    <option value="Completed">Completed</option>
+                    <option value="Draft">Draf</option>
+                    <option value="Pending_Approval">Menunggu Persetujuan</option>
+                    <option value="Approved">Disetujui</option>
+                    <option value="In_Production">Dalam Produksi</option>
+                    <option value="Completed">Selesai</option>
                   </select>
                   {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status.message}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Payment</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Status Pembayaran</label>
                   <select
                     {...register('paymentStatus')}
-                    className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.paymentStatus ? 'border-red-500' : ''}`}
+                    className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.paymentStatus ? 'border-red-500' : ''}`}
                   >
-                    <option value="Unpaid">Unpaid</option>
-                    <option value="Partial">Partial</option>
-                    <option value="Paid">Paid</option>
+                    <option value="Unpaid">Belum Bayar</option>
+                    <option value="Partial">Sebagian (DP)</option>
+                    <option value="Paid">Lunas</option>
                   </select>
                   {errors.paymentStatus && <p className="text-red-500 text-xs mt-1">{errors.paymentStatus.message}</p>}
                 </div>
@@ -249,13 +247,13 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
             {/* Order Items */}
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-sm font-bold text-slate-800">Order Items <span className="text-red-500">*</span></h3>
+                <h3 className="text-sm font-bold text-slate-800">Item Pesanan <span className="text-red-500">*</span></h3>
                 <button
                   type="button"
                   onClick={() => append({ productId: '', quantity: 1, price: 0 })}
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+                  className="text-sm text-slate-700 hover:text-slate-900 font-semibold flex items-center gap-1"
                 >
-                  <Plus size={16} weight="regular" /> Add Item
+                  <Plus size={16} weight="bold" /> Tambah Item
                 </button>
               </div>
               
@@ -264,7 +262,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                   <div key={item.id} className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl relative group transition-colors hover:border-slate-300">
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4">
                       <div className="md:col-span-6">
-                        <label className="block text-xs font-medium text-slate-500 mb-1">Product</label>
+                        <label className="block text-xs font-medium text-slate-500 mb-1">Produk</label>
                         <select
                           {...register(`items.${index}.productId` as const)}
                           onChange={(e) => {
@@ -275,9 +273,9 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                               setValue(`items.${index}.price` as const, product.basePrice);
                             }
                           }}
-                          className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.items?.[index]?.productId ? 'border-red-500' : ''}`}
+                          className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.items?.[index]?.productId ? 'border-red-500' : ''}`}
                         >
-                          <option value="">Select product...</option>
+                          <option value="">Pilih produk...</option>
                           {products.map(p => (
                             <option key={p.id} value={p.id}>{p.name}</option>
                           ))}
@@ -286,7 +284,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                       </div>
                       
                       <div className="md:col-span-3">
-                        <label className="block text-xs font-medium text-slate-500 mb-1">Unit Price</label>
+                        <label className="block text-xs font-medium text-slate-500 mb-1">Harga Satuan</label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <span className="text-slate-500 sm:text-sm">Rp</span>
@@ -295,19 +293,19 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                             type="number"
                             min="0"
                             {...register(`items.${index}.price` as const)}
-                            className={`w-full pl-9 border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.items?.[index]?.price ? 'border-red-500' : ''}`}
+                            className={`w-full pl-9 border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.items?.[index]?.price ? 'border-red-500' : ''}`}
                           />
                         </div>
                         {errors.items?.[index]?.price && <p className="text-red-500 text-xs mt-1">{errors.items[index]?.price?.message}</p>}
                       </div>
 
                       <div className="md:col-span-3">
-                        <label className="block text-xs font-medium text-slate-500 mb-1">Qty</label>
+                        <label className="block text-xs font-medium text-slate-500 mb-1">Jumlah</label>
                         <input
                           type="number"
                           min="1"
                           {...register(`items.${index}.quantity` as const)}
-                          className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${errors.items?.[index]?.quantity ? 'border-red-500' : ''}`}
+                          className={`w-full border-slate-300 rounded-lg shadow-sm focus:ring-slate-900 focus:border-slate-900 sm:text-sm ${errors.items?.[index]?.quantity ? 'border-red-500' : ''}`}
                         />
                         {errors.items?.[index]?.quantity && <p className="text-red-500 text-xs mt-1">{errors.items[index]?.quantity?.message}</p>}
                       </div>
@@ -318,7 +316,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                         type="button"
                         onClick={() => remove(index)}
                         className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors mt-5"
-                        title="Remove item"
+                        title="Hapus item"
                       >
                         <Trash size={18} weight="regular" />
                       </button>
@@ -330,9 +328,9 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
             </div>
 
             {/* Total Summary */}
-            <div className="bg-primary-50 p-4 rounded-xl border border-primary-100 flex justify-between items-center">
-              <span className="font-medium text-primary-900">Total Amount</span>
-              <span className="text-xl font-bold text-primary-700">{formatCurrency(calculateTotal())}</span>
+            <div className="bg-slate-100 p-4 rounded-xl border border-slate-200 flex justify-between items-center">
+              <span className="font-semibold text-slate-800">Total Pembayaran</span>
+              <span className="text-xl font-bold text-slate-900">{formatCurrency(calculateTotal())}</span>
             </div>
 
           </div>
@@ -345,12 +343,12 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
               disabled={loading}
               className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
             >
-              Cancel
+              Batal
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 flex items-center"
+              className="px-6 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 disabled:opacity-50 flex items-center"
             >
               {loading ? (
                 <>
@@ -358,10 +356,10 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Saving...
+                  Menyimpan...
                 </>
               ) : (
-                isEditMode ? 'Save Changes' : 'Create Order'
+                isEditMode ? 'Simpan Perubahan' : 'Buat Pesanan'
               )}
             </button>
           </div>
