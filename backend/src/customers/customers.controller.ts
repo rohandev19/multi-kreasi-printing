@@ -36,7 +36,7 @@ export class CustomersController {
   }
 
   @Get()
-  @RequirePermissions({ action: 'manage', subject: 'Customers' })
+  @RequirePermissions({ action: 'read', subject: 'Customers' })
   async search(@Query() query: SearchCustomersDto, @Req() req: Request) {
     const result = await this.searchCustomersUseCase.execute(query);
     const user = (req as any).user;

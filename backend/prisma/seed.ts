@@ -29,14 +29,101 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const roles = [
-    { name: 'Owner', displayName: 'System Owner', description: 'Full system access', permissions: [{ action: 'manage', subject: 'all' }] },
-    { name: 'Manager', displayName: 'Manager', description: 'Store and operational management', permissions: [{ action: 'manage', subject: 'User' }, { action: 'manage', subject: 'Order' }, { action: 'read', subject: 'Report' }] },
-    { name: 'Sales', displayName: 'Sales Staff', description: 'Handles sales and customer relations', permissions: [{ action: 'manage', subject: 'Order' }, { action: 'read', subject: 'Customer' }] },
-    { name: 'Designer', displayName: 'Designer', description: 'Handles design assets', permissions: [{ action: 'manage', subject: 'DesignFile' }, { action: 'read', subject: 'Order' }] },
-    { name: 'Production_Staff', displayName: 'Production Staff', description: 'Handles printing and production', permissions: [{ action: 'manage', subject: 'ProductionJob' }, { action: 'read', subject: 'Order' }] },
-    { name: 'Warehouse_Staff', displayName: 'Warehouse Staff', description: 'Handles stock and materials', permissions: [{ action: 'manage', subject: 'Material' }, { action: 'read', subject: 'Order' }] },
-    { name: 'Finance_Staff', displayName: 'Finance Staff', description: 'Handles payments and invoices', permissions: [{ action: 'manage', subject: 'Invoice' }, { action: 'manage', subject: 'Payment' }, { action: 'read', subject: 'Order' }] },
-    { name: 'Customer', displayName: 'Customer', description: 'Standard user/customer', permissions: [{ action: 'read', subject: 'Order' }, { action: 'create', subject: 'Order' }, { action: 'read', subject: 'Invoice' }] },
+    {
+      name: 'Owner',
+      displayName: 'System Owner',
+      description: 'Full system access',
+      permissions: [{ action: 'manage', subject: 'all' }],
+    },
+    {
+      name: 'Manager',
+      displayName: 'Manager',
+      description: 'Store and operational management',
+      permissions: [
+        { action: 'manage', subject: 'User' },
+        { action: 'manage', subject: 'Order' },
+        { action: 'manage', subject: 'Customer' },
+        { action: 'manage', subject: 'Product' },
+        { action: 'manage', subject: 'Quotation' },
+        { action: 'manage', subject: 'DesignFile' },
+        { action: 'manage', subject: 'ProductionJob' },
+        { action: 'manage', subject: 'Material' },
+        { action: 'manage', subject: 'Invoice' },
+        { action: 'manage', subject: 'Payment' },
+        { action: 'manage', subject: 'Machine' },
+        { action: 'read', subject: 'Report' },
+        { action: 'read', subject: 'AuditLog' },
+        { action: 'manage', subject: 'Chat' },
+        { action: 'manage', subject: 'Setting' },
+      ],
+    },
+    {
+      name: 'Sales',
+      displayName: 'Sales Staff',
+      description: 'Handles sales and customer relations',
+      permissions: [
+        { action: 'manage', subject: 'Order' },
+        { action: 'manage', subject: 'Customer' },
+        { action: 'manage', subject: 'Quotation' },
+        { action: 'read', subject: 'Product' },
+        { action: 'manage', subject: 'Chat' },
+      ],
+    },
+    {
+      name: 'Designer',
+      displayName: 'Designer',
+      description: 'Handles design assets',
+      permissions: [
+        { action: 'manage', subject: 'DesignFile' },
+        { action: 'read', subject: 'Order' },
+      ],
+    },
+    {
+      name: 'Production_Staff',
+      displayName: 'Production Staff',
+      description: 'Handles printing and production',
+      permissions: [
+        { action: 'manage', subject: 'ProductionJob' },
+        { action: 'read', subject: 'Order' },
+        { action: 'read', subject: 'DesignFile' },
+        { action: 'read', subject: 'Material' },
+        { action: 'manage', subject: 'Machine' },
+      ],
+    },
+    {
+      name: 'Warehouse_Staff',
+      displayName: 'Warehouse Staff',
+      description: 'Handles stock and materials',
+      permissions: [
+        { action: 'manage', subject: 'Material' },
+        { action: 'read', subject: 'Order' },
+      ],
+    },
+    {
+      name: 'Finance_Staff',
+      displayName: 'Finance Staff',
+      description: 'Handles payments and invoices',
+      permissions: [
+        { action: 'manage', subject: 'Invoice' },
+        { action: 'manage', subject: 'Payment' },
+        { action: 'read', subject: 'Customer' },
+        { action: 'read', subject: 'Order' },
+        { action: 'read', subject: 'Report' },
+      ],
+    },
+    {
+      name: 'Customer',
+      displayName: 'Customer',
+      description: 'Standard user/customer',
+      permissions: [
+        { action: 'read', subject: 'Order' },
+        { action: 'create', subject: 'Order' },
+        { action: 'read', subject: 'Invoice' },
+        { action: 'read', subject: 'Product' },
+        { action: 'read', subject: 'Quotation' },
+        { action: 'manage', subject: 'Chat' },
+      ],
+    },
   ];
 
   for (const role of roles) {

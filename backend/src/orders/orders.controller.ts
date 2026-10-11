@@ -53,7 +53,7 @@ export class OrdersController {
   }
 
   @Get()
-  @RequirePermissions({ action: 'manage', subject: 'Orders' })
+  @RequirePermissions({ action: 'read', subject: 'Orders' })
   async list(@Req() req: AuthenticatedRequest) {
     const user = req.user;
     const page = parseInt(req.query.page as string) || 1;

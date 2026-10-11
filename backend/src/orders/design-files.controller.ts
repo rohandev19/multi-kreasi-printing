@@ -46,7 +46,7 @@ export class DesignFilesController {
   ) {}
 
   @Get()
-  @RequirePermissions({ action: 'manage', subject: 'DesignFiles' })
+  @RequirePermissions({ action: 'read', subject: 'DesignFiles' })
   async list(@Req() req: AuthenticatedRequest) {
     const user = req.user;
     let whereClause = {};
@@ -130,7 +130,7 @@ export class DesignFilesController {
   }
 
   @Get(':id/download')
-  @RequirePermissions({ action: 'manage', subject: 'DesignFiles' })
+  @RequirePermissions({ action: 'read', subject: 'DesignFiles' })
   async download(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const user = req.user;
     return this.downloadDesignFile.execute(id, user);

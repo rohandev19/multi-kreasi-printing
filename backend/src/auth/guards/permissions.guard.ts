@@ -78,8 +78,12 @@ export class PermissionsGuard implements CanActivate {
       return userPermissions.some((up: any) => {
         // action match or 'manage' wildcard
         const actionMatch = up.action === req.action || up.action === 'manage';
-        // subject match or 'all' wildcard
-        const subjectMatch = up.subject === req.subject || up.subject === 'all';
+        // subject match or 'all' wildcard (supporting singular/plural normalization)
+        const normalizeSubject = (s: string) => (s ? s.toLowerCase().replace(/s$/, '') : '');
+        const subjectMatch =
+          up.subject === req.subject ||
+          up.subject === 'all' ||
+          normalizeSubject(up.subject) === normalizeSubject(req.subject);
 
         if (!actionMatch || !subjectMatch) return false;
 

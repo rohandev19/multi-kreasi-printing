@@ -36,7 +36,7 @@ export class QuotationsController {
   }
 
   @Get()
-  @RequirePermissions({ action: 'manage', subject: 'Quotations' })
+  @RequirePermissions({ action: 'read', subject: 'Quotations' })
   findAll(@Req() req: AuthenticatedRequest) {
     const isCustomer = req.user.role === 'Customer';
     const customerId = req.user.customerId;
@@ -44,7 +44,7 @@ export class QuotationsController {
   }
 
   @Get(':id')
-  @RequirePermissions({ action: 'manage', subject: 'Quotations' })
+  @RequirePermissions({ action: 'read', subject: 'Quotations' })
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const quotation = await this.quotationsService.findOne(id);
     if (
