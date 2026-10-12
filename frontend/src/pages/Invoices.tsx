@@ -7,6 +7,8 @@ import { InvoiceDetailModal } from '../components/modals/InvoiceDetailModal';
 import { RecordPaymentModal } from '../components/modals/RecordPaymentModal';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useToast } from '../contexts/ToastContext';
+import { ArAgingReportView } from '../components/finance/ArAgingReportView';
+import { Receipt, ChartBar } from '@phosphor-icons/react';
 
 interface Invoice {
   id: string;
@@ -20,6 +22,7 @@ interface Invoice {
 
 export default function Invoices() {
   const { role, loading: roleLoading } = useRoleContext();
+  const [activeTab, setActiveTab] = useState<'invoices' | 'ar-aging'>('invoices');
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -108,35 +111,73 @@ export default function Invoices() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-800">
-          {isCustomer ? 'Faktur Saya' : 'Daftar Faktur'}
-        </h2>
-        {canManage && (
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800">
+            {isCustomer ? 'Faktur Saya' : 'Manajemen Keuangan & Faktur'}
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {isCustomer
+              ? 'Daftar riwayat dan tagihan faktur pesanan Anda'
+              : 'Kelola faktur, pencatatan pembayaran, dan laporan umur piutang korporat (AR Aging).'}
+          </p>
+        </div>
+        {canManage && activeTab === 'invoices' && (
           <button 
             onClick={() => setIsCreateOpen(true)}
-            className="px-4 py-2 bg-black text-white rounded-lg font-medium hover:bg-slate-800 transition-colors"
+            className="px-4 py-2 bg-black text-white rounded-lg font-medium hover:bg-slate-800 transition-colors shadow-sm text-sm"
           >
             Buat Faktur
           </button>
         )}
       </div>
 
+      {canManage && (
+        <div className="flex border-b border-slate-200 gap-6">
+          <button
+            onClick={() => setActiveTab('invoices')}
+            className={`pb-3 text-sm font-semibold flex items-center gap-2 border-b-2 transition-colors ${
+              activeTab === 'invoices'
+                ? 'border-slate-900 text-slate-900'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Receipt size={17} />
+            Daftar Faktur
+          </button>
+          <button
+            onClick={() => setActiveTab('ar-aging')}
+            className={`pb-3 text-sm font-semibold flex items-center gap-2 border-b-2 transition-colors ${
+              activeTab === 'ar-aging'
+                ? 'border-slate-900 text-slate-900'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <ChartBar size={17} />
+            Laporan Umur Piutang (AR Aging)
+          </button>
+        </div>
+      )}
+
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
           {error}
         </div>
       )}
 
-      <InvoicesTable
-        invoices={invoices}
-        userRole={role || ''}
-        loading={loading}
-        onDownload={handleDownload}
-        onViewDetails={handleViewDetails}
-        onRecordPayment={handleRecordPayment}
-        onSendReminder={handleSendReminder}
-        onDelete={handleDelete}
-      />
+      {activeTab === 'invoices' ? (
+        <InvoicesTable
+          invoices={invoices}
+          userRole={role || ''}
+          loading={loading}
+          onDownload={handleDownload}
+          onViewDetails={handleViewDetails}
+          onRecordPayment={handleRecordPayment}
+          onSendReminder={handleSendReminder}
+          onDelete={handleDelete}
+        />
+      ) : (
+        <ArAgingReportView />
+      )}
 
       {/* Modals */}
       <CreateInvoiceModal

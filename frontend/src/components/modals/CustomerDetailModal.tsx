@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import api from '../../api/axios';
-import { Envelope, ShoppingBag, CreditCard, Phone, Medal } from '@phosphor-icons/react';
+import {
+  Envelope,
+  ShoppingBag,
+  CreditCard,
+  Phone,
+  Medal,
+  ShieldCheck,
+  PencilSimple,
+} from '@phosphor-icons/react';
+import { CustomerCreditTermsModal } from './CustomerCreditTermsModal';
 
 interface CustomerDetailModalProps {
   isOpen: boolean;
@@ -17,6 +26,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
   const [customer, setCustomer] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchCustomer = async () => {
@@ -102,6 +112,74 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
               </div>
             </div>
 
+            {/* Credit & TOP Profile Section */}
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck size={18} className="text-slate-700" />
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                    Fasilitas Kredit & Term of Payment (TOP)
+                  </h4>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                      customer.creditStatus === 'ACTIVE'
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : customer.creditStatus === 'ON_HOLD'
+                        ? 'bg-amber-100 text-amber-800'
+                        : 'bg-rose-100 text-rose-800'
+                    }`}
+                  >
+                    {customer.creditStatus || 'ACTIVE'}
+                  </span>
+                  <button
+                    onClick={() => setIsCreditModalOpen(true)}
+                    className="p-1 text-slate-500 hover:text-slate-900 hover:bg-slate-200 rounded transition-colors"
+                    title="Ubah Ketentuan Kredit"
+                  >
+                    <PencilSimple size={15} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-200/60 text-xs">
+                <div>
+                  <p className="text-slate-500">Plafon Kredit</p>
+                  <p className="font-bold text-slate-900 mt-0.5">
+                    {formatCurrency(Number(customer.creditLimit || 0))}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-slate-500">Term of Payment</p>
+                  <p className="font-bold text-slate-900 mt-0.5">
+                    {customer.paymentTermDays > 0
+                      ? `${customer.paymentTermDays} Hari`
+                      : 'Cash / Segera'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-slate-500">Sisa Plafon</p>
+                  <p className="font-bold text-slate-900 mt-0.5">
+                    {formatCurrency(
+                      Math.max(
+                        0,
+                        Number(customer.creditLimit || 0) -
+                          Number(customer.outstandingBalance || 0),
+                      ),
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              {customer.creditNotes && (
+                <div className="text-[11px] text-slate-500 bg-white p-2.5 rounded-lg border border-slate-200/80">
+                  <span className="font-medium text-slate-700">Catatan Kredit: </span>
+                  {customer.creditNotes}
+                </div>
+              )}
+            </div>
+
             {/* Outstanding Balance Warning */}
             {customer.outstandingBalance > 0 && (
               <div className="bg-red-50 p-4 rounded-xl border border-red-100 flex justify-between items-center">
@@ -119,14 +197,44 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
           <div className="text-center py-8 text-slate-500">Data pelanggan tidak ditemukan.</div>
         )}
       </div>
-      <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end rounded-b-xl">
+      <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-between items-center rounded-b-xl">
+        {customer && (
+          <button
+            onClick={() => setIsCreditModalOpen(true)}
+            className="px-3.5 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-1.5"
+          >
+            <PencilSimple size={14} />
+            Kelola Plafon & Kredit
+          </button>
+        )}
         <button
           onClick={onClose}
-          className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+          className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors ml-auto"
         >
           Tutup
         </button>
       </div>
+
+      {/* Credit Terms Edit Modal */}
+      {customer && (
+        <CustomerCreditTermsModal
+          isOpen={isCreditModalOpen}
+          customer={{
+            id: customer.id,
+            companyName: customer.companyName || customer.name,
+            creditLimit: Number(customer.creditLimit || 0),
+            paymentTermDays: Number(customer.paymentTermDays || 0),
+            creditStatus: customer.creditStatus || 'ACTIVE',
+            creditNotes: customer.creditNotes,
+            currentOutstanding: Number(customer.outstandingBalance || 0),
+          }}
+          onClose={() => setIsCreditModalOpen(false)}
+          onSuccess={async () => {
+            const res = await api.get(`/api/v1/customers/${customerId}`);
+            setCustomer(res.data);
+          }}
+        />
+      )}
     </Modal>
   );
 };

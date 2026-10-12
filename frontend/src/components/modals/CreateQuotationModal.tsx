@@ -1,63 +1,101 @@
 import { useState, useEffect } from 'react';
-import { X, MagnifyingGlass, Plus, PaperPlaneTilt, FloppyDisk } from '@phosphor-icons/react';
+import { X, Plus, PaperPlaneTilt, FloppyDisk, WarningCircle, Buildings, Package } from '@phosphor-icons/react';
 import { Modal } from '../ui/Modal';
 import { useToast } from '../../contexts/ToastContext';
+import api from '../../api/axios';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   quotationId?: string | null;
+  onSuccess?: () => void;
 }
 
-export default function CreateQuotationModal({ isOpen, onClose, quotationId }: Props) {
-  const [customer, setCustomer] = useState('');
-  const [items, setItems] = useState([
-    { id: 1, product: '', description: '', specifications: '', qty: 1, price: 0, discount: 0 }
+interface FormItem {
+  id: string;
+  productId: string;
+  quantity: number;
+  unitPrice: number;
+  notes?: string;
+}
+
+export default function CreateQuotationModal({ isOpen, onClose, quotationId, onSuccess }: Props) {
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [customerId, setCustomerId] = useState('');
+  const [items, setItems] = useState<FormItem[]>([
+    { id: '1', productId: '', quantity: 100, unitPrice: 0, notes: '' },
   ]);
-  const [terms, setTerms] = useState("1. Harga berlaku selama 30 hari\n2. Uang muka (DP) minimal 50%\n3. Pelunasan sebelum pesanan dikirim\n4. Produksi dimulai setelah desain disetujui");
   const [notes, setNotes] = useState('');
-  const [validDays, setValidDays] = useState(30);
-  const [totalDiscount, setTotalDiscount] = useState(0);
-  
-  const { success } = useToast();
+  const [discountPercent, setDiscountPercent] = useState<number>(0);
+  const [validDays, setValidDays] = useState(14);
+  const [submitting, setSubmitting] = useState(false);
+  const [loadingInitial, setLoadingInitial] = useState(false);
+
+  const { success, error: showError } = useToast();
 
   useEffect(() => {
     if (isOpen) {
-      if (quotationId) {
-        // Load mock data
-        setCustomer('PT Sukses Makmur');
-        setItems([
-          { id: 1, product: 'Kartu Nama', description: 'Kartu Nama Premium', specifications: 'Art Carton 260gsm, Matte Lamination, 2 Sisi', qty: 5000, price: 500, discount: 0 }
-        ]);
-      } else {
-        // Reset form
-        setCustomer('');
-        setItems([{ id: 1, product: '', description: '', specifications: '', qty: 1, price: 0, discount: 0 }]);
-        setTerms("1. Harga berlaku selama 30 hari\n2. Uang muka (DP) minimal 50%\n3. Pelunasan sebelum pesanan dikirim\n4. Produksi dimulai setelah desain disetujui");
+      loadDropdownData();
+      if (!quotationId) {
+        setCustomerId('');
+        setItems([{ id: String(Date.now()), productId: '', quantity: 100, unitPrice: 0, notes: '' }]);
         setNotes('');
-        setValidDays(30);
-        setTotalDiscount(0);
+        setDiscountPercent(0);
+        setValidDays(14);
       }
     }
   }, [isOpen, quotationId]);
 
-  const handleAddItem = () => {
-    setItems([...items, { id: Date.now(), product: '', description: '', specifications: '', qty: 1, price: 0, discount: 0 }]);
-  };
-
-  const handleRemoveItem = (id: number) => {
-    if (items.length > 1) {
-      setItems(items.filter(item => item.id !== id));
+  const loadDropdownData = async () => {
+    setLoadingInitial(true);
+    try {
+      const [customersRes, productsRes] = await Promise.all([
+        api.get('/api/v1/customers'),
+        api.get('/api/v1/products'),
+      ]);
+      setCustomers(Array.isArray(customersRes.data) ? customersRes.data : customersRes.data.data || []);
+      setProducts(Array.isArray(productsRes.data) ? productsRes.data : productsRes.data.data || []);
+    } catch (err) {
+      console.error('Failed to load dropdown data', err);
+    } finally {
+      setLoadingInitial(false);
     }
   };
 
-  const calculateSubtotal = () => {
-    return items.reduce((sum, item) => sum + (item.qty * item.price * (1 - item.discount / 100)), 0);
+  const handleAddItem = () => {
+    setItems((prev) => [
+      ...prev,
+      { id: String(Date.now()), productId: '', quantity: 100, unitPrice: 0, notes: '' },
+    ]);
   };
 
-  const subtotal = calculateSubtotal();
-  const tax = (subtotal - (subtotal * totalDiscount / 100)) * 0.11;
-  const grandTotal = subtotal - (subtotal * totalDiscount / 100) + tax;
+  const handleRemoveItem = (id: string) => {
+    if (items.length > 1) {
+      setItems((prev) => prev.filter((item) => item.id !== id));
+    }
+  };
+
+  const handleProductChange = (index: number, pId: string) => {
+    const selectedProd = products.find((p) => p.id === pId);
+    setItems((prev) => {
+      const updated = [...prev];
+      updated[index].productId = pId;
+      if (selectedProd) {
+        // Base price if available
+        updated[index].unitPrice = Number(selectedProd.basePrice || selectedProd.price || 0);
+      }
+      return updated;
+    });
+  };
+
+  const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+  const discountAmount = Math.round((subtotal * Math.min(100, Math.max(0, discountPercent))) / 100);
+  const afterDiscount = Math.max(0, subtotal - discountAmount);
+  const tax = Math.round(afterDiscount * 0.11);
+  const grandTotal = afterDiscount + tax;
+
+  const requiresManagerApproval = discountPercent > 10;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -67,221 +105,315 @@ export default function CreateQuotationModal({ isOpen, onClose, quotationId }: P
     }).format(amount);
   };
 
-  const handleSaveDraft = () => {
-    success('Disimpan sebagai Draf', 'Penawaran harga telah berhasil disimpan sebagai draf.');
-    onClose();
-  };
+  const handleSubmit = async () => {
+    if (!customerId) {
+      showError('Validasi Gagal', 'Harap pilih pelanggan terlebih dahulu.');
+      return;
+    }
 
-  const handleSaveAndSend = () => {
-    success('Penawaran Terkirim', 'Penawaran harga telah disimpan dan dikirim ke pelanggan.');
-    onClose();
+    const invalidItem = items.find((i) => !i.productId || i.quantity <= 0);
+    if (invalidItem) {
+      showError('Validasi Gagal', 'Setiap item harus memilih produk dan memiliki jumlah minimal 1.');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const validUntilDate = new Date();
+      validUntilDate.setDate(validUntilDate.getDate() + validDays);
+
+      const payload = {
+        customerId,
+        discountPercent: Number(discountPercent),
+        notes,
+        validUntil: validUntilDate.toISOString().split('T')[0],
+        items: items.map((i) => ({
+          productId: i.productId,
+          quantity: Number(i.quantity),
+          unitPrice: Number(i.unitPrice),
+          subtotal: Number(i.quantity) * Number(i.unitPrice),
+          notes: i.notes,
+        })),
+      };
+
+      const res = await api.post('/api/v1/quotations', payload);
+      const isPending = res.data.status === 'Pending_Manager_Approval';
+
+      if (isPending) {
+        success(
+          'Diajukan untuk ACC Manager',
+          `Penawaran ${res.data.quotationNumber} disimpan dengan status Menunggu Persetujuan Manager karena diskon > 10%.`,
+        );
+      } else {
+        success(
+          'Penawaran Berhasil Dibuat',
+          `Penawaran ${res.data.quotationNumber} telah berhasil dibuat dan siap dikirim ke klien.`,
+        );
+      }
+
+      onSuccess?.();
+      onClose();
+    } catch (err: any) {
+      showError(
+        'Gagal Menyimpan',
+        err.response?.data?.message || 'Terjadi kesalahan saat membuat penawaran.',
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={quotationId ? `Ubah Penawaran ${quotationId}` : "Buat Penawaran Baru"} size="xl">
-      <div className="p-6 space-y-8 h-[calc(100vh-200px)] overflow-y-auto custom-scrollbar">
+    <Modal isOpen={isOpen} onClose={onClose} title={quotationId ? `Ubah Penawaran` : 'Buat Penawaran Harga Baru'} size="xl">
+      <div className="p-6 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto custom-scrollbar">
         
         {/* Customer Selection */}
         <div>
-          <label className="block text-sm font-bold text-slate-700 mb-2">Pelanggan</label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MagnifyingGlass className="h-4 w-4 text-slate-400" weight="regular" />
-            </div>
-            <input
-              type="text"
-              value={customer}
-              onChange={(e) => setCustomer(e.target.value)}
-              placeholder="Cari pelanggan berdasarkan nama atau perusahaan..."
-              className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm focus:ring-2 focus:ring-slate-900 focus:bg-white transition-colors"
-            />
-          </div>
-          <div className="mt-2 text-right">
-            <button className="text-xs font-bold text-slate-700 hover:text-slate-900 hover:underline">
-              + Tambah Pelanggan Baru
-            </button>
-          </div>
+          <label className="block text-sm font-bold text-slate-800 mb-2 flex items-center gap-1.5">
+            <Buildings size={16} className="text-slate-500" />
+            Pilih Pelanggan B2B <span className="text-rose-500">*</span>
+          </label>
+          <select
+            value={customerId}
+            onChange={(e) => setCustomerId(e.target.value)}
+            disabled={loadingInitial}
+            className="block w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm font-medium focus:ring-2 focus:ring-slate-900 focus:bg-white transition-colors"
+          >
+            <option value="">-- Pilih Perusahaan / Kontak Pelanggan --</option>
+            {customers.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.companyName || c.name} {c.email ? `(${c.email})` : ''}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Quotation Items */}
         <div>
-          <div className="flex justify-between items-end mb-4">
-            <h3 className="text-sm font-bold text-slate-900">Item Penawaran</h3>
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+              <Package size={16} className="text-slate-500" />
+              Daftar Item Cetak & Spesifikasi
+            </h3>
+            <button 
+              type="button"
+              onClick={handleAddItem}
+              className="flex items-center gap-1 text-xs font-bold text-primary-600 hover:text-primary-800 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition-colors"
+            >
+              <Plus size={14} weight="bold" />
+              Tambah Baris
+            </button>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-3">
             {items.map((item, index) => (
-              <div key={item.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50 relative group">
+              <div key={item.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50 relative group space-y-3">
                 <button 
+                  type="button"
                   onClick={() => handleRemoveItem(item.id)}
-                  className="absolute -top-3 -right-3 w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-200 shadow-sm"
-                  title="Hapus Item"
+                  disabled={items.length <= 1}
+                  className={`absolute -top-2.5 -right-2.5 w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center transition-opacity hover:bg-red-200 shadow-sm ${
+                    items.length > 1 ? 'opacity-80 group-hover:opacity-100' : 'hidden'
+                  }`}
+                  title="Hapus Baris"
                 >
-                  <X size={12} strokeWidth={3} weight="regular" />
+                  <X size={12} weight="bold" />
                 </button>
                 
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                  <div className="md:col-span-3">
-                    <label className="block text-xs font-bold text-slate-500 mb-1">Produk / Layanan</label>
-                    <select className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-900">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+                  <div className="md:col-span-5">
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Produk Cetak</label>
+                    <select 
+                      value={item.productId}
+                      onChange={(e) => handleProductChange(index, e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-900 font-medium"
+                    >
                       <option value="">Pilih Produk...</option>
-                      <option value="business_cards">Kartu Nama</option>
-                      <option value="flyers">Brosur & Flyer</option>
-                      <option value="banners">Spanduk / Banner</option>
+                      {products.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} {p.sku ? `(${p.sku})` : ''}
+                        </option>
+                      ))}
                     </select>
                   </div>
-                  <div className="md:col-span-4">
-                    <label className="block text-xs font-bold text-slate-500 mb-1">Spesifikasi</label>
-                    <input type="text" placeholder="contoh: A4, Art Paper 260gsm" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-900" />
-                  </div>
-                  <div className="md:col-span-1">
-                    <label className="block text-xs font-bold text-slate-500 mb-1">Jumlah</label>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Jumlah</label>
                     <input 
                       type="number" 
-                      value={item.qty} 
+                      min="1"
+                      value={item.quantity} 
                       onChange={(e) => {
-                        const newItems = [...items];
-                        newItems[index].qty = parseInt(e.target.value) || 0;
-                        setItems(newItems);
+                        const val = parseInt(e.target.value) || 0;
+                        setItems((prev) => {
+                          const updated = [...prev];
+                          updated[index].quantity = val;
+                          return updated;
+                        });
                       }}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-900" 
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-900 font-mono text-center font-bold" 
                     />
                   </div>
+
                   <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-slate-500 mb-1">Harga Satuan</label>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Harga Satuan (Rp)</label>
                     <input 
                       type="number" 
-                      value={item.price}
+                      min="0"
+                      value={item.unitPrice}
                       onChange={(e) => {
-                        const newItems = [...items];
-                        newItems[index].price = parseInt(e.target.value) || 0;
-                        setItems(newItems);
+                        const val = parseInt(e.target.value) || 0;
+                        setItems((prev) => {
+                          const updated = [...prev];
+                          updated[index].unitPrice = val;
+                          return updated;
+                        });
                       }}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-900 font-mono" 
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-900 font-mono text-right font-medium" 
                     />
                   </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-slate-500 mb-1">Total Item</label>
-                    <div className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-100 text-slate-600 font-mono text-right overflow-hidden text-ellipsis whitespace-nowrap">
-                      {formatCurrency(item.qty * item.price * (1 - item.discount / 100))}
+
+                  <div className="md:col-span-3">
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Subtotal Baris</label>
+                    <div className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-100 text-slate-800 font-mono text-right font-bold">
+                      {formatCurrency(item.quantity * item.unitPrice)}
                     </div>
                   </div>
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    value={item.notes || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setItems((prev) => {
+                        const updated = [...prev];
+                        updated[index].notes = val;
+                        return updated;
+                      });
+                    }}
+                    placeholder="Catatan spesifikasi kustom (misal: Art Carton 260gsm, Doff 2 Sisi, Pond Die-cut)..."
+                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:ring-2 focus:ring-slate-900 text-slate-600"
+                  />
                 </div>
               </div>
             ))}
           </div>
-          
-          <button 
-            onClick={handleAddItem}
-            className="mt-4 flex items-center gap-2 text-sm font-bold text-slate-700 hover:text-slate-900 bg-slate-100 px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors"
-          >
-            <Plus size={16} weight="bold" />
-            Tambah Item
-          </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Additional Sections */}
-          <div className="space-y-6">
+        {/* Discount & Terms Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+          <div className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Syarat & Ketentuan</label>
-              <textarea 
-                value={terms}
-                onChange={(e) => setTerms(e.target.value)}
-                rows={4}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-900 resize-none text-slate-600"
-              ></textarea>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Catatan Internal <span className="text-slate-400 font-normal">(tidak terlihat oleh pelanggan)</span></label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Catatan / Ketentuan Penawaran</label>
               <textarea 
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                rows={2}
-                className="w-full px-4 py-3 border border-amber-200 rounded-xl text-sm bg-amber-50 focus:ring-2 focus:ring-amber-500 resize-none text-amber-900 placeholder-amber-400"
-                placeholder="Tambahkan catatan khusus tim di sini..."
-              ></textarea>
+                rows={3}
+                placeholder="Misal: Termasuk ongkir Jabodetabek, DP 50%, estimasi produksi 4 hari kerja..."
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-900 text-slate-700"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-600 mb-1">Masa Berlaku Penawaran (Hari)</label>
+              <input 
+                type="number"
+                min="1"
+                max="90"
+                value={validDays}
+                onChange={(e) => setValidDays(parseInt(e.target.value) || 14)}
+                className="w-32 px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-slate-900 font-mono"
+              />
             </div>
           </div>
 
-          {/* Pricing Summary */}
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Masa Berlaku (Hari)</label>
+          {/* Pricing Breakdown & Approval Threshold Alert */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1 flex items-center justify-between">
+                <span>Diskon Khusus Pelanggan (%)</span>
+                <span className="text-xs font-mono font-bold text-slate-500">Max 10% tanpa ACC</span>
+              </label>
+              <div className="flex items-center gap-2">
                 <input 
                   type="number" 
-                  value={validDays}
-                  onChange={(e) => setValidDays(parseInt(e.target.value) || 0)}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-900" 
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Diskon Tambahan (%)</label>
-                <input 
-                  type="number" 
-                  value={totalDiscount}
-                  onChange={(e) => setTotalDiscount(parseInt(e.target.value) || 0)}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-900" 
-                  max="100"
                   min="0"
+                  max="100"
+                  value={discountPercent}
+                  onChange={(e) => setDiscountPercent(parseFloat(e.target.value) || 0)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-slate-900 font-mono font-bold" 
                 />
+                <span className="font-bold text-slate-600 text-sm">%</span>
               </div>
             </div>
-            
-            <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Ringkasan Biaya</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-600">Subtotal</span>
-                  <span className="font-mono text-slate-900">{formatCurrency(subtotal)}</span>
+
+            {requiresManagerApproval && (
+              <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-amber-900 text-xs leading-relaxed animate-fade-in">
+                <WarningCircle size={18} className="text-amber-600 shrink-0 mt-0.5" weight="fill" />
+                <div>
+                  <span className="font-bold">Otorisasi Diskon Diperlukan:</span> Diskon di atas 10% ({discountPercent}%) otomatis menetapkan status penawaran menjadi <span className="font-bold text-amber-950">Menunggu ACC Sales Manager</span>. Penawaran tidak langsung dikirim ke pelanggan.
                 </div>
-                {totalDiscount > 0 && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-red-600">Diskon ({totalDiscount}%)</span>
-                    <span className="font-mono text-red-600">-{formatCurrency(subtotal * totalDiscount / 100)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-600">PPN (11%)</span>
-                  <span className="font-mono text-slate-900">{formatCurrency(tax)}</span>
+              </div>
+            )}
+
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-2.5 text-sm">
+              <div className="flex justify-between items-center text-slate-600">
+                <span>Subtotal ({items.length} item)</span>
+                <span className="font-mono text-slate-900 font-semibold">{formatCurrency(subtotal)}</span>
+              </div>
+              {discountPercent > 0 && (
+                <div className="flex justify-between items-center text-rose-600 font-medium">
+                  <span>Potongan Diskon ({discountPercent}%)</span>
+                  <span className="font-mono">-{formatCurrency(discountAmount)}</span>
                 </div>
-                <div className="pt-3 mt-3 border-t border-slate-200 flex justify-between items-center">
-                  <span className="font-bold text-slate-900">Total Akhir</span>
-                  <span className="text-2xl font-extrabold text-slate-900 tracking-tight">{formatCurrency(grandTotal)}</span>
-                </div>
+              )}
+              <div className="flex justify-between items-center text-slate-600">
+                <span>PPN (11%)</span>
+                <span className="font-mono text-slate-900">{formatCurrency(tax)}</span>
+              </div>
+              <div className="pt-2.5 border-t border-slate-200 flex justify-between items-center">
+                <span className="font-bold text-slate-900">Total Akhir Penawaran</span>
+                <span className="text-xl font-extrabold text-slate-900 tracking-tight font-mono">
+                  {formatCurrency(grandTotal)}
+                </span>
               </div>
             </div>
           </div>
         </div>
-        
+
       </div>
-      
+
       {/* Footer */}
-      <div className="p-6 border-t border-slate-200 bg-slate-50 flex justify-between items-center rounded-b-2xl">
+      <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-between items-center rounded-b-2xl">
         <button 
+          type="button"
           onClick={onClose}
-          className="px-6 py-2.5 border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-100 transition-colors"
+          disabled={submitting}
+          className="px-5 py-2.5 border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-100 transition-colors text-sm"
         >
           Batal
         </button>
-        <div className="flex gap-3">
-          <button 
-            onClick={handleSaveDraft}
-            className="flex items-center gap-2 px-6 py-2.5 border border-slate-300 text-slate-800 font-bold rounded-xl hover:bg-slate-50 transition-colors bg-white shadow-sm"
-          >
-            <FloppyDisk size={18} weight="regular" />
-            Simpan sebagai Draf
-          </button>
-          <button 
-            onClick={handleSaveAndSend}
-            className="flex items-center gap-2 px-6 py-2.5 bg-black text-white font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-sm"
-          >
-            <PaperPlaneTilt size={18} weight="regular" />
-            Simpan & Kirim
-          </button>
-        </div>
+
+        <button 
+          type="button"
+          onClick={handleSubmit}
+          disabled={submitting || items.length === 0}
+          className="flex items-center gap-2 px-6 py-2.5 bg-black text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-sm active:scale-95 disabled:opacity-50"
+        >
+          {requiresManagerApproval ? (
+            <>
+              <FloppyDisk size={18} weight="bold" />
+              {submitting ? 'Menyimpan...' : 'Ajukan ACC Manager'}
+            </>
+          ) : (
+            <>
+              <PaperPlaneTilt size={18} weight="bold" />
+              {submitting ? 'Memproses...' : 'Simpan & Terbitkan'}
+            </>
+          )}
+        </button>
       </div>
     </Modal>
   );

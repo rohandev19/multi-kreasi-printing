@@ -5,11 +5,15 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { ReportIssueModal } from '../components/modals/ReportIssueModal';
 import { ReassignJobModal } from '../components/modals/ReassignJobModal';
 import { useToast } from '../contexts/ToastContext';
-import { ListBullets, Columns, Factory, Play, ClipboardText, CheckCircle, Warning, Gear, DotsSixVertical } from '@phosphor-icons/react';
+import { ListBullets, Columns, Factory, Play, ClipboardText, CheckCircle, Warning, Gear, DotsSixVertical, LockSimple } from '@phosphor-icons/react';
 
 interface Job {
   id: string;
   orderNumber: string;
+  orderId?: string;
+  orderStatus?: string;
+  isProofLocked?: boolean;
+  proofStatus?: string;
   product: string;
   machine: string;
   material: string;
@@ -51,18 +55,31 @@ export default function Production() {
         ? response.data 
         : response.data.data || [];
         
-      let mappedJobs: Job[] = jobData.map((j: any) => ({
-        id: j.id,
-        orderNumber: j.order?.orderNumber || j.orderNumber || 'Unknown Order',
-        product: j.order?.customer?.companyName ? `Order for ${j.order.customer.companyName}` : 'Printing Job',
-        machine: j.machine?.name || j.assignedMachine?.name || 'Unassigned',
-        material: j.assignee?.fullName ? `Assigned to: ${j.assignee.fullName}` : 'Unassigned',
-        status: (j.status === 'Pending' ? 'Queued' : 
-                 j.status === 'In_Progress' ? 'In Progress' :
-                 j.status === 'QC' ? 'Quality Check' : 'Completed') as any,
-        priority: j.priority || 'Normal',
-        progress: j.status === 'Completed' ? 100 : j.status === 'QC' ? 90 : j.status === 'In_Progress' ? 45 : 0
-      }));
+      let mappedJobs: Job[] = jobData.map((j: any) => {
+        const orderStatus = j.order?.status;
+        const latestProof = j.order?.proofs?.[0];
+        const isProofLocked =
+          orderStatus === 'Proof_Pending_Approval' ||
+          orderStatus === 'Proof_Rejected' ||
+          (latestProof && latestProof.status !== 'Approved');
+
+        return {
+          id: j.id,
+          orderNumber: j.order?.orderNumber || j.orderNumber || 'Unknown Order',
+          orderId: j.order?.id || j.orderId,
+          orderStatus: orderStatus,
+          isProofLocked: !!isProofLocked,
+          proofStatus: latestProof?.status,
+          product: j.order?.customer?.companyName ? `Order for ${j.order.customer.companyName}` : 'Printing Job',
+          machine: j.machine?.name || j.assignedMachine?.name || 'Unassigned',
+          material: j.assignee?.fullName ? `Assigned to: ${j.assignee.fullName}` : 'Unassigned',
+          status: (j.status === 'Pending' ? 'Queued' : 
+                   j.status === 'In_Progress' ? 'In Progress' :
+                   j.status === 'QC' ? 'Quality Check' : 'Completed') as any,
+          priority: j.priority || 'Normal',
+          progress: j.status === 'Completed' ? 100 : j.status === 'QC' ? 90 : j.status === 'In_Progress' ? 45 : 0
+        };
+      });
       
       setJobs(mappedJobs);
     } catch {
@@ -71,11 +88,17 @@ export default function Production() {
       setLoading(false);
     }
   };
-  
-
 
   // Actions
-  const handleStartJob = async (id: string) => {
+  const handleStartJob = async (id: string, isLocked?: boolean) => {
+    if (isLocked) {
+      toastError(
+        'Produksi Terkunci (Proof Belum Disetujui)',
+        'Mesin cetak tidak dapat dijalankan karena bukti cetak (proof) belum disetujui oleh pelanggan.'
+      );
+      return;
+    }
+
     try {
       await api.patch(`/api/v1/production-jobs/${id}/start`);
       success('Pekerjaan Dimulai', 'Pekerjaan produksi telah ditandai sedang berjalan.');
@@ -209,7 +232,14 @@ export default function Production() {
                   <tr key={job.id} className={`hover:bg-slate-50/80 transition-colors ${job.status === 'In Progress' ? 'border-l-4 border-slate-900' : 'border-l-4 border-transparent'}`}>
                     <td className="px-5 py-4">
                       <div className="font-bold text-slate-900">{job.id}</div>
-                      <div className="text-xs text-slate-500">{job.orderNumber}</div>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-xs text-slate-500">{job.orderNumber}</span>
+                        {job.isProofLocked && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full" title="Proof belum disetujui klien">
+                            <LockSimple size={11} weight="bold" /> ACC Pending
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-5 py-4 font-semibold text-slate-800">
                       {job.product}
@@ -239,9 +269,22 @@ export default function Production() {
                     <td className="px-5 py-4 text-right">
                       <div className="flex justify-end gap-2">
                         {job.status === 'Queued' && (
-                          <button onClick={() => handleStartJob(job.id)} className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 text-slate-900 hover:bg-slate-200 rounded-lg text-xs font-bold transition-colors">
-                            <Play size={14} weight="regular" /> Mulai
-                          </button>
+                          job.isProofLocked ? (
+                            <button
+                              onClick={() => handleStartJob(job.id, true)}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100 rounded-lg text-xs font-bold transition-colors"
+                              title="Terkunci: Bukti cetak belum disetujui klien"
+                            >
+                              <LockSimple size={14} weight="bold" /> Terkunci
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleStartJob(job.id, false)}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-slate-900 text-white hover:bg-slate-800 rounded-lg text-xs font-bold transition-colors shadow-2xs"
+                            >
+                              <Play size={14} weight="regular" /> Mulai
+                            </button>
+                          )
                         )}
                         {job.status === 'In Progress' && (
                           <button onClick={() => handleMarkQC(job.id)} className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-bold transition-colors">
@@ -284,6 +327,13 @@ export default function Production() {
                 <div className="space-y-3">
                   {colJobs.map(job => (
                     <div key={job.id} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow cursor-grab group">
+                      {job.isProofLocked && (
+                        <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-900 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1 mb-2.5">
+                          <LockSimple size={13} weight="bold" className="text-amber-700 shrink-0" />
+                          <span>Terkunci: Menunggu ACC Proof</span>
+                        </div>
+                      )}
+
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <div className="text-xs font-bold text-slate-900">{job.id}</div>
@@ -311,7 +361,22 @@ export default function Production() {
                       
                       <div className="mt-4 flex gap-2">
                         {job.status === 'Queued' && (
-                          <button onClick={() => handleStartJob(job.id)} className="flex-1 py-1.5 bg-black text-white hover:bg-slate-800 rounded-lg text-xs font-bold transition-colors">Mulai</button>
+                          job.isProofLocked ? (
+                            <button
+                              onClick={() => handleStartJob(job.id, true)}
+                              className="flex-1 py-1.5 bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1"
+                              title="Terkunci: Menunggu ACC Proof Klien"
+                            >
+                              <LockSimple size={14} weight="bold" /> ACC Pending
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleStartJob(job.id, false)}
+                              className="flex-1 py-1.5 bg-black text-white hover:bg-slate-800 rounded-lg text-xs font-bold transition-colors"
+                            >
+                              Mulai
+                            </button>
+                          )
                         )}
                         {job.status === 'In Progress' && (
                           <button onClick={() => handleMarkQC(job.id)} className="flex-1 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-bold transition-colors">Kirim QC</button>

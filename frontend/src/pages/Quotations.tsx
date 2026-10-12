@@ -1,5 +1,23 @@
-import { useState, useEffect } from 'react';
-import { Plus, MagnifyingGlass, Funnel, Calendar, FileText, CheckCircle, TrendUp, CaretDown, CaretLeft, CaretRight, Eye, PencilSimple, PaperPlaneTilt, Copy, Trash, Clock, XCircle, ShoppingBag, Download, Users } from '@phosphor-icons/react';
+import { useState, useEffect, useMemo } from 'react';
+import {
+  Plus,
+  MagnifyingGlass,
+  Funnel,
+  CheckCircle,
+  TrendUp,
+  CaretDown,
+  CaretLeft,
+  CaretRight,
+  Eye,
+  PencilSimple,
+  PaperPlaneTilt,
+  Trash,
+  Clock,
+  XCircle,
+  ShoppingBag,
+  Hourglass,
+  ArrowSquareOut,
+} from '@phosphor-icons/react';
 import CreateQuotationModal from '../components/modals/CreateQuotationModal';
 import QuotationDetailModal from '../components/modals/QuotationDetailModal';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
@@ -11,40 +29,18 @@ export default function Quotations() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [isConverting, setIsConverting] = useState(false);
   const { success, error: showError } = useToast();
   const navigate = useNavigate();
-  
-  const [selectedQuotation, setSelectedQuotation] = useState<any>(null);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'Draft':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600"><PencilSimple size={12} weight="regular" /> Draf</span>;
-      case 'Sent':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-100 text-primary-700"><PaperPlaneTilt size={12} weight="regular" /> Terkirim</span>;
-      case 'Viewed':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-100 text-primary-700"><Eye size={12} weight="regular" /> Dilihat</span>;
-      case 'Accepted':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><CheckCircle size={12} weight="regular" /> Diterima</span>;
-      case 'Declined':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700"><XCircle size={12} weight="regular" /> Ditolak</span>;
-      case 'Expired':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500"><Clock size={12} weight="regular" /> Kedaluwarsa</span>;
-      default:
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-800">{status}</span>;
-    }
-  };
-
+  const [selectedQuotation, setSelectedQuotation] = useState<string | null>(null);
   const [quotations, setQuotations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Filters & Search
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -53,19 +49,83 @@ export default function Quotations() {
   }, []);
 
   const fetchQuotations = async () => {
+    setLoading(true);
     try {
       const res = await api.get('/api/v1/quotations');
-      setQuotations(res.data);
+      setQuotations(Array.isArray(res.data) ? res.data : []);
     } catch (err: any) {
       console.error(err);
       setQuotations([]);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getItemsSummary = (items: { product?: { name?: string }; quantity?: number }[]) => {
+  const formatCurrency = (amount: number | string) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(Number(amount || 0));
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'Draft':
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">
+            <PencilSimple size={12} weight="regular" /> Draf
+          </span>
+        );
+      case 'Pending_Manager_Approval':
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+            <Hourglass size={12} weight="bold" /> ACC Manager
+          </span>
+        );
+      case 'Sent':
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
+            <PaperPlaneTilt size={12} weight="regular" /> Terkirim
+          </span>
+        );
+      case 'Accepted':
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+            <CheckCircle size={12} weight="bold" /> PO Diterima
+          </span>
+        );
+      case 'Converted':
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200">
+            <ShoppingBag size={12} weight="bold" /> Jadi Pesanan
+          </span>
+        );
+      case 'Rejected':
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700">
+            <XCircle size={12} weight="regular" /> Ditolak
+          </span>
+        );
+      case 'Expired':
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500">
+            <Clock size={12} weight="regular" /> Kedaluwarsa
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-800">
+            {status}
+          </span>
+        );
+    }
+  };
+
+  const getItemsSummary = (items: any[]) => {
     if (!items || items.length === 0) return 'Tidak ada item';
     const firstItem = items[0];
-    const name = firstItem.product?.name || 'Item';
+    const name = firstItem.product?.name || 'Item Percetakan';
     const qty = firstItem.quantity || 0;
     if (items.length > 1) {
       return `${name} × ${qty}, +${items.length - 1} lainnya`;
@@ -73,25 +133,59 @@ export default function Quotations() {
     return `${name} × ${qty}`;
   };
 
-  const totalPages = Math.ceil(quotations.length / itemsPerPage);
-  const paginatedQuotations = quotations.slice(
+  // Filtered Quotations
+  const filteredQuotations = useMemo(() => {
+    return quotations.filter((quo) => {
+      const qNum = quo.quotationNumber?.toLowerCase() || '';
+      const cName = quo.customer?.companyName?.toLowerCase() || quo.customer?.name?.toLowerCase() || '';
+      const po = quo.poNumber?.toLowerCase() || '';
+      const matchSearch = !searchQuery || qNum.includes(searchQuery.toLowerCase()) || cName.includes(searchQuery.toLowerCase()) || po.includes(searchQuery.toLowerCase());
+      const matchStatus = !statusFilter || quo.status === statusFilter;
+      return matchSearch && matchStatus;
+    });
+  }, [quotations, searchQuery, statusFilter]);
+
+  // Metrics
+  const metrics = useMemo(() => {
+    const pendingApproval = quotations.filter((q) => q.status === 'Pending_Manager_Approval').length;
+    const acceptedOrConverted = quotations.filter((q) => q.status === 'Accepted' || q.status === 'Converted');
+    const acceptedCount = acceptedOrConverted.length;
+    const acceptedSum = acceptedOrConverted.reduce((acc, q) => acc + Number(q.totalAmount || 0), 0);
+    const conversionRate = quotations.length ? Math.round((acceptedCount / quotations.length) * 100) : 0;
+    return { pendingApproval, acceptedCount, acceptedSum, conversionRate };
+  }, [quotations]);
+
+  const totalPages = Math.ceil(filteredQuotations.length / itemsPerPage);
+  const paginatedQuotations = filteredQuotations.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   const handleConvertToOrder = async (id: string) => {
-    if (!window.confirm('Apakah Anda yakin ingin mengubah penawaran ini menjadi pesanan produksi?')) return;
+    if (!window.confirm('Apakah Anda yakin ingin mengubah penawaran ini menjadi pesanan produksi resmi?')) return;
     setIsConverting(true);
     try {
       const res = await api.post(`/api/v1/quotations/${id}/convert`);
-      success('Berhasil Diubah', 'Penawaran berhasil diubah menjadi pesanan produksi.');
-      fetchQuotations(); // Refresh list
-      // Optionally navigate to the new order
+      success('Berhasil Dikonversi', 'Penawaran berhasil diubah menjadi pesanan produksi.');
+      fetchQuotations();
       navigate(`/dashboard/orders/${res.data.id}`);
     } catch (err: any) {
-      showError('Gagal Mengubah', err.response?.data?.message || 'Gagal mengubah penawaran menjadi pesanan');
+      showError('Gagal Mengubah', err.response?.data?.message || 'Gagal mengubah penawaran menjadi pesanan.');
     } finally {
       setIsConverting(false);
+    }
+  };
+
+  const handleDeleteQuotation = async () => {
+    if (!deleteTargetId) return;
+    try {
+      await api.delete(`/api/v1/quotations/${deleteTargetId}`);
+      success('Dihapus', 'Penawaran telah berhasil dihapus.');
+      setIsDeleteModalOpen(false);
+      setDeleteTargetId(null);
+      fetchQuotations();
+    } catch (err: any) {
+      showError('Gagal Menghapus', err.response?.data?.message || 'Tidak dapat menghapus penawaran.');
     }
   };
 
@@ -101,109 +195,106 @@ export default function Quotations() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Penawaran Harga</h1>
-          <p className="text-sm text-slate-500 mt-1">Buat dan kelola penawaran harga untuk klien</p>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Penawaran Harga (Quotations)</h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Workflow penawaran B2B, matriks approval diskon manager, verifikasi PO, dan konversi ke pesanan produksi.
+          </p>
         </div>
         <button
           onClick={() => {
             setSelectedQuotation(null);
             setIsCreateModalOpen(true);
           }}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-black text-white text-sm font-bold rounded-xl shadow-sm hover:bg-slate-800 focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-all active:scale-95"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-black text-white text-sm font-bold rounded-xl shadow-sm hover:bg-slate-800 transition-all active:scale-95"
         >
-          <Plus size={18} weight="regular" />
-          Buat Penawaran
+          <Plus size={18} weight="bold" />
+          Buat Penawaran Baru
         </button>
       </div>
 
       {/* METRIC CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
-            <FileText size={24} weight="regular" />
+          <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 shrink-0">
+            <Hourglass size={24} weight="fill" />
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500">Penawaran Menunggu</p>
-            <h3 className="text-2xl font-extrabold text-slate-900">24</h3>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
-            <CheckCircle size={24} weight="regular" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-slate-500">Diterima Bulan Ini</p>
-            <div className="flex items-baseline gap-2">
-              <h3 className="text-2xl font-extrabold text-slate-900">18</h3>
-              <span className="text-sm font-bold text-emerald-600">{formatCurrency(145000000)}</span>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Menunggu ACC Manager</p>
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <h3 className="text-2xl font-extrabold text-slate-900">{metrics.pendingApproval}</h3>
+              <span className="text-xs text-amber-700 font-semibold">Diskon &gt; 10%</span>
             </div>
           </div>
         </div>
+
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center text-primary-600 shrink-0">
-            <TrendUp size={24} weight="regular" />
+          <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+            <CheckCircle size={24} weight="fill" />
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500">Tingkat Konversi</p>
-            <h3 className="text-2xl font-extrabold text-slate-900">68%</h3>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Total PO Diterima</p>
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <h3 className="text-2xl font-extrabold text-slate-900">{metrics.acceptedCount}</h3>
+              <span className="text-xs font-bold font-mono text-emerald-700">{formatCurrency(metrics.acceptedSum)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center text-primary-600 shrink-0">
+            <TrendUp size={24} weight="bold" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Tingkat Konversi PO</p>
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <h3 className="text-2xl font-extrabold text-slate-900">{metrics.conversionRate}%</h3>
+              <span className="text-xs text-slate-400">dari {quotations.length} penawaran</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* FILTER BAR */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-          
-          <div className="flex-1 w-full lg:w-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div className="relative">
+        <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <div className="flex-1 w-full sm:w-auto flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MagnifyingGlass className="h-4 w-4 text-slate-400" weight="regular" />
+                <MagnifyingGlass className="h-4 w-4 text-slate-400" />
               </div>
               <input
                 type="text"
-                placeholder="Cari penawaran..."
-                className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+                placeholder="Cari no. penawaran, nama pelanggan, atau nomor PO..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-slate-900 focus:bg-white"
               />
             </div>
-            
-            <div className="relative">
+
+            <div className="relative w-full sm:w-60">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Funnel className="h-4 w-4 text-slate-400" weight="regular" />
+                <Funnel className="h-4 w-4 text-slate-400" />
               </div>
-              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="block w-full pl-10 pr-8 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-slate-900 appearance-none text-slate-700 font-medium"
+              >
                 <option value="">Semua Status</option>
+                <option value="Pending_Manager_Approval">Menunggu ACC Manager</option>
+                <option value="Sent">Terkirim ke Klien</option>
+                <option value="Accepted">PO Diterima</option>
+                <option value="Converted">Dikonversi Pesanan</option>
+                <option value="Rejected">Ditolak</option>
                 <option value="Draft">Draf</option>
-                <option value="Sent">Terkirim</option>
-                <option value="Viewed">Dilihat</option>
-                <option value="Accepted">Diterima</option>
-                <option value="Declined">Ditolak</option>
-                <option value="Expired">Kedaluwarsa</option>
               </select>
-              <CaretDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" weight="regular" />
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Calendar className="h-4 w-4 text-slate-400" weight="regular" />
-              </div>
-              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
-                <option>Semua Waktu</option>
-                <option>Bulan Ini</option>
-                <option>30 Hari Terakhir</option>
-              </select>
-              <CaretDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" weight="regular" />
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Users className="h-4 w-4 text-slate-400" weight="regular" />
-              </div>
-              <select className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-primary-600 appearance-none text-slate-700">
-                <option value="">Semua Staf Penjualan</option>
-                <option value="John">John Sales</option>
-                <option value="Sarah">Sarah Manager</option>
-              </select>
-              <CaretDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" weight="regular" />
+              <CaretDown className="absolute right-3 top-3 h-3 w-3 text-slate-400 pointer-events-none" />
             </div>
           </div>
         </div>
@@ -215,158 +306,212 @@ export default function Quotations() {
           <table className="min-w-full divide-y divide-slate-200">
             <thead className="bg-slate-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">No. Penawaran</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Pelanggan</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:table-cell">Ringkasan Item</th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Total Nilai</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Berlaku Sampai</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Aksi</th>
+                <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">
+                  No. Penawaran & PO
+                </th>
+                <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">
+                  Pelanggan
+                </th>
+                <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider hidden md:table-cell">
+                  Item Cetak
+                </th>
+                <th scope="col" className="px-6 py-3.5 text-right text-xs font-bold text-slate-600 uppercase tracking-wider">
+                  Total Nilai
+                </th>
+                <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">
+                  Berlaku Sampai
+                </th>
+                <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">
+                  Status
+                </th>
+                <th scope="col" className="px-6 py-3.5 text-right text-xs font-bold text-slate-600 uppercase tracking-wider">
+                  Aksi
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-slate-100">
-              {paginatedQuotations.map((quo) => (
-                <tr key={quo.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-mono font-bold text-primary-600 hover:underline cursor-pointer" onClick={() => { setSelectedQuotation(quo.id); setIsDetailModalOpen(true); }}>
-                      {quo.quotationNumber}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-bold text-slate-900">{quo.customer?.companyName || 'Tidak Diketahui'}</div>
-                    <div className="text-xs text-slate-500">{quo.customer?.email}</div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 hidden md:table-cell truncate max-w-[200px]" title={getItemsSummary(quo.items)}>
-                    {getItemsSummary(quo.items)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <span className={`text-sm font-mono font-bold ${quo.status === 'Expired' ? 'text-slate-400 line-through' : 'text-slate-900'}`}>
-                      {formatCurrency(quo.totalAmount)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className={`text-slate-600`}>
-                      {quo.validUntil ? new Date(quo.validUntil).toLocaleDateString('id-ID') : '-'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(quo.status)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end gap-2">
-                      <button 
-                        onClick={() => { setSelectedQuotation(quo.id); setIsDetailModalOpen(true); }}
-                        className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                        title="Lihat Penawaran"
-                      >
-                        <Eye size={18} weight="regular" />
-                      </button>
-                      
-                      {quo.status === 'Draft' && (
-                        <>
-                          <button 
-                            className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                            title="Ubah Penawaran"
-                            onClick={() => { setSelectedQuotation(quo.id); setIsCreateModalOpen(true); }}
-                          >
-                            <PencilSimple size={18} weight="regular" />
-                          </button>
-                          <button 
-                            className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                            title="Kirim ke Pelanggan"
-                          >
-                            <PaperPlaneTilt size={18} weight="regular" />
-                          </button>
-                          <button 
-                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Hapus"
-                            onClick={() => setIsDeleteModalOpen(true)}
-                          >
-                            <Trash size={18} weight="regular" />
-                          </button>
-                        </>
-                      )}
-
-                      {quo.status === 'Accepted' && (
-                        <button 
-                          onClick={() => handleConvertToOrder(quo.id)}
-                          disabled={isConverting}
-                          className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors disabled:opacity-50"
-                          title="Ubah Menjadi Pesanan"
-                        >
-                          <ShoppingBag size={18} weight="regular" />
-                        </button>
-                      )}
-
-                      <button 
-                        className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                        title="Unduh PDF"
-                      >
-                        <Download size={18} weight="regular" />
-                      </button>
-
-                      <button 
-                        className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                        title="Duplikat"
-                      >
-                        <Copy size={18} weight="regular" />
-                      </button>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-sm text-slate-500">
+                    <div className="flex justify-center items-center gap-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-slate-900"></div>
+                      <span>Memuat data penawaran...</span>
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : paginatedQuotations.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-sm text-slate-500">
+                    Tidak ada penawaran harga yang sesuai dengan filter.
+                  </td>
+                </tr>
+              ) : (
+                paginatedQuotations.map((quo) => (
+                  <tr key={quo.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="text-sm font-mono font-bold text-primary-600 hover:underline cursor-pointer"
+                          onClick={() => {
+                            setSelectedQuotation(quo.id);
+                            setIsDetailModalOpen(true);
+                          }}
+                        >
+                          {quo.quotationNumber}
+                        </span>
+                        <span className="text-[10px] font-mono font-bold bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded border border-slate-200">
+                          v{quo.version || 1}
+                        </span>
+                      </div>
+                      {quo.poNumber && (
+                        <div className="text-[11px] font-mono text-emerald-700 font-bold flex items-center gap-1 mt-0.5">
+                          <CheckCircle size={12} weight="bold" /> PO: {quo.poNumber}
+                        </div>
+                      )}
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-bold text-slate-900">
+                        {quo.customer?.companyName || quo.customer?.name || 'Klien'}
+                      </div>
+                      <div className="text-xs text-slate-500">{quo.customer?.email}</div>
+                    </td>
+
+                    <td className="px-6 py-4 text-sm text-slate-600 hidden md:table-cell truncate max-w-[200px]" title={getItemsSummary(quo.items)}>
+                      {getItemsSummary(quo.items)}
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <span className="text-sm font-mono font-bold text-slate-900 block">
+                        {formatCurrency(quo.totalAmount)}
+                      </span>
+                      {Number(quo.discountPercent || 0) > 0 && (
+                        <span className="text-[11px] font-mono text-rose-600 block">
+                          Diskon {quo.discountPercent}%
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap text-xs font-mono text-slate-600">
+                      {quo.validUntil ? new Date(quo.validUntil).toLocaleDateString('id-ID') : '-'}
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getStatusBadge(quo.status)}
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button 
+                          onClick={() => {
+                            setSelectedQuotation(quo.id);
+                            setIsDetailModalOpen(true);
+                          }}
+                          className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                          title="Lihat Detail & Aksi"
+                        >
+                          <Eye size={18} weight="bold" />
+                        </button>
+
+                        {quo.status === 'Accepted' && (
+                          <button 
+                            onClick={() => handleConvertToOrder(quo.id)}
+                            disabled={isConverting}
+                            className="p-1.5 text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
+                            title="Konversi ke Pesanan Produksi"
+                          >
+                            <ShoppingBag size={18} weight="bold" />
+                          </button>
+                        )}
+
+                        {quo.status === 'Converted' && quo.orderId && (
+                          <button 
+                            onClick={() => navigate(`/dashboard/orders/${quo.orderId}`)}
+                            className="p-1.5 text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
+                            title="Buka Pesanan Terkait"
+                          >
+                            <ArrowSquareOut size={18} weight="bold" />
+                          </button>
+                        )}
+
+                        {quo.status === 'Draft' && (
+                          <button 
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Hapus Draf"
+                            onClick={() => {
+                              setDeleteTargetId(quo.id);
+                              setIsDeleteModalOpen(true);
+                            }}
+                          >
+                            <Trash size={18} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
         {/* PAGINATION */}
-        <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex items-center justify-between">
-          <p className="text-sm text-slate-500">
-            Menampilkan <span className="font-bold text-slate-900">{quotations.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> sampai <span className="font-bold text-slate-900">{Math.min(currentPage * itemsPerPage, quotations.length)}</span> dari <span className="font-bold text-slate-900">{quotations.length}</span> penawaran
-          </p>
-          <div className="flex gap-2">
-            <button 
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="p-2 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-slate-700 disabled:opacity-50 transition-colors"
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+          <div>
+            Menampilkan <span className="font-bold text-slate-900">{filteredQuotations.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> sampai <span className="font-bold text-slate-900">{Math.min(currentPage * itemsPerPage, filteredQuotations.length)}</span> dari <span className="font-bold text-slate-900">{filteredQuotations.length}</span> penawaran
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage <= 1}
+              className="p-1.5 rounded-lg border border-slate-200 hover:bg-white disabled:opacity-40"
             >
-              <CaretLeft size={18} weight="regular" />
+              <CaretLeft size={14} />
             </button>
-            <button 
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages || totalPages === 0}
-              className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-slate-900 transition-colors disabled:opacity-50"
+            <span className="px-3 py-1 font-bold text-slate-800">
+              {currentPage} / {Math.max(1, totalPages)}
+            </span>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage >= totalPages}
+              className="p-1.5 rounded-lg border border-slate-200 hover:bg-white disabled:opacity-40"
             >
-              <CaretRight size={18} weight="regular" />
+              <CaretRight size={14} />
             </button>
           </div>
         </div>
       </div>
 
+      {/* CREATE MODAL */}
       <CreateQuotationModal 
         isOpen={isCreateModalOpen} 
-        onClose={() => setIsCreateModalOpen(false)} 
-        quotationId={selectedQuotation} 
+        onClose={() => setIsCreateModalOpen(false)}
+        quotationId={selectedQuotation}
+        onSuccess={fetchQuotations}
       />
 
+      {/* DETAIL & ACTION MODAL */}
       <QuotationDetailModal 
         isOpen={isDetailModalOpen} 
-        onClose={() => setIsDetailModalOpen(false)} 
-        quotationId={selectedQuotation} 
+        onClose={() => setIsDetailModalOpen(false)}
+        quotationId={selectedQuotation}
+        onRefresh={fetchQuotations}
       />
 
+      {/* DELETE CONFIRM */}
       <ConfirmDialog
         isOpen={isDeleteModalOpen}
         title="Hapus Penawaran"
-        message="Apakah Anda yakin ingin menghapus draf penawaran ini? Tindakan ini tidak dapat dibatalkan."
+        message="Apakah Anda yakin ingin menghapus penawaran draf ini? Tindakan ini tidak dapat dibatalkan."
         confirmLabel="Ya, Hapus"
         cancelLabel="Batal"
-        onConfirm={() => setIsDeleteModalOpen(false)}
-        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteQuotation}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteTargetId(null);
+        }}
         variant="danger"
       />
-
     </div>
   );
-
 }

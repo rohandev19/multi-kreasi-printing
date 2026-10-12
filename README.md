@@ -84,7 +84,7 @@ Platform Multi Kreasi Printing menerapkan sistem otorisasi ketat berbasis peran 
   - Mengonfigurasi parameter sistem tingkat tinggi, kredensial integrasi, dan kebijakan audit keamanan.
   - Memantau kesehatan performa bisnis secara menyeluruh dari aspek pendapatan, utilisasi pabrik, hingga kepuasan pelanggan.
 - **Fitur-Fitur Utama:**
-  - **Pengaturan Global (`/dashboard/settings`):** Konfigurasi identitas perusahaan, integrasi payment gateway Midtrans, gateway email SMTP, dan kebijakan sistem.
+  - **Pengaturan Global (`/dashboard/settings`):** Konfigurasi identitas perusahaan, gateway email SMTP, dan kebijakan sistem. *(Konfigurasi payment gateway: lihat [Roadmap](#-roadmap-belum-diimplementasikan).)*
   - **Manajemen Akun Pengguna (`/dashboard/users`):** Membuat, mengubah hak akses, menetapkan peran, serta menonaktifkan akun staf dari seluruh departemen.
   - **Log Audit Forensik (`/dashboard/audit-log`):** Melacak seluruh jejak aktivitas pengguna (siapa mengubah apa, kapan, dan dari IP mana) untuk keamanan dan kepatuhan data.
   - **Akses Penuh:** Hak akses tanpa batasan ke seluruh modul pesanan, produksi, gudang, keuangan, laporan, dan live support.
@@ -129,7 +129,7 @@ Platform Multi Kreasi Printing menerapkan sistem otorisasi ketat berbasis peran 
 - **Fitur-Fitur Utama:**
   - **Pengecekan Berkas Desain (`/dashboard/design`):** Akses ke berkas asli yang diunggah pelanggan (PDF, AI, TIFF, PSD, CDR, ZIP) dengan tautan aman pre-signed URL.
   - **Aksi Persetujuan Desain:** Tombol **Approve** (desain lolos uji cetak) atau **Reject** (desain tidak memenuhi syarat cetak) disertai alasan teknis mendalam yang dikirimkan ke pelanggan.
-  - **Upload Proofing / Mockup:** Mengunggah file preview digital untuk ditinjau oleh pemesan sebelum pelat atau film cetak dibuat.
+  - **Alur Kerja Proofing Berversi (`/dashboard/proofs`):** Pembuatan dan pengunggahan mockup digital proof berversi (v1, v2, v3), peninjauan catatan revisi pelanggan, serta sistem penguncian otomatis (*Proof Gate*) di mana mesin cetak tidak dapat memulai produksi sebelum proof disetujui pelanggan.
   - **Pemantauan Spesifikasi Pesanan (`/dashboard/orders`):** Meninjau detail catatan khusus terkait finishing cetak (laminasi, spot UV, hot foil, emboss).
 - **Kredensial Default:** `designer@mkprinting.com` / `Designer@123!`
 
@@ -158,7 +158,7 @@ Platform Multi Kreasi Printing menerapkan sistem otorisasi ketat berbasis peran 
 - **Fitur-Fitur Utama:**
   - **Manajemen Inventaris (`/dashboard/warehouse`):** Katalog bahan baku lengkap dengan kode SKU, unit satuan, stok saat ini, dan batas stok minimum (*low stock threshold*).
   - **Penyesuaian Stok (*Stock Adjustment*):** Pencatatan mutasi stok: Penambahan (penerimaan barang dari supplier), Pengurangan (pengambilan produksi), atau Kerusakan (*damaged goods*).
-  - **Pencatatan Pengiriman (*Record Shipment*):** Input nomor resi pengiriman ekspedisi (JNE, SiCepat, Cargo, Kurir Internal), mengunggah bukti pengiriman, dan mengubah status pesanan menjadi *Shipped* / *Delivered*.
+  - **Pencatatan Pengiriman (*Record Shipment & Surat Jalan*):** Manajemen pengiriman terintegrasi (`/dashboard/shipments`), pencatatan nomor resi dan kurir, penerbitan surat jalan, pengiriman bertahap (parsial), serta konfirmasi bukti serah-terima barang (*Proof of Delivery*).
 - **Kredensial Default:** `warehouse@mkprinting.com` / `Warehouse@123!`
 
 ---
@@ -169,11 +169,11 @@ Platform Multi Kreasi Printing menerapkan sistem otorisasi ketat berbasis peran 
   - Melakukan rekonsiliasi pembayaran manual (transfer bank) maupun otomatis melalui payment gateway.
   - Menyusun laporan arus kas, omzet berkala, dan performa keuangan untuk laporan pajak dan audit internal.
 - **Fitur-Fitur Utama:**
-  - **Manajemen Faktur & Tagihan (`/dashboard/invoices`):** Menerbitkan faktur resmi berformat PDF bertanda tangan digital, mengirimkan faktur via email, dan mengelola jatuh tempo tagihan.
-  - **Verifikasi Pembayaran (*Record Payment*):** Memvalidasi bukti transfer yang diunggah pelanggan, mencocokkan nominal rekening koran, dan mengubah status pembayaran menjadi *Lunas (Paid)*.
-  - **Rekonsiliasi Gateway:** Integrasi webhook otomatis untuk memverifikasi pembayaran instan QRIS dan Virtual Account.
-  - **Laporan Finansial Komprehensif (`/dashboard/reports`):** Grafik pendapatan, breakdown pesanan per metode bayar, perputaran kas, serta ekspor data ke format PDF/Excel.
-  - **Direktori Pelanggan (`/dashboard/customers`):** Memeriksa riwayat kredit dan batas piutang pelanggan korporat (Term of Payment / TOP).
+  - **Manajemen Faktur & Tagihan (`/dashboard/invoices`):** Menerbitkan faktur berformat PDF (PDFKit), mengirimkan faktur via email, mendukung multi-invoicing bertahap per pesanan (DP 50% & Pelunasan), serta mengelola jatuh tempo tagihan.
+  - **Verifikasi Pembayaran (*Record Payment*):** Memvalidasi bukti transfer yang diunggah pelanggan dan mencatat pembayaran penuh/parsial pada faktur.
+  - **Webhook Pembayaran:** Endpoint webhook generik tersedia; integrasi payment gateway spesifik (Midtrans/Xendit) masih *Roadmap*.
+  - **Laporan Finansial (`/dashboard/reports`):** Grafik pendapatan, ringkasan pesanan, serta laporan umur piutang komprehensif (*AR Aging Report*).
+  - **Manajemen Piutang & Kredit Pelanggan (`/dashboard/customers`):** Pengaturan plafon kredit (*Credit Limit*), syarat pembayaran (*Term of Payment* / TOP 14/30/45 hari), serta peringatan tagihan jatuh tempo (*overdue*).
 - **Kredensial Default:** `finance@mkprinting.com` / `Finance@123!`
 
 ---
@@ -183,11 +183,11 @@ Platform Multi Kreasi Printing menerapkan sistem otorisasi ketat berbasis peran 
   - Pengguna akhir yang mencari kebutuhan cetak, menghitung estimasi biaya spesifik, mengunggah materi desain, dan bertransaksi.
   - Meninjau status pengerjaan secara transparan dari gawai/laptop tanpa perlu menghubungi customer service berulang kali.
 - **Fitur-Fitur Utama:**
-  - **Katalog Produk Interaktif (`/products`):** Dilengkapi kalkulator harga dinamis berdasarkan ukuran (custom/standar), jenis kertas, laminasi, dan jumlah pesanan.
+  - **Katalog Produk (`/products`):** Harga dasar dan harga bertingkat berdasarkan jumlah pesanan (*pricing tier*). *(Konfigurator opsi bahan/ukuran/finishing: Roadmap.)*
   - **Unggah Desain Berkas Besar:** Pengunggahan file hingga 100MB langsung ke cloud storage aman (Cloudflare R2).
   - **Pesanan Kustom (`/custom-order`):** Formulir pengajuan cetak di luar katalog untuk kebutuhan spesifikasi khusus.
   - **Pelacakan Pesanan Real-Time (`/dashboard/my-orders`):** Timeline status transparan: *Menunggu Desain ➔ Pemeriksaan Pra-Cetak ➔ Sedang Dicetak ➔ Finishing ➔ Siap Dikirim ➔ Selesai*.
-  - **Pembayaran Digital Fleksibel:** Integrasi Midtrans untuk pembayaran instan via QRIS, GoPay, ShopeePay, Virtual Account (BCA, Mandiri, BNI, BRI), Kartu Kredit, atau transfer manual.
+  - **Pembayaran:** Transfer manual dengan unggah bukti pembayaran. *(Pembayaran instan QRIS / Virtual Account via payment gateway: Roadmap.)*
   - **Unduh Faktur Resmi:** Mengunduh bukti pembayaran dan invoice PDF resmi kapan saja dari akun dashboard pribadi.
   - **Live Support Widget:** Mengobrol langsung dengan tim support/sales melalui obrolan langsung real-time di website.
 - **Kredensial Default:** `customer@example.com` / `Customer@123!`
@@ -276,6 +276,19 @@ Sistem dirancang untuk mendukung beban tinggi hingga ratusan ribu permintaan har
 - **Nginx Reverse Proxy:** Menangani terminasi SSL, kompresi gzip/brotli, dan cache aset statis.
 - **Redis Requirement:** Wajib di production untuk shared session, rate limiting lintas worker, dan BullMQ worker queue.
 - **Zero-Downtime Deployment:** CI/CD pipeline memvalidasi pengujian sebelum proses *graceful reload* PM2 dijalankan.
+
+---
+
+## 🧭 Roadmap (Rencana Pengembangan Lanjutan)
+
+Fitur-fitur berikut direncanakan untuk iterasi selanjutnya sesuai kebutuhan skala enterprise:
+
+- **Product Configurator Kompleks di Server:** Mesin kalkulator ukuran bebas (custom per m²), opsi bahan dan varian finishing dinamis dengan rumus HPP/margin langsung di backend.
+- **Payment Gateway Otomatis (Midtrans / Xendit):** Integrasi QRIS, Virtual Account bank otomatis, serta verifikasi signature webhook dan penanganan idempotency.
+- **Buku Alamat Multi-Cabang Korporat:** Dukungan banyak alamat pengiriman (*bill-to* & *ship-to*) per entitas perusahaan.
+- **Manajemen Pengadaan & Supplier (Procurement):** Purchase Order (PO) ke vendor kertas/tinta, Goods Receipt, serta alur stock opname berkala.
+- **Job Costing / HPP Akuntansi:** Penghitungan margin riil per pekerjaan (bahan baku terpakai + tarif depresiasi mesin + jam operator) dan pelaporan profitabilitas per pelanggan.
+- **Integrasi Perpajakan Resmi (e-Faktur / Coretax):** Ekspor skema faktur pajak DJP dan penanganan withholding tax (PPh 23 jasa percetakan korporat).
 
 ---
 

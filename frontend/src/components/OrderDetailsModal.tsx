@@ -13,8 +13,13 @@ import {
   WarningCircle,
   Palette,
   FilePdf,
-  CalendarBlank
+  CalendarBlank,
+  FileText,
+  Eye,
+  ShieldCheck,
+  XCircle,
 } from '@phosphor-icons/react';
+import { ProofReviewModal, type ProofItem } from './modals/ProofReviewModal';
 
 interface OrderDetails {
   id: string;
@@ -37,6 +42,7 @@ interface OrderDetails {
     fileUrl: string;
     fileName?: string;
   }>;
+  proofs?: ProofItem[];
   customer?: {
     companyName?: string;
     fullName?: string;
@@ -54,8 +60,11 @@ const statusColors: Record<string, string> = {
   Draft: 'bg-slate-100 text-slate-700 border-slate-200',
   Pending: 'bg-amber-100 text-amber-800 border-amber-200',
   Pending_Approval: 'bg-amber-100 text-amber-800 border-amber-200',
+  Proof_Pending_Approval: 'bg-amber-100 text-amber-900 border-amber-300 ring-2 ring-amber-100',
+  Proof_Rejected: 'bg-red-100 text-red-800 border-red-200',
+  Proof_Approved: 'bg-emerald-100 text-emerald-800 border-emerald-200',
   Approved: 'bg-slate-100 text-slate-900 border-slate-200',
-  In_Production: 'bg-slate-200 text-slate-900 border-slate-300',
+  In_Production: 'bg-cyan-100 text-cyan-900 border-cyan-200',
   Quality_Check: 'bg-purple-100 text-purple-800 border-purple-200',
   Completed: 'bg-emerald-100 text-emerald-800 border-emerald-200',
   Delivered: 'bg-emerald-100 text-emerald-800 border-emerald-200',
@@ -65,7 +74,10 @@ const statusColors: Record<string, string> = {
 const orderStatusMap: Record<string, string> = {
   Draft: 'Draf',
   Pending: 'Menunggu',
-  Pending_Approval: 'Menunggu Persetujuan',
+  Pending_Approval: 'Menunggu Persetujuan Order',
+  Proof_Pending_Approval: 'Menunggu ACC Bukti Cetak',
+  Proof_Rejected: 'Revisi Bukti Cetak Diminta',
+  Proof_Approved: 'Bukti Cetak Disetujui (ACC)',
   Approved: 'Disetujui',
   In_Production: 'Dalam Produksi',
   Quality_Check: 'Pengecekan Kualitas',
@@ -85,8 +97,8 @@ const paymentStatusMap: Record<string, string> = {
 const steps = [
   { label: 'Pesanan Dibuat', desc: 'Tercatat di sistem' },
   { label: 'Pembayaran', desc: 'Verifikasi transfer' },
-  { label: 'Disetujui', desc: 'Validasi order' },
-  { label: 'Produksi & QC', desc: 'Proses percetakan' },
+  { label: 'ACC Proofing', desc: 'Validasi bukti cetak' },
+  { label: 'Produksi & QC', desc: 'Proses cetak massal' },
   { label: 'Selesai', desc: 'Pesanan rampung' },
 ];
 
@@ -102,29 +114,31 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState('');
+  const [selectedProof, setSelectedProof] = useState<ProofItem | null>(null);
+  const [isProofReviewOpen, setIsProofReviewOpen] = useState(false);
+
+  const fetchOrderDetails = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const isCustomer = user?.role === 'Customer';
+      const url = isCustomer ? `/api/v1/my-orders/${orderId}` : `/api/v1/orders/${orderId}`;
+      const response = await api.get(url);
+      setOrder(response.data);
+    } catch (err: any) {
+      // Fallback attempt to my-orders
+      try {
+        const fallback = await api.get(`/api/v1/my-orders/${orderId}`);
+        setOrder(fallback.data);
+      } catch {
+        setError(err.response?.data?.message || 'Gagal memuat detail pesanan');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchOrderDetails = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const isCustomer = user?.role === 'Customer';
-        const url = isCustomer ? `/api/v1/my-orders/${orderId}` : `/api/v1/orders/${orderId}`;
-        const response = await api.get(url);
-        setOrder(response.data);
-      } catch (err: any) {
-        // Fallback attempt to my-orders
-        try {
-          const fallback = await api.get(`/api/v1/my-orders/${orderId}`);
-          setOrder(fallback.data);
-        } catch {
-          setError(err.response?.data?.message || 'Gagal memuat detail pesanan');
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (isOpen && orderId) {
       fetchOrderDetails();
     } else {
@@ -146,7 +160,10 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
       case 'Draft': return 0;
       case 'Pending':
       case 'Pending_Approval': return 1;
-      case 'Approved': return 2;
+      case 'Approved':
+      case 'Proof_Pending_Approval':
+      case 'Proof_Rejected':
+      case 'Proof_Approved': return 2;
       case 'In_Production':
       case 'Quality_Check': return 3;
       case 'Completed':
@@ -359,6 +376,141 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 </div>
               )}
 
+              {/* Digital Proofing / Proof Cetak Section */}
+              <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                      <FileText size={18} className="text-primary-600" weight="bold" />
+                      Bukti Cetak Digital (Digital Proofing B2B)
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Persetujuan pracetak resmi sebelum mesin cetak dijalankan untuk menjamin akurasi hasil cetak.
+                    </p>
+                  </div>
+                  {order.proofs && order.proofs.length > 0 && (
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">
+                      {order.proofs.length} Versi
+                    </span>
+                  )}
+                </div>
+
+                {/* Callout if proof pending customer approval */}
+                {order.status === 'Proof_Pending_Approval' && order.proofs && order.proofs.length > 0 && (
+                  <div className="p-4 bg-amber-50 rounded-xl border border-amber-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-pulse-slow">
+                    <div className="flex items-start gap-3">
+                      <WarningCircle size={22} weight="fill" className="text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <h5 className="font-bold text-xs sm:text-sm text-amber-900">
+                          Persetujuan Diperlukan Segera (ACC Cetak)
+                        </h5>
+                        <p className="text-xs text-amber-800 mt-0.5">
+                          Bukti cetak versi terbaru ({order.proofs[0].version}) siap ditinjau. Mohon periksa teks, ejaan, dan tata letak sebelum kami memulai produksi massal.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSelectedProof(order.proofs![0]);
+                        setIsProofReviewOpen(true);
+                      }}
+                      className="shrink-0 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm flex items-center gap-1.5"
+                    >
+                      <Eye size={16} weight="bold" />
+                      Periksa & ACC Sekarang
+                    </button>
+                  </div>
+                )}
+
+                {/* List of proofs if available */}
+                {order.proofs && order.proofs.length > 0 ? (
+                  <div className="space-y-2.5">
+                    {order.proofs.map((proof) => {
+                      const isProofPending = proof.status === 'Pending_Approval';
+                      const isProofApproved = proof.status === 'Approved';
+                      const isProofRejected = proof.status === 'Rejected';
+
+                      return (
+                        <div
+                          key={proof.id}
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200 hover:border-slate-300 transition-all"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                                isProofApproved
+                                  ? 'bg-emerald-100 text-emerald-700'
+                                  : isProofRejected
+                                  ? 'bg-red-100 text-red-700'
+                                  : 'bg-amber-100 text-amber-700'
+                              }`}
+                            >
+                              {isProofApproved ? (
+                                <ShieldCheck size={22} weight="fill" />
+                              ) : isProofRejected ? (
+                                <XCircle size={22} weight="fill" />
+                              ) : (
+                                <WarningCircle size={22} weight="fill" />
+                              )}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-sm text-slate-900">
+                                  Proof v{proof.version}
+                                </span>
+                                <span
+                                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                    isProofApproved
+                                      ? 'bg-emerald-100 text-emerald-800'
+                                      : isProofRejected
+                                      ? 'bg-red-100 text-red-800'
+                                      : 'bg-amber-100 text-amber-800'
+                                  }`}
+                                >
+                                  {isProofApproved
+                                    ? 'ACC (Disetujui)'
+                                    : isProofRejected
+                                    ? 'Revisi Diminta'
+                                    : 'Menunggu ACC'}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-500 mt-0.5">
+                                {proof.notes || 'Proof kalibrasi pracetak siap ditinjau'}
+                              </p>
+                              {proof.approvedAt && (
+                                <p className="text-[11px] text-emerald-700 mt-0.5 font-medium">
+                                  Disetujui pada {new Date(proof.approvedAt).toLocaleDateString('id-ID')}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              setSelectedProof(proof);
+                              setIsProofReviewOpen(true);
+                            }}
+                            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold rounded-lg border border-slate-300 transition-colors shadow-2xs"
+                          >
+                            <Eye size={14} weight="bold" />
+                            {isProofPending ? 'Tinjau & Setujui' : 'Lihat Detail Proof'}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center">
+                    <p className="text-xs text-slate-500">
+                      Belum ada bukti cetak digital yang diterbitkan untuk pesanan ini.
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Tim pracetak kami akan membuat bukti cetak (proof) sebelum jadwal mesin cetak dimulai.
+                    </p>
+                  </div>
+                )}
+              </div>
+
               {/* Items List */}
               <div>
                 <h4 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
@@ -444,6 +596,17 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Proof Review Modal */}
+      {selectedProof && (
+        <ProofReviewModal
+          isOpen={isProofReviewOpen}
+          onClose={() => setIsProofReviewOpen(false)}
+          proof={selectedProof}
+          orderNumber={order?.orderNumber}
+          onSuccess={fetchOrderDetails}
+        />
+      )}
     </div>
   );
 };
