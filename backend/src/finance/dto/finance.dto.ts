@@ -23,3 +23,31 @@ export class InvoiceFilterDto {
   @IsString()
   customerId?: string;
 }
+
+export class UpdateCustomerCreditDto {
+  @IsNumber()
+  @Min(0)
+  creditLimit: number;
+
+  @IsNumber()
+  @Min(0)
+  paymentTermDays: number;
+
+  @IsOptional()
+  @IsString()
+  creditStatus?: string;
+
+  @IsOptional()
+  @IsString()
+  creditNotes?: string;
+}
+
+export class ValidateCreditOrderDto {
+  @IsString()
+  customerId: string;
+
+  @IsNumber()
+  @Min(0)
+  orderAmount: number;
+}
+

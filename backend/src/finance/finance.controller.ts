@@ -21,6 +21,7 @@ import { SendInvoiceUseCase } from './use-cases/send-invoice.usecase';
 import { StorageService } from '../storage/storage.service';
 import { CalculateOutstandingBalanceUseCase } from './use-cases/calculate-outstanding-balance.usecase';
 import { GenerateInvoiceUseCase } from './use-cases/generate-invoice.usecase';
+import { GetArAgingReportUseCase } from './use-cases/get-ar-aging-report.usecase';
 import { IdempotencyInterceptor } from '../common/interceptors/idempotency.interceptor';
 import type { Request } from 'express';
 
@@ -43,6 +44,7 @@ export class FinanceController {
     private readonly sendInvoiceUseCase: SendInvoiceUseCase,
     private readonly calculateOutstandingBalanceUseCase: CalculateOutstandingBalanceUseCase,
     private readonly generateInvoiceUseCase: GenerateInvoiceUseCase,
+    private readonly getArAgingReportUseCase: GetArAgingReportUseCase,
     private readonly storageService: StorageService,
   ) {}
 
@@ -57,9 +59,18 @@ export class FinanceController {
     const where: Prisma.InvoiceWhereInput = {};
     if (filters.status) where.status = filters.status as any;
 
-    // Customers can only see their own invoices
+    // Customers can only see their own company's invoices
     if (user.role === 'Customer') {
-      where.customerId = user.userId || user.sub;
+      let customerId = user.userId || user.sub;
+      if (user.email && this.prisma.customer) {
+        const customer = await this.prisma.customer.findFirst({
+          where: { email: user.email },
+        });
+        if (customer) {
+          customerId = customer.id;
+        }
+      }
+      where.customerId = customerId;
     } else if (filters.customerId) {
       where.customerId = filters.customerId;
     }
@@ -74,7 +85,7 @@ export class FinanceController {
         where,
         include: {
           customer: {
-            select: { id: true, fullName: true, email: true },
+            select: { id: true, companyName: true, email: true },
           },
         },
         orderBy: { createdAt: 'desc' },
@@ -87,6 +98,13 @@ export class FinanceController {
       data,
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
+  }
+
+  @Get('ar-aging')
+  @RequirePermissions({ action: 'read', subject: 'Invoice' })
+  async getArAgingReport(@Query('referenceDate') referenceDate?: string) {
+    const refDate = referenceDate ? new Date(referenceDate) : new Date();
+    return this.getArAgingReportUseCase.execute(refDate);
   }
 
   @Get(':id')

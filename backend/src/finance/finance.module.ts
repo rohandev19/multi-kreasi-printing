@@ -17,6 +17,9 @@ import { OrderApprovedListener } from './listeners/order-approved.listener';
 import { PaymentWebhookUseCase } from './use-cases/payment-webhook.usecase';
 import { WebhooksController } from './webhooks.controller';
 
+import { GetArAgingReportUseCase } from './use-cases/get-ar-aging-report.usecase';
+import { ValidateCustomerCreditUseCase } from './use-cases/validate-customer-credit.usecase';
+
 @Module({
   imports: [
     CacheModule.register(),
@@ -38,7 +41,9 @@ import { WebhooksController } from './webhooks.controller';
     PdfGenerationProcessor,
     OrderApprovedListener,
     PaymentWebhookUseCase,
+    GetArAgingReportUseCase,
+    ValidateCustomerCreditUseCase,
   ],
-  exports: [GenerateInvoiceUseCase],
+  exports: [GenerateInvoiceUseCase, GetArAgingReportUseCase, ValidateCustomerCreditUseCase],
 })
 export class FinanceModule {}

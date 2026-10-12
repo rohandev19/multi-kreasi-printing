@@ -33,9 +33,14 @@ export class GenerateInvoiceUseCase {
       const count = await this.prisma.invoice.count();
       const invoiceNumber = InvoiceLogic.generateInvoiceNumber(count + 1);
 
-      // Default due date: 7 days from now
+      // Determine due date according to customer credit terms (TOP)
+      const customer = await this.prisma.customer.findUnique({
+        where: { id: order.customerId },
+      });
+      const termDays = customer && customer.paymentTermDays > 0 ? customer.paymentTermDays : 14;
+
       const dueDate = new Date();
-      dueDate.setDate(dueDate.getDate() + 7);
+      dueDate.setDate(dueDate.getDate() + termDays);
 
       await this.prisma.invoice.create({
         data: {

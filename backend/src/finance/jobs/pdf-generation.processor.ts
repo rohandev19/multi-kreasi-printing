@@ -51,8 +51,8 @@ export class PdfGenerationProcessor extends WorkerHost {
       doc.text(`Date: ${invoice.createdAt.toDateString()}`);
       doc.text(`Due Date: ${invoice.dueDate.toDateString()}`);
       doc.moveDown();
-      doc.text(`Bill To: ${invoice.customer.fullName}`);
-      doc.text(`Email: ${invoice.customer.email}`);
+      doc.text(`Bill To: ${invoice.customer.companyName}`);
+      doc.text(`Email: ${invoice.customer.email || '-'}`);
       doc.moveDown();
 
       doc.fontSize(16).text('Order Items', { underline: true });

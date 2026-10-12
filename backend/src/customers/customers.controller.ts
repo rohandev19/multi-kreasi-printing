@@ -15,6 +15,8 @@ import { SearchCustomersDto } from './dto/search-customers.dto';
 import { CreateCustomerUseCase } from './use-cases/create-customer.usecase';
 import { UpdateCustomerUseCase } from './use-cases/update-customer.usecase';
 import { SearchCustomersUseCase } from './use-cases/search-customers.usecase';
+import { ValidateCustomerCreditUseCase } from '../finance/use-cases/validate-customer-credit.usecase';
+import { UpdateCustomerCreditDto } from '../finance/dto/finance.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import type { Request } from 'express';
@@ -25,6 +27,7 @@ export class CustomersController {
     private createCustomerUseCase: CreateCustomerUseCase,
     private updateCustomerUseCase: UpdateCustomerUseCase,
     private searchCustomersUseCase: SearchCustomersUseCase,
+    private validateCustomerCreditUseCase: ValidateCustomerCreditUseCase,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -128,6 +131,38 @@ export class CustomersController {
   ) {
     const userId = (req as any).user.sub;
     return this.updateCustomerUseCase.execute(id, dto, userId);
+  }
+
+  @Patch(':id/credit-terms')
+  @RequirePermissions({ action: 'manage', subject: 'Customers' })
+  async updateCreditTerms(
+    @Param('id') id: string,
+    @Body() dto: UpdateCustomerCreditDto,
+  ) {
+    const existing = await this.prisma.customer.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Customer not found');
+
+    const updated = await this.prisma.customer.update({
+      where: { id },
+      data: {
+        creditLimit: dto.creditLimit,
+        paymentTermDays: dto.paymentTermDays,
+        creditStatus: dto.creditStatus || existing.creditStatus,
+        creditNotes: dto.creditNotes !== undefined ? dto.creditNotes : existing.creditNotes,
+      },
+    });
+
+    return updated;
+  }
+
+  @Get(':id/credit-status')
+  @RequirePermissions({ action: 'read', subject: 'Customers' })
+  async getCreditStatus(
+    @Param('id') id: string,
+    @Query('orderAmount') orderAmount?: string,
+  ) {
+    const amount = orderAmount ? parseFloat(orderAmount) : 0;
+    return this.validateCustomerCreditUseCase.execute(id, amount);
   }
 
   private async getFinancialMetrics(customerIds: string[]) {
