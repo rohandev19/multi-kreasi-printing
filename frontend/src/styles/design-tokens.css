@@ -64,6 +64,28 @@
   --color-primary-800: #000000;
   --color-primary-900: #000000;
   --color-primary-950: #000000;
+
+  /* ========================================
+   * Brand Accent - Process Magenta
+   * Single accent drawn from the CMYK process set; ties the brand to print.
+   * Use 600 for small text on light surfaces (WCAG AA), 500 for marks/large type.
+   * ======================================== */
+  --color-accent-50: #fdeaf3;
+  --color-accent-100: #fbd3e6;
+  --color-accent-500: #e6007e;
+  --color-accent-600: #b8005f;
+  --color-accent-700: #8f004a;
+
+  /* Paper surface - uncoated stock tone for editorial/public sections */
+  --color-paper: #f3f0e8;
+  --color-paper-edge: #e3ddcf;
+
+  /* CMYK process colors - decorative print marks only (color bars, registration).
+   * Never use these for status or interactive states. */
+  --color-process-cyan: #009fe3;
+  --color-process-magenta: #e6007e;
+  --color-process-yellow: #ffed00;
+  --color-process-key: #1e2329;
   
   /* ========================================
    * Color Palette - Neutral (True Grays)

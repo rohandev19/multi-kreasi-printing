@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MagnifyingGlass, GridFour, List } from '@phosphor-icons/react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import api from '../../api/axios';
 
 interface Category {
@@ -26,11 +26,23 @@ export const ProductsCatalog: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
 
-  const [activeCategoryId, setActiveCategoryId] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategoryId, setActiveCategoryId] = useState<string>(searchParams.get('category') || 'all');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('newest');
+
+  useEffect(() => {
+    const s = searchParams.get('search');
+    if (s !== null) {
+      setSearchQuery(s);
+    }
+    const c = searchParams.get('category');
+    if (c !== null) {
+      setActiveCategoryId(c);
+    }
+  }, [searchParams]);
 
   const formatIDR = (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
 

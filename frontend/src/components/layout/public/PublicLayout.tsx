@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, User, Printer, List, X, Package } from '@phosphor-icons/react';
+import { ShoppingCart, User, Printer, List, X, Package, Phone, WhatsappLogo, MapPin, CheckCircle } from '@phosphor-icons/react';
 import { useRoleContext } from '../../../contexts/RoleContext';
 import { Footer } from './Footer';
 import { useCart } from '../../../hooks/useCart';
@@ -20,12 +20,7 @@ export const PublicLayout: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { totalItems } = useCart();
 
-  const isHome = location.pathname === '/';
 
-  const headerBg = isHome ? 'rgba(15, 20, 25, 0.72)' : 'rgba(250, 251, 252, 0.88)';
-  const headerBorder = isHome ? 'rgba(255,255,255,0.08)' : 'var(--border-default)';
-  const headerTextInverse = isHome ? 'var(--text-inverse)' : 'var(--text-primary)';
-  const navTextColor = isHome ? 'rgba(255,255,255,0.75)' : 'var(--text-secondary)';
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
@@ -137,169 +132,187 @@ export const PublicLayout: React.FC = () => {
         </div>
       </aside>
 
+      {/* B2B Industrial Utility Top Bar */}
+      <div className="hidden lg:block bg-slate-100/90 text-slate-700 text-xs border-b border-slate-200/90 py-2">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-6 whitespace-nowrap">
+          {/* Left: Identity & Location */}
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 border border-emerald-200/80">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
+              Pabrik Aktif
+            </span>
+            <span className="font-bold text-slate-900 tracking-tight">PT MULTI KREASI PRINTING</span>
+            <span className="text-slate-300 hidden xl:inline">•</span>
+            <span className="text-slate-600 hidden xl:inline">Offset &amp; Digital Production</span>
+            <span className="text-slate-300">•</span>
+            <span className="inline-flex items-center gap-1 text-slate-600">
+              <MapPin size={13} weight="bold" className="text-slate-400" />
+              Jakarta Barat
+            </span>
+          </div>
+
+          {/* Right: Direct B2B Contact & Tax Terms */}
+          <div className="flex items-center gap-4 text-xs shrink-0">
+            <a 
+              href="tel:0215558899" 
+              className="inline-flex items-center gap-1.5 text-slate-700 hover:text-black transition-colors"
+            >
+              <Phone size={13} weight="bold" className="text-slate-500" />
+              <span className="text-slate-500">Hotline:</span>
+              <span className="font-bold text-slate-900 font-mono tracking-tight">(021) 555-8899</span>
+            </a>
+
+            <span className="text-slate-300">|</span>
+
+            <a
+              href="https://wa.me/6281299887766"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-slate-700 hover:text-emerald-700 transition-colors"
+            >
+              <WhatsappLogo size={14} weight="bold" className="text-emerald-600" />
+              <span className="text-slate-500">WA B2B:</span>
+              <span className="font-bold text-emerald-700 font-mono tracking-tight">+62 812-9988-7766</span>
+            </a>
+
+            <span className="text-slate-300">|</span>
+
+            <div className="inline-flex items-center gap-1.5 rounded bg-white px-2 py-0.5 text-[11px] font-semibold text-emerald-800 border border-emerald-200 shadow-2xs">
+              <CheckCircle size={13} weight="bold" className="text-emerald-600" />
+              <span>e-Faktur PPN 11% &amp; TOP 30 Hari</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <header
-        className="sticky top-0 z-30 w-full border-b transition-all duration-150 ease-out"
-        style={{
-          backgroundColor: headerBg,
-          borderColor: headerBorder,
-          backdropFilter: 'blur(8px)',
-          color: headerTextInverse,
-        }}
+        className="sticky top-0 z-30 w-full border-b border-slate-200 bg-white/95 backdrop-blur-md transition-all duration-150"
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex shrink-0 items-center">
               <Link 
                 to="/" 
-                className="flex items-center gap-2 group"
-                style={{ color: isHome ? '#ffffff' : 'var(--text-primary)' }}
+                className="flex items-center gap-2.5 group"
               >
-                <div
-                  className="flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-150"
-                  style={{
-                    backgroundColor: '#000000',
-                    color: '#ffffff',
-                  }}
-                >
-                  <Printer size={20} weight="regular" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-white shadow-2xs group-hover:bg-black transition-colors">
+                  <Printer size={20} weight="bold" />
                 </div>
-                <span 
-                  className={`text-xl font-extrabold tracking-tight transition-colors duration-150 ${isHome ? 'text-white' : ''}`}
-                  style={{ color: isHome ? '#ffffff' : 'var(--text-primary)' }}
-                >
-                  MK Printing
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-lg font-black tracking-tight text-slate-950 leading-tight">
+                    MK PRINTING
+                  </span>
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-slate-500 uppercase -mt-0.5">
+                    COMMERCIAL PLATFORM
+                  </span>
+                </div>
               </Link>
             </div>
 
-            <nav className="hidden items-center gap-8 md:flex">
-              {navLinks.slice(0, 4).map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="text-sm font-medium transition-colors duration-150 ease-out"
-                  style={{ color: navTextColor }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = isHome ? 'white' : 'var(--text-primary)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = navTextColor; }}
-                >
-                  {link.label}
-                </Link>
-              ))}
+            <nav className="hidden items-center gap-7 lg:flex">
+              <Link
+                to="/products"
+                className={`text-xs font-bold uppercase tracking-wider transition-colors hover:text-black ${
+                  location.pathname === '/products' ? 'text-black' : 'text-slate-600'
+                }`}
+              >
+                Katalog Produk
+              </Link>
+              <Link
+                to="/#estimator"
+                onClick={() => {
+                  if (location.pathname === '/') {
+                    document.getElementById('estimator')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-black transition-colors"
+              >
+                Kalkulator Job Ticket
+              </Link>
+              <Link
+                to="/#workflow"
+                onClick={() => {
+                  if (location.pathname === '/') {
+                    document.getElementById('workflow')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-black transition-colors"
+              >
+                Alur Kerja B2B
+              </Link>
+              <Link
+                to="/#workshop"
+                onClick={() => {
+                  if (location.pathname === '/') {
+                    document.getElementById('workshop')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-black transition-colors"
+              >
+                Armada Mesin
+              </Link>
+              <Link
+                to="/custom-order"
+                className={`text-xs font-bold uppercase tracking-wider transition-colors hover:text-black ${
+                  location.pathname === '/custom-order' ? 'text-black' : 'text-slate-600'
+                }`}
+              >
+                Minta RFQ
+              </Link>
             </nav>
 
-            <div className="flex items-center gap-1 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 to="/cart"
-                className="relative rounded-full p-2 transition-colors duration-150 ease-out"
-                style={{ color: navTextColor }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = isHome ? 'white' : 'var(--text-primary)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = navTextColor; }}
+                aria-label="Keranjang Belanja"
+                className="relative rounded-lg p-2 text-slate-700 hover:text-black hover:bg-slate-100 transition-colors"
               >
-                <ShoppingCart size={20} weight="regular" />
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: '#000000' }}>{totalItems}</span>
+                <ShoppingCart size={20} weight="bold" />
+                {totalItems > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white bg-slate-900">
+                    {totalItems}
+                  </span>
+                )}
               </Link>
 
               {role ? (
-                <>
-                  <Link
-                    to="/dashboard"
-                    aria-label="Go to Dashboard"
-                    className="flex items-center justify-center rounded-full p-2 transition-all duration-150 ease-out sm:hidden"
-                    style={{
-                      backgroundColor: isHome ? 'rgba(255,255,255,0.08)' : 'var(--color-neutral-100)',
-                      color: isHome ? 'white' : '#000000',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isHome) { e.currentTarget.style.backgroundColor = 'var(--color-primary-100)'; }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isHome) { e.currentTarget.style.backgroundColor = 'var(--color-primary-50)'; }
-                    }}
-                  >
-                    <User size={20} weight="regular" />
-                  </Link>
-                  {role === 'Customer' && (
-                    <Link
-                      to="/dashboard/my-orders"
-                      className="hidden items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold transition-all duration-150 ease-out sm:flex"
-                      style={{ color: navTextColor }}
-                      onMouseEnter={(e) => { e.currentTarget.style.color = isHome ? 'white' : 'var(--text-primary)'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.color = navTextColor; }}
-                    >
-                      <Package size={16} weight="regular" />
-                      Pesanan Saya
-                    </Link>
-                  )}
-                  <Link
-                    to="/dashboard"
-                    className="hidden items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-150 ease-out sm:flex"
-                    style={{ backgroundColor: isHome ? 'rgba(255,255,255,0.08)' : 'var(--color-neutral-100)', color: isHome ? 'white' : '#000000' }}
-                    onMouseEnter={(e) => {
-                      if (!isHome) { e.currentTarget.style.backgroundColor = 'var(--color-primary-100)'; }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isHome) { e.currentTarget.style.backgroundColor = 'var(--color-primary-50)'; }
-                    }}
-                  >
-                    <User size={16} weight="regular" />
-                    Dashboard
-                  </Link>
-                </>
+                <Link
+                  to="/dashboard"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-bold text-white shadow-2xs hover:bg-slate-800 transition-colors"
+                >
+                  <User size={15} weight="bold" />
+                  <span>Dashboard</span>
+                </Link>
               ) : (
-                <>
+                <div className="flex items-center gap-2">
                   <Link
                     to="/login"
-                    aria-label="Log in to your account"
-                    className="flex items-center justify-center rounded-full p-2 transition-colors duration-150 ease-out sm:hidden"
-                    style={{ color: navTextColor }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = isHome ? 'rgba(255,255,255,0.08)' : 'var(--color-neutral-100)'; e.currentTarget.style.color = isHome ? 'white' : 'var(--text-primary)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = navTextColor; }}
+                    className="hidden sm:inline-flex rounded-lg px-3 py-2 text-xs font-bold text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition-colors"
                   >
-                    <User size={20} weight="regular" />
+                    Masuk
                   </Link>
-                  <div className="hidden items-center gap-2 sm:flex">
-                    <Link
-                      to="/login"
-                      className="px-4 py-2 text-sm font-medium transition-colors duration-150 ease-out"
-                      style={{ color: navTextColor }}
-                      onMouseEnter={(e) => { e.currentTarget.style.color = isHome ? 'white' : 'var(--text-primary)'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.color = navTextColor; }}
-                    >
-                      Masuk
-                    </Link>
-                    <Link
-                      to="/register"
-                      className="rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition-all duration-150 ease-out"
-                      style={{ backgroundColor: '#000000', color: '#ffffff' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1e293b'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#000000'; }}
-                    >
-                      Daftar
-                    </Link>
-                  </div>
-                </>
+                  <Link
+                    to="/custom-order"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-bold text-white shadow-2xs hover:bg-black transition-colors"
+                  >
+                    <span>Minta Penawaran</span>
+                  </Link>
+                </div>
               )}
 
               <button
                 type="button"
-                aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-                aria-expanded={mobileMenuOpen}
-                onClick={() => setMobileMenuOpen((open) => !open)}
-                className="rounded-lg p-2 transition-all duration-150 ease-out md:hidden"
-                style={{ color: navTextColor }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = isHome ? 'rgba(255,255,255,0.08)' : 'var(--color-neutral-100)'; e.currentTarget.style.color = isHome ? 'white' : 'var(--text-primary)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = navTextColor; }}
+                aria-label="Toggle mobile menu"
+                onClick={() => setMobileMenuOpen(true)}
+                className="rounded-lg p-2 text-slate-700 hover:bg-slate-100 lg:hidden"
               >
-                {mobileMenuOpen ? (
-                  <X size={24} weight="regular" />
-                ) : (
-                  <List size={24} weight="regular" />
-                )}
+                <List size={22} weight="bold" />
               </button>
             </div>
           </div>
         </div>
       </header>
+
 
       <main className="flex flex-1 flex-col">
         <Outlet />

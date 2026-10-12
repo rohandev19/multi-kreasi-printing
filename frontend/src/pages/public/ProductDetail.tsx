@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { Star, ShoppingCart } from '@phosphor-icons/react';
 import api from '../../api/axios';
 import { useRoleContext } from '../../contexts/RoleContext';
@@ -36,6 +36,7 @@ interface Product {
 
 export const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const { user } = useRoleContext();
   const { addToast, success } = useToast();
   const { addToCart, loading: cartLoading } = useCart();
@@ -56,7 +57,18 @@ export const ProductDetail: React.FC = () => {
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
-  const [quantity, setQuantity] = useState(1);
+  const initialQty = parseInt(searchParams.get('quantity') || '1', 10) || 1;
+  const [quantity, setQuantity] = useState(initialQty);
+
+  useEffect(() => {
+    const q = searchParams.get('quantity');
+    if (q) {
+      const parsed = parseInt(q, 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        setQuantity(parsed);
+      }
+    }
+  }, [searchParams]);
 
   const formatIDR = (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
 

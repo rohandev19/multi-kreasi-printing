@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useSearchParams } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { CloudArrowUp, CheckCircle } from '@phosphor-icons/react';
@@ -23,18 +24,51 @@ export const CustomOrderPage = () => {
   const { success, error } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  const prefillProduct = searchParams.get('product') || '';
+  const prefillQuantity = parseInt(searchParams.get('quantity') || '1', 10) || 1;
+  const prefillCategory = searchParams.get('category') || '';
+
+  const resolveCategory = (rawCat: string) => {
+    const c = rawCat.toLowerCase();
+    if (c.includes('pack') || c.includes('kemasan') || c.includes('box')) return 'Packaging';
+    if (c.includes('market') || c.includes('brosur') || c.includes('flyer')) return 'Marketing';
+    if (c.includes('large') || c.includes('banner') || c.includes('outdoor')) return 'LargeFormat';
+    if (c.includes('merch') || c.includes('souvenir')) return 'Merchandise';
+    if (c.includes('buku') || c.includes('katalog') || c.includes('majalah')) return 'Books';
+    return '';
+  };
+
+  const initialCat = resolveCategory(prefillCategory || prefillProduct);
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
     reset
   } = useForm<CustomOrderFormValues>({
     resolver: zodResolver(customOrderSchema),
     defaultValues: {
-      estimatedQuantity: 1,
+      estimatedQuantity: prefillQuantity,
+      productCategory: initialCat,
+      specifications: prefillProduct ? `Permintaan penawaran spesifikasi untuk: ${prefillProduct}. ` : '',
     }
   });
+
+  useEffect(() => {
+    if (prefillQuantity && prefillQuantity !== 1) {
+      setValue('estimatedQuantity', prefillQuantity);
+    }
+    if (prefillProduct) {
+      setValue('specifications', `Permintaan penawaran spesifikasi untuk: ${prefillProduct}.\nMohon informasi opsi material & waktu produksi.`);
+    }
+    const cat = resolveCategory(prefillCategory || prefillProduct);
+    if (cat) {
+      setValue('productCategory', cat);
+    }
+  }, [prefillProduct, prefillQuantity, prefillCategory, setValue]);
 
   const onSubmit = async (data: CustomOrderFormValues) => {
     setIsSubmitting(true);
