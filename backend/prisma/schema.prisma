@@ -47,10 +47,11 @@ model User {
   updatedAt               DateTime                 @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   deletedAt               DateTime?                @map("deleted_at") @db.Timestamptz(6)
   emailVerified           Boolean                  @default(false) @map("email_verified")
+  customerId              String?                  @map("customer_id") @db.Uuid
+  customer                Customer?                @relation("CustomerMembers", fields: [customerId], references: [id])
   cart                    Cart?
   designFiles             DesignFile[]
   verificationTokens      EmailVerificationToken[]
-  invoices                Invoice[]
   notificationPreferences NotificationPreference?
   notifications           Notification[]
   orderTimelines          OrderTimeline[]
@@ -61,6 +62,9 @@ model User {
   productReviews          ProductReview[]
   chatRooms               ChatRoom[]               @relation("CustomerChat")
   chatMessages            ChatMessage[]            @relation("SenderChat")
+  createdProofs           Proof[]                  @relation("ProofDesigner")
+  approvedProofs          Proof[]                  @relation("ProofApprover")
+  approvedQuotations      Quotation[]              @relation("QuotationManagerApprover")
 
   @@index([email])
   @@index([roleId])
@@ -93,18 +97,25 @@ model Customer {
   phone       String?     @db.VarChar(50)
   address     String?
   npwp        String?     @unique @db.VarChar(50)
-  loyaltyTier String      @default("Bronze") @map("loyalty_tier") @db.VarChar(50)
-  metrics     Json        @default("{\"totalOrders\": 0, \"totalRevenue\": 0}")
-  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt   DateTime?   @map("deleted_at") @db.Timestamptz(6)
-  contacts    Contact[]
-  orders      Order[]
-  quotations  Quotation[]
+  loyaltyTier     String      @default("Bronze") @map("loyalty_tier") @db.VarChar(50)
+  metrics         Json        @default("{\"totalOrders\": 0, \"totalRevenue\": 0}")
+  creditLimit     Decimal     @default(0) @map("credit_limit") @db.Decimal(12, 2)
+  paymentTermDays Int         @default(0) @map("payment_term_days")
+  creditStatus    String      @default("ACTIVE") @map("credit_status") @db.VarChar(20)
+  creditNotes     String?     @map("credit_notes") @db.Text
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt       DateTime?   @map("deleted_at") @db.Timestamptz(6)
+  contacts        Contact[]
+  orders          Order[]
+  quotations      Quotation[]
+  invoices        Invoice[]
+  members         User[]      @relation("CustomerMembers")
 
   @@index([email])
   @@index([npwp])
   @@index([loyaltyTier])
+  @@index([creditStatus])
   @@map("customers")
 }
 
@@ -208,13 +219,16 @@ model Order {
   createdAt             DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt             DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   designFiles           DesignFile[]
-  invoices              Invoice?
+  invoices              Invoice[]
   items                 OrderItem[]
   timeline              OrderTimeline[]
   customer              Customer        @relation(fields: [customerId], references: [id])
   productionJobs        ProductionJob[]
   ledgers               OrderLedger[]
   chatRooms             ChatRoom[]
+  proofs                Proof[]
+  quotations            Quotation[]
+  shipments             Shipment[]
 
   @@index([orderNumber])
   @@index([customerId])
@@ -224,17 +238,19 @@ model Order {
 }
 
 model OrderItem {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  orderId   String   @map("order_id") @db.Uuid
-  productId String   @map("product_id") @db.Uuid
-  quantity  Int
-  unitPrice Decimal  @map("unit_price") @db.Decimal(12, 2)
-  subtotal  Decimal  @db.Decimal(12, 2)
-  notes     String?
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id])
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId       String         @map("order_id") @db.Uuid
+  productId     String         @map("product_id") @db.Uuid
+  quantity      Int
+  unitPrice     Decimal        @map("unit_price") @db.Decimal(12, 2)
+  subtotal      Decimal        @db.Decimal(12, 2)
+  specifications Json?         @default("{}")
+  notes         String?
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  order         Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product       Product        @relation(fields: [productId], references: [id])
+  shipmentItems ShipmentItem[]
 
   @@index([orderId])
   @@index([productId])
@@ -276,6 +292,35 @@ model DesignFile {
   @@index([status])
   @@index([uploadedBy])
   @@map("design_files")
+}
+
+model Proof {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId       String    @map("order_id") @db.Uuid
+  version       Int       @default(1)
+  fileUrl       String    @map("file_url")
+  r2Path        String    @map("r2_path")
+  thumbnailUrl  String?   @map("thumbnail_url")
+  title         String    @db.VarChar(255)
+  description   String?   @db.Text
+  status        String    @default("Pending_Approval") @db.VarChar(50)
+  designerNotes String?   @map("designer_notes") @db.Text
+  customerNotes String?   @map("customer_notes") @db.Text
+  createdBy     String    @map("created_by") @db.Uuid
+  approvedBy    String?   @map("approved_by") @db.Uuid
+  approvedAt    DateTime? @map("approved_at") @db.Timestamptz(6)
+  approvalIp    String?   @map("approval_ip") @db.VarChar(45)
+  rejectedAt    DateTime? @map("rejected_at") @db.Timestamptz(6)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  designer      User      @relation("ProofDesigner", fields: [createdBy], references: [id])
+  approver      User?     @relation("ProofApprover", fields: [approvedBy], references: [id])
+
+  @@index([orderId])
+  @@index([status])
+  @@map("proofs")
 }
 
 model Machine {
@@ -321,7 +366,7 @@ model MaterialConsumption {
   id         String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   jobId      String        @map("job_id") @db.Uuid
   materialId String        @map("material_id") @db.Uuid
-  quantity   Int
+  quantity   Decimal       @db.Decimal(12, 3)
   notes      String?
   createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
   job        ProductionJob @relation(fields: [jobId], references: [id])
@@ -335,20 +380,22 @@ model MaterialConsumption {
 model Invoice {
   id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   invoiceNumber String        @unique @map("invoice_number") @db.VarChar(50)
-  orderId       String        @unique @map("order_id") @db.Uuid
+  orderId       String        @map("order_id") @db.Uuid
   customerId    String        @map("customer_id") @db.Uuid
   amount        Decimal       @db.Decimal(12, 2)
   status        InvoiceStatus @default(Draft)
+  invoiceType   String        @default("FULL") @map("invoice_type") @db.VarChar(50)
   dueDate       DateTime      @map("due_date") @db.Date
   pdfUrl        String?       @map("pdf_url")
   createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
-  customer      User          @relation(fields: [customerId], references: [id])
+  customer      Customer      @relation(fields: [customerId], references: [id])
   order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
   payments      Payment[]
 
   @@index([status])
   @@index([customerId])
+  @@index([orderId])
   @@index([dueDate])
   @@map("invoices")
 }
@@ -451,23 +498,37 @@ model CartItem {
 }
 
 model Quotation {
-  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  quotationNumber String          @unique @map("quotation_number") @db.VarChar(50)
-  customerId      String          @map("customer_id") @db.Uuid
-  status          String          @default("Draft") @db.VarChar(50)
-  subtotal        Decimal         @db.Decimal(12, 2)
-  tax             Decimal         @db.Decimal(12, 2)
-  totalAmount     Decimal         @map("total_amount") @db.Decimal(12, 2)
-  notes           String?
-  validUntil      DateTime?       @map("valid_until") @db.Date
-  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  items           QuotationItem[]
-  customer        Customer        @relation(fields: [customerId], references: [id])
+  id                 String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quotationNumber    String          @unique @map("quotation_number") @db.VarChar(50)
+  customerId         String          @map("customer_id") @db.Uuid
+  status             String          @default("Draft") @db.VarChar(50)
+  version            Int             @default(1)
+  subtotal           Decimal         @db.Decimal(12, 2)
+  discountPercent    Decimal         @default(0) @map("discount_percent") @db.Decimal(5, 2)
+  discountAmount     Decimal         @default(0) @map("discount_amount") @db.Decimal(12, 2)
+  tax                Decimal         @db.Decimal(12, 2)
+  totalAmount        Decimal         @map("total_amount") @db.Decimal(12, 2)
+  notes              String?
+  validUntil         DateTime?       @map("valid_until") @db.Date
+  managerApprovedBy  String?         @map("manager_approved_by") @db.Uuid
+  managerApprovedAt  DateTime?       @map("manager_approved_at") @db.Timestamptz(6)
+  rejectionReason    String?         @map("rejection_reason") @db.Text
+  poNumber           String?         @map("po_number") @db.VarChar(100)
+  poFileUrl          String?         @map("po_file_url")
+  customerAcceptedAt DateTime?       @map("customer_accepted_at") @db.Timestamptz(6)
+  orderId            String?         @map("order_id") @db.Uuid
+  createdAt          DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  items              QuotationItem[]
+  customer           Customer        @relation(fields: [customerId], references: [id])
+  order              Order?          @relation(fields: [orderId], references: [id])
+  managerApprover    User?           @relation("QuotationManagerApprover", fields: [managerApprovedBy], references: [id])
 
   @@index([quotationNumber])
   @@index([customerId])
   @@index([status])
+  @@index([orderId])
   @@map("quotations")
 }
 
@@ -478,6 +539,7 @@ model QuotationItem {
   quantity    Int
   unitPrice   Decimal   @map("unit_price") @db.Decimal(12, 2)
   subtotal    Decimal   @db.Decimal(12, 2)
+  specifications Json?  @default("{}")
   notes       String?
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -556,8 +618,8 @@ model Material {
   description   String?
   categoryId    String?               @map("category_id") @db.Uuid
   supplierId    String?               @map("supplier_id") @db.Uuid
-  currentStock  Int                   @default(0) @map("current_stock")
-  minStockLevel Int                   @default(0) @map("min_stock_level")
+  currentStock  Decimal               @default(0) @map("current_stock") @db.Decimal(12, 3)
+  minStockLevel Decimal               @default(0) @map("min_stock_level") @db.Decimal(12, 3)
   version       Int                   @default(1)
   unitOfMeasure String                @map("unit_of_measure") @db.VarChar(50)
   costPrice     Decimal               @default(0) @map("cost_price") @db.Decimal(12, 2)
@@ -579,7 +641,7 @@ model StockMovement {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   materialId  String   @map("material_id") @db.Uuid
   type        String   @db.VarChar(50)
-  quantity    Int
+  quantity    Decimal  @db.Decimal(12, 3)
   reason      String?
   referenceId String?  @map("reference_id") @db.Uuid
   createdBy   String   @map("created_by") @db.Uuid
@@ -639,5 +701,53 @@ model ChatMessage {
   @@index([senderId])
   @@index([createdAt])
   @@map("chat_messages")
+}
+
+model Shipment {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  shipmentNumber  String         @unique @map("shipment_number") @db.VarChar(50)
+  orderId         String         @map("order_id") @db.Uuid
+  recipientName   String         @map("recipient_name") @db.VarChar(255)
+  recipientPhone  String?        @map("recipient_phone") @db.VarChar(50)
+  deliveryAddress String         @map("delivery_address") @db.Text
+  driverName      String?        @map("driver_name") @db.VarChar(100)
+  driverPhone     String?        @map("driver_phone") @db.VarChar(50)
+  vehicleNumber   String?        @map("vehicle_number") @db.VarChar(50)
+  carrier         String         @default("Armada Internal MKP") @db.VarChar(100)
+  trackingNumber  String?        @map("tracking_number") @db.VarChar(100)
+  status          String         @default("Preparing") @db.VarChar(50)
+  shippedAt       DateTime?      @map("shipped_at") @db.Timestamptz(6)
+  deliveredAt     DateTime?      @map("delivered_at") @db.Timestamptz(6)
+  receivedBy      String?        @map("received_by") @db.VarChar(255)
+  notes           String?        @db.Text
+  podSignature    String?        @map("pod_signature") @db.Text
+  podNotes        String?        @map("pod_notes") @db.Text
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  items           ShipmentItem[]
+
+  @@index([orderId])
+  @@index([shipmentNumber])
+  @@index([status])
+  @@index([createdAt])
+  @@map("shipments")
+}
+
+model ShipmentItem {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  shipmentId  String    @map("shipment_id") @db.Uuid
+  orderItemId String    @map("order_item_id") @db.Uuid
+  quantity    Int       @default(1)
+  notes       String?   @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  shipment    Shipment  @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@index([shipmentId])
+  @@index([orderItemId])
+  @@map("shipment_items")
 }
 
