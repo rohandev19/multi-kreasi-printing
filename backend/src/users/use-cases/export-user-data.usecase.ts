@@ -13,7 +13,11 @@ export class ExportUserDataUseCase {
         orderTimelines: true,
         designFiles: true,
         productionJobs: true,
-        invoices: true,
+        customer: {
+          include: {
+            invoices: true,
+          },
+        },
         notificationPreferences: true,
         widgetPreference: true,
       },

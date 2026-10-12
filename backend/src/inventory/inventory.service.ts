@@ -91,14 +91,15 @@ export class InventoryService {
       stockChange = dto.quantity; // ADJUSTMENT can be positive or negative
     }
 
-    const newStock = material.currentStock + stockChange;
+    const currentStock = Number(material.currentStock);
+    const newStock = currentStock + stockChange;
 
     const [updatedMaterial, movement] = await this.prisma.$transaction([
       this.prisma.material.update({
         where: { id },
         data: {
           currentStock: newStock,
-          status: newStock <= material.minStockLevel ? 'Low_Stock' : 'In_Stock',
+          status: newStock <= Number(material.minStockLevel) ? 'Low_Stock' : 'In_Stock',
         },
       }),
       this.prisma.stockMovement.create({

@@ -21,8 +21,34 @@ export class StartProductionUseCase {
   async execute(jobId: string, currentUserId: string) {
     const job = await this.prisma.productionJob.findUnique({
       where: { id: jobId },
+      include: { order: true },
     });
     if (!job) throw new NotFoundException('Production job not found');
+
+    // Production Lock: Verify digital proof status
+    if (job.order) {
+      if (
+        job.order.status === 'Proof_Pending_Approval' ||
+        job.order.status === 'Proof_Rejected'
+      ) {
+        throw new BadRequestException(
+          'Pekerjaan cetak terkunci: Bukti cetak (Proof) belum disetujui oleh pelanggan.',
+        );
+      }
+
+      const pendingProofsCount = await this.prisma.proof.count({
+        where: {
+          orderId: job.orderId,
+          status: { in: ['Pending_Approval', 'Rejected'] },
+        },
+      });
+
+      if (pendingProofsCount > 0) {
+        throw new BadRequestException(
+          'Pekerjaan cetak terkunci: Terdapat bukti cetak (Proof) yang masih menunggu persetujuan atau revisi pelanggan.',
+        );
+      }
+    }
 
     ProductionJobLogic.validateTransition(
       job.status,

@@ -42,7 +42,9 @@ export class ConvertQuotationToOrderUseCase {
         tax: quotation.tax,
         shipping: 0,
         totalAmount: quotation.totalAmount,
-        notes: `Converted from Quotation ${quotation.quotationNumber}`,
+        notes: quotation.poNumber
+          ? `[Customer PO: ${quotation.poNumber}] Converted from Quotation ${quotation.quotationNumber}`
+          : `Converted from Quotation ${quotation.quotationNumber}`,
         items: {
           create: quotation.items.map((item) => ({
             productId: item.productId,
@@ -58,10 +60,13 @@ export class ConvertQuotationToOrderUseCase {
       },
     });
 
-    // Update quotation status
+    // Update quotation status and link generated orderId
     await this.prisma.quotation.update({
       where: { id: quotationId },
-      data: { status: 'Converted' },
+      data: {
+        status: 'Converted',
+        orderId: newOrder.id,
+      },
     });
 
     return newOrder;

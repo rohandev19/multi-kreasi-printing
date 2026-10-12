@@ -6,10 +6,32 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { GuestCartItemDto } from './dto/guest-cart-item.dto';
 import { CartResponseDto, CartItemResponseDto } from './dto/cart-response.dto';
+import { PricingTierLogic } from '../products/domain/pricing-tier';
 
 @Injectable()
 export class CartMergeService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private calculateProductUnitPrice(
+    product: { basePrice: any; pricingTiers?: any[] },
+    quantity: number,
+  ): number {
+    if (product.pricingTiers && product.pricingTiers.length > 0) {
+      try {
+        return PricingTierLogic.calculateUnitPrice(
+          product.pricingTiers.map((t) => ({
+            minQuantity: t.minQuantity,
+            maxQuantity: t.maxQuantity,
+            unitPrice: Number(t.unitPrice),
+          })),
+          quantity,
+        );
+      } catch {
+        return Number(product.basePrice);
+      }
+    }
+    return Number(product.basePrice);
+  }
 
   async mergeGuestCart(
     userId: string,
@@ -46,9 +68,10 @@ export class CartMergeService {
     // 2. Process guest items
     if (guestCartItems && guestCartItems.length > 0) {
       for (const guestItem of guestCartItems) {
-        // Verify product exists and get its price
+        // Verify product exists with pricing tiers and get its price
         const product = await this.prisma.product.findUnique({
           where: { id: guestItem.productId, status: 'Active' },
+          include: { pricingTiers: true },
         });
 
         if (!product) continue; // Skip invalid or inactive products
@@ -58,27 +81,30 @@ export class CartMergeService {
         );
 
         if (existingItemIndex >= 0) {
-          // Update quantity and subtotal of existing item
+          // Update quantity, unitPrice, and subtotal of existing item
           const existingItem = cart.items[existingItemIndex];
           const newQuantity = existingItem.quantity + guestItem.quantity;
-          const newSubtotal = Number(product.basePrice) * newQuantity;
+          const unitPrice = this.calculateProductUnitPrice(product, newQuantity);
+          const newSubtotal = unitPrice * newQuantity;
 
           await this.prisma.cartItem.update({
             where: { id: existingItem.id },
             data: {
               quantity: newQuantity,
+              unitPrice: unitPrice,
               subtotal: newSubtotal,
             },
           });
         } else {
-          // Add new item to cart
-          const subtotal = Number(product.basePrice) * guestItem.quantity;
+          // Add new item to cart with tier-adjusted unitPrice
+          const unitPrice = this.calculateProductUnitPrice(product, guestItem.quantity);
+          const subtotal = unitPrice * guestItem.quantity;
           await this.prisma.cartItem.create({
             data: {
               cartId: cart.id,
               productId: guestItem.productId,
               quantity: guestItem.quantity,
-              unitPrice: product.basePrice,
+              unitPrice: unitPrice,
               subtotal: subtotal,
             },
           });
@@ -148,7 +174,15 @@ export class CartMergeService {
   ): Promise<CartResponseDto> {
     const cart = await this.prisma.cart.findUnique({
       where: { userId },
-      include: { items: { include: { product: true } } },
+      include: {
+        items: {
+          include: {
+            product: {
+              include: { pricingTiers: true },
+            },
+          },
+        },
+      },
     });
 
     if (!cart) throw new NotFoundException('Cart not found');
@@ -156,11 +190,12 @@ export class CartMergeService {
     const item = cart.items.find((i) => i.productId === productId);
     if (!item) throw new NotFoundException('Item not found in cart');
 
-    const newSubtotal = Number(item.product.basePrice) * quantity;
+    const unitPrice = this.calculateProductUnitPrice(item.product, quantity);
+    const newSubtotal = unitPrice * quantity;
 
     await this.prisma.cartItem.update({
       where: { id: item.id },
-      data: { quantity, subtotal: newSubtotal },
+      data: { quantity, unitPrice, subtotal: newSubtotal },
     });
 
     return this.mergeGuestCart(userId, []); // Return recalculated cart

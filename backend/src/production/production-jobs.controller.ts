@@ -69,11 +69,22 @@ export class ProductionJobsController {
         include: {
           order: {
             select: {
+              id: true,
               orderNumber: true,
+              status: true,
               customer: {
                 select: {
                   companyName: true,
                 },
+              },
+              proofs: {
+                select: {
+                  id: true,
+                  status: true,
+                  version: true,
+                },
+                orderBy: { version: 'desc' },
+                take: 1,
               },
             },
           },

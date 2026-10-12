@@ -13,10 +13,17 @@ import {
 import { QuotationsService } from './quotations.service';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { VerifiedGuard } from '../auth/guards/verified.guard';
-import { CreateQuotationDto, UpdateQuotationDto } from './dto/quotation.dto';
+import {
+  CreateQuotationDto,
+  UpdateQuotationDto,
+  ApproveQuotationDiscountDto,
+  RejectQuotationDiscountDto,
+  AcceptQuotationDto,
+  RejectQuotationDto,
+  CreateQuotationRevisionDto,
+} from './dto/quotation.dto';
 import { ConvertQuotationToOrderUseCase } from './use-cases/convert-quotation.usecase';
 
-// Should share this interface from common or auth
 interface AuthenticatedRequest extends Request {
   user: { sub: string; role: string; customerId?: string };
 }
@@ -30,13 +37,13 @@ export class QuotationsController {
   ) {}
 
   @Post()
-  @RequirePermissions({ action: 'manage', subject: 'Quotations' })
+  @RequirePermissions({ action: 'manage', subject: 'Quotation' })
   create(@Body() createQuotationDto: CreateQuotationDto) {
     return this.quotationsService.create(createQuotationDto);
   }
 
   @Get()
-  @RequirePermissions({ action: 'read', subject: 'Quotations' })
+  @RequirePermissions({ action: 'read', subject: 'Quotation' })
   findAll(@Req() req: AuthenticatedRequest) {
     const isCustomer = req.user.role === 'Customer';
     const customerId = req.user.customerId;
@@ -44,7 +51,7 @@ export class QuotationsController {
   }
 
   @Get(':id')
-  @RequirePermissions({ action: 'read', subject: 'Quotations' })
+  @RequirePermissions({ action: 'read', subject: 'Quotation' })
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const quotation = await this.quotationsService.findOne(id);
     if (
@@ -59,7 +66,7 @@ export class QuotationsController {
   }
 
   @Patch(':id')
-  @RequirePermissions({ action: 'manage', subject: 'Quotations' })
+  @RequirePermissions({ action: 'manage', subject: 'Quotation' })
   update(
     @Param('id') id: string,
     @Body() updateQuotationDto: UpdateQuotationDto,
@@ -68,13 +75,76 @@ export class QuotationsController {
   }
 
   @Delete(':id')
-  @RequirePermissions({ action: 'manage', subject: 'Quotations' })
+  @RequirePermissions({ action: 'manage', subject: 'Quotation' })
   remove(@Param('id') id: string) {
     return this.quotationsService.remove(id);
   }
 
+  @Patch(':id/approve-discount')
+  @RequirePermissions({ action: 'manage', subject: 'Quotation' })
+  async approveDiscount(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: ApproveQuotationDiscountDto,
+  ) {
+    if (req.user.role === 'Customer') {
+      throw new ForbiddenException(
+        'Customers are not authorized to approve quotation discounts',
+      );
+    }
+    return this.quotationsService.approveDiscount(id, req.user.sub, dto);
+  }
+
+  @Patch(':id/reject-discount')
+  @RequirePermissions({ action: 'manage', subject: 'Quotation' })
+  async rejectDiscount(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: RejectQuotationDiscountDto,
+  ) {
+    if (req.user.role === 'Customer') {
+      throw new ForbiddenException(
+        'Customers are not authorized to reject quotation discounts',
+      );
+    }
+    return this.quotationsService.rejectDiscount(id, req.user.sub, dto);
+  }
+
+  @Patch(':id/accept')
+  @RequirePermissions({ action: 'read', subject: 'Quotation' })
+  async accept(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: AcceptQuotationDto,
+  ) {
+    const customerId =
+      req.user.role === 'Customer' ? req.user.customerId : undefined;
+    return this.quotationsService.accept(id, customerId, dto);
+  }
+
+  @Patch(':id/reject')
+  @RequirePermissions({ action: 'read', subject: 'Quotation' })
+  async reject(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: RejectQuotationDto,
+  ) {
+    const customerId =
+      req.user.role === 'Customer' ? req.user.customerId : undefined;
+    return this.quotationsService.reject(id, customerId, dto);
+  }
+
+  @Post(':id/revisions')
+  @RequirePermissions({ action: 'manage', subject: 'Quotation' })
+  async createRevision(
+    @Param('id') id: string,
+    @Body() dto: CreateQuotationRevisionDto,
+  ) {
+    return this.quotationsService.createRevision(id, dto);
+  }
+
   @Post(':id/convert')
-  @RequirePermissions({ action: 'manage', subject: 'Quotations' })
+  @RequirePermissions({ action: 'manage', subject: 'Quotation' })
   async convertToOrder(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,
@@ -91,3 +161,4 @@ export class QuotationsController {
     return this.convertQuotation.execute(id);
   }
 }
+
