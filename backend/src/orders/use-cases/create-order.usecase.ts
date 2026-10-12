@@ -60,6 +60,17 @@ export class CreateOrderUseCase {
         where: { id: finalCustomerId },
       });
       if (!customer) throw new BadRequestException('Customer tidak ditemukan');
+
+      if (customer.creditStatus === 'SUSPENDED') {
+        throw new BadRequestException(
+          'Akun kredit pelanggan ditangguhkan (SUSPENDED). Pemesanan baru tidak diizinkan.',
+        );
+      }
+      if (customer.creditStatus === 'ON_HOLD') {
+        throw new BadRequestException(
+          'Akun kredit pelanggan dalam status ON_HOLD. Silakan selesaikan kewajiban pembayaran tertunggak.',
+        );
+      }
     }
 
     // Fetch product details for validation and pricing

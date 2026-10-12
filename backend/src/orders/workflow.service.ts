@@ -100,7 +100,53 @@ export class WorkflowService {
     if (!order) throw new Error('Order not found');
 
     const amount = Number(order.totalAmount);
-    const requiredRole = this.determineApprovalRequired(amount);
+    let requiredRole = this.determineApprovalRequired(amount);
+
+    // Check customer credit status & overdue debt before auto-approving
+    const customer = await this.prisma.customer.findUnique({
+      where: { id: order.customerId },
+      include: {
+        orders: {
+          include: {
+            invoices: {
+              include: { payments: true },
+            },
+          },
+        },
+      },
+    });
+
+    let creditWarning = '';
+    if (customer) {
+      if (customer.creditStatus !== 'ACTIVE') {
+        creditWarning = `Status kredit pelanggan: ${customer.creditStatus}`;
+        if (requiredRole === 'Auto_Approved') requiredRole = 'Manager';
+      }
+
+      const today = new Date();
+      let hasOverdue = false;
+      for (const ord of customer.orders) {
+        if (ord.invoices && Array.isArray(ord.invoices)) {
+          for (const inv of ord.invoices) {
+            if (
+              inv.status !== 'Fully_Paid' &&
+              inv.status !== 'Cancelled'
+            ) {
+              if (new Date(inv.dueDate).getTime() < today.getTime()) {
+                hasOverdue = true;
+                break;
+              }
+            }
+          }
+          if (hasOverdue) break;
+        }
+      }
+
+      if (hasOverdue) {
+        creditWarning = 'Pelanggan memiliki tagihan jatuh tempo (Overdue)';
+        if (requiredRole === 'Auto_Approved') requiredRole = 'Manager';
+      }
+    }
 
     if (requiredRole === 'Auto_Approved') {
       return this.prisma.$transaction(async (tx) => {
@@ -135,11 +181,15 @@ export class WorkflowService {
           data: { status: 'Pending_Approval' },
         });
 
+        const timelineNotes = creditWarning
+          ? `Menunggu persetujuan dari ${requiredRole} (${creditWarning})`
+          : `Menunggu persetujuan dari ${requiredRole}`;
+
         await tx.orderTimeline.create({
           data: {
             orderId,
             status: 'Pending_Approval',
-            notes: `Menunggu persetujuan dari ${requiredRole}`,
+            notes: timelineNotes,
             createdBy: currentUserId,
           },
         });

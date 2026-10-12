@@ -20,6 +20,16 @@ import { AuditModule } from '../audit/audit.module';
 import { StorageModule } from '../storage/storage.module';
 import { DesignFilesController } from './design-files.controller';
 import { CustomerOrdersController } from './customer-orders.controller';
+import { ProofsController } from './proofs.controller';
+import { ShipmentsController } from './shipments.controller';
+import { CreateProofUseCase } from './use-cases/create-proof.usecase';
+import { ApproveProofUseCase } from './use-cases/approve-proof.usecase';
+import { RejectProofUseCase } from './use-cases/reject-proof.usecase';
+import { GetOrderProofsUseCase } from './use-cases/get-order-proofs.usecase';
+import { CreateShipmentUseCase } from './use-cases/create-shipment.usecase';
+import { GetOrderShipmentsUseCase } from './use-cases/get-order-shipments.usecase';
+import { ConfirmDeliveryUseCase } from './use-cases/confirm-delivery.usecase';
+import { GetShipmentDetailsUseCase } from './use-cases/get-shipment-details.usecase';
 
 @Module({
   imports: [PrismaModule, AuditModule, StorageModule],
@@ -27,6 +37,8 @@ import { CustomerOrdersController } from './customer-orders.controller';
     OrdersController,
     DesignFilesController,
     CustomerOrdersController,
+    ProofsController,
+    ShipmentsController,
   ],
   providers: [
     WorkflowService,
@@ -44,6 +56,14 @@ import { CustomerOrdersController } from './customer-orders.controller';
     GetDesignFileUseCase,
     DownloadDesignFileUseCase,
     GenerateThumbnailUseCase,
+    CreateProofUseCase,
+    ApproveProofUseCase,
+    RejectProofUseCase,
+    GetOrderProofsUseCase,
+    CreateShipmentUseCase,
+    GetOrderShipmentsUseCase,
+    ConfirmDeliveryUseCase,
+    GetShipmentDetailsUseCase,
   ],
 })
 export class OrdersModule {}

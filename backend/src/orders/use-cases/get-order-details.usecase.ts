@@ -25,6 +25,25 @@ export class GetOrderDetailsUseCase {
         items: { include: { product: true } },
         timeline: { include: { user: true }, orderBy: { createdAt: 'desc' } },
         designFiles: true,
+        proofs: {
+          include: {
+            designer: { select: { fullName: true, email: true } },
+            approver: { select: { fullName: true, email: true } },
+          },
+          orderBy: { version: 'desc' },
+        },
+        shipments: {
+          include: {
+            items: {
+              include: {
+                orderItem: {
+                  include: { product: true },
+                },
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
       },
     });
 
