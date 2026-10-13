@@ -90,13 +90,24 @@ export class CustomerOrdersController {
     // For now we just update the order status
     await this.prisma.order.update({
       where: { id },
-      data: { status: 'Pending' },
+      data: { status: 'Pending_Approval' },
     });
+
+    await this.prisma.orderTimeline
+      .create({
+        data: {
+          orderId: id,
+          status: 'Pending_Approval',
+          createdBy: user.sub || user.email,
+          notes: 'Bukti pembayaran diunggah pelanggan, menunggu persetujuan',
+        },
+      })
+      .catch(() => {});
 
     return {
       success: true,
       message: 'Payment proof uploaded successfully',
-      status: 'Pending',
+      status: 'Pending_Approval',
     };
   }
 
