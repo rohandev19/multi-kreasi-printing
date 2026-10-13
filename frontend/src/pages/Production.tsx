@@ -1,11 +1,27 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { ReportIssueModal } from '../components/modals/ReportIssueModal';
 import { ReassignJobModal } from '../components/modals/ReassignJobModal';
+import { CreateShipmentModal } from '../components/modals/CreateShipmentModal';
+import { Modal } from '../components/ui/Modal';
 import { useToast } from '../contexts/ToastContext';
-import { ListBullets, Columns, Factory, Play, ClipboardText, CheckCircle, Warning, Gear, DotsSixVertical, LockSimple } from '@phosphor-icons/react';
+import { 
+  ListBullets, 
+  Columns, 
+  Factory, 
+  Play, 
+  ClipboardText, 
+  CheckCircle, 
+  Warning, 
+  Gear, 
+  DotsSixVertical, 
+  LockSimple,
+  Truck,
+  ArrowSquareOut
+} from '@phosphor-icons/react';
 
 interface Job {
   id: string;
@@ -26,6 +42,7 @@ interface Job {
 
 
 export default function Production() {
+  const navigate = useNavigate();
   const { role, loading: roleLoading } = useRoleContext();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +58,14 @@ export default function Production() {
   const [reportIssueJobId, setReportIssueJobId] = useState<string | null>(null);
   const [reassignJobId, setReassignJobId] = useState<string | null>(null);
   const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
+  const [createShipmentOrderId, setCreateShipmentOrderId] = useState<string | null>(null);
+  const [completedJobPrompt, setCompletedJobPrompt] = useState<{
+    jobId: string;
+    jobNumber: string;
+    orderId?: string;
+    orderNumber: string;
+    productName: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!roleLoading && role) {
@@ -67,11 +92,13 @@ export default function Production() {
         // Robust status determination
         let mappedStatus: Job['status'] = 'Queued';
         if (
-          j.status === 'In_Progress' ||
-          j.status === 'In Progress' ||
-          orderStatus === 'In_Production'
+          j.status === 'Completed' ||
+          orderStatus === 'Completed' ||
+          orderStatus === 'Ready' ||
+          orderStatus === 'Shipped' ||
+          orderStatus === 'Delivered'
         ) {
-          mappedStatus = 'In Progress';
+          mappedStatus = 'Completed';
         } else if (
           j.status === 'Quality_Check' ||
           j.status === 'Quality Check' ||
@@ -80,12 +107,11 @@ export default function Production() {
         ) {
           mappedStatus = 'Quality Check';
         } else if (
-          j.status === 'Completed' ||
-          orderStatus === 'Ready' ||
-          orderStatus === 'Shipped' ||
-          orderStatus === 'Delivered'
+          j.status === 'In_Progress' ||
+          j.status === 'In Progress' ||
+          orderStatus === 'In_Production'
         ) {
-          mappedStatus = 'Completed';
+          mappedStatus = 'In Progress';
         } else {
           mappedStatus = 'Queued';
         }
@@ -165,6 +191,19 @@ export default function Production() {
     try {
       await api.patch(`/api/v1/production-jobs/${id}/complete`, { passedQualityCheck: true });
       success('Pekerjaan Selesai', 'Pekerjaan produksi telah berhasil diselesaikan.');
+
+      const targetJob = jobs.find(j => j.id === id);
+      if (targetJob) {
+        setCompletedJobPrompt({
+          jobId: targetJob.id,
+          jobNumber: targetJob.jobNumber || targetJob.id,
+          orderId: targetJob.orderId,
+          orderNumber: targetJob.orderNumber,
+          productName: targetJob.product,
+        });
+      }
+
+      setJobs(prev => prev.map(j => j.id === id ? { ...j, status: 'Completed', progress: 100 } : j));
       fetchJobs();
     } catch (err: any) {
       toastError('Gagal menyelesaikan pekerjaan', err.response?.data?.message || 'Silakan coba lagi.');
@@ -349,6 +388,28 @@ export default function Production() {
                               <CheckCircle size={14} weight="regular" /> Selesai
                           </button>
                         )}
+                        {job.status === 'Completed' && (
+                          <div className="flex items-center justify-end gap-1.5">
+                            {job.orderId && (
+                              <button
+                                onClick={() => setCreateShipmentOrderId(job.orderId!)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs"
+                                title="Terbitkan Surat Jalan & Kirim Barang"
+                              >
+                                <Truck size={14} weight="bold" /> Kirim Barang
+                              </button>
+                            )}
+                            {job.orderId && (
+                              <button
+                                onClick={() => navigate(`/dashboard/orders/${job.orderId}`)}
+                                className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-colors"
+                                title="Lihat Detail Pesanan"
+                              >
+                                <ArrowSquareOut size={14} weight="bold" /> Detail
+                              </button>
+                            )}
+                          </div>
+                        )}
                         <button onClick={() => setReassignJobId(job.id)} className="p-1.5 border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600 rounded-lg transition-colors" title="Tugaskan Ulang">
                           <Gear size={16} weight="regular" />
                         </button>
@@ -367,14 +428,27 @@ export default function Production() {
 
       {/* KANBAN VIEW */}
       {viewMode === 'kanban' && jobs.length > 0 && (
-        <div className="flex gap-6 overflow-x-auto pb-4 items-start snap-x">
+        <div className="flex gap-4 overflow-x-auto pb-4 items-start snap-x">
           {kanbanStatuses.map(status => {
             const colJobs = jobs.filter(j => j.status === status);
             return (
-              <div key={status} className="flex-none w-80 bg-slate-50/80 rounded-2xl p-4 min-h-[400px] border border-slate-200 snap-center">
+              <div key={status} className="flex-1 min-w-[270px] max-w-[340px] bg-slate-50/80 rounded-2xl p-4 min-h-[400px] border border-slate-200 snap-center">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-bold text-slate-800">{statusDisplayMap[status] || status}</h3>
-                  <span className="bg-slate-200 text-slate-600 text-xs font-bold px-2 py-0.5 rounded-full">{colJobs.length}</span>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-bold text-slate-800">{statusDisplayMap[status] || status}</h3>
+                    {status === 'Completed' && (
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                        Siap Kirim
+                      </span>
+                    )}
+                  </div>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                    status === 'Completed' && colJobs.length > 0
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-slate-200 text-slate-600'
+                  }`}>
+                    {colJobs.length}
+                  </span>
                 </div>
                 
                 <div className="space-y-3">
@@ -440,6 +514,34 @@ export default function Production() {
                         {job.status === 'Quality Check' && (
                           <button onClick={() => handleCompleteJob(job.id)} className="flex-1 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg text-xs font-bold transition-colors">Selesai</button>
                         )}
+                        {job.status === 'Completed' && (
+                          <div className="flex flex-col gap-2 w-full pt-1">
+                            <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1.5 justify-center">
+                              <CheckCircle size={15} weight="fill" className="text-emerald-600 shrink-0" />
+                              <span>Selesai Diproduksi</span>
+                            </div>
+                            <div className="flex gap-2">
+                              {job.orderId && (
+                                <button
+                                  onClick={() => setCreateShipmentOrderId(job.orderId!)}
+                                  className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                                  title="Terbitkan Surat Jalan & Kirim Barang"
+                                >
+                                  <Truck size={15} weight="bold" /> Kirim Barang
+                                </button>
+                              )}
+                              {job.orderId && (
+                                <button
+                                  onClick={() => navigate(`/dashboard/orders/${job.orderId}`)}
+                                  className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1"
+                                  title="Lihat Detail Pesanan"
+                                >
+                                  <ArrowSquareOut size={15} weight="bold" /> Detail
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        )}
                         <button onClick={() => setReportIssueJobId(job.id)} className="px-2 py-1.5 border border-red-200 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Laporkan Kendala">
                           <Warning size={14} weight="regular" />
                         </button>
@@ -482,6 +584,87 @@ export default function Production() {
         onClose={() => setDeleteJobId(null)}
         onConfirm={confirmDelete}
       />
+
+      {/* Completion Next Action Prompt Modal */}
+      {completedJobPrompt && (
+        <Modal
+          isOpen={!!completedJobPrompt}
+          onClose={() => setCompletedJobPrompt(null)}
+          title="Pekerjaan Produksi Selesai"
+          size="md"
+        >
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 p-3.5 bg-emerald-50 rounded-xl border border-emerald-200">
+              <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                <CheckCircle size={22} weight="bold" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-emerald-900">
+                  Lolos Kontrol Mutu & Produksi Selesai!
+                </h4>
+                <p className="text-xs text-emerald-700 mt-0.5">
+                  Job <span className="font-mono font-semibold">{completedJobPrompt.jobNumber}</span> ({completedJobPrompt.productName}) telah selesai diproses.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-sm text-slate-600">
+              Langkah berikutnya adalah menyiapkan pengiriman barang untuk pesanan <span className="font-semibold text-slate-900">{completedJobPrompt.orderNumber}</span>. Pilih aksi yang ingin Anda lakukan:
+            </p>
+
+            <div className="flex flex-col gap-2.5 pt-2">
+              {completedJobPrompt.orderId && (
+                <button
+                  onClick={() => {
+                    const orderId = completedJobPrompt.orderId!;
+                    setCompletedJobPrompt(null);
+                    setCreateShipmentOrderId(orderId);
+                  }}
+                  className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-2"
+                >
+                  <Truck size={18} weight="bold" />
+                  Terbitkan Surat Jalan (Kirim Barang)
+                </button>
+              )}
+
+              {completedJobPrompt.orderId && (
+                <button
+                  onClick={() => {
+                    const orderId = completedJobPrompt.orderId!;
+                    setCompletedJobPrompt(null);
+                    navigate(`/dashboard/orders/${orderId}`);
+                  }}
+                  className="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                >
+                  <ArrowSquareOut size={18} weight="bold" />
+                  Lihat Detail Pesanan
+                </button>
+              )}
+
+              <button
+                onClick={() => setCompletedJobPrompt(null)}
+                className="w-full py-2 px-4 text-slate-500 hover:text-slate-800 text-xs font-medium transition-colors"
+              >
+                Tetap di Halaman Produksi
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Direct Create Shipment Modal from Production */}
+      {createShipmentOrderId && (
+        <CreateShipmentModal
+          isOpen={!!createShipmentOrderId}
+          orderId={createShipmentOrderId}
+          onClose={() => setCreateShipmentOrderId(null)}
+          onSuccess={() => {
+            setCreateShipmentOrderId(null);
+            success('Surat Jalan Berhasil Dibuat', 'Dokumen pengiriman telah berhasil diterbitkan.');
+            fetchJobs();
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -449,6 +449,31 @@ export const OrderDetail = () => {
               )}
             </div>
 
+            {['Completed', 'Ready'].includes(order.status) && (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">
+                    <Truck size={20} weight="bold" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-blue-900">Produksi Selesai — Siap Dikirim!</h4>
+                    <p className="text-xs text-blue-700 mt-0.5">
+                      Seluruh item pesanan ini telah selesai diproduksi. Silakan buat Surat Jalan untuk memulai proses pengiriman ke alamat pemesan.
+                    </p>
+                  </div>
+                </div>
+                {['Admin', 'Manager', 'Production', 'Warehouse', 'Sales', 'Owner'].includes(role) && (
+                  <button
+                    onClick={() => setIsCreateShipmentOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm shrink-0 justify-center"
+                  >
+                    <Plus size={14} weight="bold" />
+                    Buat Surat Jalan Sekarang
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* Fulfillment Progress Bar */}
             {dispatchData?.fulfillment && (
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
