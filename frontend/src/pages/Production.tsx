@@ -428,11 +428,11 @@ export default function Production() {
 
       {/* KANBAN VIEW */}
       {viewMode === 'kanban' && jobs.length > 0 && (
-        <div className="flex gap-4 overflow-x-auto pb-4 items-start snap-x">
+        <div className="flex gap-3.5 overflow-x-auto pb-4 items-start snap-x">
           {kanbanStatuses.map(status => {
             const colJobs = jobs.filter(j => j.status === status);
             return (
-              <div key={status} className="flex-1 min-w-[270px] max-w-[340px] bg-slate-50/80 rounded-2xl p-4 min-h-[400px] border border-slate-200 snap-center">
+              <div key={status} className="flex-1 min-w-[240px] bg-slate-50/80 rounded-2xl p-4 min-h-[400px] border border-slate-200 snap-center">
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center gap-1.5">
                     <h3 className="font-bold text-slate-800">{statusDisplayMap[status] || status}</h3>
@@ -520,11 +520,11 @@ export default function Production() {
                               <CheckCircle size={15} weight="fill" className="text-emerald-600 shrink-0" />
                               <span>Selesai Diproduksi</span>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col gap-1.5 w-full">
                               {job.orderId && (
                                 <button
                                   onClick={() => setCreateShipmentOrderId(job.orderId!)}
-                                  className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                                  className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
                                   title="Terbitkan Surat Jalan & Kirim Barang"
                                 >
                                   <Truck size={15} weight="bold" /> Kirim Barang
@@ -533,10 +533,10 @@ export default function Production() {
                               {job.orderId && (
                                 <button
                                   onClick={() => navigate(`/dashboard/orders/${job.orderId}`)}
-                                  className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1"
+                                  className="w-full py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
                                   title="Lihat Detail Pesanan"
                                 >
-                                  <ArrowSquareOut size={15} weight="bold" /> Detail
+                                  <ArrowSquareOut size={14} weight="bold" /> Lihat Detail Pesanan
                                 </button>
                               )}
                             </div>
