@@ -22,6 +22,8 @@ interface OrdersTableProps {
   selectedIds: string[];
   onSelect: (id: string) => void;
   onSelectAll: (ids: string[]) => void;
+  onApprove?: (id: string) => void;
+  onReject?: (id: string) => void;
 }
 
 export const OrdersTable: React.FC<OrdersTableProps> = ({
@@ -32,6 +34,8 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
   selectedIds,
   onSelect,
   onSelectAll,
+  onApprove,
+  onReject,
 }) => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
@@ -88,6 +92,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'Pending':
       case 'Pending_Approval': return 'bg-amber-100 text-amber-700';
       case 'Approved': return 'bg-slate-100 text-slate-900';
       case 'In_Production': return 'bg-primary-100 text-primary-700';
@@ -102,6 +107,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
 
   const getStatusLabel = (status: string) => {
     const map: Record<string, string> = {
+      Pending: 'Menunggu Persetujuan',
       Pending_Approval: 'Menunggu Persetujuan',
       Approved: 'Disetujui',
       In_Production: 'Dalam Produksi',
@@ -225,10 +231,22 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                             <div className="absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-20 animate-fade-in">
                               {(userRole === 'Owner' || userRole === 'Manager') && (
                                 <>
-                                  <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                                  <button
+                                    onClick={() => {
+                                      setOpenDropdown(null);
+                                      onApprove?.(order.id);
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                                  >
                                     <Check size={14} className="text-emerald-600" weight="regular" /> Setujui Pesanan
                                   </button>
-                                  <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                                  <button
+                                    onClick={() => {
+                                      setOpenDropdown(null);
+                                      onReject?.(order.id);
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                                  >
                                     <X size={14} className="text-red-600" weight="regular" /> Tolak Pesanan
                                   </button>
                                 </>

@@ -45,6 +45,25 @@ export const OrderDetail = () => {
   const [selectedSuratJalanId, setSelectedSuratJalanId] = useState<string | null>(null);
   const [confirmDeliveryShipment, setConfirmDeliveryShipment] = useState<{ id: string; shipmentNumber: string } | null>(null);
   const [updatingShipmentStatusId, setUpdatingShipmentStatusId] = useState<string | null>(null);
+  const [isApprovingOrder, setIsApprovingOrder] = useState(false);
+
+  const handleApproveCurrentOrder = async () => {
+    if (!window.confirm(`Setujui pesanan ${order?.orderNumber}?`)) return;
+    setIsApprovingOrder(true);
+    try {
+      try {
+        await api.post(`/api/v1/orders/${order.id}/approve`);
+      } catch {
+        await api.patch(`/api/v1/orders/${order.id}/status`, { status: 'Approved' });
+      }
+      success('Pesanan Disetujui', `Pesanan ${order.orderNumber} berhasil disetujui.`);
+      fetchOrderDetails();
+    } catch (err: any) {
+      toastError('Gagal Menyetujui', err.response?.data?.message || 'Terjadi kesalahan saat menyetujui pesanan.');
+    } finally {
+      setIsApprovingOrder(false);
+    }
+  };
 
   const fetchOrderDetails = useCallback(async () => {
     try {
@@ -163,19 +182,32 @@ export const OrderDetail = () => {
   return (
     <div className="space-y-6 animate-fade-in max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link to="/dashboard/orders" className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
-          <ArrowLeft size={20} weight="regular" />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
-            {order.orderNumber}
-            <span className={`px-3 py-1 text-xs font-bold rounded-full ${getStatusColor(order.status)}`}>
-              {getStatusLabel(order.status)}
-            </span>
-          </h1>
-          <p className="text-sm text-slate-500 font-medium mt-1">Dibuat pada {formatDate(order.createdAt)}</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Link to="/dashboard/orders" className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
+            <ArrowLeft size={20} weight="regular" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+              {order.orderNumber}
+              <span className={`px-3 py-1 text-xs font-bold rounded-full ${getStatusColor(order.status)}`}>
+                {getStatusLabel(order.status)}
+              </span>
+            </h1>
+            <p className="text-sm text-slate-500 font-medium mt-1">Dibuat pada {formatDate(order.createdAt)}</p>
+          </div>
         </div>
+
+        {['Owner', 'Manager'].includes(role) && ['Pending', 'Pending_Approval', 'Draft'].includes(order.status) && (
+          <button
+            onClick={handleApproveCurrentOrder}
+            disabled={isApprovingOrder}
+            className="flex items-center gap-2 px-5 py-2.5 bg-black hover:bg-slate-800 text-white rounded-xl text-sm font-bold shadow-sm transition-all disabled:opacity-50 self-start sm:self-auto"
+          >
+            <CheckCircle size={18} weight="bold" />
+            {isApprovingOrder ? 'Memproses...' : 'Setujui Pesanan'}
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

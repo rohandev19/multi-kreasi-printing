@@ -119,17 +119,47 @@ export default function Orders() {
     
     setIsApproving(true);
     try {
-      await Promise.all(selectedIds.map(id => 
-        api.patch(`/api/v1/orders/${id}/status`, { status: 'Approved' })
-      ));
+      await Promise.all(selectedIds.map(async (id) => {
+        try {
+          return await api.post(`/api/v1/orders/${id}/approve`);
+        } catch {
+          return await api.patch(`/api/v1/orders/${id}/status`, { status: 'Approved' });
+        }
+      }));
       success('Tindakan Massal Selesai', `${selectedIds.length} pesanan berhasil disetujui.`);
       setSelectedIds([]);
       if (role) fetchOrders(role);
     } catch (err: any) {
-      showError('Tindakan Gagal', 'Gagal menyetujui pesanan secara massal.');
+      showError('Tindakan Gagal', err.response?.data?.message || 'Gagal menyetujui pesanan secara massal.');
       console.error(err);
     } finally {
       setIsApproving(false);
+    }
+  };
+
+  const handleApproveOrder = async (id: string) => {
+    try {
+      try {
+        await api.post(`/api/v1/orders/${id}/approve`);
+      } catch {
+        await api.patch(`/api/v1/orders/${id}/status`, { status: 'Approved' });
+      }
+      success('Pesanan Disetujui', 'Pesanan berhasil disetujui.');
+      if (role) fetchOrders(role);
+    } catch (err: any) {
+      showError('Persetujuan Gagal', err.response?.data?.message || 'Gagal menyetujui pesanan.');
+    }
+  };
+
+  const handleRejectOrder = async (id: string) => {
+    const reason = window.prompt('Masukkan alasan penolakan pesanan:');
+    if (reason === null) return;
+    try {
+      await api.post(`/api/v1/orders/${id}/reject`, { reason });
+      success('Pesanan Ditolak', 'Pesanan telah ditolak.');
+      if (role) fetchOrders(role);
+    } catch (err: any) {
+      showError('Gagal Menolak', err.response?.data?.message || 'Gagal menolak pesanan.');
     }
   };
 
@@ -258,6 +288,8 @@ export default function Orders() {
         selectedIds={selectedIds}
         onSelect={(id) => setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])}
         onSelectAll={setSelectedIds}
+        onApprove={handleApproveOrder}
+        onReject={handleRejectOrder}
       />
 
       {/* BULK ACTIONS BAR */}
