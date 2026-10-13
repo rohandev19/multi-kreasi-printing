@@ -17,7 +17,6 @@ import {
   Printer,
   UserCheck,
   MapPin,
-  ArrowsClockwise,
 } from '@phosphor-icons/react';
 import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
@@ -27,12 +26,13 @@ import { CreateProofModal } from '../components/modals/CreateProofModal';
 import { CreateShipmentModal } from '../components/modals/CreateShipmentModal';
 import { SuratJalanModal } from '../components/modals/SuratJalanModal';
 import { ConfirmDeliveryModal } from '../components/modals/ConfirmDeliveryModal';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 
 export const OrderDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const { role, user } = useRoleContext();
+  const { role } = useRoleContext();
   const { success, error: toastError } = useToast();
 
   const [selectedProof, setSelectedProof] = useState<ProofItem | null>(null);
@@ -46,9 +46,9 @@ export const OrderDetail = () => {
   const [confirmDeliveryShipment, setConfirmDeliveryShipment] = useState<{ id: string; shipmentNumber: string } | null>(null);
   const [updatingShipmentStatusId, setUpdatingShipmentStatusId] = useState<string | null>(null);
   const [isApprovingOrder, setIsApprovingOrder] = useState(false);
+  const [isConfirmApproveOpen, setIsConfirmApproveOpen] = useState(false);
 
-  const handleApproveCurrentOrder = async () => {
-    if (!window.confirm(`Setujui pesanan ${order?.orderNumber}?`)) return;
+  const handleConfirmApproveCurrentOrder = async () => {
     setIsApprovingOrder(true);
     try {
       try {
@@ -57,6 +57,7 @@ export const OrderDetail = () => {
         await api.patch(`/api/v1/orders/${order.id}/status`, { status: 'Approved' });
       }
       success('Pesanan Disetujui', `Pesanan ${order.orderNumber} berhasil disetujui.`);
+      setIsConfirmApproveOpen(false);
       fetchOrderDetails();
     } catch (err: any) {
       toastError('Gagal Menyetujui', err.response?.data?.message || 'Terjadi kesalahan saat menyetujui pesanan.');
@@ -200,7 +201,7 @@ export const OrderDetail = () => {
 
         {['Owner', 'Manager'].includes(role) && ['Pending', 'Pending_Approval', 'Draft'].includes(order.status) && (
           <button
-            onClick={handleApproveCurrentOrder}
+            onClick={() => setIsConfirmApproveOpen(true)}
             disabled={isApprovingOrder}
             className="flex items-center gap-2 px-5 py-2.5 bg-black hover:bg-slate-800 text-white rounded-xl text-sm font-bold shadow-sm transition-all disabled:opacity-50 self-start sm:self-auto"
           >
@@ -744,6 +745,17 @@ export const OrderDetail = () => {
         shipmentId={confirmDeliveryShipment?.id || null}
         shipmentNumber={confirmDeliveryShipment?.shipmentNumber}
         onSuccess={fetchOrderDetails}
+      />
+
+      <ConfirmDialog
+        isOpen={isConfirmApproveOpen}
+        onClose={() => setIsConfirmApproveOpen(false)}
+        onConfirm={handleConfirmApproveCurrentOrder}
+        title="Setujui Pesanan"
+        message={`Apakah Anda yakin ingin menyetujui pesanan ${order?.orderNumber}? Status akan diperbarui ke Disetujui.`}
+        confirmLabel="Setujui Pesanan"
+        variant="success"
+        loading={isApprovingOrder}
       />
     </div>
   );

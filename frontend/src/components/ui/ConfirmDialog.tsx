@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal } from './Modal';
-import { Trash, Warning, Info } from '@phosphor-icons/react';
+import { Trash, Warning, Info, CheckCircle } from '@phosphor-icons/react';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -10,7 +10,7 @@ interface ConfirmDialogProps {
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  variant?: 'danger' | 'warning' | 'info';
+  variant?: 'danger' | 'warning' | 'info' | 'success';
   loading?: boolean;
 }
 
@@ -44,6 +44,12 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           icon: <Info size={24} className="text-[var(--color-info-600)]" weight="regular" />,
           bg: 'var(--color-info-100)',
           btn: 'var(--color-info-600)',
+        };
+      case 'success':
+        return {
+          icon: <CheckCircle size={24} className="text-emerald-600" weight="bold" />,
+          bg: '#ecfdf5',
+          btn: '#059669',
         };
     }
   };

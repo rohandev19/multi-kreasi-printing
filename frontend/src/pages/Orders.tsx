@@ -7,6 +7,8 @@ import { OrdersTable } from '../components/tables/OrdersTable';
 import type { Order } from '../components/tables/OrdersTable';
 import { exportToCSV } from '../utils/exportUtils';
 import { CreateOrderModal } from '../components/modals/CreateOrderModal';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { Modal } from '../components/ui/Modal';
 import { Plus, MagnifyingGlass, Funnel, Download } from '@phosphor-icons/react';
 
 export default function Orders() {
@@ -21,6 +23,18 @@ export default function Orders() {
   // Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editOrderId, setEditOrderId] = useState<string | null>(null);
+
+  // Action Modals State
+  const [isBulkConfirmOpen, setIsBulkConfirmOpen] = useState(false);
+  const [approveTargetOrder, setApproveTargetOrder] = useState<Order | null>(null);
+  const [rejectTargetOrder, setRejectTargetOrder] = useState<Order | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [cancelTargetOrder, setCancelTargetOrder] = useState<Order | null>(null);
+  const [cancelReason, setCancelReason] = useState('');
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [startProdTargetOrder, setStartProdTargetOrder] = useState<Order | null>(null);
+  const [isStartingProd, setIsStartingProd] = useState(false);
 
   // Table State
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -113,17 +127,20 @@ export default function Orders() {
     exportToCSV(data, filename);
   };
 
-  const handleBulkApprove = async () => {
+  const ordersToApprove = orders.filter(
+    o => selectedIds.includes(o.id) && ['Pending', 'Pending_Approval', 'Draft'].includes(o.status)
+  );
+
+  const handleOpenBulkApprove = () => {
     if (!selectedIds.length) return;
-    const ordersToApprove = orders.filter(
-      o => selectedIds.includes(o.id) && ['Pending', 'Pending_Approval', 'Draft'].includes(o.status)
-    );
     if (!ordersToApprove.length) {
       success('Sudah Disetujui', 'Seluruh pesanan yang dipilih sudah berstatus disetujui.');
       return;
     }
-    if (!window.confirm(`Apakah Anda yakin ingin menyetujui ${ordersToApprove.length} pesanan terpilih?`)) return;
-    
+    setIsBulkConfirmOpen(true);
+  };
+
+  const handleConfirmBulkApprove = async () => {
     setIsApproving(true);
     try {
       await Promise.all(ordersToApprove.map(async (order) => {
@@ -135,6 +152,7 @@ export default function Orders() {
       }));
       success('Tindakan Massal Selesai', `${ordersToApprove.length} pesanan berhasil disetujui.`);
       setSelectedIds([]);
+      setIsBulkConfirmOpen(false);
       if (role) fetchOrders(role);
     } catch (err: any) {
       showError('Tindakan Gagal', err.response?.data?.message || 'Gagal menyetujui pesanan secara massal.');
@@ -144,56 +162,103 @@ export default function Orders() {
     }
   };
 
-  const handleApproveOrder = async (id: string) => {
+  const handleApproveOrder = (id: string) => {
     const targetOrder = orders.find(o => o.id === id);
     if (targetOrder?.status === 'Approved') {
       success('Sudah Disetujui', 'Pesanan ini sudah berstatus disetujui.');
       return;
     }
+    if (targetOrder) {
+      setApproveTargetOrder(targetOrder);
+    }
+  };
+
+  const handleConfirmApproveOrder = async () => {
+    if (!approveTargetOrder) return;
+    setIsApproving(true);
     try {
       try {
-        await api.post(`/api/v1/orders/${id}/approve`);
+        await api.post(`/api/v1/orders/${approveTargetOrder.id}/approve`);
       } catch {
-        await api.patch(`/api/v1/orders/${id}/status`, { status: 'Approved' });
+        await api.patch(`/api/v1/orders/${approveTargetOrder.id}/status`, { status: 'Approved' });
       }
-      success('Pesanan Disetujui', 'Pesanan berhasil disetujui.');
+      success('Pesanan Disetujui', `Pesanan ${approveTargetOrder.orderNumber} berhasil disetujui.`);
+      setApproveTargetOrder(null);
       if (role) fetchOrders(role);
     } catch (err: any) {
       showError('Persetujuan Gagal', err.response?.data?.message || 'Gagal menyetujui pesanan.');
+    } finally {
+      setIsApproving(false);
     }
   };
 
-  const handleRejectOrder = async (id: string) => {
-    const reason = window.prompt('Masukkan alasan penolakan pesanan:');
-    if (reason === null) return;
+  const handleRejectOrder = (id: string) => {
+    const target = orders.find(o => o.id === id);
+    if (target) {
+      setRejectTargetOrder(target);
+      setRejectReason('');
+    }
+  };
+
+  const handleConfirmRejectOrder = async () => {
+    if (!rejectTargetOrder || !rejectReason.trim()) return;
+    setIsRejecting(true);
     try {
-      await api.post(`/api/v1/orders/${id}/reject`, { reason });
-      success('Pesanan Ditolak', 'Pesanan telah ditolak.');
+      await api.post(`/api/v1/orders/${rejectTargetOrder.id}/reject`, { reason: rejectReason.trim() });
+      success('Pesanan Ditolak', `Pesanan ${rejectTargetOrder.orderNumber} telah ditolak.`);
+      setRejectTargetOrder(null);
+      setRejectReason('');
       if (role) fetchOrders(role);
     } catch (err: any) {
       showError('Gagal Menolak', err.response?.data?.message || 'Gagal menolak pesanan.');
+    } finally {
+      setIsRejecting(false);
     }
   };
 
-  const handleStartProduction = async (id: string) => {
+  const handleStartProduction = (id: string) => {
+    const target = orders.find(o => o.id === id);
+    if (target) {
+      setStartProdTargetOrder(target);
+    }
+  };
+
+  const handleConfirmStartProduction = async () => {
+    if (!startProdTargetOrder) return;
+    setIsStartingProd(true);
     try {
-      await api.patch(`/api/v1/orders/${id}/status`, { status: 'In_Production' });
-      success('Produksi Dimulai', 'Status pesanan berhasil diubah ke Dalam Produksi.');
+      await api.patch(`/api/v1/orders/${startProdTargetOrder.id}/status`, { status: 'In_Production' });
+      success('Produksi Dimulai', `Status pesanan ${startProdTargetOrder.orderNumber} diubah ke Dalam Produksi.`);
+      setStartProdTargetOrder(null);
       if (role) fetchOrders(role);
     } catch (err: any) {
       showError('Gagal Memulai Produksi', err.response?.data?.message || 'Gagal mengubah status pesanan ke Dalam Produksi.');
+    } finally {
+      setIsStartingProd(false);
     }
   };
 
-  const handleCancelOrder = async (id: string) => {
-    const reason = window.prompt('Masukkan alasan pembatalan pesanan:');
-    if (reason === null) return;
+  const handleCancelOrder = (id: string) => {
+    const target = orders.find(o => o.id === id);
+    if (target) {
+      setCancelTargetOrder(target);
+      setCancelReason('');
+    }
+  };
+
+  const handleConfirmCancelOrder = async () => {
+    if (!cancelTargetOrder || !cancelReason.trim()) return;
+    setIsCancelling(true);
     try {
-      await api.post(`/api/v1/orders/${id}/cancel`, { reason });
-      success('Pesanan Dibatalkan', 'Pesanan berhasil dibatalkan.');
+      await api.post(`/api/v1/orders/${cancelTargetOrder.id}/cancel`, { reason: cancelReason.trim() });
+      success('Pesanan Dibatalkan', `Pesanan ${cancelTargetOrder.orderNumber} berhasil dibatalkan.`);
+      setCancelTargetOrder(null);
+      setCancelReason('');
       if (role) fetchOrders(role);
     } catch (err: any) {
       showError('Gagal Membatalkan', err.response?.data?.message || 'Gagal membatalkan pesanan.');
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -342,7 +407,7 @@ export default function Orders() {
               Ekspor Pilihan
             </button>
             <button 
-              onClick={handleBulkApprove}
+              onClick={handleOpenBulkApprove}
               disabled={isApproving}
               className="px-4 py-2 bg-white text-primary-700 hover:bg-primary-50 rounded-lg text-sm font-bold shadow-sm transition-colors disabled:opacity-50"
             >
@@ -359,6 +424,147 @@ export default function Orders() {
         onSuccess={handleModalSuccess}
         orderId={editOrderId}
       />
+
+      {/* BULK APPROVE CONFIRM DIALOG */}
+      <ConfirmDialog
+        isOpen={isBulkConfirmOpen}
+        onClose={() => setIsBulkConfirmOpen(false)}
+        onConfirm={handleConfirmBulkApprove}
+        title="Setujui Pesanan Terpilih"
+        message={`Apakah Anda yakin ingin menyetujui ${ordersToApprove.length} pesanan terpilih? Status akan diperbarui menjadi Disetujui.`}
+        confirmLabel="Ya, Setujui Semua"
+        cancelLabel="Batal"
+        variant="success"
+        loading={isApproving}
+      />
+
+      {/* SINGLE APPROVE CONFIRM DIALOG */}
+      <ConfirmDialog
+        isOpen={!!approveTargetOrder}
+        onClose={() => setApproveTargetOrder(null)}
+        onConfirm={handleConfirmApproveOrder}
+        title="Setujui Pesanan"
+        message={`Apakah Anda yakin ingin menyetujui pesanan ${approveTargetOrder?.orderNumber}? Status akan diperbarui menjadi Disetujui.`}
+        confirmLabel="Ya, Setujui"
+        cancelLabel="Batal"
+        variant="success"
+        loading={isApproving}
+      />
+
+      {/* START PRODUCTION CONFIRM DIALOG */}
+      <ConfirmDialog
+        isOpen={!!startProdTargetOrder}
+        onClose={() => setStartProdTargetOrder(null)}
+        onConfirm={handleConfirmStartProduction}
+        title="Mulai Produksi"
+        message={`Mulai proses produksi untuk pesanan ${startProdTargetOrder?.orderNumber}? Status pesanan akan diubah menjadi Dalam Produksi.`}
+        confirmLabel="Mulai Produksi"
+        cancelLabel="Batal"
+        variant="info"
+        loading={isStartingProd}
+      />
+
+      {/* REJECT ORDER MODAL */}
+      <Modal
+        isOpen={!!rejectTargetOrder}
+        onClose={() => {
+          setRejectTargetOrder(null);
+          setRejectReason('');
+        }}
+        title={`Tolak Pesanan ${rejectTargetOrder?.orderNumber || ''}`}
+        size="md"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600">
+            Silakan masukkan alasan penolakan untuk pesanan ini.
+          </p>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              Alasan Penolakan <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Contoh: Berkas desain tidak sesuai spesifikasi / kuota bahan baku habis..."
+              rows={4}
+              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 resize-none"
+              autoFocus
+            />
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setRejectTargetOrder(null);
+                setRejectReason('');
+              }}
+              disabled={isRejecting}
+              className="px-4 py-2 border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmRejectOrder}
+              disabled={isRejecting || !rejectReason.trim()}
+              className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 shadow-sm"
+            >
+              {isRejecting ? 'Menolak...' : 'Tolak Pesanan'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* CANCEL ORDER MODAL */}
+      <Modal
+        isOpen={!!cancelTargetOrder}
+        onClose={() => {
+          setCancelTargetOrder(null);
+          setCancelReason('');
+        }}
+        title={`Batalkan Pesanan ${cancelTargetOrder?.orderNumber || ''}`}
+        size="md"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600">
+            Apakah Anda yakin ingin membatalkan pesanan ini? Masukkan alasan pembatalan resmi.
+          </p>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              Alasan Pembatalan <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="Contoh: Permintaan pembatalan dari pelanggan..."
+              rows={4}
+              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 resize-none"
+              autoFocus
+            />
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setCancelTargetOrder(null);
+                setCancelReason('');
+              }}
+              disabled={isCancelling}
+              className="px-4 py-2 border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
+            >
+              Kembali
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmCancelOrder}
+              disabled={isCancelling || !cancelReason.trim()}
+              className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 shadow-sm"
+            >
+              {isCancelling ? 'Membatalkan...' : 'Batalkan Pesanan'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
