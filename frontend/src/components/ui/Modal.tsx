@@ -21,6 +21,17 @@ const sizeClasses = {
   '5xl': 'max-w-5xl',
 };
 
+const maxWidthStyles: Record<string, string> = {
+  sm: '24rem',
+  md: '28rem',
+  lg: '32rem',
+  xl: '36rem',
+  '2xl': '42rem',
+  '3xl': '48rem',
+  '4xl': '56rem',
+  '5xl': '64rem',
+};
+
 export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
@@ -69,7 +80,15 @@ export const Modal: React.FC<ModalProps> = ({
       aria-modal="true"
       aria-label={title}
     >
-      <div className={`w-full overflow-hidden rounded-lg border animate-modal-in max-h-full flex flex-col ${sizeClasses[size]}`} style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-md)' }}>
+      <div 
+        className={`w-full overflow-hidden rounded-lg border animate-modal-in max-h-full flex flex-col ${sizeClasses[size]}`} 
+        style={{ 
+          backgroundColor: 'var(--bg-elevated)', 
+          borderColor: 'var(--border-default)', 
+          boxShadow: 'var(--shadow-md)',
+          maxWidth: maxWidthStyles[size] || '32rem'
+        }}
+      >
         {!hideHeader && (
           <div className="flex shrink-0 items-center justify-between border-b px-6 py-4" style={{ backgroundColor: 'var(--color-neutral-50)', borderColor: 'var(--border-default)' }}>
             <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{title}</h2>

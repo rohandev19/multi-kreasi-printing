@@ -208,7 +208,7 @@ export const CreateShipmentModal: React.FC<CreateShipmentModalProps> = ({
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+            <div className="space-y-6">
               
               {/* Order Full Shipped Banner */}
               {isOrderFullyShipped && (
@@ -559,7 +559,7 @@ export const CreateShipmentModal: React.FC<CreateShipmentModalProps> = ({
             </div>
 
             {/* Bottom Actions */}
-            <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between rounded-b-xl">
+            <div className="pt-4 border-t border-slate-200 flex items-center justify-between">
               {isOrderFullyShipped ? (
                 <>
                   <div className="flex items-center gap-1.5 text-xs text-emerald-800 font-medium">
