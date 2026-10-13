@@ -53,6 +53,49 @@ export class UpdateOrderStatusUseCase {
         },
       });
 
+      if (dto.status === 'In_Production') {
+        const existingJob = await tx.productionJob.findFirst({
+          where: { orderId },
+        });
+        if (!existingJob) {
+          const count = await tx.productionJob.count();
+          const year = new Date().getFullYear();
+          const jobNumber = `PROD-${year}-${(count + 1).toString().padStart(4, '0')}`;
+          await tx.productionJob.create({
+            data: {
+              jobNumber,
+              orderId,
+              status: 'In_Progress',
+              startTime: new Date(),
+            },
+          });
+        } else {
+          await tx.productionJob.update({
+            where: { id: existingJob.id },
+            data: {
+              status: 'In_Progress',
+              startTime: existingJob.startTime || new Date(),
+            },
+          });
+        }
+      } else if (dto.status === 'Approved') {
+        const existingJob = await tx.productionJob.findFirst({
+          where: { orderId },
+        });
+        if (!existingJob) {
+          const count = await tx.productionJob.count();
+          const year = new Date().getFullYear();
+          const jobNumber = `PROD-${year}-${(count + 1).toString().padStart(4, '0')}`;
+          await tx.productionJob.create({
+            data: {
+              jobNumber,
+              orderId,
+              status: 'Queue',
+            },
+          });
+        }
+      }
+
       return updatedOrder;
     });
 

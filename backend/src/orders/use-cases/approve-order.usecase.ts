@@ -91,6 +91,22 @@ export class ApproveOrderUseCase {
             },
           });
 
+          const existingJob = await tx.productionJob.findFirst({
+            where: { orderId: updatedOrder.id },
+          });
+          if (!existingJob) {
+            const count = await tx.productionJob.count();
+            const year = new Date().getFullYear();
+            const jobNumber = `PROD-${year}-${(count + 1).toString().padStart(4, '0')}`;
+            await tx.productionJob.create({
+              data: {
+                jobNumber,
+                orderId: updatedOrder.id,
+                status: 'Queue',
+              },
+            });
+          }
+
           return updatedOrder;
         },
         { timeout: 5000 },

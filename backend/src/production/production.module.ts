@@ -11,6 +11,7 @@ import { CompleteProductionUseCase } from './use-cases/complete-production.useca
 import { RecordMaterialConsumptionUseCase } from './use-cases/record-material-consumption.usecase';
 import { CreateReworkJobUseCase } from './use-cases/create-rework-job.usecase';
 import { ManageMachineUseCase } from './use-cases/manage-machine.usecase';
+import { OrderProductionListener } from './listeners/order-production.listener';
 
 @Module({
   imports: [PrismaModule, AuditModule, AuthModule],
@@ -23,7 +24,8 @@ import { ManageMachineUseCase } from './use-cases/manage-machine.usecase';
     RecordMaterialConsumptionUseCase,
     CreateReworkJobUseCase,
     ManageMachineUseCase,
+    OrderProductionListener,
   ],
-  exports: [CreateProductionJobUseCase], // Might be needed by order approval event
+  exports: [CreateProductionJobUseCase],
 })
 export class ProductionModule {}

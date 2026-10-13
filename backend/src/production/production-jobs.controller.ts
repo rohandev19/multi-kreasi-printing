@@ -56,10 +56,52 @@ export class ProductionJobsController {
     const limit = parseInt(req.query.limit as string) || 50;
     const skip = (page - 1) * limit;
 
-    let whereClause = {};
+    // Auto-sync ProductionJob for active orders that don't have a job yet
+    try {
+      const activeOrdersWithoutJob = await this.prisma.order.findMany({
+        where: {
+          status: { in: ['In_Production', 'Approved', 'Proof_Approved'] },
+          productionJobs: { none: {} },
+        },
+        select: { id: true, status: true },
+        take: 50,
+      });
+
+      for (const ord of activeOrdersWithoutJob) {
+        await this.createProductionJob.execute(ord.id);
+        if (ord.status === 'In_Production') {
+          await this.prisma.productionJob.updateMany({
+            where: { orderId: ord.id },
+            data: { status: 'In_Progress', startTime: new Date() },
+          });
+        }
+      }
+
+      // Also ensure jobs for In_Production orders are marked In_Progress
+      await this.prisma.productionJob.updateMany({
+        where: {
+          status: 'Queue',
+          order: { status: 'In_Production' },
+        },
+        data: {
+          status: 'In_Progress',
+          startTime: new Date(),
+        },
+      });
+    } catch (err) {
+      // Non-blocking background sync warning
+      console.warn('Auto-sync production jobs warning:', err);
+    }
+
+    let whereClause: any = {};
 
     if (user.role === 'Production_Staff') {
-      whereClause = { assignedTo: user.sub };
+      whereClause = {
+        OR: [
+          { assignedTo: user.sub },
+          { assignedTo: null },
+        ],
+      };
     }
 
     const [total, data] = await Promise.all([
@@ -72,9 +114,20 @@ export class ProductionJobsController {
               id: true,
               orderNumber: true,
               status: true,
+              priority: true,
               customer: {
                 select: {
                   companyName: true,
+                },
+              },
+              items: {
+                select: {
+                  quantity: true,
+                  product: {
+                    select: {
+                      name: true,
+                    },
+                  },
                 },
               },
               proofs: {

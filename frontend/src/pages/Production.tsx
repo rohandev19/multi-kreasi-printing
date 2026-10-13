@@ -9,6 +9,7 @@ import { ListBullets, Columns, Factory, Play, ClipboardText, CheckCircle, Warnin
 
 interface Job {
   id: string;
+  jobNumber?: string;
   orderNumber: string;
   orderId?: string;
   orderStatus?: string;
@@ -63,21 +64,63 @@ export default function Production() {
           orderStatus === 'Proof_Rejected' ||
           (latestProof && latestProof.status !== 'Approved');
 
+        // Robust status determination
+        let mappedStatus: Job['status'] = 'Queued';
+        if (
+          j.status === 'In_Progress' ||
+          j.status === 'In Progress' ||
+          orderStatus === 'In_Production'
+        ) {
+          mappedStatus = 'In Progress';
+        } else if (
+          j.status === 'Quality_Check' ||
+          j.status === 'Quality Check' ||
+          j.status === 'QC' ||
+          orderStatus === 'Quality_Check'
+        ) {
+          mappedStatus = 'Quality Check';
+        } else if (
+          j.status === 'Completed' ||
+          orderStatus === 'Ready' ||
+          orderStatus === 'Shipped' ||
+          orderStatus === 'Delivered'
+        ) {
+          mappedStatus = 'Completed';
+        } else {
+          mappedStatus = 'Queued';
+        }
+
+        const calculatedProgress =
+          mappedStatus === 'Completed'
+            ? 100
+            : mappedStatus === 'Quality Check'
+            ? 90
+            : mappedStatus === 'In Progress'
+            ? 50
+            : 0;
+
+        const firstItem = j.order?.items?.[0];
+        const itemProductName = firstItem?.product?.name || firstItem?.productName;
+        const productName = itemProductName
+          ? `${itemProductName} (${firstItem?.quantity || 1}x)`
+          : j.order?.customer?.companyName
+          ? `Pesanan ${j.order.customer.companyName}`
+          : 'Pekerjaan Cetak';
+
         return {
           id: j.id,
+          jobNumber: j.jobNumber || `PROD-${j.id.slice(0, 8)}`,
           orderNumber: j.order?.orderNumber || j.orderNumber || 'Unknown Order',
           orderId: j.order?.id || j.orderId,
           orderStatus: orderStatus,
           isProofLocked: !!isProofLocked,
           proofStatus: latestProof?.status,
-          product: j.order?.customer?.companyName ? `Order for ${j.order.customer.companyName}` : 'Printing Job',
-          machine: j.machine?.name || j.assignedMachine?.name || 'Unassigned',
-          material: j.assignee?.fullName ? `Assigned to: ${j.assignee.fullName}` : 'Unassigned',
-          status: (j.status === 'Pending' ? 'Queued' : 
-                   j.status === 'In_Progress' ? 'In Progress' :
-                   j.status === 'QC' ? 'Quality Check' : 'Completed') as any,
-          priority: j.priority || 'Normal',
-          progress: j.status === 'Completed' ? 100 : j.status === 'QC' ? 90 : j.status === 'In_Progress' ? 45 : 0
+          product: productName,
+          machine: j.machine?.name || j.assignedMachine?.name || 'Belum Ditugaskan',
+          material: j.assignee?.fullName ? `Ditugaskan ke: ${j.assignee.fullName}` : 'Belum Ada Petugas',
+          status: mappedStatus,
+          priority: j.priority || j.order?.priority || 'Normal',
+          progress: calculatedProgress,
         };
       });
       
@@ -231,7 +274,7 @@ export default function Production() {
                 {filteredJobs.map(job => (
                   <tr key={job.id} className={`hover:bg-slate-50/80 transition-colors ${job.status === 'In Progress' ? 'border-l-4 border-slate-900' : 'border-l-4 border-transparent'}`}>
                     <td className="px-5 py-4">
-                      <div className="font-bold text-slate-900">{job.id}</div>
+                      <div className="font-bold text-slate-900">{job.jobNumber || job.id}</div>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span className="text-xs text-slate-500">{job.orderNumber}</span>
                         {job.isProofLocked && (
@@ -336,7 +379,7 @@ export default function Production() {
 
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <div className="text-xs font-bold text-slate-900">{job.id}</div>
+                          <div className="text-xs font-bold text-slate-900">{job.jobNumber || job.id}</div>
                           <div className="font-semibold text-slate-800 mt-0.5">{job.product}</div>
                         </div>
                         <DotsSixVertical size={16} className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" weight="regular" />
