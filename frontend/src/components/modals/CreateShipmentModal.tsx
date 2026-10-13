@@ -398,7 +398,7 @@ export const CreateShipmentModal: React.FC<CreateShipmentModalProps> = ({
                           {shipment.deliveredAt && (
                             <p className="text-[10px] text-emerald-700 font-medium">
                               ✓ Diterima oleh: {shipment.receivedBy || shipment.recipientName} pada{' '}
-                              {new Date(shipment.deliveredAt).toLocaleDateString('id-ID', {
+                              {new Date(shipment.deliveredAt).toLocaleString('id-ID', {
                                 dateStyle: 'medium',
                                 timeStyle: 'short',
                               })}
