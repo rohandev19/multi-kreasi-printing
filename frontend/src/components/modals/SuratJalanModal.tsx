@@ -55,7 +55,7 @@ export const SuratJalanModal: React.FC<SuratJalanModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Dokumen Resmi Surat Jalan" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title="Dokumen Resmi Surat Jalan" size="3xl">
       {loading ? (
         <div className="flex justify-center items-center py-20">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
@@ -66,11 +66,11 @@ export const SuratJalanModal: React.FC<SuratJalanModalProps> = ({
           <span>{error}</span>
         </div>
       ) : data ? (
-        <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 space-y-6 max-h-[82vh] overflow-y-auto">
           {/* Printable Document Sheet Container */}
           <div
             id="printable-surat-jalan"
-            className="bg-white p-6 sm:p-8 border border-slate-300 rounded-lg shadow-sm text-slate-800 text-xs font-sans space-y-5"
+            className="bg-white p-6 sm:p-8 border border-slate-300 rounded-xl shadow-xs text-slate-800 text-xs font-sans space-y-5 w-full"
           >
             {/* Header: Company & Title */}
             <div className="flex flex-col sm:flex-row justify-between items-start border-b-2 border-slate-900 pb-4 gap-4">
@@ -156,17 +156,17 @@ export const SuratJalanModal: React.FC<SuratJalanModalProps> = ({
             </div>
 
             {/* Items Table */}
-            <div className="border border-slate-300 rounded overflow-hidden">
-              <table className="w-full text-left text-xs border-collapse">
+            <div className="border border-slate-300 rounded-lg overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse min-w-[500px]">
                 <thead className="bg-slate-100 border-b border-slate-300 font-bold uppercase text-slate-700">
                   <tr>
-                    <th className="py-2 px-3 w-8 text-center border-r border-slate-300">No</th>
-                    <th className="py-2 px-3 border-r border-slate-300">Nama Barang / Deskripsi</th>
-                    <th className="py-2 px-3 w-28 text-center border-r border-slate-300">
+                    <th className="py-2.5 px-3 w-10 text-center border-r border-slate-300">No</th>
+                    <th className="py-2.5 px-3 border-r border-slate-300 min-w-[160px]">Nama Barang / Deskripsi</th>
+                    <th className="py-2.5 px-3 w-28 text-center border-r border-slate-300">
                       Kuantitas
                     </th>
-                    <th className="py-2 px-3 w-20 text-center border-r border-slate-300">Satuan</th>
-                    <th className="py-2 px-3">Keterangan</th>
+                    <th className="py-2.5 px-3 w-20 text-center border-r border-slate-300">Satuan</th>
+                    <th className="py-2.5 px-3 min-w-[100px]">Keterangan</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
