@@ -31,6 +31,10 @@ export class ApproveOrderUseCase {
     });
     if (!order) throw new NotFoundException('Pesanan tidak ditemukan');
 
+    if (order.status === 'Approved') {
+      return order;
+    }
+
     if (!['Pending_Approval', 'Pending', 'Draft'].includes(order.status)) {
       throw new BadRequestException(
         `Pesanan dalam status ${order.status} tidak dapat disetujui`,

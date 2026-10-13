@@ -27,6 +27,10 @@ export class UpdateOrderStatusUseCase {
     });
     if (!order) throw new NotFoundException('Pesanan tidak ditemukan');
 
+    if (order.status === dto.status) {
+      return order;
+    }
+
     if (!OrderLogic.isValidTransition(order.status, dto.status)) {
       throw new BadRequestException(
         `Transisi status dari ${order.status} ke ${dto.status} tidak valid`,

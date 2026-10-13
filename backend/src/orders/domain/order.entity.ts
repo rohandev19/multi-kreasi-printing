@@ -22,6 +22,7 @@ export class OrderLogic {
   }
 
   static isValidTransition(currentStatus: string, nextStatus: string): boolean {
+    if (currentStatus === nextStatus) return true;
     const transitions: Record<string, string[]> = {
       Draft: ['Pending_Approval', 'Pending', 'Approved', 'Cancelled'],
       Pending_Approval: ['Approved', 'Cancelled'],
