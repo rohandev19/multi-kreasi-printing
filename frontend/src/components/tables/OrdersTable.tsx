@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { UserRole } from '../../contexts/RoleContext';
-import { Eye, DotsThreeVertical, Package, CaretLeft, CaretRight, Check, X, Printer, CurrencyDollar } from '@phosphor-icons/react';
+import { Eye, DotsThreeVertical, Package, CaretLeft, CaretRight, Check, X, Printer } from '@phosphor-icons/react';
 
 export interface Order {
   id: string;
@@ -24,6 +24,8 @@ interface OrdersTableProps {
   onSelectAll: (ids: string[]) => void;
   onApprove?: (id: string) => void;
   onReject?: (id: string) => void;
+  onStartProduction?: (id: string) => void;
+  onCancel?: (id: string) => void;
 }
 
 export const OrdersTable: React.FC<OrdersTableProps> = ({
@@ -36,6 +38,8 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
   onSelectAll,
   onApprove,
   onReject,
+  onStartProduction,
+  onCancel,
 }) => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
@@ -229,7 +233,18 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                           <>
                             <div className="fixed inset-0 z-10" onClick={() => setOpenDropdown(null)}></div>
                             <div className="absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-20 animate-fade-in">
-                              {(userRole === 'Owner' || userRole === 'Manager') && (
+                              <button
+                                onClick={() => {
+                                  setOpenDropdown(null);
+                                  onView(order.id);
+                                }}
+                                className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                              >
+                                <Eye size={14} className="text-slate-500" weight="regular" /> Lihat Detail
+                              </button>
+
+                              {(userRole === 'Owner' || userRole === 'Manager') &&
+                                ['Pending', 'Pending_Approval', 'Draft'].includes(order.status) && (
                                 <>
                                   <button
                                     onClick={() => {
@@ -251,18 +266,29 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                                   </button>
                                 </>
                               )}
-                              {(userRole === 'Production_Staff' || userRole === 'Owner') && (
-                                <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+
+                              {(userRole === 'Production_Staff' || userRole === 'Owner' || userRole === 'Manager') &&
+                                ['Approved', 'Proof_Approved', 'Design_Approved'].includes(order.status) && (
+                                <button
+                                  onClick={() => {
+                                    setOpenDropdown(null);
+                                    onStartProduction ? onStartProduction(order.id) : onView(order.id);
+                                  }}
+                                  className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                                >
                                   <Printer size={14} className="text-primary-600" weight="regular" /> Mulai Produksi
                                 </button>
                               )}
-                              {(userRole === 'Finance_Staff' || userRole === 'Owner') && (
-                                <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                                  <CurrencyDollar size={14} className="text-emerald-600" weight="regular" /> Catat Pembayaran
-                                </button>
-                              )}
-                              {(userRole === 'Owner' || userRole === 'Manager') && (
-                                <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+
+                              {(userRole === 'Owner' || userRole === 'Manager') &&
+                                !['Completed', 'Delivered', 'Cancelled'].includes(order.status) && (
+                                <button
+                                  onClick={() => {
+                                    setOpenDropdown(null);
+                                    onCancel?.(order.id);
+                                  }}
+                                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                >
                                   <X size={14} weight="regular" /> Batalkan Pesanan
                                 </button>
                               )}

@@ -115,18 +115,25 @@ export default function Orders() {
 
   const handleBulkApprove = async () => {
     if (!selectedIds.length) return;
-    if (!window.confirm(`Apakah Anda yakin ingin menyetujui ${selectedIds.length} pesanan terpilih?`)) return;
+    const ordersToApprove = orders.filter(
+      o => selectedIds.includes(o.id) && ['Pending', 'Pending_Approval', 'Draft'].includes(o.status)
+    );
+    if (!ordersToApprove.length) {
+      success('Sudah Disetujui', 'Seluruh pesanan yang dipilih sudah berstatus disetujui.');
+      return;
+    }
+    if (!window.confirm(`Apakah Anda yakin ingin menyetujui ${ordersToApprove.length} pesanan terpilih?`)) return;
     
     setIsApproving(true);
     try {
-      await Promise.all(selectedIds.map(async (id) => {
+      await Promise.all(ordersToApprove.map(async (order) => {
         try {
-          return await api.post(`/api/v1/orders/${id}/approve`);
+          return await api.post(`/api/v1/orders/${order.id}/approve`);
         } catch {
-          return await api.patch(`/api/v1/orders/${id}/status`, { status: 'Approved' });
+          return await api.patch(`/api/v1/orders/${order.id}/status`, { status: 'Approved' });
         }
       }));
-      success('Tindakan Massal Selesai', `${selectedIds.length} pesanan berhasil disetujui.`);
+      success('Tindakan Massal Selesai', `${ordersToApprove.length} pesanan berhasil disetujui.`);
       setSelectedIds([]);
       if (role) fetchOrders(role);
     } catch (err: any) {
@@ -138,6 +145,11 @@ export default function Orders() {
   };
 
   const handleApproveOrder = async (id: string) => {
+    const targetOrder = orders.find(o => o.id === id);
+    if (targetOrder?.status === 'Approved') {
+      success('Sudah Disetujui', 'Pesanan ini sudah berstatus disetujui.');
+      return;
+    }
     try {
       try {
         await api.post(`/api/v1/orders/${id}/approve`);
@@ -160,6 +172,28 @@ export default function Orders() {
       if (role) fetchOrders(role);
     } catch (err: any) {
       showError('Gagal Menolak', err.response?.data?.message || 'Gagal menolak pesanan.');
+    }
+  };
+
+  const handleStartProduction = async (id: string) => {
+    try {
+      await api.patch(`/api/v1/orders/${id}/status`, { status: 'In_Production' });
+      success('Produksi Dimulai', 'Status pesanan berhasil diubah ke Dalam Produksi.');
+      if (role) fetchOrders(role);
+    } catch (err: any) {
+      showError('Gagal Memulai Produksi', err.response?.data?.message || 'Gagal mengubah status pesanan ke Dalam Produksi.');
+    }
+  };
+
+  const handleCancelOrder = async (id: string) => {
+    const reason = window.prompt('Masukkan alasan pembatalan pesanan:');
+    if (reason === null) return;
+    try {
+      await api.post(`/api/v1/orders/${id}/cancel`, { reason });
+      success('Pesanan Dibatalkan', 'Pesanan berhasil dibatalkan.');
+      if (role) fetchOrders(role);
+    } catch (err: any) {
+      showError('Gagal Membatalkan', err.response?.data?.message || 'Gagal membatalkan pesanan.');
     }
   };
 
@@ -290,6 +324,8 @@ export default function Orders() {
         onSelectAll={setSelectedIds}
         onApprove={handleApproveOrder}
         onReject={handleRejectOrder}
+        onStartProduction={handleStartProduction}
+        onCancel={handleCancelOrder}
       />
 
       {/* BULK ACTIONS BAR */}
