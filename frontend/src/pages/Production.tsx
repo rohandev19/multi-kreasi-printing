@@ -152,8 +152,13 @@ export default function Production() {
   };
 
   const handleMarkQC = async (id: string) => {
-    success('Perlu QC', 'Pekerjaan dikirim ke pemeriksaan kualitas.');
-    setJobs(prev => prev.map(j => j.id === id ? { ...j, status: 'Quality Check', progress: 90 } : j));
+    try {
+      await api.patch(`/api/v1/production-jobs/${id}/qc`, { notes: 'Siap pemeriksaan kualitas.' });
+      success('Perlu QC', 'Pekerjaan dikirim ke pemeriksaan kualitas.');
+      fetchJobs();
+    } catch (err: any) {
+      toastError('Gagal mengirim ke QC', err.response?.data?.message || 'Silakan coba lagi.');
+    }
   };
 
   const handleCompleteJob = async (id: string) => {
@@ -330,13 +335,18 @@ export default function Production() {
                           )
                         )}
                         {job.status === 'In Progress' && (
-                          <button onClick={() => handleMarkQC(job.id)} className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-bold transition-colors">
-                            <ClipboardText size={14} weight="regular" /> QC
-                          </button>
+                          <>
+                            <button onClick={() => handleMarkQC(job.id)} className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-bold transition-colors">
+                              <ClipboardText size={14} weight="regular" /> QC
+                            </button>
+                            <button onClick={() => handleCompleteJob(job.id)} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg text-xs font-bold transition-colors">
+                              <CheckCircle size={14} weight="regular" /> Selesai
+                            </button>
+                          </>
                         )}
                         {job.status === 'Quality Check' && (
                           <button onClick={() => handleCompleteJob(job.id)} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg text-xs font-bold transition-colors">
-                            <CheckCircle size={14} weight="regular" /> Selesai
+                              <CheckCircle size={14} weight="regular" /> Selesai
                           </button>
                         )}
                         <button onClick={() => setReassignJobId(job.id)} className="p-1.5 border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600 rounded-lg transition-colors" title="Tugaskan Ulang">
@@ -422,7 +432,10 @@ export default function Production() {
                           )
                         )}
                         {job.status === 'In Progress' && (
-                          <button onClick={() => handleMarkQC(job.id)} className="flex-1 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-bold transition-colors">Kirim QC</button>
+                          <>
+                            <button onClick={() => handleMarkQC(job.id)} className="flex-1 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-bold transition-colors">Kirim QC</button>
+                            <button onClick={() => handleCompleteJob(job.id)} className="flex-1 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg text-xs font-bold transition-colors">Selesai</button>
+                          </>
                         )}
                         {job.status === 'Quality Check' && (
                           <button onClick={() => handleCompleteJob(job.id)} className="flex-1 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg text-xs font-bold transition-colors">Selesai</button>

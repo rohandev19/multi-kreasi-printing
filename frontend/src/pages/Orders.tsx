@@ -331,7 +331,9 @@ export default function Orders() {
                 <option value="Approved">Disetujui</option>
                 <option value="In_Production">Dalam Produksi</option>
                 <option value="Quality_Check">Pemeriksaan Kualitas</option>
-                <option value="Ready">Siap</option>
+                <option value="Completed">Selesai Diproduksi</option>
+                <option value="Ready">Siap Kirim</option>
+                <option value="Partially_Shipped">Dikirim Sebagian</option>
                 <option value="Shipped">Dikirim</option>
                 <option value="Delivered">Terkirim</option>
                 <option value="Cancelled">Dibatalkan</option>

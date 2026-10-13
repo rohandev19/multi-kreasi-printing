@@ -100,8 +100,10 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
       case 'Pending_Approval': return 'bg-amber-100 text-amber-700';
       case 'Approved': return 'bg-slate-100 text-slate-900';
       case 'In_Production': return 'bg-primary-100 text-primary-700';
-      case 'Quality_Check': return 'bg-primary-100 text-primary-700';
+      case 'Quality_Check': return 'bg-purple-100 text-purple-700 border border-purple-200';
+      case 'Completed': return 'bg-blue-100 text-blue-800 border border-blue-200';
       case 'Ready': return 'bg-teal-100 text-teal-700';
+      case 'Partially_Shipped': return 'bg-indigo-100 text-indigo-700 border border-indigo-200';
       case 'Shipped': return 'bg-emerald-100 text-emerald-700';
       case 'Delivered': return 'bg-slate-800 text-white';
       case 'Cancelled': return 'bg-red-100 text-red-700';
@@ -116,7 +118,9 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
       Approved: 'Disetujui',
       In_Production: 'Dalam Produksi',
       Quality_Check: 'Pemeriksaan Kualitas',
-      Ready: 'Siap',
+      Completed: 'Selesai Diproduksi',
+      Ready: 'Siap Kirim',
+      Partially_Shipped: 'Dikirim Sebagian',
       Shipped: 'Dikirim',
       Delivered: 'Terkirim',
       Cancelled: 'Dibatalkan',

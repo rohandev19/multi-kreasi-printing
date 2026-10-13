@@ -1,8 +1,8 @@
 import {
   Injectable,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   ProductionJobLogic,
@@ -16,6 +16,7 @@ export class CompleteProductionUseCase {
   constructor(
     private prisma: PrismaService,
     private audit: AuditService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async execute(
@@ -26,39 +27,28 @@ export class CompleteProductionUseCase {
   ) {
     const job = await this.prisma.productionJob.findUnique({
       where: { id: jobId },
+      include: { order: true },
     });
     if (!job) throw new NotFoundException('Production job not found');
 
-    // Technically in a strict flow, it goes to Quality_Check first.
-    // If we assume this use case is called after quality check:
-    ProductionJobLogic.validateTransition(
-      job.status,
-      ProductionJobStatus.Quality_Check,
-    );
-
-    // Determine the next status based on QC
     const nextStatus = passedQualityCheck
       ? ProductionJobStatus.Completed
       : ProductionJobStatus.Failed;
 
-    ProductionJobLogic.validateTransition(
-      ProductionJobStatus.Quality_Check,
-      nextStatus,
-    );
-
-    if (!job.startTime) {
-      throw new BadRequestException(
-        'Job has not started (no start time recorded)',
-      );
+    if (job.status === nextStatus) {
+      return job;
     }
 
+    ProductionJobLogic.validateTransition(job.status, nextStatus);
+
+    const startTime = job.startTime || job.createdAt || new Date();
     const endTime = new Date();
-    const durationSeconds = Math.round(
-      (endTime.getTime() - job.startTime.getTime()) / 1000,
+    const durationSeconds = Math.max(
+      0,
+      Math.round((endTime.getTime() - startTime.getTime()) / 1000),
     );
 
     const updatedJob = await this.prisma.$transaction(async (tx) => {
-      // First, temporarily move to Quality_Check in audit if we want, but here we just go straight to final status
       const updated = await tx.productionJob.update({
         where: { id: jobId },
         data: {
@@ -73,7 +63,6 @@ export class CompleteProductionUseCase {
       });
 
       if (job.machineId) {
-        // Free the machine and record production time
         await tx.machine.update({
           where: { id: job.machineId },
           data: {
@@ -81,6 +70,41 @@ export class CompleteProductionUseCase {
             productionTime: { increment: durationSeconds },
           },
         });
+      }
+
+      // Update Order status when production completes!
+      if (job.orderId) {
+        if (passedQualityCheck) {
+          await tx.order.update({
+            where: { id: job.orderId },
+            data: { status: 'Completed' },
+          });
+
+          await tx.orderTimeline.create({
+            data: {
+              orderId: job.orderId,
+              status: 'Completed',
+              notes: 'Pekerjaan produksi selesai dan lolos pemeriksaan mutu (QC Passed). Pesanan siap dikirim.',
+              createdBy: currentUserId,
+            },
+          });
+        } else {
+          await tx.order.update({
+            where: { id: job.orderId },
+            data: { status: 'Quality_Check' },
+          });
+
+          await tx.orderTimeline.create({
+            data: {
+              orderId: job.orderId,
+              status: 'Quality_Check',
+              notes: notes
+                ? `Pemeriksaan kualitas membutuhkan revisi/perbaikan: ${notes}`
+                : 'Pemeriksaan kualitas membutuhkan revisi/perbaikan.',
+              createdBy: currentUserId,
+            },
+          });
+        }
       }
 
       return updated;
@@ -94,6 +118,20 @@ export class CompleteProductionUseCase {
       oldValue: { status: job.status },
       newValue: { status: updatedJob.status, endTime: updatedJob.endTime },
     });
+
+    if (job.orderId && passedQualityCheck) {
+      this.eventEmitter.emit('order.status.changed', {
+        orderId: job.orderId,
+        orderNumber: job.order?.orderNumber,
+        customerId: job.order?.customerId,
+        oldStatus: job.order?.status,
+        newStatus: 'Completed',
+      });
+      this.eventEmitter.emit('production.completed', {
+        jobId: job.id,
+        orderId: job.orderId,
+      });
+    }
 
     return updatedJob;
   }

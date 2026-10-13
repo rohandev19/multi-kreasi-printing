@@ -6,6 +6,12 @@ import './index.css';
 
 import { ToastProvider } from './contexts/ToastContext';
 
+// Auto-reload on deployment chunk mismatch
+window.addEventListener('vite:preloadError', (event) => {
+  console.warn('Vite preload error detected, reloading to load newest build:', event);
+  window.location.reload();
+});
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ToastProvider>

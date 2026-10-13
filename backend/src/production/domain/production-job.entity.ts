@@ -24,19 +24,25 @@ export class ProductionJobLogic {
     currentStatus: string,
     nextStatus: ProductionJobStatus,
   ): boolean {
+    if (currentStatus === nextStatus) return true;
     const transitions: Record<string, ProductionJobStatus[]> = {
-      [ProductionJobStatus.Queue]: [ProductionJobStatus.Assigned],
+      [ProductionJobStatus.Queue]: [
+        ProductionJobStatus.Assigned,
+        ProductionJobStatus.In_Progress,
+      ],
       [ProductionJobStatus.Assigned]: [
         ProductionJobStatus.In_Progress,
         ProductionJobStatus.Queue,
       ],
       [ProductionJobStatus.In_Progress]: [
         ProductionJobStatus.Quality_Check,
+        ProductionJobStatus.Completed,
         ProductionJobStatus.Failed,
       ],
       [ProductionJobStatus.Quality_Check]: [
         ProductionJobStatus.Completed,
         ProductionJobStatus.Failed,
+        ProductionJobStatus.In_Progress,
       ],
       [ProductionJobStatus.Failed]: [ProductionJobStatus.Rework],
       [ProductionJobStatus.Rework]: [

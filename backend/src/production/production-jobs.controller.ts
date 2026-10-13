@@ -7,7 +7,12 @@ import {
   Req,
   UseGuards,
   Get,
+  NotFoundException,
 } from '@nestjs/common';
+import {
+  ProductionJobLogic,
+  ProductionJobStatus,
+} from './domain/production-job.entity';
 import { CreateProductionJobUseCase } from './use-cases/create-production-job.usecase';
 import { AssignProductionJobUseCase } from './use-cases/assign-production-job.usecase';
 import { StartProductionUseCase } from './use-cases/start-production.usecase';
@@ -208,6 +213,62 @@ export class ProductionJobsController {
       dto.passedQualityCheck,
       dto.notes,
     );
+  }
+
+  @Patch(':id/qc')
+  @RequirePermissions({ action: 'manage', subject: 'ProductionJob' })
+  async markJobQC(
+    @Param('id') id: string,
+    @Body() dto: { notes?: string },
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user.sub;
+    const job = await this.prisma.productionJob.findUnique({
+      where: { id },
+      include: { order: true },
+    });
+    if (!job) throw new NotFoundException('Production job not found');
+
+    ProductionJobLogic.validateTransition(
+      job.status,
+      ProductionJobStatus.Quality_Check,
+    );
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const updatedJob = await tx.productionJob.update({
+        where: { id },
+        data: {
+          status: ProductionJobStatus.Quality_Check,
+          notes: dto?.notes
+            ? job.notes
+              ? `${job.notes}\n${dto.notes}`
+              : dto.notes
+            : job.notes,
+        },
+      });
+
+      if (job.orderId) {
+        await tx.order.update({
+          where: { id: job.orderId },
+          data: { status: 'Quality_Check' },
+        });
+
+        await tx.orderTimeline.create({
+          data: {
+            orderId: job.orderId,
+            status: 'Quality_Check',
+            notes: dto?.notes
+              ? `Pekerjaan produksi dialihkan ke pemeriksaan mutu (QC): ${dto.notes}`
+              : 'Pekerjaan cetak selesai dan dialihkan ke pemeriksaan mutu (Quality Check).',
+            createdBy: userId,
+          },
+        });
+      }
+
+      return updatedJob;
+    });
+
+    return updated;
   }
 
   @Post(':id/materials')

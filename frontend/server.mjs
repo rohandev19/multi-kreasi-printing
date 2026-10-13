@@ -33,9 +33,13 @@ app.get('/favicon.ico', (_req, res) => {
   res.status(404).end();
 });
 
+app.use('/assets', express.static(join(distPath, 'assets'), { maxAge: '1y', immutable: true }));
 app.use(express.static(distPath, { index: false }));
 
 app.use((_req, res) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
   if (processedIndexHtml) {
     res.send(processedIndexHtml);
   } else {

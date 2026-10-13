@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useRouteError, isRouteErrorResponse, Link } from 'react-router-dom';
 import { Warning, House, ArrowClockwise } from '@phosphor-icons/react';
 
@@ -6,6 +7,24 @@ export function GlobalErrorBoundary() {
   
   let title = 'Terjadi Kesalahan';
   let message = 'Terjadi kesalahan yang tidak terduga saat memproses permintaan Anda.';
+  const isChunkLoadError = 
+    error instanceof Error && 
+    (error.message.includes('dynamically imported module') || 
+     error.message.includes('Failed to fetch') ||
+     error.message.includes('Loading chunk'));
+
+  useEffect(() => {
+    if (isChunkLoadError) {
+      const reloadKey = 'chunk_reload_attempt';
+      const hasReloaded = sessionStorage.getItem(reloadKey);
+      if (!hasReloaded) {
+        sessionStorage.setItem(reloadKey, '1');
+        window.location.reload();
+      }
+    } else {
+      sessionStorage.removeItem('chunk_reload_attempt');
+    }
+  }, [isChunkLoadError]);
 
   if (isRouteErrorResponse(error)) {
     if (error.status === 404) {
@@ -22,7 +41,12 @@ export function GlobalErrorBoundary() {
       message = error.data?.message || message;
     }
   } else if (error instanceof Error) {
-    message = error.message;
+    if (isChunkLoadError) {
+      title = 'Pembaruan Aplikasi Tersedia';
+      message = 'Sistem telah diperbarui ke versi terbaru. Silakan klik "Muat Ulang Halaman" di bawah ini.';
+    } else {
+      message = error.message;
+    }
   }
 
   return (

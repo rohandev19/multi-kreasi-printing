@@ -117,9 +117,13 @@ export const OrderDetail = () => {
       case 'Proof_Rejected': return 'bg-red-100 text-red-800';
       case 'Approved': return 'bg-primary-100 text-primary-700';
       case 'In_Production': return 'bg-cyan-100 text-cyan-800';
+      case 'Quality_Check': return 'bg-purple-100 text-purple-800 border border-purple-200';
+      case 'Completed': return 'bg-blue-100 text-blue-800 border border-blue-200';
+      case 'Ready': return 'bg-teal-100 text-teal-800';
       case 'Partially_Shipped': return 'bg-indigo-100 text-indigo-800 border border-indigo-200';
+      case 'Shipped': return 'bg-sky-100 text-sky-800 border border-sky-200';
       case 'Delivered': return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
-      case 'Completed': return 'bg-emerald-100 text-emerald-700';
+      case 'Cancelled': return 'bg-red-100 text-red-700';
       default: return 'bg-slate-100 text-slate-700';
     }
   };
@@ -171,10 +175,12 @@ export const OrderDetail = () => {
       Proof_Rejected: 'Revisi Bukti Cetak Diminta',
       Approved: 'Disetujui',
       In_Production: 'Dalam Produksi',
-      Quality_Check: 'Pemeriksaan Kualitas',
+      Quality_Check: 'Pemeriksaan Kualitas (QC)',
+      Completed: 'Selesai Diproduksi',
+      Ready: 'Siap Kirim',
       Partially_Shipped: 'Terkirim Sebagian (Partial)',
-      Completed: 'Selesai',
-      Delivered: 'Selesai & Diterima (Delivered)',
+      Shipped: 'Telah Dikirim (In Transit)',
+      Delivered: 'Selesai Diterima (Delivered)',
       Cancelled: 'Dibatalkan',
     };
     return map[status] || status.replace(/_/g, ' ');
@@ -232,19 +238,19 @@ export const OrderDetail = () => {
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-4 border-white ${['Approved', 'Proof_Pending_Approval', 'Proof_Approved', 'In_Production', 'Completed'].includes(order.status) ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-4 border-white ${['Approved', 'Proof_Pending_Approval', 'Proof_Approved', 'In_Production', 'Quality_Check', 'Completed', 'Ready', 'Partially_Shipped', 'Shipped', 'Delivered'].includes(order.status) ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
                     <CheckCircle size={16} weight="regular" />
                   </div>
                   <div>
-                    <h4 className={`font-bold ${['Approved', 'Proof_Pending_Approval', 'Proof_Approved', 'In_Production', 'Completed'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Pesanan Disetujui</h4>
+                    <h4 className={`font-bold ${['Approved', 'Proof_Pending_Approval', 'Proof_Approved', 'In_Production', 'Quality_Check', 'Completed', 'Ready', 'Partially_Shipped', 'Shipped', 'Delivered'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Pesanan Disetujui</h4>
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-4 border-white ${['Proof_Approved', 'In_Production', 'Completed'].includes(order.status) ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-4 border-white ${['Proof_Approved', 'In_Production', 'Quality_Check', 'Completed', 'Ready', 'Partially_Shipped', 'Shipped', 'Delivered'].includes(order.status) ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
                     <CheckCircle size={16} weight="regular" />
                   </div>
                   <div>
-                    <h4 className={`font-bold ${['Proof_Approved', 'In_Production', 'Completed'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Bukti Cetak Disetujui (ACC Proof)</h4>
+                    <h4 className={`font-bold ${['Proof_Approved', 'In_Production', 'Quality_Check', 'Completed', 'Ready', 'Partially_Shipped', 'Shipped', 'Delivered'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Bukti Cetak Disetujui (ACC Proof)</h4>
                     {order.status === 'Proof_Pending_Approval' && (
                       <p className="text-xs text-amber-700 font-semibold mt-0.5">Menunggu konfirmasi klien</p>
                     )}
@@ -254,19 +260,34 @@ export const OrderDetail = () => {
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-4 border-white ${['In_Production', 'Completed'].includes(order.status) ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-4 border-white ${['In_Production', 'Quality_Check', 'Completed', 'Ready', 'Partially_Shipped', 'Shipped', 'Delivered'].includes(order.status) ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
                     <CheckCircle size={16} weight="regular" />
                   </div>
                   <div>
-                    <h4 className={`font-bold ${['In_Production', 'Completed'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Dalam Produksi</h4>
+                    <h4 className={`font-bold ${['In_Production', 'Quality_Check', 'Completed', 'Ready', 'Partially_Shipped', 'Shipped', 'Delivered'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Dalam Produksi & QC</h4>
+                    {order.status === 'Quality_Check' && (
+                      <p className="text-xs text-purple-700 font-semibold mt-0.5">Sedang dalam pemeriksaan mutu (Quality Check)</p>
+                    )}
+                    {order.status === 'Completed' && (
+                      <p className="text-xs text-blue-700 font-semibold mt-0.5">Produksi selesai & lolos QC</p>
+                    )}
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-4 border-white ${['Completed'].includes(order.status) ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-4 border-white ${['Partially_Shipped', 'Shipped', 'Delivered'].includes(order.status) ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
                     <CheckCircle size={16} weight="regular" />
                   </div>
                   <div>
-                    <h4 className={`font-bold ${['Completed'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Selesai & Terkirim</h4>
+                    <h4 className={`font-bold ${['Partially_Shipped', 'Shipped', 'Delivered'].includes(order.status) ? 'text-slate-900' : 'text-slate-500'}`}>Pengiriman & Serah Terima</h4>
+                    {order.status === 'Partially_Shipped' && (
+                      <p className="text-xs text-indigo-700 font-semibold mt-0.5">Dikirim sebagian</p>
+                    )}
+                    {order.status === 'Shipped' && (
+                      <p className="text-xs text-blue-700 font-semibold mt-0.5">Dalam pengiriman (In Transit)</p>
+                    )}
+                    {order.status === 'Delivered' && (
+                      <p className="text-xs text-emerald-700 font-semibold mt-0.5">Seluruh barang telah diterima (POD)</p>
+                    )}
                   </div>
                 </div>
               </div>

@@ -7,6 +7,7 @@ import {
   Body,
   UseGuards,
   Req,
+  NotFoundException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
@@ -15,6 +16,7 @@ import {
   ConfirmDeliveryDto,
   UpdateShipmentStatusDto,
 } from './dto/shipment.dto';
+import { ShipmentLogic } from './domain/shipment.entity';
 import { CreateShipmentUseCase } from './use-cases/create-shipment.usecase';
 import { GetOrderShipmentsUseCase } from './use-cases/get-order-shipments.usecase';
 import { ConfirmDeliveryUseCase } from './use-cases/confirm-delivery.usecase';
@@ -111,15 +113,108 @@ export class ShipmentsController {
   async updateShipmentStatus(
     @Param('id') id: string,
     @Body() dto: UpdateShipmentStatusDto,
+    @Req() req: Request,
   ) {
-    const shipment = await this.prisma.shipment.update({
+    const currentUserId = (req as any).user?.userId || (req as any).user?.sub;
+    const shipment = await this.prisma.shipment.findUnique({
       where: { id },
-      data: {
-        status: dto.status,
-        shippedAt:
-          dto.status === 'In_Transit' ? new Date() : undefined,
+      include: {
+        order: {
+          include: {
+            items: true,
+            shipments: {
+              include: { items: true },
+            },
+          },
+        },
+        items: true,
       },
     });
-    return shipment;
+
+    if (!shipment) {
+      throw new NotFoundException(`Surat Jalan dengan ID ${id} tidak ditemukan.`);
+    }
+
+    const updatedShipment = await this.prisma.$transaction(async (tx) => {
+      const updated = await tx.shipment.update({
+        where: { id },
+        data: {
+          status: dto.status,
+          shippedAt: dto.status === 'In_Transit' ? new Date() : undefined,
+          deliveredAt: dto.status === 'Delivered' ? new Date() : undefined,
+        },
+      });
+
+      if (shipment.order) {
+        if (dto.status === 'In_Transit') {
+          // Calculate fulfillment progress
+          const allShipments = shipment.order.shipments.map((s) =>
+            s.id === id ? { ...s, status: 'In_Transit' } : s,
+          );
+          const inTransitOrDeliveredShipmentItems = allShipments
+            .filter((s) => s.status === 'In_Transit' || s.status === 'Delivered')
+            .flatMap((s) => s.items);
+
+          const progress = ShipmentLogic.calculateFulfillmentProgress(
+            shipment.order.items.map((i) => ({ id: i.id, quantity: i.quantity })),
+            inTransitOrDeliveredShipmentItems.map((i) => ({
+              orderItemId: i.orderItemId,
+              quantity: i.quantity,
+            })),
+          );
+
+          const newOrderStatus = progress.isComplete ? 'Shipped' : 'Partially_Shipped';
+
+          await tx.order.update({
+            where: { id: shipment.orderId },
+            data: { status: newOrderStatus },
+          });
+
+          await tx.orderTimeline.create({
+            data: {
+              orderId: shipment.orderId,
+              status: newOrderStatus,
+              notes: `Surat Jalan ${shipment.shipmentNumber} diberangkatkan (${shipment.carrier || 'Armada MKP'}). Status pesanan diperbarui menjadi ${newOrderStatus === 'Shipped' ? 'Telah Dikirim (Shipped)' : 'Dikirim Sebagian (Partially Shipped)'}.`,
+              createdBy: currentUserId,
+            },
+          });
+        } else if (dto.status === 'Delivered') {
+          const allShipments = shipment.order.shipments.map((s) =>
+            s.id === id ? { ...s, status: 'Delivered' } : s,
+          );
+          const deliveredItems = allShipments
+            .filter((s) => s.status === 'Delivered')
+            .flatMap((s) => s.items);
+
+          const progress = ShipmentLogic.calculateFulfillmentProgress(
+            shipment.order.items.map((i) => ({ id: i.id, quantity: i.quantity })),
+            deliveredItems.map((i) => ({
+              orderItemId: i.orderItemId,
+              quantity: i.quantity,
+            })),
+          );
+
+          if (progress.isComplete) {
+            await tx.order.update({
+              where: { id: shipment.orderId },
+              data: { status: 'Delivered' },
+            });
+
+            await tx.orderTimeline.create({
+              data: {
+                orderId: shipment.orderId,
+                status: 'Delivered',
+                notes: `Seluruh pengiriman telah selesai diterima oleh pelanggan.`,
+                createdBy: currentUserId,
+              },
+            });
+          }
+        }
+      }
+
+      return updated;
+    });
+
+    return updatedShipment;
   }
 }
