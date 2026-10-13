@@ -23,6 +23,16 @@ if (fs.existsSync(indexHtmlPath)) {
   console.log(`Injected API_URL = ${API_URL} into index.html`);
 }
 
+app.get('/favicon.ico', (_req, res) => {
+  const icoPath = join(distPath, 'favicon.ico');
+  if (fs.existsSync(icoPath)) {
+    res.type('image/x-icon');
+    res.set('Cache-Control', 'public, max-age=86400');
+    return res.sendFile(icoPath);
+  }
+  res.status(404).end();
+});
+
 app.use(express.static(distPath, { index: false }));
 
 app.use((_req, res) => {

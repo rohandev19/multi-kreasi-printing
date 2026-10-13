@@ -12,6 +12,13 @@ app.use(
   }),
 );
 
+app.get('/favicon.ico', (_req, res) => {
+  const icoPath = path.join(__dirname, 'dist', 'favicon.ico');
+  res.type('image/x-icon');
+  res.set('Cache-Control', 'public, max-age=86400');
+  res.sendFile(icoPath);
+});
+
 // Serve other static files with moderate caching
 app.use(
   express.static(path.join(__dirname, 'dist'), {
