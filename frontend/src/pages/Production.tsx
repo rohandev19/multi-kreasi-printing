@@ -391,13 +391,31 @@ export default function Production() {
                         {job.status === 'Completed' && (
                           <div className="flex items-center justify-end gap-1.5">
                             {job.orderId && (
-                              <button
-                                onClick={() => setCreateShipmentOrderId(job.orderId!)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs"
-                                title="Terbitkan Surat Jalan & Kirim Barang"
-                              >
-                                <Truck size={14} weight="bold" /> Kirim Barang
-                              </button>
+                              job.orderStatus === 'Delivered' ? (
+                                <button
+                                  onClick={() => setCreateShipmentOrderId(job.orderId!)}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs"
+                                  title="Lihat Status Pengiriman & Surat Jalan"
+                                >
+                                  <CheckCircle size={14} weight="bold" /> Selesai & Terkirim
+                                </button>
+                              ) : job.orderStatus === 'Shipped' ? (
+                                <button
+                                  onClick={() => setCreateShipmentOrderId(job.orderId!)}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs"
+                                  title="Lihat Status Pengiriman"
+                                >
+                                  <Truck size={14} weight="bold" /> Dalam Pengiriman
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => setCreateShipmentOrderId(job.orderId!)}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs"
+                                  title="Terbitkan Surat Jalan & Kirim Barang"
+                                >
+                                  <Truck size={14} weight="bold" /> {job.orderStatus === 'Partially_Shipped' ? 'Kirim Sisa' : 'Kirim Barang'}
+                                </button>
+                              )
                             )}
                             {job.orderId && (
                               <button
@@ -438,7 +456,7 @@ export default function Production() {
                     <h3 className="font-bold text-slate-800">{statusDisplayMap[status] || status}</h3>
                     {status === 'Completed' && (
                       <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
-                        Siap Kirim
+                        Selesai / Kirim
                       </span>
                     )}
                   </div>
@@ -516,19 +534,53 @@ export default function Production() {
                         )}
                         {job.status === 'Completed' && (
                           <div className="flex flex-col gap-2 w-full pt-1">
-                            <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1.5 justify-center">
-                              <CheckCircle size={15} weight="fill" className="text-emerald-600 shrink-0" />
-                              <span>Selesai Diproduksi</span>
+                            <div className={`flex items-center gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-1.5 justify-center ${
+                              job.orderStatus === 'Delivered'
+                                ? 'text-emerald-800 bg-emerald-50 border border-emerald-200'
+                                : job.orderStatus === 'Shipped'
+                                ? 'text-blue-800 bg-blue-50 border border-blue-200'
+                                : job.orderStatus === 'Partially_Shipped'
+                                ? 'text-amber-800 bg-amber-50 border border-amber-200'
+                                : 'text-emerald-800 bg-emerald-50 border border-emerald-200'
+                            }`}>
+                              <CheckCircle size={15} weight="fill" className={job.orderStatus === 'Shipped' ? 'text-blue-600 shrink-0' : job.orderStatus === 'Partially_Shipped' ? 'text-amber-600 shrink-0' : 'text-emerald-600 shrink-0'} />
+                              <span>
+                                {job.orderStatus === 'Delivered'
+                                  ? 'Terkirim & Diterima Klien'
+                                  : job.orderStatus === 'Shipped'
+                                  ? 'Sedang Dalam Pengiriman'
+                                  : job.orderStatus === 'Partially_Shipped'
+                                  ? 'Pengiriman Parsial'
+                                  : 'Selesai Diproduksi'}
+                              </span>
                             </div>
                             <div className="flex flex-col gap-1.5 w-full">
                               {job.orderId && (
-                                <button
-                                  onClick={() => setCreateShipmentOrderId(job.orderId!)}
-                                  className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
-                                  title="Terbitkan Surat Jalan & Kirim Barang"
-                                >
-                                  <Truck size={15} weight="bold" /> Kirim Barang
-                                </button>
+                                job.orderStatus === 'Delivered' ? (
+                                  <button
+                                    onClick={() => setCreateShipmentOrderId(job.orderId!)}
+                                    className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                                    title="Lihat Surat Jalan & Bukti Penerimaan"
+                                  >
+                                    <CheckCircle size={15} weight="bold" /> Lihat Surat Jalan (POD)
+                                  </button>
+                                ) : job.orderStatus === 'Shipped' ? (
+                                  <button
+                                    onClick={() => setCreateShipmentOrderId(job.orderId!)}
+                                    className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                                    title="Lihat Surat Jalan & Ekspedisi"
+                                  >
+                                    <Truck size={15} weight="bold" /> Lihat Surat Jalan
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => setCreateShipmentOrderId(job.orderId!)}
+                                    className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                                    title="Terbitkan Surat Jalan & Kirim Barang"
+                                  >
+                                    <Truck size={15} weight="bold" /> {job.orderStatus === 'Partially_Shipped' ? 'Kirim Sisa Item' : 'Kirim Barang'}
+                                  </button>
+                                )
                               )}
                               {job.orderId && (
                                 <button
