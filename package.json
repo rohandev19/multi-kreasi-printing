@@ -4,7 +4,7 @@
   "private": true,
   "description": "Multi Kreasi Printing Enterprise Digital Platform",
   "engines": {
-    "node": "20.x",
+    "node": "22.x",
     "npm": ">=10.0.0"
   },
   "workspaces": [
