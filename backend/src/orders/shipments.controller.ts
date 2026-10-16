@@ -15,6 +15,7 @@ import {
   CreateShipmentDto,
   ConfirmDeliveryDto,
   UpdateShipmentStatusDto,
+  UpdateShipmentTrackingDto,
 } from './dto/shipment.dto';
 import { ShipmentLogic } from './domain/shipment.entity';
 import { CreateShipmentUseCase } from './use-cases/create-shipment.usecase';
@@ -140,8 +141,19 @@ export class ShipmentsController {
         where: { id },
         data: {
           status: dto.status,
-          shippedAt: dto.status === 'In_Transit' ? new Date() : undefined,
+          shippedAt:
+            dto.status === 'In_Transit'
+              ? dto.shippedAt
+                ? new Date(dto.shippedAt)
+                : new Date()
+              : undefined,
           deliveredAt: dto.status === 'Delivered' ? new Date() : undefined,
+          carrier: dto.carrier !== undefined ? dto.carrier : undefined,
+          trackingNumber: dto.trackingNumber !== undefined ? dto.trackingNumber : undefined,
+          driverName: dto.driverName !== undefined ? dto.driverName : undefined,
+          driverPhone: dto.driverPhone !== undefined ? dto.driverPhone : undefined,
+          vehicleNumber: dto.vehicleNumber !== undefined ? dto.vehicleNumber : undefined,
+          notes: dto.notes !== undefined ? dto.notes : undefined,
         },
       });
 
@@ -170,11 +182,14 @@ export class ShipmentsController {
             data: { status: newOrderStatus },
           });
 
+          const carrierDetail = dto.carrier || shipment.carrier || 'Armada MKP';
+          const trackingDetail = dto.trackingNumber ? ` (Resi/AWB: ${dto.trackingNumber})` : '';
+
           await tx.orderTimeline.create({
             data: {
               orderId: shipment.orderId,
               status: newOrderStatus,
-              notes: `Surat Jalan ${shipment.shipmentNumber} diberangkatkan (${shipment.carrier || 'Armada MKP'}). Status pesanan diperbarui menjadi ${newOrderStatus === 'Shipped' ? 'Telah Dikirim (Shipped)' : 'Dikirim Sebagian (Partially Shipped)'}.`,
+              notes: `Surat Jalan ${shipment.shipmentNumber} diberangkatkan (${carrierDetail}${trackingDetail}). Status pesanan diperbarui menjadi ${newOrderStatus === 'Shipped' ? 'Telah Dikirim (Shipped)' : 'Dikirim Sebagian (Partially Shipped)'}.`,
               createdBy: currentUserId,
             },
           });
@@ -217,4 +232,65 @@ export class ShipmentsController {
 
     return updatedShipment;
   }
+
+  @Patch('shipments/:id/tracking')
+  @RequirePermissions({ action: 'manage', subject: 'Order' })
+  async updateShipmentTracking(
+    @Param('id') id: string,
+    @Body() dto: UpdateShipmentTrackingDto,
+    @Req() req: Request,
+  ) {
+    const currentUserId = (req as any).user?.userId || (req as any).user?.sub;
+    const shipment = await this.prisma.shipment.findUnique({
+      where: { id },
+    });
+
+    if (!shipment) {
+      throw new NotFoundException(`Surat Jalan dengan ID ${id} tidak ditemukan.`);
+    }
+
+    const updatedShipment = await this.prisma.$transaction(async (tx) => {
+      const updated = await tx.shipment.update({
+        where: { id },
+        data: {
+          carrier: dto.carrier !== undefined ? dto.carrier : undefined,
+          trackingNumber: dto.trackingNumber !== undefined ? dto.trackingNumber : undefined,
+          driverName: dto.driverName !== undefined ? dto.driverName : undefined,
+          driverPhone: dto.driverPhone !== undefined ? dto.driverPhone : undefined,
+          vehicleNumber: dto.vehicleNumber !== undefined ? dto.vehicleNumber : undefined,
+          notes: dto.notes !== undefined ? dto.notes : undefined,
+        },
+      });
+
+      const changes: string[] = [];
+      if (dto.carrier && dto.carrier !== shipment.carrier) {
+        changes.push(`Kurir: ${dto.carrier}`);
+      }
+      if (dto.trackingNumber && dto.trackingNumber !== shipment.trackingNumber) {
+        changes.push(`Resi/AWB: ${dto.trackingNumber}`);
+      }
+      if (dto.driverName && dto.driverName !== shipment.driverName) {
+        changes.push(`Driver: ${dto.driverName}`);
+      }
+      if (dto.vehicleNumber && dto.vehicleNumber !== shipment.vehicleNumber) {
+        changes.push(`Plat Kendaraan: ${dto.vehicleNumber}`);
+      }
+
+      if (changes.length > 0) {
+        await tx.orderTimeline.create({
+          data: {
+            orderId: shipment.orderId,
+            status: shipment.status,
+            notes: `Informasi logistik Surat Jalan ${shipment.shipmentNumber} diperbarui: ${changes.join(', ')}`,
+            createdBy: currentUserId,
+          },
+        });
+      }
+
+      return updated;
+    });
+
+    return updatedShipment;
+  }
 }
+

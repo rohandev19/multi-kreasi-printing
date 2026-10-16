@@ -236,30 +236,63 @@ export const SuratJalanModal: React.FC<SuratJalanModalProps> = ({
             {/* Signature Columns (3 Columns: Gudang, Driver, Penerima) */}
             <div className="pt-6 border-t border-slate-200">
               <div className="grid grid-cols-3 gap-6 text-center text-xs">
-                <div className="space-y-16">
+                <div className="flex flex-col justify-between h-36">
                   <p className="font-bold text-slate-700">Diserahkan Oleh (Gudang):</p>
+                  <div className="flex-1 flex items-center justify-center my-1">
+                    <span className="text-[10px] text-slate-400 font-mono italic">
+                      [ Logistik Multi Kreasi ]
+                    </span>
+                  </div>
                   <div>
                     <div className="w-4/5 mx-auto border-b border-slate-400"></div>
                     <p className="text-[11px] text-slate-500 mt-1">Multi Kreasi Printing</p>
                   </div>
                 </div>
 
-                <div className="space-y-16">
+                <div className="flex flex-col justify-between h-36">
                   <p className="font-bold text-slate-700">Dibawa Oleh (Driver/Kurir):</p>
+                  <div className="flex-1 flex items-center justify-center my-1">
+                    {data.shipment.driverName ? (
+                      <span className="text-[10px] text-slate-600 font-medium">
+                        {data.shipment.driverPhone ? `WA: ${data.shipment.driverPhone}` : ''}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-slate-400 italic">
+                        {data.shipment.carrier || 'Kurir Ekspedisi'}
+                      </span>
+                    )}
+                  </div>
                   <div>
                     <div className="w-4/5 mx-auto border-b border-slate-400"></div>
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      {data.shipment.driverName || 'Petugas Pengiriman'}
+                    <p className="text-[11px] text-slate-600 font-semibold mt-1">
+                      {data.shipment.driverName || data.shipment.carrier || 'Petugas Pengiriman'}
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-16">
+                <div className="flex flex-col justify-between h-36">
                   <p className="font-bold text-slate-700">Diterima Oleh (Customer):</p>
+                  <div className="flex-1 flex items-center justify-center my-1">
+                    {data.shipment.podSignature?.startsWith('data:image/') ? (
+                      <img
+                        src={data.shipment.podSignature}
+                        alt="Tanda Tangan Penerima"
+                        className="max-h-16 max-w-full object-contain filter contrast-125"
+                      />
+                    ) : data.shipment.status === 'Delivered' ? (
+                      <span className="text-[10px] text-emerald-800 font-semibold px-2 py-0.5 bg-emerald-50 rounded border border-emerald-300">
+                        ✓ Terverifikasi Digital
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-slate-300 italic">
+                        [ Tanda tangan / Cap ]
+                      </span>
+                    )}
+                  </div>
                   <div>
                     <div className="w-4/5 mx-auto border-b border-slate-400"></div>
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      {data.shipment.receivedBy || 'Tanda Tangan & Cap'}
+                    <p className="text-[11px] text-slate-800 font-bold mt-1">
+                      {data.shipment.receivedBy || 'Nama Terang & Cap'}
                     </p>
                   </div>
                 </div>

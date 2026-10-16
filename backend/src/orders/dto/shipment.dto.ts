@@ -98,4 +98,55 @@ export class UpdateShipmentStatusDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @IsOptional()
+  @IsString()
+  carrier?: string;
+
+  @IsOptional()
+  @IsString()
+  trackingNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  driverName?: string;
+
+  @IsOptional()
+  @IsString()
+  driverPhone?: string;
+
+  @IsOptional()
+  @IsString()
+  vehicleNumber?: string;
+
+  @IsOptional()
+  @IsDateString()
+  shippedAt?: string;
 }
+
+export class UpdateShipmentTrackingDto {
+  @IsOptional()
+  @IsString()
+  carrier?: string;
+
+  @IsOptional()
+  @IsString()
+  trackingNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  driverName?: string;
+
+  @IsOptional()
+  @IsString()
+  driverPhone?: string;
+
+  @IsOptional()
+  @IsString()
+  vehicleNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+

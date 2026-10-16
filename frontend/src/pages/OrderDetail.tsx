@@ -17,6 +17,7 @@ import {
   Printer,
   UserCheck,
   MapPin,
+  NotePencil,
 } from '@phosphor-icons/react';
 import api from '../api/axios';
 import { useRoleContext } from '../contexts/RoleContext';
@@ -26,6 +27,7 @@ import { CreateProofModal } from '../components/modals/CreateProofModal';
 import { CreateShipmentModal } from '../components/modals/CreateShipmentModal';
 import { SuratJalanModal } from '../components/modals/SuratJalanModal';
 import { ConfirmDeliveryModal } from '../components/modals/ConfirmDeliveryModal';
+import { DispatchShipmentModal } from '../components/modals/DispatchShipmentModal';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 
 export const OrderDetail = () => {
@@ -44,7 +46,10 @@ export const OrderDetail = () => {
   const [isCreateShipmentOpen, setIsCreateShipmentOpen] = useState(false);
   const [selectedSuratJalanId, setSelectedSuratJalanId] = useState<string | null>(null);
   const [confirmDeliveryShipment, setConfirmDeliveryShipment] = useState<{ id: string; shipmentNumber: string } | null>(null);
-  const [updatingShipmentStatusId, setUpdatingShipmentStatusId] = useState<string | null>(null);
+  const [dispatchShipmentState, setDispatchShipmentState] = useState<{
+    shipment: any;
+    isUpdateOnly: boolean;
+  } | null>(null);
   const [isApprovingOrder, setIsApprovingOrder] = useState(false);
   const [isConfirmApproveOpen, setIsConfirmApproveOpen] = useState(false);
 
@@ -95,19 +100,6 @@ export const OrderDetail = () => {
   useEffect(() => {
     fetchOrderDetails();
   }, [fetchOrderDetails]);
-
-  const handleUpdateShipmentStatus = async (shipmentId: string, newStatus: string) => {
-    setUpdatingShipmentStatusId(shipmentId);
-    try {
-      await api.patch(`/api/v1/shipments/${shipmentId}/status`, { status: newStatus });
-      success('Status Pengiriman Diperbarui', `Surat jalan berhasil diubah ke ${newStatus}.`);
-      fetchOrderDetails();
-    } catch (err: any) {
-      toastError('Gagal Memperbarui', err.response?.data?.message || 'Gagal mengubah status pengiriman.');
-    } finally {
-      setUpdatingShipmentStatusId(null);
-    }
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -632,12 +624,21 @@ export const OrderDetail = () => {
 
                         {['Admin', 'Manager', 'Warehouse', 'Sales', 'Owner'].includes(role) && isPreparing && (
                           <button
-                            disabled={updatingShipmentStatusId === shipment.id}
-                            onClick={() => handleUpdateShipmentStatus(shipment.id, 'In_Transit')}
+                            onClick={() => setDispatchShipmentState({ shipment, isUpdateOnly: false })}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-2xs"
                           >
                             <Truck size={14} weight="bold" />
-                            Kirim Barang
+                            Kirim & Input Resi
+                          </button>
+                        )}
+
+                        {['Admin', 'Manager', 'Warehouse', 'Sales', 'Owner'].includes(role) && shipment.status === 'In_Transit' && (
+                          <button
+                            onClick={() => setDispatchShipmentState({ shipment, isUpdateOnly: true })}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-lg border border-slate-300 transition-colors shadow-2xs"
+                          >
+                            <NotePencil size={14} weight="bold" />
+                            Perbarui Kurir / Resi
                           </button>
                         )}
 
@@ -783,6 +784,14 @@ export const OrderDetail = () => {
         isOpen={!!selectedSuratJalanId}
         onClose={() => setSelectedSuratJalanId(null)}
         shipmentId={selectedSuratJalanId}
+      />
+
+      <DispatchShipmentModal
+        isOpen={!!dispatchShipmentState}
+        onClose={() => setDispatchShipmentState(null)}
+        onSuccess={fetchOrderDetails}
+        shipment={dispatchShipmentState?.shipment || null}
+        isUpdateOnly={dispatchShipmentState?.isUpdateOnly}
       />
 
       <ConfirmDeliveryModal

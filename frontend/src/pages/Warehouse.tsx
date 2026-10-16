@@ -9,6 +9,7 @@ import { AdjustStockModal } from '../components/modals/AdjustStockModal';
 import { RecordShipmentModal } from '../components/modals/RecordShipmentModal';
 import { SuratJalanModal } from '../components/modals/SuratJalanModal';
 import { ConfirmDeliveryModal } from '../components/modals/ConfirmDeliveryModal';
+import { DispatchShipmentModal } from '../components/modals/DispatchShipmentModal';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useToast } from '../contexts/ToastContext';
 
@@ -36,6 +37,10 @@ export default function Warehouse() {
   const [shipmentsLoading, setShipmentsLoading] = useState(false);
   const [selectedSuratJalanId, setSelectedSuratJalanId] = useState<string | null>(null);
   const [confirmDeliveryShipment, setConfirmDeliveryShipment] = useState<{ id: string; shipmentNumber: string } | null>(null);
+  const [dispatchShipmentState, setDispatchShipmentState] = useState<{
+    shipment: any;
+    isUpdateOnly: boolean;
+  } | null>(null);
 
   // Modal states
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -308,6 +313,9 @@ export default function Warehouse() {
             onViewSuratJalan={(id) => setSelectedSuratJalanId(id)}
             onConfirmDelivery={(sh) => setConfirmDeliveryShipment(sh)}
             onUpdateStatus={handleUpdateShipmentStatus}
+            onDispatchShipment={(sh, isUpdateOnly) =>
+              setDispatchShipmentState({ shipment: sh, isUpdateOnly: !!isUpdateOnly })
+            }
             userRole={role || ''}
           />
         </>
@@ -346,6 +354,14 @@ export default function Warehouse() {
         shipmentId={selectedSuratJalanId}
       />
 
+      <DispatchShipmentModal
+        isOpen={!!dispatchShipmentState}
+        onClose={() => setDispatchShipmentState(null)}
+        onSuccess={fetchShipments}
+        shipment={dispatchShipmentState?.shipment || null}
+        isUpdateOnly={dispatchShipmentState?.isUpdateOnly}
+      />
+
       <ConfirmDeliveryModal
         isOpen={!!confirmDeliveryShipment}
         onClose={() => setConfirmDeliveryShipment(null)}
@@ -367,3 +383,4 @@ export default function Warehouse() {
     </div>
   );
 }
+

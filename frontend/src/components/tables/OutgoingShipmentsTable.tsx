@@ -7,6 +7,10 @@ import {
   MagnifyingGlass,
   Funnel,
   ArrowSquareOut,
+  Copy,
+  Check,
+  NotePencil,
+  MapPin,
 } from '@phosphor-icons/react';
 
 interface OutgoingShipmentsTableProps {
@@ -15,6 +19,7 @@ interface OutgoingShipmentsTableProps {
   onViewSuratJalan: (shipmentId: string) => void;
   onConfirmDelivery: (shipment: { id: string; shipmentNumber: string }) => void;
   onUpdateStatus: (shipmentId: string, status: string) => void;
+  onDispatchShipment?: (shipment: any, isUpdateOnly?: boolean) => void;
   userRole: string;
 }
 
@@ -24,10 +29,21 @@ export const OutgoingShipmentsTable: React.FC<OutgoingShipmentsTableProps> = ({
   onViewSuratJalan,
   onConfirmDelivery,
   onUpdateStatus,
+  onDispatchShipment,
   userRole,
 }) => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [copiedResiId, setCopiedResiId] = useState<string | null>(null);
+
+  const handleCopyResi = (shipmentId: string, resi: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(resi);
+    setCopiedResiId(shipmentId);
+    setTimeout(() => {
+      setCopiedResiId(null);
+    }, 2000);
+  };
 
   const filteredShipments = shipments.filter((s) => {
     const matchesStatus =
@@ -39,8 +55,11 @@ export const OutgoingShipmentsTable: React.FC<OutgoingShipmentsTableProps> = ({
       s.shipmentNumber?.toLowerCase().includes(term) ||
       s.order?.orderNumber?.toLowerCase().includes(term) ||
       s.recipientName?.toLowerCase().includes(term) ||
+      s.order?.customer?.companyName?.toLowerCase().includes(term) ||
       s.order?.customer?.name?.toLowerCase().includes(term) ||
-      s.carrier?.toLowerCase().includes(term);
+      s.carrier?.toLowerCase().includes(term) ||
+      s.trackingNumber?.toLowerCase().includes(term) ||
+      s.driverName?.toLowerCase().includes(term);
 
     return matchesStatus && matchesSearch;
   });
@@ -88,6 +107,43 @@ export const OutgoingShipmentsTable: React.FC<OutgoingShipmentsTableProps> = ({
     }
   };
 
+  const getCarrierBadge = (carrier?: string) => {
+    const c = carrier || 'Armada MKP';
+    if (c.toLowerCase().includes('internal') || c.toLowerCase().includes('mkp')) {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+          {c}
+        </span>
+      );
+    }
+    if (c.toLowerCase().includes('jne')) {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+          {c}
+        </span>
+      );
+    }
+    if (c.toLowerCase().includes('j&t')) {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+          {c}
+        </span>
+      );
+    }
+    if (c.toLowerCase().includes('sicepat') || c.toLowerCase().includes('lalamove')) {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+          {c}
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-800 border border-slate-200">
+        {c}
+      </span>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center p-12 bg-white rounded-2xl border border-slate-200">
@@ -109,7 +165,7 @@ export const OutgoingShipmentsTable: React.FC<OutgoingShipmentsTableProps> = ({
           />
           <input
             type="text"
-            placeholder="Cari No. SJ, No. Order, Penerima..."
+            placeholder="Cari No. SJ, No. Order, Resi, Penerima..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white"
@@ -147,7 +203,7 @@ export const OutgoingShipmentsTable: React.FC<OutgoingShipmentsTableProps> = ({
               <th className="px-5 py-3.5">No. Surat Jalan</th>
               <th className="px-5 py-3.5">Pesanan & Klien</th>
               <th className="px-5 py-3.5">Tujuan & Penerima</th>
-              <th className="px-5 py-3.5">Armada / Driver</th>
+              <th className="px-5 py-3.5">Kurir & No. Resi</th>
               <th className="px-5 py-3.5">Muatan Item</th>
               <th className="px-5 py-3.5">Status</th>
               <th className="px-5 py-3.5 text-right">Aksi</th>
@@ -158,6 +214,7 @@ export const OutgoingShipmentsTable: React.FC<OutgoingShipmentsTableProps> = ({
               filteredShipments.map((shipment) => {
                 const isDelivered = shipment.status === 'Delivered';
                 const isPreparing = shipment.status === 'Preparing';
+                const isInTransit = shipment.status === 'In_Transit';
 
                 const totalItems = shipment.items?.reduce(
                   (sum: number, it: any) => sum + (it.quantity || 0),
@@ -183,30 +240,55 @@ export const OutgoingShipmentsTable: React.FC<OutgoingShipmentsTableProps> = ({
                         {shipment.order?.orderNumber || 'Lihat Order'}
                         <ArrowSquareOut size={13} />
                       </Link>
-                      <div className="text-xs text-slate-700 font-medium mt-0.5">
-                        {shipment.order?.customer?.company ||
+                      <div className="text-xs text-slate-700 font-medium mt-0.5 truncate max-w-[180px]">
+                        {shipment.order?.customer?.companyName ||
                           shipment.order?.customer?.name ||
                           '-'}
                       </div>
                     </td>
 
                     <td className="px-5 py-4 max-w-xs">
-                      <div className="font-semibold text-slate-900">
-                        {shipment.recipientName}
+                      <div className="font-semibold text-slate-900 flex items-center gap-1">
+                        <MapPin size={13} className="text-slate-400 shrink-0" />
+                        <span className="truncate">{shipment.recipientName}</span>
                       </div>
-                      <div className="text-xs text-slate-500 truncate mt-0.5" title={shipment.deliveryAddress}>
+                      <div
+                        className="text-xs text-slate-500 truncate mt-0.5"
+                        title={shipment.deliveryAddress}
+                      >
                         {shipment.deliveryAddress}
                       </div>
                     </td>
 
                     <td className="px-5 py-4">
-                      <div className="text-xs font-semibold text-slate-800">
-                        {shipment.carrier || 'Armada MKP'}
-                      </div>
-                      <div className="text-[11px] text-slate-500">
-                        {shipment.driverName ? `Driver: ${shipment.driverName}` : ''}
-                        {shipment.vehicleNumber ? ` (${shipment.vehicleNumber})` : ''}
-                      </div>
+                      <div>{getCarrierBadge(shipment.carrier)}</div>
+
+                      {shipment.trackingNumber ? (
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span className="font-mono text-xs font-bold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                            {shipment.trackingNumber}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) =>
+                              handleCopyResi(shipment.id, shipment.trackingNumber, e)
+                            }
+                            title="Salin No. Resi"
+                            className="p-1 text-slate-400 hover:text-slate-800 rounded transition-colors"
+                          >
+                            {copiedResiId === shipment.id ? (
+                              <Check size={13} weight="bold" className="text-emerald-600" />
+                            ) : (
+                              <Copy size={13} />
+                            )}
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="text-[11px] text-slate-500 mt-1">
+                          {shipment.driverName ? `Driver: ${shipment.driverName}` : ''}
+                          {shipment.vehicleNumber ? ` (${shipment.vehicleNumber})` : ''}
+                        </div>
+                      )}
                     </td>
 
                     <td className="px-5 py-4">
@@ -221,7 +303,7 @@ export const OutgoingShipmentsTable: React.FC<OutgoingShipmentsTableProps> = ({
                     <td className="px-5 py-4">
                       {getStatusBadge(shipment.status)}
                       {isDelivered && shipment.receivedBy && (
-                        <div className="text-[10px] text-emerald-700 font-medium mt-1">
+                        <div className="text-[10px] text-emerald-700 font-medium mt-1 truncate max-w-[140px]">
                           PIC: {shipment.receivedBy}
                         </div>
                       )}
@@ -239,11 +321,32 @@ export const OutgoingShipmentsTable: React.FC<OutgoingShipmentsTableProps> = ({
 
                         {canManage && isPreparing && (
                           <button
-                            onClick={() => onUpdateStatus(shipment.id, 'In_Transit')}
-                            title="Kirim Armada"
-                            className="p-1.5 text-blue-600 hover:text-white hover:bg-blue-600 rounded-lg transition-colors border border-blue-200"
+                            onClick={() => {
+                              if (onDispatchShipment) {
+                                onDispatchShipment(shipment, false);
+                              } else {
+                                onUpdateStatus(shipment.id, 'In_Transit');
+                              }
+                            }}
+                            title="Berangkatkan Pengiriman & Input Resi"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-2xs"
                           >
-                            <Truck size={16} weight="bold" />
+                            <Truck size={14} weight="bold" />
+                            <span>Kirim</span>
+                          </button>
+                        )}
+
+                        {canManage && isInTransit && (
+                          <button
+                            onClick={() => {
+                              if (onDispatchShipment) {
+                                onDispatchShipment(shipment, true);
+                              }
+                            }}
+                            title="Perbarui Resi / Driver"
+                            className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200"
+                          >
+                            <NotePencil size={16} weight="bold" />
                           </button>
                         )}
 
@@ -256,9 +359,10 @@ export const OutgoingShipmentsTable: React.FC<OutgoingShipmentsTableProps> = ({
                               })
                             }
                             title="Konfirmasi Serah Terima (POD)"
-                            className="p-1.5 text-emerald-600 hover:text-white hover:bg-emerald-600 rounded-lg transition-colors border border-emerald-200"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors shadow-2xs"
                           >
-                            <CheckCircle size={16} weight="bold" />
+                            <CheckCircle size={14} weight="bold" />
+                            <span>POD</span>
                           </button>
                         )}
                       </div>
@@ -286,6 +390,7 @@ export const OutgoingShipmentsTable: React.FC<OutgoingShipmentsTableProps> = ({
         {filteredShipments.map((shipment) => {
           const isDelivered = shipment.status === 'Delivered';
           const isPreparing = shipment.status === 'Preparing';
+          const isInTransit = shipment.status === 'In_Transit';
 
           return (
             <div
@@ -304,7 +409,7 @@ export const OutgoingShipmentsTable: React.FC<OutgoingShipmentsTableProps> = ({
                 {getStatusBadge(shipment.status)}
               </div>
 
-              <div className="text-xs space-y-1">
+              <div className="text-xs space-y-1.5">
                 <p className="text-slate-700">
                   Pesanan:{' '}
                   <Link
@@ -320,25 +425,49 @@ export const OutgoingShipmentsTable: React.FC<OutgoingShipmentsTableProps> = ({
                 <p className="text-slate-500 text-[11px] truncate">
                   Alamat: {shipment.deliveryAddress}
                 </p>
-                <p className="text-slate-500 text-[11px]">
-                  Armada: {shipment.carrier} {shipment.driverName ? `• ${shipment.driverName}` : ''}
-                </p>
+                <div className="pt-1 flex flex-wrap items-center gap-1.5">
+                  {getCarrierBadge(shipment.carrier)}
+                  {shipment.trackingNumber && (
+                    <span className="font-mono font-bold text-[11px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                      Resi: {shipment.trackingNumber}
+                    </span>
+                  )}
+                </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-slate-100">
                 <button
                   onClick={() => onViewSuratJalan(shipment.id)}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center gap-1"
+                  className="px-2.5 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center gap-1"
                 >
                   <Printer size={14} /> Surat Jalan
                 </button>
 
                 {canManage && isPreparing && (
                   <button
-                    onClick={() => onUpdateStatus(shipment.id, 'In_Transit')}
-                    className="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center gap-1"
+                    onClick={() => {
+                      if (onDispatchShipment) {
+                        onDispatchShipment(shipment, false);
+                      } else {
+                        onUpdateStatus(shipment.id, 'In_Transit');
+                      }
+                    }}
+                    className="px-2.5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center gap-1"
                   >
                     <Truck size={14} /> Kirim
+                  </button>
+                )}
+
+                {canManage && isInTransit && (
+                  <button
+                    onClick={() => {
+                      if (onDispatchShipment) {
+                        onDispatchShipment(shipment, true);
+                      }
+                    }}
+                    className="px-2.5 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center gap-1"
+                  >
+                    <NotePencil size={14} /> Resi
                   </button>
                 )}
 
@@ -350,9 +479,9 @@ export const OutgoingShipmentsTable: React.FC<OutgoingShipmentsTableProps> = ({
                         shipmentNumber: shipment.shipmentNumber,
                       })
                     }
-                    className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center gap-1"
+                    className="px-2.5 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center gap-1"
                   >
-                    <CheckCircle size={14} /> Konfirmasi POD
+                    <CheckCircle size={14} /> POD
                   </button>
                 )}
               </div>
