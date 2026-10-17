@@ -1,11 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class GetShipmentDetailsUseCase {
   constructor(private prisma: PrismaService) {}
 
-  async execute(shipmentId: string) {
+  async execute(
+    shipmentId: string,
+    currentUser?: { role?: string; email?: string; userId?: string },
+  ) {
     const shipment = await this.prisma.shipment.findUnique({
       where: { id: shipmentId },
       include: {
@@ -30,6 +33,16 @@ export class GetShipmentDetailsUseCase {
 
     if (!shipment) {
       throw new NotFoundException(`Surat Jalan dengan ID ${shipmentId} tidak ditemukan.`);
+    }
+
+    // IDOR Protection: Verify ownership for Customer role
+    if (currentUser?.role === 'Customer') {
+      const customerEmail = shipment.order.customer?.email;
+      if (currentUser.email && customerEmail && customerEmail !== currentUser.email) {
+        throw new ForbiddenException(
+          'Akses ditolak: Anda tidak memiliki izin untuk melihat Surat Jalan ini.',
+        );
+      }
     }
 
     const latestQuotation = shipment.order.quotations[0];

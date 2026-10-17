@@ -94,8 +94,9 @@ export class ShipmentsController {
 
   @Get('shipments/:id')
   @RequirePermissions({ action: 'read', subject: 'Order' })
-  async getShipmentDetails(@Param('id') id: string) {
-    return this.getShipmentDetailsUseCase.execute(id);
+  async getShipmentDetails(@Param('id') id: string, @Req() req: Request) {
+    const user = (req as any).user;
+    return this.getShipmentDetailsUseCase.execute(id, user);
   }
 
   @Patch('shipments/:id/confirm-delivery')

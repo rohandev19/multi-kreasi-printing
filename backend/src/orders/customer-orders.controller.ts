@@ -46,6 +46,19 @@ export class CustomerOrdersController {
             product: true,
           },
         },
+        shipments: {
+          select: {
+            id: true,
+            shipmentNumber: true,
+            status: true,
+            carrier: true,
+            trackingNumber: true,
+            driverName: true,
+            deliveredAt: true,
+            receivedBy: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });

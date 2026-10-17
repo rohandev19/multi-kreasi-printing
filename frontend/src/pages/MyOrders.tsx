@@ -9,7 +9,9 @@ import {
   MagnifyingGlass, 
   DownloadSimple,
   CalendarBlank,
-  Tag
+  Tag,
+  Truck,
+  CheckCircle,
 } from '@phosphor-icons/react';
 import { useToast } from '../contexts/ToastContext';
 import { OrderDetailsModal } from '../components/OrderDetailsModal';
@@ -17,6 +19,17 @@ import { OrderDetailsModal } from '../components/OrderDetailsModal';
 interface OrderItem {
   product: { name: string };
   quantity: number;
+}
+
+export interface ShipmentSummary {
+  id: string;
+  shipmentNumber: string;
+  status: string;
+  carrier: string;
+  trackingNumber: string | null;
+  driverName: string | null;
+  deliveredAt: string | null;
+  receivedBy: string | null;
 }
 
 interface Order {
@@ -28,6 +41,7 @@ interface Order {
   estimatedDeliveryDate: string | null;
   createdAt: string;
   items: OrderItem[];
+  shipments?: ShipmentSummary[];
 }
 
 const statusColors: Record<string, string> = {
@@ -311,18 +325,56 @@ export default function MyOrders() {
                     {/* Delivery & Pricing Info */}
                     <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex flex-col justify-between">
                       <div>
-                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                          <CalendarBlank size={14} weight="bold" /> Estimasi Pengiriman
-                        </p>
-                        <p className="text-sm text-slate-700 font-medium">
-                          {order.estimatedDeliveryDate 
-                            ? new Date(order.estimatedDeliveryDate).toLocaleDateString('id-ID', {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric'
-                              })
-                            : 'Mengikuti antrian produksi'}
-                        </p>
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <CalendarBlank size={14} weight="bold" /> Pengiriman & Estimasi
+                          </p>
+                          {order.shipments && order.shipments.length > 0 && (
+                            <span className="text-[10px] font-bold text-primary-700 bg-primary-50 border border-primary-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <Truck size={12} weight="bold" />
+                              {order.shipments.length} Surat Jalan
+                            </span>
+                          )}
+                        </div>
+
+                        {order.shipments && order.shipments.length > 0 ? (
+                          <div className="mt-1 space-y-1">
+                            {order.shipments.slice(0, 1).map((s) => (
+                              <div key={s.id} className="text-xs">
+                                <div className="flex items-center gap-1.5 font-medium text-slate-800">
+                                  {s.status === 'Delivered' ? (
+                                    <CheckCircle size={14} className="text-emerald-600 shrink-0" weight="fill" />
+                                  ) : (
+                                    <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${s.status === 'In_Transit' ? 'bg-blue-500 animate-ping' : 'bg-amber-500'}`} />
+                                  )}
+                                  <span className="font-semibold truncate">{s.carrier}</span>
+                                  {s.trackingNumber && (
+                                    <span className="font-mono text-[11px] text-slate-600 bg-white px-1.5 py-0.2 rounded border border-slate-200 truncate">
+                                      Resi: {s.trackingNumber}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-slate-500 mt-0.5">
+                                  {s.status === 'Delivered'
+                                    ? `Terkirim (Penerima: ${s.receivedBy || 'Customer'})`
+                                    : s.status === 'In_Transit'
+                                    ? 'Sedang dalam pengiriman kurir'
+                                    : 'Sedang disiapkan di gudang'}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-slate-700 font-medium">
+                            {order.estimatedDeliveryDate 
+                              ? new Date(order.estimatedDeliveryDate).toLocaleDateString('id-ID', {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric'
+                                })
+                              : 'Mengikuti antrian produksi'}
+                          </p>
+                        )}
                       </div>
                       <div className="pt-2 border-t border-slate-200/60 mt-2 flex items-baseline justify-between">
                         <span className="text-xs text-slate-500 font-semibold">Total Tagihan:</span>

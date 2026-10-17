@@ -18,8 +18,45 @@ import {
   Eye,
   ShieldCheck,
   XCircle,
+  Truck,
+  Copy,
+  Check,
+  MapPin,
+  User,
+  Phone,
 } from '@phosphor-icons/react';
 import { ProofReviewModal, type ProofItem } from './modals/ProofReviewModal';
+import { SuratJalanModal } from './modals/SuratJalanModal';
+
+export interface ShipmentItemDetail {
+  id: string;
+  quantity: number;
+  notes?: string | null;
+  orderItem?: {
+    product?: { name: string };
+  };
+}
+
+export interface ShipmentDetail {
+  id: string;
+  shipmentNumber: string;
+  recipientName: string;
+  recipientPhone?: string | null;
+  deliveryAddress: string;
+  driverName?: string | null;
+  driverPhone?: string | null;
+  vehicleNumber?: string | null;
+  carrier: string;
+  trackingNumber?: string | null;
+  status: string;
+  shippedAt?: string | null;
+  deliveredAt?: string | null;
+  receivedBy?: string | null;
+  notes?: string | null;
+  podSignature?: string | null;
+  podNotes?: string | null;
+  items?: ShipmentItemDetail[];
+}
 
 interface OrderDetails {
   id: string;
@@ -43,6 +80,7 @@ interface OrderDetails {
     fileName?: string;
   }>;
   proofs?: ProofItem[];
+  shipments?: ShipmentDetail[];
   customer?: {
     companyName?: string;
     fullName?: string;
@@ -94,6 +132,13 @@ const paymentStatusMap: Record<string, string> = {
   Failed: 'Gagal',
 };
 
+const shipmentStatusMap: Record<string, { label: string; color: string }> = {
+  Preparing: { label: 'Disiapkan di Gudang', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+  In_Transit: { label: 'Dalam Pengiriman', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+  Delivered: { label: 'Terkirim & Diterima', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+  Cancelled: { label: 'Batal Kirim', color: 'bg-red-100 text-red-800 border-red-200' },
+};
+
 const steps = [
   { label: 'Pesanan Dibuat', desc: 'Tercatat di sistem' },
   { label: 'Pembayaran', desc: 'Verifikasi transfer' },
@@ -116,6 +161,17 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   const [error, setError] = useState('');
   const [selectedProof, setSelectedProof] = useState<ProofItem | null>(null);
   const [isProofReviewOpen, setIsProofReviewOpen] = useState(false);
+  const [selectedSuratJalanId, setSelectedSuratJalanId] = useState<string | null>(null);
+  const [copiedResi, setCopiedResi] = useState<string | null>(null);
+
+  const handleCopyResi = (resi: string) => {
+    navigator.clipboard.writeText(resi);
+    setCopiedResi(resi);
+    success('Nomor Resi Disalin', `Resi ${resi} berhasil disalin ke papan klip.`);
+    setTimeout(() => {
+      setCopiedResi((prev) => (prev === resi ? null : prev));
+    }, 2500);
+  };
 
   const fetchOrderDetails = async () => {
     setLoading(true);
@@ -511,6 +567,234 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 )}
               </div>
 
+              {/* Shipping & Delivery (Surat Jalan / DO) Tracking */}
+              <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                      <Truck size={18} className="text-primary-600" weight="bold" />
+                      Pelacakan Pengiriman & Surat Jalan (DO)
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Pantau pergerakan ekspedisi/armada logistik, nomor resi pengiriman, dan dokumen serah terima.
+                    </p>
+                  </div>
+                  {order.shipments && order.shipments.length > 0 && (
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">
+                      {order.shipments.length} Pengiriman
+                    </span>
+                  )}
+                </div>
+
+                {order.shipments && order.shipments.length > 0 ? (
+                  <div className="space-y-4">
+                    {order.shipments.map((shipment) => {
+                      const statusConfig = shipmentStatusMap[shipment.status] || {
+                        label: shipment.status.replace(/_/g, ' '),
+                        color: 'bg-slate-100 text-slate-800 border-slate-200',
+                      };
+                      const isDelivered = shipment.status === 'Delivered';
+                      const isInTransit = shipment.status === 'In_Transit';
+
+                      return (
+                        <div
+                          key={shipment.id}
+                          className="p-4 sm:p-5 bg-slate-50 rounded-xl border border-slate-200 hover:border-slate-300 transition-all space-y-3.5"
+                        >
+                          {/* Header row: Number + Status */}
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-extrabold text-sm text-slate-900">
+                                {shipment.shipmentNumber}
+                              </span>
+                              <span
+                                className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${statusConfig.color} flex items-center gap-1.5`}
+                              >
+                                {isInTransit && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-ping" />}
+                                {statusConfig.label}
+                              </span>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => setSelectedSuratJalanId(shipment.id)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold rounded-lg border border-slate-300 transition-colors shadow-2xs"
+                            >
+                              <FileText size={15} weight="bold" />
+                              Lihat Surat Jalan (DO)
+                            </button>
+                          </div>
+
+                          {/* Carrier & Tracking details */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            {/* Kurir & Resi */}
+                            <div className="bg-white p-3 rounded-lg border border-slate-200 space-y-1.5">
+                              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                                Ekspedisi & Resi
+                              </span>
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-xs font-bold text-slate-800">
+                                  {shipment.carrier || 'Armada Internal MKP'}
+                                </span>
+                              </div>
+
+                              {shipment.trackingNumber ? (
+                                <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100">
+                                  <div className="min-w-0">
+                                    <span className="text-[10px] text-slate-500 block">No. Resi / AWB:</span>
+                                    <span className="font-mono text-xs font-bold text-slate-900 truncate block">
+                                      {shipment.trackingNumber}
+                                    </span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleCopyResi(shipment.trackingNumber!)}
+                                    className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                                    title="Salin nomor resi"
+                                  >
+                                    {copiedResi === shipment.trackingNumber ? (
+                                      <>
+                                        <Check size={14} className="text-emerald-600" weight="bold" />
+                                        <span className="text-emerald-700 font-semibold text-[11px]">Tersalin</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Copy size={14} weight="bold" />
+                                        <span className="text-[11px]">Salin</span>
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                              ) : (
+                                <p className="text-[11px] text-slate-400 italic">
+                                  {shipment.carrier?.includes('Internal')
+                                    ? 'Diantar langsung oleh Armada MKP'
+                                    : 'Resi menunggu update ekspedisi'}
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Driver info if assigned */}
+                            <div className="bg-white p-3 rounded-lg border border-slate-200 space-y-1.5">
+                              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                                Info Pengemudi / Kendaraan
+                              </span>
+                              {shipment.driverName ? (
+                                <div className="space-y-1 text-xs">
+                                  <div className="flex items-center gap-1.5 text-slate-800 font-semibold">
+                                    <User size={14} className="text-slate-500" />
+                                    <span>{shipment.driverName}</span>
+                                    {shipment.vehicleNumber && (
+                                      <span className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-mono font-bold">
+                                        {shipment.vehicleNumber}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {shipment.driverPhone && (
+                                    <div className="flex items-center gap-1.5 pt-0.5">
+                                      <Phone size={13} className="text-emerald-600" />
+                                      <a
+                                        href={`https://wa.me/${shipment.driverPhone.replace(/[^0-9]/g, '')}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-primary-600 hover:text-primary-700 hover:underline font-medium text-[11px]"
+                                      >
+                                        Hubungi Driver ({shipment.driverPhone})
+                                      </a>
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <p className="text-[11px] text-slate-400 italic">
+                                  Driver/kurir akan ditugaskan saat keberangkatan.
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Destination Address */}
+                          <div className="text-xs text-slate-600 bg-white/70 p-2.5 rounded-lg border border-slate-200/80 flex items-start gap-2">
+                            <MapPin size={16} className="text-slate-400 shrink-0 mt-0.5" />
+                            <div className="min-w-0">
+                              <span className="font-semibold text-slate-800">
+                                {shipment.recipientName}
+                                {shipment.recipientPhone ? ` (${shipment.recipientPhone})` : ''}:
+                              </span>{' '}
+                              <span className="text-slate-600">{shipment.deliveryAddress}</span>
+                            </div>
+                          </div>
+
+                          {/* Proof of Delivery (POD) info if Delivered */}
+                          {isDelivered && (
+                            <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200 space-y-1">
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900">
+                                  <ShieldCheck size={16} weight="fill" className="text-emerald-600" />
+                                  <span>Tanda Terima Resmi (Digital POD)</span>
+                                </div>
+                                {shipment.deliveredAt && (
+                                  <span className="text-[11px] text-emerald-700 font-medium">
+                                    {new Date(shipment.deliveredAt).toLocaleDateString('id-ID', {
+                                      day: 'numeric',
+                                      month: 'short',
+                                      year: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    })}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-emerald-800">
+                                Diterima oleh: <strong className="font-bold">{shipment.receivedBy || shipment.recipientName}</strong>
+                              </p>
+                              {shipment.podNotes && (
+                                <p className="text-[11px] text-emerald-700 italic">
+                                  Catatan: "{shipment.podNotes}"
+                                </p>
+                              )}
+                              {shipment.podSignature && (
+                                <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-200/70 text-emerald-900 mt-1">
+                                  Tanda Tangan Digital Tersimpan
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Shipped item breakdown for this surat jalan */}
+                          {shipment.items && shipment.items.length > 0 && (
+                            <div className="pt-2 border-t border-slate-200/60">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                                Barang dalam Surat Jalan ini:
+                              </span>
+                              <div className="flex flex-wrap gap-2">
+                                {shipment.items.map((item) => (
+                                  <span
+                                    key={item.id}
+                                    className="text-xs px-2.5 py-1 bg-white border border-slate-200 rounded-md text-slate-700"
+                                  >
+                                    <strong className="text-slate-900">{item.quantity}x</strong>{' '}
+                                    {item.orderItem?.product?.name || 'Item Cetak'}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center">
+                    <p className="text-xs text-slate-500">
+                      Belum ada Surat Jalan (DO) yang diterbitkan untuk pesanan ini.
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Surat Jalan dan nomor pelacakan akan otomatis muncul ketika proses produksi dan kontrol kualitas selesai.
+                    </p>
+                  </div>
+                )}
+              </div>
+
               {/* Items List */}
               <div>
                 <h4 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
@@ -605,6 +889,15 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           proof={selectedProof}
           orderNumber={order?.orderNumber}
           onSuccess={fetchOrderDetails}
+        />
+      )}
+
+      {/* Surat Jalan Modal */}
+      {selectedSuratJalanId && (
+        <SuratJalanModal
+          isOpen={!!selectedSuratJalanId}
+          onClose={() => setSelectedSuratJalanId(null)}
+          shipmentId={selectedSuratJalanId}
         />
       )}
     </div>
