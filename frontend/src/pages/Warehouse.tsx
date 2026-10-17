@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
-import { Package, Warning, TrendDown, TrendUp, Truck, CheckCircle } from '@phosphor-icons/react';
+import { Package, Warning, TrendDown, TrendUp, Truck, CheckCircle, Buildings, Plus, PencilSimple, Trash } from '@phosphor-icons/react';
 import { useRoleContext } from '../contexts/RoleContext';
 import { WarehouseTable } from '../components/tables/WarehouseTable';
 import { OutgoingShipmentsTable } from '../components/tables/OutgoingShipmentsTable';
@@ -11,6 +11,7 @@ import { RecordShipmentModal } from '../components/modals/RecordShipmentModal';
 import { SuratJalanModal } from '../components/modals/SuratJalanModal';
 import { ConfirmDeliveryModal } from '../components/modals/ConfirmDeliveryModal';
 import { DispatchShipmentModal } from '../components/modals/DispatchShipmentModal';
+import { SupplierFormModal } from '../components/modals/SupplierFormModal';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useToast } from '../contexts/ToastContext';
 
@@ -27,7 +28,8 @@ interface Material {
 
 export default function Warehouse() {
   const { role, loading: roleLoading } = useRoleContext();
-  const [activeTab, setActiveTab] = useState<'inventory' | 'shipments'>('inventory');
+  const canManage = role === 'Owner' || role === 'Manager' || role === 'Warehouse_Staff';
+  const [activeTab, setActiveTab] = useState<'inventory' | 'shipments' | 'suppliers'>('inventory');
 
   const [materials, setMaterials] = useState<Material[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,6 +54,14 @@ export default function Warehouse() {
   
   const [deleteMaterialId, setDeleteMaterialId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Suppliers state
+  const [suppliers, setSuppliers] = useState<any[]>([]);
+  const [suppliersLoading, setSuppliersLoading] = useState(false);
+  const [isSupplierFormOpen, setIsSupplierFormOpen] = useState(false);
+  const [editSupplierId, setEditSupplierId] = useState<string | null>(null);
+  const [deleteSupplierId, setDeleteSupplierId] = useState<string | null>(null);
+  const [isDeletingSupplier, setIsDeletingSupplier] = useState(false);
 
   const fetchMaterials = useCallback(async () => {
     try {
@@ -82,12 +92,26 @@ export default function Warehouse() {
     }
   }, []);
 
+  const fetchSuppliers = useCallback(async () => {
+    setSuppliersLoading(true);
+    try {
+      const res = await api.get('/api/v1/suppliers');
+      setSuppliers(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error('Failed to load suppliers', err);
+      setSuppliers([]);
+    } finally {
+      setSuppliersLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!roleLoading && role) {
       fetchMaterials();
       fetchShipments();
+      fetchSuppliers();
     }
-  }, [role, roleLoading, fetchMaterials, fetchShipments]);
+  }, [role, roleLoading, fetchMaterials, fetchShipments, fetchSuppliers]);
 
   const handleAdjustStock = (id: string) => {
     const material = materials.find(m => m.id === id);
@@ -125,6 +149,21 @@ export default function Warehouse() {
     } finally {
       setIsDeleting(false);
       setDeleteMaterialId(null);
+    }
+  };
+
+  const confirmDeleteSupplier = async () => {
+    if (!deleteSupplierId) return;
+    setIsDeletingSupplier(true);
+    try {
+      await api.delete(`/api/v1/suppliers/${deleteSupplierId}`);
+      success('Pemasok Dihapus', 'Pemasok berhasil dihapus.');
+      fetchSuppliers();
+    } catch (err: any) {
+      toastError('Gagal Menghapus Pemasok', err.response?.data?.message || 'Gagal menghapus pemasok.');
+    } finally {
+      setIsDeletingSupplier(false);
+      setDeleteSupplierId(null);
     }
   };
 
@@ -222,6 +261,21 @@ export default function Warehouse() {
             {shipments.length}
           </span>
         </button>
+
+        <button
+          onClick={() => setActiveTab('suppliers')}
+          className={`pb-3 px-4 font-bold text-sm flex items-center gap-2 border-b-2 transition-all whitespace-nowrap ${
+            activeTab === 'suppliers'
+              ? 'border-slate-900 text-slate-900'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Buildings size={18} weight="bold" />
+          Pemasok / Supplier
+          <span className="ml-1.5 px-2 py-0.5 text-xs rounded-full bg-emerald-50 text-emerald-700 font-semibold">
+            {suppliers.length}
+          </span>
+        </button>
       </div>
 
       {activeTab === 'inventory' ? (
@@ -276,7 +330,7 @@ export default function Warehouse() {
             onDeleteMaterial={handleDeleteMaterial}
           />
         </>
-      ) : (
+      ) : activeTab === 'shipments' ? (
         <>
           {/* Shipments Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -330,6 +384,103 @@ export default function Warehouse() {
             userRole={role || ''}
           />
         </>
+      ) : (
+        /* Suppliers Tab */
+        <div className="space-y-4">
+          <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200">
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Daftar Rekanan Pemasok</h2>
+              <p className="text-xs text-slate-500">Pemasok bahan baku kertas, tinta, film laminasi, dan perlengkapan cetak</p>
+            </div>
+            {canManage && (
+              <button
+                onClick={() => {
+                  setEditSupplierId(null);
+                  setIsSupplierFormOpen(true);
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all shadow-xs"
+              >
+                <Plus size={16} weight="bold" />
+                Tambah Pemasok
+              </button>
+            )}
+          </div>
+
+          <div className="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden">
+            {suppliersLoading ? (
+              <div className="py-12 text-center text-sm text-slate-500">Memuat data pemasok...</div>
+            ) : suppliers.length === 0 ? (
+              <div className="py-12 text-center">
+                <Buildings size={40} weight="duotone" className="mx-auto text-slate-300 mb-2" />
+                <p className="text-sm font-bold text-slate-700">Belum ada data pemasok</p>
+                <p className="text-xs text-slate-400 mt-1">Tambahkan data rekanan pemasok bahan baku Anda.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm text-slate-600">
+                  <thead className="bg-slate-50 text-slate-700 text-xs uppercase font-bold border-b border-slate-200">
+                    <tr>
+                      <th className="px-6 py-3.5">Nama Perusahaan</th>
+                      <th className="px-6 py-3.5">Kontak Person</th>
+                      <th className="px-6 py-3.5">Kontak</th>
+                      <th className="px-6 py-3.5">Alamat</th>
+                      <th className="px-6 py-3.5 text-center">Material Terkait</th>
+                      {canManage && <th className="px-6 py-3.5 text-right">Aksi</th>}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-medium">
+                    {suppliers.map((s) => (
+                      <tr key={s.id} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="px-6 py-4 font-bold text-slate-900">
+                          {s.name}
+                        </td>
+                        <td className="px-6 py-4 text-slate-700">
+                          {s.contactPerson || '-'}
+                        </td>
+                        <td className="px-6 py-4 text-xs">
+                          {s.email && <div className="text-slate-700 font-medium">{s.email}</div>}
+                          {s.phone && <div className="text-slate-400">{s.phone}</div>}
+                          {!s.email && !s.phone && '-'}
+                        </td>
+                        <td className="px-6 py-4 text-xs text-slate-500 max-w-xs truncate">
+                          {s.address || '-'}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
+                            {s._count?.materials || 0} bahan
+                          </span>
+                        </td>
+                        {canManage && (
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => {
+                                  setEditSupplierId(s.id);
+                                  setIsSupplierFormOpen(true);
+                                }}
+                                className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+                                title="Edit Pemasok"
+                              >
+                                <PencilSimple size={16} weight="bold" />
+                              </button>
+                              <button
+                                onClick={() => setDeleteSupplierId(s.id)}
+                                className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Hapus Pemasok"
+                              >
+                                <Trash size={16} weight="bold" />
+                              </button>
+                            </div>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Modals */}
@@ -390,6 +541,24 @@ export default function Warehouse() {
         loading={isDeleting}
         onClose={() => setDeleteMaterialId(null)}
         onConfirm={confirmDelete}
+      />
+
+      <SupplierFormModal
+        isOpen={isSupplierFormOpen}
+        onClose={() => setIsSupplierFormOpen(false)}
+        onSuccess={fetchSuppliers}
+        supplierId={editSupplierId}
+      />
+
+      <ConfirmDialog
+        isOpen={!!deleteSupplierId}
+        title="Hapus Data Pemasok"
+        message="Apakah Anda yakin ingin menghapus data rekanan pemasok ini? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Hapus Pemasok"
+        variant="danger"
+        loading={isDeletingSupplier}
+        onClose={() => setDeleteSupplierId(null)}
+        onConfirm={confirmDeleteSupplier}
       />
     </div>
   );
