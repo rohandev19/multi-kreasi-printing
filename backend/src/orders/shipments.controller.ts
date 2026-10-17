@@ -8,6 +8,7 @@ import {
   UseGuards,
   Req,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
@@ -100,24 +101,36 @@ export class ShipmentsController {
   }
 
   @Patch('shipments/:id/confirm-delivery')
-  @RequirePermissions({ action: 'manage', subject: 'Order' })
+  @RequirePermissions({ action: 'read', subject: 'Order' })
   async confirmDelivery(
     @Param('id') id: string,
     @Body() dto: ConfirmDeliveryDto,
     @Req() req: Request,
   ) {
-    const currentUserId = (req as any).user.userId || (req as any).user.sub;
+    const user = (req as any).user;
+    if (user?.role === 'Customer') {
+      throw new ForbiddenException(
+        'Akses ditolak: Pelanggan tidak dapat mengonfirmasi serah terima pengiriman.',
+      );
+    }
+    const currentUserId = user.userId || user.sub;
     return this.confirmDeliveryUseCase.execute(id, dto, currentUserId);
   }
 
   @Patch('shipments/:id/status')
-  @RequirePermissions({ action: 'manage', subject: 'Order' })
+  @RequirePermissions({ action: 'read', subject: 'Order' })
   async updateShipmentStatus(
     @Param('id') id: string,
     @Body() dto: UpdateShipmentStatusDto,
     @Req() req: Request,
   ) {
-    const currentUserId = (req as any).user?.userId || (req as any).user?.sub;
+    const user = (req as any).user;
+    if (user?.role === 'Customer') {
+      throw new ForbiddenException(
+        'Akses ditolak: Pelanggan tidak dapat memperbarui status pengiriman.',
+      );
+    }
+    const currentUserId = user?.userId || user?.sub;
     const shipment = await this.prisma.shipment.findUnique({
       where: { id },
       include: {

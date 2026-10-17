@@ -23,6 +23,7 @@ const Quotations = lazy(() => import('./pages/Quotations'));
 const Login = lazy(() => import('./pages/Login'));
 const Profile = lazy(() => import('./pages/Profile'));
 const LiveSupport = lazy(() => import('./pages/LiveSupport'));
+const DriverPortal = lazy(() => import('./pages/DriverPortal'));
 import { RoleProvider } from './contexts/RoleContext';
 import { ToastProvider } from './contexts/ToastContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -187,6 +188,16 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: '/driver/portal',
+        element: (
+          <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Warehouse_Staff', 'Production_Staff', 'Sales']}>
+            <Suspense fallback={<LoadingSpinner />}>
+              <DriverPortal />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: '/dashboard',
         element: (
           <ProtectedRoute>
@@ -286,6 +297,16 @@ export const router = createBrowserRouter([
               <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Warehouse_Staff', 'Production_Staff']}>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Warehouse />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'delivery',
+            element: (
+              <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Warehouse_Staff', 'Production_Staff', 'Sales']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <DriverPortal />
                 </Suspense>
               </ProtectedRoute>
             ),

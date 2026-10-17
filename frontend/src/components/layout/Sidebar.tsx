@@ -19,7 +19,8 @@ import {
   User as UserIcon,
   DotsThreeVertical,
   X,
-  ChatCircleDots
+  ChatCircleDots,
+  Truck,
 } from '@phosphor-icons/react';
 import { useRoleContext } from '../../contexts/RoleContext';
 
@@ -78,6 +79,12 @@ const menuItems: MenuItem[] = [
     icon: <Package size={20} weight="regular" />,
     label: 'Gudang & Stok',
     roles: ['Owner', 'Manager', 'Warehouse_Staff', 'Production_Staff'],
+  },
+  {
+    path: '/dashboard/delivery',
+    icon: <Truck size={20} weight="regular" />,
+    label: 'Driver & Pengiriman',
+    roles: ['Owner', 'Manager', 'Warehouse_Staff', 'Production_Staff', 'Sales'],
   },
   {
     path: '/dashboard/users',

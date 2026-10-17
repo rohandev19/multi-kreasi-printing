@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import { Package, Warning, TrendDown, TrendUp, Truck, CheckCircle } from '@phosphor-icons/react';
 import { useRoleContext } from '../contexts/RoleContext';
@@ -170,14 +171,24 @@ export default function Warehouse() {
             Manajemen rantai pasok bahan baku produksi dan monitoring surat jalan pengiriman produk jadi.
           </p>
         </div>
-        {activeTab === 'inventory' && canManageCatalog && (
-          <button 
-            onClick={handleAddMaterial}
-            className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-colors shadow-2xs self-start sm:self-auto"
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          <Link
+            to="/dashboard/delivery"
+            className="px-3.5 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition-colors border border-blue-200 flex items-center gap-1.5 shadow-2xs"
           >
-            Tambah Bahan Baku
-          </button>
-        )}
+            <Truck size={16} weight="bold" />
+            <span>Portal Driver & POD</span>
+          </Link>
+
+          {activeTab === 'inventory' && canManageCatalog && (
+            <button 
+              onClick={handleAddMaterial}
+              className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-colors shadow-2xs"
+            >
+              Tambah Bahan Baku
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tab Switcher */}
