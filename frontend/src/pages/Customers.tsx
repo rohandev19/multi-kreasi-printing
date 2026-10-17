@@ -7,6 +7,8 @@ import { CustomerDetailModal } from '../components/modals/CustomerDetailModal';
 import { PaymentHistoryModal } from '../components/modals/PaymentHistoryModal';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useToast } from '../contexts/ToastContext';
+import { Download } from '@phosphor-icons/react';
+import { exportCustomersData } from '../utils/exportUtils';
 
 interface Customer {
   id: string;
@@ -109,14 +111,26 @@ export default function Customers() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-800">Data Pelanggan</h2>
-        {canManage && (
-          <button 
-            onClick={handleAddCustomer}
-            className="px-4 py-2 bg-black text-white rounded-lg font-medium hover:bg-slate-800 transition-colors"
-          >
-            Tambah Pelanggan
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          {customers.length > 0 && (
+            <button
+              onClick={() => exportCustomersData(customers)}
+              className="flex items-center gap-2 px-3.5 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+              title="Ekspor Seluruh Data Pelanggan ke CSV/Excel"
+            >
+              <Download size={16} />
+              <span>Ekspor Pelanggan</span>
+            </button>
+          )}
+          {canManage && (
+            <button 
+              onClick={handleAddCustomer}
+              className="px-4 py-2 bg-black text-white rounded-lg font-medium hover:bg-slate-800 transition-colors shadow-sm text-sm"
+            >
+              Tambah Pelanggan
+            </button>
+          )}
+        </div>
       </div>
 
       {error && (

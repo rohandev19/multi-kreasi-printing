@@ -8,7 +8,8 @@ import { RecordPaymentModal } from '../components/modals/RecordPaymentModal';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useToast } from '../contexts/ToastContext';
 import { ArAgingReportView } from '../components/finance/ArAgingReportView';
-import { Receipt, ChartBar } from '@phosphor-icons/react';
+import { Receipt, ChartBar, Download } from '@phosphor-icons/react';
+import { exportInvoicesData } from '../utils/exportUtils';
 
 interface Invoice {
   id: string;
@@ -121,14 +122,26 @@ export default function Invoices() {
               : 'Kelola faktur, pencatatan pembayaran, dan laporan umur piutang korporat (AR Aging).'}
           </p>
         </div>
-        {canManage && activeTab === 'invoices' && (
-          <button 
-            onClick={() => setIsCreateOpen(true)}
-            className="px-4 py-2 bg-black text-white rounded-lg font-medium hover:bg-slate-800 transition-colors shadow-sm text-sm"
-          >
-            Buat Faktur
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          {invoices.length > 0 && (
+            <button 
+              onClick={() => exportInvoicesData(invoices)}
+              className="flex items-center gap-2 px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+              title="Ekspor Seluruh Faktur ke CSV/Excel"
+            >
+              <Download size={16} />
+              <span>Ekspor Faktur</span>
+            </button>
+          )}
+          {canManage && activeTab === 'invoices' && (
+            <button 
+              onClick={() => setIsCreateOpen(true)}
+              className="px-4 py-2 bg-black text-white rounded-lg font-medium hover:bg-slate-800 transition-colors shadow-sm text-sm"
+            >
+              Buat Faktur
+            </button>
+          )}
+        </div>
       </div>
 
       {canManage && (

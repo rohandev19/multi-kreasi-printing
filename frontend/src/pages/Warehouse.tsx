@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
-import { Package, Warning, TrendDown, TrendUp, Truck, CheckCircle, Buildings, Plus, PencilSimple, Trash } from '@phosphor-icons/react';
+import { Package, Warning, TrendDown, TrendUp, Truck, CheckCircle, Buildings, Plus, PencilSimple, Trash, Download } from '@phosphor-icons/react';
+import { exportWarehouseInventory } from '../utils/exportUtils';
 import { useRoleContext } from '../contexts/RoleContext';
 import { WarehouseTable } from '../components/tables/WarehouseTable';
 import { OutgoingShipmentsTable } from '../components/tables/OutgoingShipmentsTable';
@@ -218,6 +219,17 @@ export default function Warehouse() {
             <Truck size={16} weight="bold" />
             <span>Portal Driver & POD</span>
           </Link>
+
+          {activeTab === 'inventory' && materials.length > 0 && (
+            <button
+              onClick={() => exportWarehouseInventory(materials)}
+              className="px-3.5 py-2 bg-slate-50 text-slate-700 hover:bg-slate-100 rounded-xl text-xs font-bold transition-colors border border-slate-200 flex items-center gap-1.5 shadow-2xs"
+              title="Ekspor Stok Bahan Baku ke CSV/Excel"
+            >
+              <Download size={16} weight="bold" />
+              <span>Ekspor Stok</span>
+            </button>
+          )}
 
           {activeTab === 'inventory' && canManageCatalog && (
             <button 
