@@ -9,6 +9,8 @@ import { CancelOrderUseCase } from './use-cases/cancel-order.usecase';
 import { SearchOrdersUseCase } from './use-cases/search-orders.usecase';
 import type { SearchOrdersQuery } from './use-cases/search-orders.usecase';
 import { GetOrderDetailsUseCase } from './use-cases/get-order-details.usecase';
+import { BulkUpdateOrderStatusUseCase } from './use-cases/bulk-update-order-status.usecase';
+import { BulkOrderStatusDto } from './dto/bulk-orders.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { VerifiedGuard } from '../auth/guards/verified.guard';
@@ -35,6 +37,7 @@ export class OrdersController {
     private readonly cancelOrder: CancelOrderUseCase,
     private readonly searchOrders: SearchOrdersUseCase,
     private readonly getOrderDetails: GetOrderDetailsUseCase,
+    private readonly bulkUpdateOrderStatus: BulkUpdateOrderStatusUseCase,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -152,6 +155,16 @@ export class OrdersController {
   ) {
     const userId = req.user.sub;
     return this.updateOrderStatus.execute(id, dto, userId);
+  }
+
+  @Post('bulk/status')
+  @RequirePermissions({ action: 'manage', subject: 'Orders' })
+  async bulkUpdateStatus(
+    @Body() dto: BulkOrderStatusDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user.sub;
+    return this.bulkUpdateOrderStatus.execute(dto, userId);
   }
 
   @Post(':id/submit')

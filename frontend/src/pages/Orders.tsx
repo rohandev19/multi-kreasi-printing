@@ -25,7 +25,9 @@ export default function Orders() {
   const [editOrderId, setEditOrderId] = useState<string | null>(null);
 
   // Action Modals State
-  const [isBulkConfirmOpen, setIsBulkConfirmOpen] = useState(false);
+  const [isBulkStatusModalOpen, setIsBulkStatusModalOpen] = useState(false);
+  const [bulkTargetStatus, setBulkTargetStatus] = useState('Approved');
+  const [isExecutingBulk, setIsExecutingBulk] = useState(false);
   const [approveTargetOrder, setApproveTargetOrder] = useState<Order | null>(null);
   const [rejectTargetOrder, setRejectTargetOrder] = useState<Order | null>(null);
   const [rejectReason, setRejectReason] = useState('');
@@ -127,38 +129,32 @@ export default function Orders() {
     exportToCSV(data, filename);
   };
 
-  const ordersToApprove = orders.filter(
-    o => selectedIds.includes(o.id) && ['Pending', 'Pending_Approval', 'Draft'].includes(o.status)
-  );
-
-  const handleOpenBulkApprove = () => {
+  const handleExecuteBulkAction = async () => {
     if (!selectedIds.length) return;
-    if (!ordersToApprove.length) {
-      success('Sudah Disetujui', 'Seluruh pesanan yang dipilih sudah berstatus disetujui.');
-      return;
-    }
-    setIsBulkConfirmOpen(true);
-  };
-
-  const handleConfirmBulkApprove = async () => {
-    setIsApproving(true);
+    setIsExecutingBulk(true);
     try {
-      await Promise.all(ordersToApprove.map(async (order) => {
-        try {
-          return await api.post(`/api/v1/orders/${order.id}/approve`);
-        } catch {
-          return await api.patch(`/api/v1/orders/${order.id}/status`, { status: 'Approved' });
-        }
-      }));
-      success('Tindakan Massal Selesai', `${ordersToApprove.length} pesanan berhasil disetujui.`);
+      const response = await api.post('/api/v1/orders/bulk/status', {
+        ids: selectedIds,
+        status: bulkTargetStatus,
+        reason: `Pembaruan status massal ke ${bulkTargetStatus}`,
+      });
+
+      const { total, successCount, failedCount, errors } = response.data;
+      if (failedCount === 0) {
+        success('Operasi Massal Berhasil', `${successCount} dari ${total} pesanan berhasil diperbarui menjadi ${bulkTargetStatus}.`);
+      } else {
+        showError(
+          'Sebagian Operasi Gagal',
+          `${successCount} pesanan berhasil, ${failedCount} pesanan gagal. Catatan: ${errors[0]?.reason || 'Transisi status tidak valid'}`
+        );
+      }
       setSelectedIds([]);
-      setIsBulkConfirmOpen(false);
+      setIsBulkStatusModalOpen(false);
       if (role) fetchOrders(role);
     } catch (err: any) {
-      showError('Tindakan Gagal', err.response?.data?.message || 'Gagal menyetujui pesanan secara massal.');
-      console.error(err);
+      showError('Gagal Operasi Massal', err.response?.data?.message || 'Gagal memproses pembaruan massal');
     } finally {
-      setIsApproving(false);
+      setIsExecutingBulk(false);
     }
   };
 
@@ -397,23 +393,41 @@ export default function Orders() {
 
       {/* BULK ACTIONS BAR */}
       {selectedIds.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-3xl bg-black text-white rounded-xl shadow-xl p-4 flex items-center justify-between z-50 animate-modal-in">
-          <div className="font-semibold px-2">
-            {selectedIds.length} pesanan dipilih
-          </div>
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-4xl bg-black text-white rounded-xl shadow-2xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 z-50 animate-modal-in border border-neutral-800">
           <div className="flex items-center gap-3">
+            <span className="font-semibold text-sm px-2">
+              {selectedIds.length} pesanan dipilih
+            </span>
+            <button
+              onClick={() => setSelectedIds([])}
+              className="text-xs text-neutral-400 hover:text-white underline underline-offset-2 transition-colors"
+            >
+              Batal Pilihan
+            </button>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
             <button 
               onClick={() => handleExport(filteredOrders.filter(o => selectedIds.includes(o.id)), 'ekspor_pesanan_terpilih')}
-              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
+              className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 rounded-lg text-xs font-medium transition-colors border border-neutral-700 text-white"
             >
-              Ekspor Pilihan
+              Ekspor Pilihan ({selectedIds.length})
             </button>
-            <button 
-              onClick={handleOpenBulkApprove}
-              disabled={isApproving}
-              className="px-4 py-2 bg-white text-primary-700 hover:bg-primary-50 rounded-lg text-sm font-bold shadow-sm transition-colors disabled:opacity-50"
+            <select
+              value={bulkTargetStatus}
+              onChange={(e) => setBulkTargetStatus(e.target.value)}
+              className="px-2.5 py-1.5 bg-neutral-800 text-white rounded-lg text-xs border border-neutral-700 focus:outline-none"
             >
-              {isApproving ? 'Menyetujui...' : 'Setujui Semua'}
+              <option value="Approved">Status: Disetujui (Approved)</option>
+              <option value="In_Production">Status: Mulai Produksi (In Production)</option>
+              <option value="Completed">Status: Selesai (Completed)</option>
+              <option value="Cancelled">Status: Batalkan (Cancelled)</option>
+            </select>
+            <button 
+              onClick={() => setIsBulkStatusModalOpen(true)}
+              disabled={isExecutingBulk}
+              className="px-4 py-1.5 bg-white text-black hover:bg-neutral-200 rounded-lg text-xs font-bold shadow-sm transition-colors disabled:opacity-50"
+            >
+              {isExecutingBulk ? 'Memproses...' : 'Terapkan Status'}
             </button>
           </div>
         </div>
@@ -427,17 +441,17 @@ export default function Orders() {
         orderId={editOrderId}
       />
 
-      {/* BULK APPROVE CONFIRM DIALOG */}
+      {/* BULK STATUS CONFIRM DIALOG */}
       <ConfirmDialog
-        isOpen={isBulkConfirmOpen}
-        onClose={() => setIsBulkConfirmOpen(false)}
-        onConfirm={handleConfirmBulkApprove}
-        title="Setujui Pesanan Terpilih"
-        message={`Apakah Anda yakin ingin menyetujui ${ordersToApprove.length} pesanan terpilih? Status akan diperbarui menjadi Disetujui.`}
-        confirmLabel="Ya, Setujui Semua"
+        isOpen={isBulkStatusModalOpen}
+        onClose={() => setIsBulkStatusModalOpen(false)}
+        onConfirm={handleExecuteBulkAction}
+        title="Konfirmasi Perubahan Status Massal"
+        message={`Apakah Anda yakin ingin mengubah status ${selectedIds.length} pesanan terpilih menjadi "${bulkTargetStatus}"? Tindakan ini akan diproses secara massal dan dicatat dalam riwayat audit.`}
+        confirmLabel={`Ya, Terapkan ke ${selectedIds.length} Pesanan`}
         cancelLabel="Batal"
-        variant="success"
-        loading={isApproving}
+        variant={bulkTargetStatus === 'Cancelled' ? 'danger' : 'success'}
+        loading={isExecutingBulk}
       />
 
       {/* SINGLE APPROVE CONFIRM DIALOG */}

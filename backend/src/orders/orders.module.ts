@@ -31,6 +31,7 @@ import { GetOrderShipmentsUseCase } from './use-cases/get-order-shipments.usecas
 import { ConfirmDeliveryUseCase } from './use-cases/confirm-delivery.usecase';
 import { GetShipmentDetailsUseCase } from './use-cases/get-shipment-details.usecase';
 import { ReorderUseCase } from './use-cases/reorder.usecase';
+import { BulkUpdateOrderStatusUseCase } from './use-cases/bulk-update-order-status.usecase';
 import { CartModule } from '../cart/cart.module';
 
 @Module({
@@ -67,6 +68,7 @@ import { CartModule } from '../cart/cart.module';
     ConfirmDeliveryUseCase,
     GetShipmentDetailsUseCase,
     ReorderUseCase,
+    BulkUpdateOrderStatusUseCase,
   ],
 })
 export class OrdersModule {}
