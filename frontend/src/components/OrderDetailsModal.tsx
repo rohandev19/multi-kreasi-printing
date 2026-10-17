@@ -24,6 +24,7 @@ import {
   MapPin,
   User,
   Phone,
+  ArrowsCounterClockwise,
 } from '@phosphor-icons/react';
 import { ProofReviewModal, type ProofItem } from './modals/ProofReviewModal';
 import { SuratJalanModal } from './modals/SuratJalanModal';
@@ -158,6 +159,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   const [order, setOrder] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [reordering, setReordering] = useState(false);
   const [error, setError] = useState('');
   const [selectedProof, setSelectedProof] = useState<ProofItem | null>(null);
   const [isProofReviewOpen, setIsProofReviewOpen] = useState(false);
@@ -249,6 +251,22 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
       toastError('Gagal Mengunduh Invoice', err.response?.data?.message || 'Invoice belum tersedia.');
     } finally {
       setDownloading(false);
+    }
+  };
+
+  const handleReorder = async () => {
+    if (!order) return;
+    setReordering(true);
+    try {
+      const res = await api.post(`/api/v1/my-orders/${order.id}/reorder`);
+      window.dispatchEvent(new Event('cart_updated'));
+      success('Pesan Ulang Berhasil', `${res.data.reorderedCount} item dari pesanan #${order.orderNumber} telah ditambahkan ke keranjang belanja.`);
+      onClose();
+      navigate('/cart');
+    } catch (err: any) {
+      toastError('Gagal Pesan Ulang', err.response?.data?.message || 'Gagal menambahkan pesanan ke keranjang.');
+    } finally {
+      setReordering(false);
     }
   };
 
@@ -875,6 +893,18 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               >
                 <DownloadSimple size={18} weight="bold" />
                 {downloading ? 'Mengunduh...' : 'Unduh Faktur'}
+              </button>
+            )}
+
+            {order && (order.status === 'Completed' || order.status === 'Delivered') && (
+              <button
+                onClick={handleReorder}
+                disabled={reordering}
+                className="px-4 py-2 bg-primary-50 hover:bg-primary-100 text-primary-800 border border-primary-200 text-sm font-bold rounded-xl transition-all shadow-xs flex items-center gap-2 disabled:opacity-50"
+                title="Masukkan kembali item pesanan ini ke keranjang belanja"
+              >
+                <ArrowsCounterClockwise size={18} weight="bold" className={reordering ? 'animate-spin' : ''} />
+                {reordering ? 'Menyiapkan...' : 'Pesan Ulang'}
               </button>
             )}
           </div>

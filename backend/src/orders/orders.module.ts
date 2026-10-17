@@ -30,9 +30,11 @@ import { CreateShipmentUseCase } from './use-cases/create-shipment.usecase';
 import { GetOrderShipmentsUseCase } from './use-cases/get-order-shipments.usecase';
 import { ConfirmDeliveryUseCase } from './use-cases/confirm-delivery.usecase';
 import { GetShipmentDetailsUseCase } from './use-cases/get-shipment-details.usecase';
+import { ReorderUseCase } from './use-cases/reorder.usecase';
+import { CartModule } from '../cart/cart.module';
 
 @Module({
-  imports: [PrismaModule, AuditModule, StorageModule],
+  imports: [PrismaModule, AuditModule, StorageModule, CartModule],
   controllers: [
     OrdersController,
     DesignFilesController,
@@ -64,6 +66,7 @@ import { GetShipmentDetailsUseCase } from './use-cases/get-shipment-details.usec
     GetOrderShipmentsUseCase,
     ConfirmDeliveryUseCase,
     GetShipmentDetailsUseCase,
+    ReorderUseCase,
   ],
 })
 export class OrdersModule {}

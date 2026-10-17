@@ -13,6 +13,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { VerifiedGuard } from '../auth/guards/verified.guard';
 import { GetOrderDetailsUseCase } from './use-cases/get-order-details.usecase';
+import { ReorderUseCase } from './use-cases/reorder.usecase';
 import type { Request, Response } from 'express';
 
 export interface AuthenticatedUser {
@@ -31,7 +32,18 @@ export class CustomerOrdersController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly getOrderDetails: GetOrderDetailsUseCase,
+    private readonly reorderUseCase: ReorderUseCase,
   ) {}
+
+  @Post(':id/reorder')
+  @RequirePermissions({ action: 'read', subject: 'Order' })
+  async reorder(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const user = req.user;
+    return this.reorderUseCase.execute(id, user);
+  }
 
   @Get()
   @RequirePermissions({ action: 'read', subject: 'Order' })

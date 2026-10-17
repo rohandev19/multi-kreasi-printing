@@ -12,6 +12,7 @@ import {
   Tag,
   Truck,
   CheckCircle,
+  ArrowsCounterClockwise,
 } from '@phosphor-icons/react';
 import { useToast } from '../contexts/ToastContext';
 import { OrderDetailsModal } from '../components/OrderDetailsModal';
@@ -88,6 +89,7 @@ export default function MyOrders() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [activeTab, setActiveTab] = useState<FilterTab>('ALL');
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [reorderingId, setReorderingId] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const { success, error: toastError } = useToast();
@@ -148,6 +150,26 @@ export default function MyOrders() {
       toastError('Gagal Mengunduh', err.response?.data?.message || 'Faktur belum tersedia.');
     } finally {
       setDownloadingId(null);
+    }
+  };
+
+  const handleReorder = async (order: Order) => {
+    setReorderingId(order.id);
+    try {
+      const response = await api.post(`/api/v1/my-orders/${order.id}/reorder`);
+      window.dispatchEvent(new Event('cart_updated'));
+      success(
+        'Pesan Ulang Berhasil',
+        `${response.data.reorderedCount} item dari pesanan #${order.orderNumber} berhasil ditambahkan ke keranjang belanja Anda.`,
+      );
+      navigate('/cart');
+    } catch (err: any) {
+      toastError(
+        'Gagal Pesan Ulang',
+        err.response?.data?.message || 'Gagal menambahkan pesanan ke keranjang.',
+      );
+    } finally {
+      setReorderingId(null);
     }
   };
 
@@ -422,6 +444,18 @@ export default function MyOrders() {
                     >
                       <DownloadSimple size={18} weight="bold" />
                       {downloadingId === order.id ? 'Mengunduh...' : 'Unduh Faktur'}
+                    </button>
+                  )}
+
+                  {(order.status === 'Completed' || order.status === 'Delivered') && (
+                    <button 
+                      onClick={() => handleReorder(order)}
+                      disabled={reorderingId === order.id}
+                      className="flex-1 px-4 py-2.5 bg-primary-50 hover:bg-primary-100 text-primary-800 border border-primary-200 rounded-xl text-sm font-bold transition-all shadow-xs flex items-center justify-center gap-2 disabled:opacity-50"
+                      title="Masukkan kembali item pesanan ini ke keranjang belanja"
+                    >
+                      <ArrowsCounterClockwise size={18} weight="bold" className={reorderingId === order.id ? 'animate-spin' : ''} />
+                      {reorderingId === order.id ? 'Memproses...' : 'Pesan Ulang'}
                     </button>
                   )}
                 </div>
