@@ -65,6 +65,9 @@ model User {
   createdProofs           Proof[]                  @relation("ProofDesigner")
   approvedProofs          Proof[]                  @relation("ProofApprover")
   approvedQuotations      Quotation[]              @relation("QuotationManagerApprover")
+  createdTickets          SupportTicket[]          @relation("TicketCreator")
+  assignedTickets         SupportTicket[]          @relation("TicketAssignee")
+  ticketMessages          TicketMessage[]
 
   @@index([email])
   @@index([roleId])
@@ -111,6 +114,7 @@ model Customer {
   quotations      Quotation[]
   invoices        Invoice[]
   members         User[]      @relation("CustomerMembers")
+  supportTickets  SupportTicket[]
 
   @@index([email])
   @@index([npwp])
@@ -229,6 +233,7 @@ model Order {
   proofs                Proof[]
   quotations            Quotation[]
   shipments             Shipment[]
+  supportTickets        SupportTicket[]
 
   @@index([orderNumber])
   @@index([customerId])
@@ -749,5 +754,57 @@ model ShipmentItem {
   @@index([shipmentId])
   @@index([orderItemId])
   @@map("shipment_items")
+}
+
+model SupportTicket {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ticketNumber   String          @unique @map("ticket_number") @db.VarChar(50)
+  customerId     String?         @map("customer_id") @db.Uuid
+  userId         String?         @map("user_id") @db.Uuid
+  orderId        String?         @map("order_id") @db.Uuid
+  assignedToId   String?         @map("assigned_to_id") @db.Uuid
+  subject        String          @db.VarChar(255)
+  category       String          @db.VarChar(50)
+  priority       String          @default("Normal") @db.VarChar(20)
+  status         String          @default("Open") @db.VarChar(20)
+  description    String          @db.Text
+  resolvedAt     DateTime?       @map("resolved_at") @db.Timestamptz(6)
+  closedAt       DateTime?       @map("closed_at") @db.Timestamptz(6)
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  customer       Customer?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  user           User?           @relation("TicketCreator", fields: [userId], references: [id], onDelete: SetNull)
+  assignedTo     User?           @relation("TicketAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  order          Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  messages       TicketMessage[]
+
+  @@index([ticketNumber])
+  @@index([customerId])
+  @@index([userId])
+  @@index([assignedToId])
+  @@index([status])
+  @@index([priority])
+  @@index([category])
+  @@index([createdAt])
+  @@map("support_tickets")
+}
+
+model TicketMessage {
+  id         String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ticketId   String        @map("ticket_id") @db.Uuid
+  senderId   String?       @map("sender_id") @db.Uuid
+  senderName String?       @map("sender_name") @db.VarChar(255)
+  senderRole String?       @map("sender_role") @db.VarChar(50)
+  message    String        @db.Text
+  createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  ticket     SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  sender     User?         @relation(fields: [senderId], references: [id], onDelete: SetNull)
+
+  @@index([ticketId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@map("ticket_messages")
 }
 

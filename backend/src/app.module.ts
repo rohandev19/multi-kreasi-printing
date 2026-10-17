@@ -32,6 +32,7 @@ import { SettingsModule } from './settings/settings.module';
 import { RolesModule } from './roles/roles.module';
 import { ChatsModule } from './chats/chats.module';
 import { SearchModule } from './search/search.module';
+import { TicketsModule } from './tickets/tickets.module';
 
 @Module({
   imports: [
@@ -116,6 +117,7 @@ import { SearchModule } from './search/search.module';
     RolesModule,
     ChatsModule,
     SearchModule,
+    TicketsModule,
   ],
   controllers: [AppController],
   providers: [

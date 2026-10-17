@@ -24,6 +24,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Profile = lazy(() => import('./pages/Profile'));
 const LiveSupport = lazy(() => import('./pages/LiveSupport'));
 const DriverPortal = lazy(() => import('./pages/DriverPortal'));
+const Tickets = lazy(() => import('./pages/Tickets'));
 import { RoleProvider } from './contexts/RoleContext';
 import { ToastProvider } from './contexts/ToastContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -388,6 +389,16 @@ export const router = createBrowserRouter([
               <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Sales']}>
                 <Suspense fallback={<LoadingSpinner />}>
                   <LiveSupport />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'tickets',
+            element: (
+              <ProtectedRoute allowedRoles={['Owner', 'Manager', 'Sales', 'Customer', 'Production_Staff']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Tickets />
                 </Suspense>
               </ProtectedRoute>
             ),

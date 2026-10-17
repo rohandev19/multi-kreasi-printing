@@ -21,6 +21,7 @@ import {
   X,
   ChatCircleDots,
   Truck,
+  Lifebuoy,
 } from '@phosphor-icons/react';
 import { useRoleContext } from '../../contexts/RoleContext';
 
@@ -109,6 +110,12 @@ const menuItems: MenuItem[] = [
     icon: <ChatCircleDots size={20} weight="regular" />,
     label: 'Bantuan Langsung',
     roles: ['Owner', 'Manager', 'Sales'],
+  },
+  {
+    path: '/dashboard/tickets',
+    icon: <Lifebuoy size={20} weight="regular" />,
+    label: 'Tiket Bantuan',
+    roles: ['Owner', 'Manager', 'Sales', 'Customer'],
   },
   {
     path: '/dashboard/my-orders',
