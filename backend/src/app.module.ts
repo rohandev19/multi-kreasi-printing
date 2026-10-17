@@ -31,6 +31,7 @@ import { QuotationsModule } from './quotations/quotations.module';
 import { SettingsModule } from './settings/settings.module';
 import { RolesModule } from './roles/roles.module';
 import { ChatsModule } from './chats/chats.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -114,6 +115,7 @@ import { ChatsModule } from './chats/chats.module';
     SettingsModule,
     RolesModule,
     ChatsModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [

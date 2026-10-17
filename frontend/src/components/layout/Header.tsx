@@ -10,11 +10,11 @@ import {
   SignOut,
   CaretRight,
   List,
-  ShoppingCart,
-  X
+  ShoppingCart
 } from '@phosphor-icons/react';
 import { useRoleContext } from '../../contexts/RoleContext';
 import { useCart } from '../../hooks/useCart';
+import { GlobalSearchModal } from '../search/GlobalSearchModal';
 
 interface HeaderProps {
   mobileSidebarOpen: boolean;
@@ -33,7 +33,6 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
   // Ref for clicking outside
   const userMenuRef = useRef<HTMLDivElement>(null);
   const notifMenuRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -43,13 +42,23 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
       if (notifMenuRef.current && !notifMenuRef.current.contains(event.target as Node)) {
         setShowNotifications(false);
       }
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setShowSearch(false);
-      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Global Ctrl+K / Cmd+K listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowSearch((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const handleLogout = () => {
@@ -150,66 +159,20 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
           </Link>
         )}
 
-        <div className="relative" ref={searchRef}>
-          {showSearch ? (
-            <div
-              className="absolute right-0 top-1/2 flex w-[280px] -translate-y-1/2 items-center overflow-hidden rounded-lg sm:w-[320px]"
-              style={{
-                backgroundColor: 'var(--bg-elevated)',
-                border: '1px solid var(--border-focus)',
-                boxShadow: 'var(--shadow-md)',
-              }}
-            >
-              <MagnifyingGlass size={18} weight="regular" className="ml-3 shrink-0" style={{ color: 'var(--text-tertiary)' }} />
-              <input
-                autoFocus
-                type="text"
-                placeholder="Cari pesanan, pelanggan..."
-                className="w-full bg-transparent px-3 py-2 text-sm outline-none"
-                style={{ color: 'var(--text-primary)' }}
-              />
-              <button
-                onClick={() => setShowSearch(false)}
-                className="p-2 transition-colors duration-150 ease-out"
-                style={{ color: 'var(--text-secondary)' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = 'var(--text-primary)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'var(--text-secondary)';
-                }}
-              >
-                <X size={16} weight="regular" />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setShowSearch(true)}
-              className="group flex items-center gap-2 rounded-full p-2 transition-all duration-150 ease-out"
-              style={{ color: 'var(--text-secondary)' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--color-neutral-100)';
-                e.currentTarget.style.color = 'var(--text-primary)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = 'var(--text-secondary)';
-              }}
-            >
-              <MagnifyingGlass size={20} weight="regular" />
-              <div
-                className="hidden items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] lg:flex"
-                style={{
-                  backgroundColor: 'var(--color-neutral-100)',
-                  borderColor: 'var(--border-default)',
-                  color: 'var(--text-tertiary)',
-                }}
-              >
-                <span>⌘</span>K
-              </div>
-            </button>
-          )}
-        </div>
+        {/* Global Search Trigger */}
+        <button
+          onClick={() => setShowSearch(true)}
+          className="flex items-center gap-2 rounded-xl px-2.5 sm:px-3 py-1.5 transition-all duration-150 ease-out border border-slate-200/90 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-500 shadow-2xs"
+          title="Buka Pencarian Global (Ctrl+K)"
+        >
+          <MagnifyingGlass size={16} weight="bold" className="text-slate-400 shrink-0" />
+          <span className="hidden sm:inline-block text-xs font-medium text-slate-500">
+            Cari apa saja...
+          </span>
+          <div className="flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-bold border border-slate-200 bg-white text-slate-400 shadow-2xs">
+            <span>⌘</span>K
+          </div>
+        </button>
 
         <div className="relative" ref={notifMenuRef}>
           <button
@@ -368,6 +331,9 @@ export default function Header({ mobileSidebarOpen, onToggleMobileSidebar }: Hea
           )}
         </div>
       </div>
+
+      {/* Global Command Palette Modal */}
+      <GlobalSearchModal isOpen={showSearch} onClose={() => setShowSearch(false)} />
     </header>
   );
 }
