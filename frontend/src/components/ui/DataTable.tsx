@@ -175,7 +175,7 @@ export function DataTable<T>({
                         ? 'border text-white'
                         : 'border'
                     }`}
-                    style={pagination.currentPage === page ? { backgroundColor: '#000000', borderColor: '#000000' } : { backgroundColor: 'var(--bg-elevated)', color: 'var(--text-primary)', borderColor: 'var(--border-default)' }}
+                    style={pagination.currentPage === page ? { backgroundColor: 'var(--color-primary-600)', borderColor: 'var(--color-primary-600)' } : { backgroundColor: 'var(--bg-elevated)', color: 'var(--text-primary)', borderColor: 'var(--border-default)' }}
                   >
                     {page}
                   </button>

@@ -39,10 +39,7 @@ export class ShipmentsController {
 
   @Post('shipments')
   @RequirePermissions({ action: 'manage', subject: 'Order' })
-  async createShipment(
-    @Body() dto: CreateShipmentDto,
-    @Req() req: Request,
-  ) {
+  async createShipment(@Body() dto: CreateShipmentDto, @Req() req: Request) {
     const currentUserId = (req as any).user.userId || (req as any).user.sub;
     return this.createShipmentUseCase.execute(dto, currentUserId);
   }
@@ -147,7 +144,9 @@ export class ShipmentsController {
     });
 
     if (!shipment) {
-      throw new NotFoundException(`Surat Jalan dengan ID ${id} tidak ditemukan.`);
+      throw new NotFoundException(
+        `Surat Jalan dengan ID ${id} tidak ditemukan.`,
+      );
     }
 
     const updatedShipment = await this.prisma.$transaction(async (tx) => {
@@ -163,10 +162,13 @@ export class ShipmentsController {
               : undefined,
           deliveredAt: dto.status === 'Delivered' ? new Date() : undefined,
           carrier: dto.carrier !== undefined ? dto.carrier : undefined,
-          trackingNumber: dto.trackingNumber !== undefined ? dto.trackingNumber : undefined,
+          trackingNumber:
+            dto.trackingNumber !== undefined ? dto.trackingNumber : undefined,
           driverName: dto.driverName !== undefined ? dto.driverName : undefined,
-          driverPhone: dto.driverPhone !== undefined ? dto.driverPhone : undefined,
-          vehicleNumber: dto.vehicleNumber !== undefined ? dto.vehicleNumber : undefined,
+          driverPhone:
+            dto.driverPhone !== undefined ? dto.driverPhone : undefined,
+          vehicleNumber:
+            dto.vehicleNumber !== undefined ? dto.vehicleNumber : undefined,
           notes: dto.notes !== undefined ? dto.notes : undefined,
         },
       });
@@ -178,18 +180,25 @@ export class ShipmentsController {
             s.id === id ? { ...s, status: 'In_Transit' } : s,
           );
           const inTransitOrDeliveredShipmentItems = allShipments
-            .filter((s) => s.status === 'In_Transit' || s.status === 'Delivered')
+            .filter(
+              (s) => s.status === 'In_Transit' || s.status === 'Delivered',
+            )
             .flatMap((s) => s.items);
 
           const progress = ShipmentLogic.calculateFulfillmentProgress(
-            shipment.order.items.map((i) => ({ id: i.id, quantity: i.quantity })),
+            shipment.order.items.map((i) => ({
+              id: i.id,
+              quantity: i.quantity,
+            })),
             inTransitOrDeliveredShipmentItems.map((i) => ({
               orderItemId: i.orderItemId,
               quantity: i.quantity,
             })),
           );
 
-          const newOrderStatus = progress.isComplete ? 'Shipped' : 'Partially_Shipped';
+          const newOrderStatus = progress.isComplete
+            ? 'Shipped'
+            : 'Partially_Shipped';
 
           await tx.order.update({
             where: { id: shipment.orderId },
@@ -197,7 +206,9 @@ export class ShipmentsController {
           });
 
           const carrierDetail = dto.carrier || shipment.carrier || 'Armada MKP';
-          const trackingDetail = dto.trackingNumber ? ` (Resi/AWB: ${dto.trackingNumber})` : '';
+          const trackingDetail = dto.trackingNumber
+            ? ` (Resi/AWB: ${dto.trackingNumber})`
+            : '';
 
           await tx.orderTimeline.create({
             data: {
@@ -216,7 +227,10 @@ export class ShipmentsController {
             .flatMap((s) => s.items);
 
           const progress = ShipmentLogic.calculateFulfillmentProgress(
-            shipment.order.items.map((i) => ({ id: i.id, quantity: i.quantity })),
+            shipment.order.items.map((i) => ({
+              id: i.id,
+              quantity: i.quantity,
+            })),
             deliveredItems.map((i) => ({
               orderItemId: i.orderItemId,
               quantity: i.quantity,
@@ -260,7 +274,9 @@ export class ShipmentsController {
     });
 
     if (!shipment) {
-      throw new NotFoundException(`Surat Jalan dengan ID ${id} tidak ditemukan.`);
+      throw new NotFoundException(
+        `Surat Jalan dengan ID ${id} tidak ditemukan.`,
+      );
     }
 
     const updatedShipment = await this.prisma.$transaction(async (tx) => {
@@ -268,10 +284,13 @@ export class ShipmentsController {
         where: { id },
         data: {
           carrier: dto.carrier !== undefined ? dto.carrier : undefined,
-          trackingNumber: dto.trackingNumber !== undefined ? dto.trackingNumber : undefined,
+          trackingNumber:
+            dto.trackingNumber !== undefined ? dto.trackingNumber : undefined,
           driverName: dto.driverName !== undefined ? dto.driverName : undefined,
-          driverPhone: dto.driverPhone !== undefined ? dto.driverPhone : undefined,
-          vehicleNumber: dto.vehicleNumber !== undefined ? dto.vehicleNumber : undefined,
+          driverPhone:
+            dto.driverPhone !== undefined ? dto.driverPhone : undefined,
+          vehicleNumber:
+            dto.vehicleNumber !== undefined ? dto.vehicleNumber : undefined,
           notes: dto.notes !== undefined ? dto.notes : undefined,
         },
       });
@@ -280,7 +299,10 @@ export class ShipmentsController {
       if (dto.carrier && dto.carrier !== shipment.carrier) {
         changes.push(`Kurir: ${dto.carrier}`);
       }
-      if (dto.trackingNumber && dto.trackingNumber !== shipment.trackingNumber) {
+      if (
+        dto.trackingNumber &&
+        dto.trackingNumber !== shipment.trackingNumber
+      ) {
         changes.push(`Resi/AWB: ${dto.trackingNumber}`);
       }
       if (dto.driverName && dto.driverName !== shipment.driverName) {
@@ -307,4 +329,3 @@ export class ShipmentsController {
     return updatedShipment;
   }
 }
-

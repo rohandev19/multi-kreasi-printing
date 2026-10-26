@@ -128,10 +128,7 @@ export class WorkflowService {
       for (const ord of customer.orders) {
         if (ord.invoices && Array.isArray(ord.invoices)) {
           for (const inv of ord.invoices) {
-            if (
-              inv.status !== 'Fully_Paid' &&
-              inv.status !== 'Cancelled'
-            ) {
+            if (inv.status !== 'Fully_Paid' && inv.status !== 'Cancelled') {
               if (new Date(inv.dueDate).getTime() < today.getTime()) {
                 hasOverdue = true;
                 break;

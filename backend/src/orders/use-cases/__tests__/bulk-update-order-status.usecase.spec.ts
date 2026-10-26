@@ -56,7 +56,10 @@ describe('BulkUpdateOrderStatusUseCase', () => {
     expect(auditMock.log).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'BULK_ORDER_STATUS_UPDATE',
-        newValue: expect.objectContaining({ count: 2, targetStatus: 'Approved' }),
+        newValue: expect.objectContaining({
+          count: 2,
+          targetStatus: 'Approved',
+        }),
       }),
     );
   });

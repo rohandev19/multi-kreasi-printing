@@ -84,7 +84,10 @@ export class CartMergeService {
           // Update quantity, unitPrice, and subtotal of existing item
           const existingItem = cart.items[existingItemIndex];
           const newQuantity = existingItem.quantity + guestItem.quantity;
-          const unitPrice = this.calculateProductUnitPrice(product, newQuantity);
+          const unitPrice = this.calculateProductUnitPrice(
+            product,
+            newQuantity,
+          );
           const newSubtotal = unitPrice * newQuantity;
 
           await this.prisma.cartItem.update({
@@ -97,7 +100,10 @@ export class CartMergeService {
           });
         } else {
           // Add new item to cart with tier-adjusted unitPrice
-          const unitPrice = this.calculateProductUnitPrice(product, guestItem.quantity);
+          const unitPrice = this.calculateProductUnitPrice(
+            product,
+            guestItem.quantity,
+          );
           const subtotal = unitPrice * guestItem.quantity;
           await this.prisma.cartItem.create({
             data: {

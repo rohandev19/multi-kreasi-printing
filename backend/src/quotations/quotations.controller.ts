@@ -161,4 +161,3 @@ export class QuotationsController {
     return this.convertQuotation.execute(id);
   }
 }
-

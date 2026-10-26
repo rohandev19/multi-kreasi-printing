@@ -150,7 +150,7 @@ describe('AuthController Integration', () => {
         id: 'user-1',
         email: 'test@example.com',
         fullName: 'Test User',
-        role: { name: 'Customer' },
+        role: { name: 'Customer', permissions: [] },
       };
 
       (prisma.user.findUnique as Mock).mockResolvedValue(mockDbUser);
@@ -159,13 +159,14 @@ describe('AuthController Integration', () => {
 
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { id: 'user-1' },
-        include: { role: true },
+        include: { role: { include: { permissions: true } } },
       });
       expect(result).toEqual({
         id: 'user-1',
         email: 'test@example.com',
         role: 'Customer',
         name: 'Test User',
+        permissions: [],
       });
     });
 

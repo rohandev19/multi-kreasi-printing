@@ -25,7 +25,7 @@ describe('GlobalSearchUseCase', () => {
         findMany: vi.fn(),
       },
     };
-    useCase = new GlobalSearchUseCase(prisma as unknown as PrismaService);
+    useCase = new GlobalSearchUseCase(prisma);
   });
 
   it('should return empty results if query is less than 2 characters', async () => {

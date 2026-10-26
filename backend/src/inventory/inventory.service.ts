@@ -99,7 +99,10 @@ export class InventoryService {
         where: { id },
         data: {
           currentStock: newStock,
-          status: newStock <= Number(material.minStockLevel) ? 'Low_Stock' : 'In_Stock',
+          status:
+            newStock <= Number(material.minStockLevel)
+              ? 'Low_Stock'
+              : 'In_Stock',
         },
       }),
       this.prisma.stockMovement.create({

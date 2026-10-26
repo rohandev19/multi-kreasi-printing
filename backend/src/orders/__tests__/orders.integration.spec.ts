@@ -7,6 +7,7 @@ import { ApproveOrderUseCase } from '../use-cases/approve-order.usecase';
 import { CancelOrderUseCase } from '../use-cases/cancel-order.usecase';
 import { SearchOrdersUseCase } from '../use-cases/search-orders.usecase';
 import { GetOrderDetailsUseCase } from '../use-cases/get-order-details.usecase';
+import { BulkUpdateOrderStatusUseCase } from '../use-cases/bulk-update-order-status.usecase';
 import { PrismaService } from '../../prisma/prisma.service';
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -49,6 +50,10 @@ describe('OrdersController Integration', () => {
         },
         {
           provide: GetOrderDetailsUseCase,
+          useValue: { execute: vi.fn() },
+        },
+        {
+          provide: BulkUpdateOrderStatusUseCase,
           useValue: { execute: vi.fn() },
         },
         {

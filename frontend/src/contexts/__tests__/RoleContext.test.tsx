@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RoleProvider, useRoleContext } from '../RoleContext';
 import api from '../../api/axios';
@@ -19,7 +20,7 @@ const TestComponent = () => {
   return (
     <div>
       <span data-testid="role-value">{role || 'No Role'}</span>
-      <span data-testid="user-name">{user?.fullName || 'No User'}</span>
+      <span data-testid="user-name">{user?.fullName || user?.name || 'No User'}</span>
     </div>
   );
 };
@@ -42,9 +43,11 @@ describe('RoleContext', () => {
     });
 
     render(
-      <RoleProvider>
-        <TestComponent />
-      </RoleProvider>
+      <BrowserRouter>
+        <RoleProvider>
+          <TestComponent />
+        </RoleProvider>
+      </BrowserRouter>
     );
 
     // Initial state
@@ -59,9 +62,11 @@ describe('RoleContext', () => {
 
   it('does not fetch if no token exists', async () => {
     render(
-      <RoleProvider>
-        <TestComponent />
-      </RoleProvider>
+      <BrowserRouter>
+        <RoleProvider>
+          <TestComponent />
+        </RoleProvider>
+      </BrowserRouter>
     );
 
     await waitFor(() => {

@@ -26,7 +26,9 @@ export class RejectProofUseCase {
     clientIp?: string,
   ) {
     if (!dto.customerNotes || !dto.customerNotes.trim()) {
-      throw new BadRequestException('Alasan penolakan atau catatan revisi wajib diisi');
+      throw new BadRequestException(
+        'Alasan penolakan atau catatan revisi wajib diisi',
+      );
     }
 
     const proof = await this.prisma.proof.findUnique({
@@ -49,7 +51,11 @@ export class RejectProofUseCase {
       const user = await this.prisma.user.findUnique({
         where: { id: currentUser.id },
       });
-      if (user && proof.order.customer.email && user.email !== proof.order.customer.email) {
+      if (
+        user &&
+        proof.order.customer.email &&
+        user.email !== proof.order.customer.email
+      ) {
         throw new ForbiddenException(
           'Anda tidak memiliki izin untuk meminta revisi bukti cetak pesanan ini',
         );

@@ -3,7 +3,11 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { QuotationsService } from '../quotations.service';
 import { ConvertQuotationToOrderUseCase } from '../use-cases/convert-quotation.usecase';
 import { PrismaService } from '../../prisma/prisma.service';
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 
 describe('QuotationsService & ConvertQuotationToOrderUseCase', () => {
   let service: QuotationsService;
@@ -40,18 +44,27 @@ describe('QuotationsService & ConvertQuotationToOrderUseCase', () => {
     }).compile();
 
     service = module.get<QuotationsService>(QuotationsService);
-    convertUseCase = module.get<ConvertQuotationToOrderUseCase>(ConvertQuotationToOrderUseCase);
+    convertUseCase = module.get<ConvertQuotationToOrderUseCase>(
+      ConvertQuotationToOrderUseCase,
+    );
   });
 
   describe('create', () => {
     it('should create quotation with Sent status when discount is <= 10%', async () => {
-      prisma.quotation.create.mockImplementation(({ data }: any) => Promise.resolve({ id: 'q-1', ...data }));
+      prisma.quotation.create.mockImplementation(({ data }: any) =>
+        Promise.resolve({ id: 'q-1', ...data }),
+      );
 
       const result = await service.create({
         customerId: 'cust-1',
         discountPercent: 5,
         items: [
-          { productId: 'prod-1', quantity: 100, unitPrice: 1000, subtotal: 100000 },
+          {
+            productId: 'prod-1',
+            quantity: 100,
+            unitPrice: 1000,
+            subtotal: 100000,
+          },
         ],
       });
 
@@ -66,13 +79,20 @@ describe('QuotationsService & ConvertQuotationToOrderUseCase', () => {
     });
 
     it('should create quotation with Pending_Manager_Approval status when discount > 10%', async () => {
-      prisma.quotation.create.mockImplementation(({ data }: any) => Promise.resolve({ id: 'q-2', ...data }));
+      prisma.quotation.create.mockImplementation(({ data }: any) =>
+        Promise.resolve({ id: 'q-2', ...data }),
+      );
 
       const result = await service.create({
         customerId: 'cust-1',
         discountPercent: 15,
         items: [
-          { productId: 'prod-1', quantity: 50, unitPrice: 2000, subtotal: 100000 },
+          {
+            productId: 'prod-1',
+            quantity: 50,
+            unitPrice: 2000,
+            subtotal: 100000,
+          },
         ],
       });
 
@@ -91,7 +111,9 @@ describe('QuotationsService & ConvertQuotationToOrderUseCase', () => {
         notes: 'Initial notes',
       };
       prisma.quotation.findUnique.mockResolvedValue(pendingQuotation);
-      prisma.quotation.update.mockImplementation(({ data }: any) => Promise.resolve({ ...pendingQuotation, ...data }));
+      prisma.quotation.update.mockImplementation(({ data }: any) =>
+        Promise.resolve({ ...pendingQuotation, ...data }),
+      );
 
       const result = await service.approveDiscount('q-1', 'manager-123', {
         notes: 'Approved special client rate',
@@ -100,7 +122,9 @@ describe('QuotationsService & ConvertQuotationToOrderUseCase', () => {
       expect(result.status).toBe('Sent');
       expect(result.managerApprovedBy).toBe('manager-123');
       expect(result.managerApprovedAt).toBeDefined();
-      expect(result.notes).toContain('[Manager Approval]: Approved special client rate');
+      expect(result.notes).toContain(
+        '[Manager Approval]: Approved special client rate',
+      );
     });
 
     it('should throw BadRequestException if quotation is not Pending_Manager_Approval', async () => {
@@ -110,9 +134,9 @@ describe('QuotationsService & ConvertQuotationToOrderUseCase', () => {
         status: 'Draft',
       });
 
-      await expect(service.approveDiscount('q-1', 'manager-123')).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.approveDiscount('q-1', 'manager-123'),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -124,7 +148,9 @@ describe('QuotationsService & ConvertQuotationToOrderUseCase', () => {
         status: 'Pending_Manager_Approval',
       };
       prisma.quotation.findUnique.mockResolvedValue(pendingQuotation);
-      prisma.quotation.update.mockImplementation(({ data }: any) => Promise.resolve({ ...pendingQuotation, ...data }));
+      prisma.quotation.update.mockImplementation(({ data }: any) =>
+        Promise.resolve({ ...pendingQuotation, ...data }),
+      );
 
       const result = await service.rejectDiscount('q-1', 'manager-123', {
         reason: 'Margin below company threshold',
@@ -145,7 +171,9 @@ describe('QuotationsService & ConvertQuotationToOrderUseCase', () => {
         notes: null,
       };
       prisma.quotation.findUnique.mockResolvedValue(sentQuotation);
-      prisma.quotation.update.mockImplementation(({ data }: any) => Promise.resolve({ ...sentQuotation, ...data }));
+      prisma.quotation.update.mockImplementation(({ data }: any) =>
+        Promise.resolve({ ...sentQuotation, ...data }),
+      );
 
       const result = await service.accept('q-1', 'cust-1', {
         poNumber: 'PO-CORP-9921',
@@ -157,7 +185,9 @@ describe('QuotationsService & ConvertQuotationToOrderUseCase', () => {
       expect(result.poNumber).toBe('PO-CORP-9921');
       expect(result.poFileUrl).toBe('https://storage.local/pos/po-9921.pdf');
       expect(result.customerAcceptedAt).toBeDefined();
-      expect(result.notes).toContain('[Customer Note]: Delivery expected in 7 days');
+      expect(result.notes).toContain(
+        '[Customer Note]: Delivery expected in 7 days',
+      );
     });
 
     it('should throw ForbiddenException on IDOR attack', async () => {
@@ -193,7 +223,9 @@ describe('QuotationsService & ConvertQuotationToOrderUseCase', () => {
         status: 'Sent',
       };
       prisma.quotation.findUnique.mockResolvedValue(sentQuotation);
-      prisma.quotation.update.mockImplementation(({ data }: any) => Promise.resolve({ ...sentQuotation, ...data }));
+      prisma.quotation.update.mockImplementation(({ data }: any) =>
+        Promise.resolve({ ...sentQuotation, ...data }),
+      );
 
       const result = await service.reject('q-1', 'cust-1', {
         reason: 'Price exceeds our budget',
@@ -228,11 +260,18 @@ describe('QuotationsService & ConvertQuotationToOrderUseCase', () => {
         validUntil: null,
         terms: 'Standard terms',
         items: [
-          { productId: 'prod-1', quantity: 10, unitPrice: 5000, notes: 'Print A3' },
+          {
+            productId: 'prod-1',
+            quantity: 10,
+            unitPrice: 5000,
+            notes: 'Print A3',
+          },
         ],
       };
       prisma.quotation.findUnique.mockResolvedValue(originalQuotation);
-      prisma.quotation.create.mockImplementation(({ data }: any) => Promise.resolve({ id: 'q-rev-2', ...data }));
+      prisma.quotation.create.mockImplementation(({ data }: any) =>
+        Promise.resolve({ id: 'q-rev-2', ...data }),
+      );
 
       const result = await service.createRevision('q-1', {
         discountPercent: 8,
@@ -274,7 +313,8 @@ describe('QuotationsService & ConvertQuotationToOrderUseCase', () => {
         orderNumber: 'ORD-2026-0011',
         customerId: 'cust-1',
         status: 'Draft',
-        notes: '[Customer PO: PO-CORP-4401] Converted from Quotation QUO-2026-0001',
+        notes:
+          '[Customer PO: PO-CORP-4401] Converted from Quotation QUO-2026-0001',
       });
       prisma.quotation.update.mockResolvedValue({
         ...acceptedQuotation,

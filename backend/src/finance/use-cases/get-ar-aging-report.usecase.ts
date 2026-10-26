@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreditLogic, AgingBuckets, CreditRiskLevel, InvoiceAgingItem } from '../domain/credit.entity';
+import {
+  CreditLogic,
+  AgingBuckets,
+  CreditRiskLevel,
+  InvoiceAgingItem,
+} from '../domain/credit.entity';
 
 export interface CustomerAgingRow {
   customerId: string;
@@ -37,7 +42,9 @@ export interface ArAgingReportResult {
 export class GetArAgingReportUseCase {
   constructor(private prisma: PrismaService) {}
 
-  async execute(referenceDate: Date = new Date()): Promise<ArAgingReportResult> {
+  async execute(
+    referenceDate: Date = new Date(),
+  ): Promise<ArAgingReportResult> {
     // Fetch all customers with their credit profile and their invoices
     const customers = await this.prisma.customer.findMany({
       include: {
@@ -133,7 +140,9 @@ export class GetArAgingReportUseCase {
     }
 
     // Sort by totalOutstanding descending
-    customerRows.sort((a, b) => b.aging.totalOutstanding - a.aging.totalOutstanding);
+    customerRows.sort(
+      (a, b) => b.aging.totalOutstanding - a.aging.totalOutstanding,
+    );
 
     const customersWithDebt = customerRows.filter(
       (c) => c.aging.totalOutstanding > 0,

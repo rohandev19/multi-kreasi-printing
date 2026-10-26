@@ -27,7 +27,7 @@ describe('HomePage Component', () => {
     expect(
       await screen.findByText(/Solusi Percetakan Komersial & Pengadaan B2B/i)
     ).toBeInTheDocument();
-    expect(screen.getByText(/PT MULTI KREASI PRINTING/i)).toBeInTheDocument();
+    expect(screen.getByText(/Multi Kreasi Printing/i)).toBeInTheDocument();
   });
 
   it('renders order tracking input and submit button', async () => {
@@ -40,10 +40,10 @@ describe('HomePage Component', () => {
 
   it('renders Job Ticket Estimator with calculation box', async () => {
     render(<HomePage />);
-    expect(await screen.findByText(/JOB TICKET ESTIMATOR/i)).toBeInTheDocument();
-    expect(screen.getByText(/Kalkulasi Estimasi Biaya Cetak/i)).toBeInTheDocument();
-    expect(screen.getByText(/01. Jenis Pekerjaan \/ Produk/i)).toBeInTheDocument();
-    expect(screen.getByText(/02. Jumlah Pesanan/i)).toBeInTheDocument();
+    const headings = await screen.findAllByText(/Kalkulasi Estimasi Biaya Cetak/i);
+    expect(headings[0]).toBeInTheDocument();
+    expect(screen.getByText(/Jenis Pekerjaan \/ Produk/i)).toBeInTheDocument();
+    expect(screen.getByText(/Jumlah Pesanan/i)).toBeInTheDocument();
   });
 
   it('renders production specifications table', async () => {

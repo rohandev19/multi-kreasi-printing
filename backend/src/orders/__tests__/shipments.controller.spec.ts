@@ -90,7 +90,11 @@ describe('ShipmentsController', () => {
     const req = { user: { userId: 'user-1' } } as any;
 
     await expect(
-      controller.updateShipmentTracking('invalid-id', { trackingNumber: '123' }, req),
+      controller.updateShipmentTracking(
+        'invalid-id',
+        { trackingNumber: '123' },
+        req,
+      ),
     ).rejects.toThrow(NotFoundException);
   });
 });

@@ -203,15 +203,15 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
         <Link to="/" className="flex w-full items-center gap-2 overflow-hidden">
           {collapsed ? (
             <div
-              className="mx-auto flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-lg font-black shadow-sm"
-              style={{ backgroundColor: '#000000', color: 'white' }}
+              className="mx-auto flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-lg font-black shadow-xs"
+              style={{ backgroundColor: 'var(--color-primary-600)', color: 'white' }}
             >
               MK
             </div>
           ) : (
             <div className="flex flex-col">
               <h1 className="text-xl font-extrabold tracking-tight leading-tight" style={{ color: 'var(--text-primary)' }}>MK Printing</h1>
-              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#000000' }}>Enterprise</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--color-primary-600)' }}>Enterprise</span>
             </div>
           )}
         </Link>

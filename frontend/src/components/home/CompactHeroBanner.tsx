@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CaretLeft, CaretRight, Buildings, Package, Printer } from '@phosphor-icons/react';
+import {
+  ArrowRight,
+  CaretLeft,
+  CaretRight,
+  Buildings,
+  Package,
+  Printer,
+  Pause,
+  Play,
+} from '@phosphor-icons/react';
 
 interface BannerSlide {
   id: string;
@@ -64,7 +73,7 @@ export const CompactHeroBanner: React.FC = () => {
 
   useEffect(() => {
     if (isPaused) return;
-    const interval = setInterval(nextSlide, 5000);
+    const interval = setInterval(nextSlide, 5500);
     return () => clearInterval(interval);
   }, [isPaused, nextSlide]);
 
@@ -91,22 +100,22 @@ export const CompactHeroBanner: React.FC = () => {
               alt={slide.title}
               className="h-full w-full object-cover object-center"
             />
-            {/* Deep High-Contrast Directional Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/25 sm:via-black/60 sm:to-transparent" />
+            {/* High-Contrast Directional Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/30 sm:via-black/65 sm:to-transparent" />
           </div>
         ))}
 
         {/* Content Overlay */}
         <div className="relative z-10 flex h-full flex-col justify-center px-6 sm:px-10 lg:px-12 max-w-2xl sm:max-w-3xl">
-          {/* Badge */}
-          <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-2.5 py-1 text-[11px] font-mono font-bold tracking-wider text-white border border-white/20 mb-2 sm:mb-3">
-            <BadgeIcon size={13} weight="bold" className="text-emerald-400" />
+          {/* Category Badge */}
+          <div className="inline-flex w-fit items-center gap-1.5 rounded-md bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/95 border border-white/15 mb-2 sm:mb-3">
+            <BadgeIcon size={14} weight="bold" className="text-emerald-400" />
             <span>{activeSlide.badge}</span>
           </div>
 
-          {/* Title with fluid Plus Jakarta Sans */}
+          {/* Title with fluid typography */}
           <h2 
-            className="text-lg sm:text-2xl md:text-3xl font-extrabold tracking-tight text-white leading-tight"
+            className="text-base sm:text-xl md:text-2xl font-bold tracking-tight text-white leading-snug"
             style={{ fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif' }}
           >
             {activeSlide.title}
@@ -121,7 +130,7 @@ export const CompactHeroBanner: React.FC = () => {
           <div className="mt-3 sm:mt-4 flex items-center gap-3">
             <Link
               to={activeSlide.ctaLink}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-bold text-slate-900 shadow-sm transition-all hover:bg-slate-100 hover:gap-2"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-bold text-slate-900 shadow-xs transition-[background-color,transform] duration-150 hover:bg-slate-100 active:scale-[0.98]"
             >
               <span>{activeSlide.ctaText}</span>
               <ArrowRight size={13} weight="bold" />
@@ -138,7 +147,7 @@ export const CompactHeroBanner: React.FC = () => {
                     window.history.pushState(null, '', activeSlide.secondaryCtaLink);
                   }
                 }}
-                className="hidden sm:inline-flex items-center gap-1 rounded-lg bg-black/40 backdrop-blur-sm border border-white/20 px-3.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-black/60"
+                className="hidden sm:inline-flex items-center gap-1 rounded-lg bg-slate-900/60 border border-white/20 px-3.5 py-2 text-xs font-semibold text-white transition-[background-color,transform] duration-150 hover:bg-slate-900/90 active:scale-[0.98]"
               >
                 <span>{activeSlide.secondaryCtaText}</span>
               </a>
@@ -151,7 +160,7 @@ export const CompactHeroBanner: React.FC = () => {
           type="button"
           onClick={prevSlide}
           aria-label="Slide Sebelumnya"
-          className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white/80 backdrop-blur-sm transition-all hover:bg-black/70 hover:text-white opacity-0 group-hover:opacity-100"
+          className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white/90 transition-[background-color,color] duration-150 hover:bg-black/80 hover:text-white opacity-0 group-hover:opacity-100"
         >
           <CaretLeft size={16} weight="bold" />
         </button>
@@ -160,26 +169,37 @@ export const CompactHeroBanner: React.FC = () => {
           type="button"
           onClick={nextSlide}
           aria-label="Slide Berikutnya"
-          className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white/80 backdrop-blur-sm transition-all hover:bg-black/70 hover:text-white opacity-0 group-hover:opacity-100"
+          className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white/90 transition-[background-color,color] duration-150 hover:bg-black/80 hover:text-white opacity-0 group-hover:opacity-100"
         >
           <CaretRight size={16} weight="bold" />
         </button>
 
-        {/* Indicator Dots */}
-        <div className="absolute bottom-3 right-4 sm:right-6 z-20 flex items-center gap-1.5">
-          {bannerSlides.map((_, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => setCurrentIdx(idx)}
-              aria-label={`Buka slide ${idx + 1}`}
-              className={`h-1.5 rounded-full transition-all ${
-                idx === currentIdx
-                  ? 'w-6 bg-white'
-                  : 'w-1.5 bg-white/40 hover:bg-white/70'
-              }`}
-            />
-          ))}
+        {/* Controls: Pause/Play & Indicator Dots */}
+        <div className="absolute bottom-3 right-4 sm:right-6 z-20 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsPaused((prev) => !prev)}
+            aria-label={isPaused ? "Lanjutkan putaran banner" : "Jeda putaran banner"}
+            title={isPaused ? "Lanjutkan putaran banner" : "Jeda putaran banner"}
+            className="flex h-5 w-5 items-center justify-center rounded text-white/70 hover:text-white transition-colors"
+          >
+            {isPaused ? <Play size={11} weight="fill" /> : <Pause size={11} weight="fill" />}
+          </button>
+          <div className="flex items-center gap-1.5">
+            {bannerSlides.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setCurrentIdx(idx)}
+                aria-label={`Buka slide ${idx + 1}`}
+                className={`h-1.5 rounded-full transition-all ${
+                  idx === currentIdx
+                    ? 'w-6 bg-white'
+                    : 'w-1.5 bg-white/40 hover:bg-white/70'
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>

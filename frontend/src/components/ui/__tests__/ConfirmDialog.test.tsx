@@ -16,8 +16,8 @@ describe('ConfirmDialog Component', () => {
 
     expect(screen.getByText('Delete Item')).toBeInTheDocument();
     expect(screen.getByText('Are you sure you want to delete this?')).toBeInTheDocument();
-    expect(screen.getByText('Cancel')).toBeInTheDocument();
-    expect(screen.getByText('Confirm')).toBeInTheDocument();
+    expect(screen.getByText('Batal')).toBeInTheDocument();
+    expect(screen.getByText('Konfirmasi')).toBeInTheDocument();
   });
 
   it('calls onConfirm when confirm button is clicked', () => {
@@ -32,7 +32,7 @@ describe('ConfirmDialog Component', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Konfirmasi' }));
     expect(handleConfirm).toHaveBeenCalledTimes(1);
   });
 
@@ -51,6 +51,6 @@ describe('ConfirmDialog Component', () => {
 
     const deleteBtn = screen.getByText('Delete');
     expect(deleteBtn).toBeInTheDocument();
-    expect(deleteBtn.className).toMatch(/bg-red-600/);
+    expect(deleteBtn.getAttribute('style')).toContain('var(--color-error-600)');
   });
 });

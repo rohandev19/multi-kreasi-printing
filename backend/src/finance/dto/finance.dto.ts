@@ -50,4 +50,3 @@ export class ValidateCreditOrderDto {
   @Min(0)
   orderAmount: number;
 }
-

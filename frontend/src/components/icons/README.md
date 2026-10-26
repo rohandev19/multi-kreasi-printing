@@ -126,9 +126,9 @@ The migration map organizes icons into categories:
 
 ## Design Requirements
 
-This icon system satisfies the following requirements from the Remove AI Slop Design spec:
+This icon system satisfies the following design system requirements:
 
-- **Requirement 3.2**: Replace Lucide Icons with Phosphor Icons library
+- **Requirement 3.2**: Utilize Phosphor Icons library for industrial consistency
 - **Requirement 3.3**: Maintain consistent stroke width across all icons
 - **Requirement 3.4**: Use consistent sizing (16px or 20px for navigation)
 

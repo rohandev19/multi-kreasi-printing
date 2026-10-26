@@ -37,7 +37,10 @@ export class GenerateInvoiceUseCase {
       const customer = await this.prisma.customer.findUnique({
         where: { id: order.customerId },
       });
-      const termDays = customer && customer.paymentTermDays > 0 ? customer.paymentTermDays : 14;
+      const termDays =
+        customer && customer.paymentTermDays > 0
+          ? customer.paymentTermDays
+          : 14;
 
       const dueDate = new Date();
       dueDate.setDate(dueDate.getDate() + termDays);

@@ -19,7 +19,7 @@ describe('SuppliersService', () => {
     audit = {
       log: vi.fn(),
     };
-    service = new SuppliersService(prisma as any, audit as any);
+    service = new SuppliersService(prisma, audit);
   });
 
   it('should get all active suppliers', async () => {
@@ -74,8 +74,14 @@ describe('SuppliersService', () => {
   });
 
   it('should soft delete supplier and log audit', async () => {
-    prisma.supplier.findFirst.mockResolvedValue({ id: 'sup-3', name: 'PT Lama' });
-    prisma.supplier.update.mockResolvedValue({ id: 'sup-3', deletedAt: new Date() });
+    prisma.supplier.findFirst.mockResolvedValue({
+      id: 'sup-3',
+      name: 'PT Lama',
+    });
+    prisma.supplier.update.mockResolvedValue({
+      id: 'sup-3',
+      deletedAt: new Date(),
+    });
 
     const res = await service.deleteSupplier('sup-3', 'user-admin');
 

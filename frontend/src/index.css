@@ -2,10 +2,10 @@
  * PT Multi Kreasi Printing - Global Styles
  * 
  * Main stylesheet importing design tokens and defining base styles.
- * Uses IBM Plex Sans typography (NOT Inter, Geist, or Space Grotesk).
+ * Uses IBM Plex Sans and Plus Jakarta Sans typography.
  * 
- * Requirements satisfied:
- * - 1.1, 1.2: Remove AI slop fonts, use IBM Plex Sans/Work Sans
+ * Design system specifications:
+ * - 1.1, 1.2: Standardize typography hierarchy with IBM Plex Sans and Work Sans
  * - 1.3, 1.4, 1.5: Apply typography hierarchy with consistent weights and line heights
  * - 9.1, 9.2: Use neutral backgrounds (not pure white)
  * - 12.5: Import design tokens from single source
@@ -39,6 +39,26 @@
   --color-primary-800: var(--color-primary-800);
   --color-primary-900: var(--color-primary-900);
   --color-primary-950: var(--color-primary-950);
+
+  /* Radius tokens */
+  --radius-2xs: var(--radius-2xs);
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+  --radius-3xl: var(--radius-3xl);
+  --radius-4xl: var(--radius-4xl);
+  --radius-full: var(--radius-full);
+
+  /* Elevation shadow tokens */
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
   
   /* Modal animation - max 200ms per requirements */
   /* Requirements: 8.1 */
@@ -104,8 +124,11 @@
    * Requirements: 1.3, 1.4, 1.5
    */
   h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display, var(--font-sans));
     font-weight: var(--font-semibold);
     line-height: var(--leading-tight);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
     color: var(--text-primary);
     margin: 0;
   }
@@ -142,6 +165,7 @@
   p {
     margin: 0;
     line-height: var(--leading-normal); /* 1.5 */
+    text-wrap: pretty;
   }
   
   /**
@@ -156,7 +180,7 @@
   }
   
   a:hover {
-    color: #000000;
+    color: var(--color-primary-600);
   }
   
   /**
@@ -224,7 +248,7 @@
    */
   ::selection {
     background-color: var(--color-neutral-200);
-    color: #000000;
+    color: var(--color-neutral-900);
   }
   
   /**
@@ -232,7 +256,7 @@
    * Professional focus indicator for accessibility
    */
   :focus-visible {
-    outline: 2px solid var(--border-focus);
+    outline: 2px solid var(--color-primary-600);
     outline-offset: 2px;
   }
 }

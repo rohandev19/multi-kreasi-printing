@@ -148,7 +148,10 @@ export class CustomersController {
         creditLimit: dto.creditLimit,
         paymentTermDays: dto.paymentTermDays,
         creditStatus: dto.creditStatus || existing.creditStatus,
-        creditNotes: dto.creditNotes !== undefined ? dto.creditNotes : existing.creditNotes,
+        creditNotes:
+          dto.creditNotes !== undefined
+            ? dto.creditNotes
+            : existing.creditNotes,
       },
     });
 

@@ -157,22 +157,22 @@ export const CartPage: React.FC = () => {
                       : ''
                   }`}
                   style={items.length > 0 ? {
-                    background: '#000000', 
+                    background: 'var(--color-primary-600)', 
                     color: '#ffffff',
-                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.3)',
+                    boxShadow: 'var(--shadow-sm)',
                   } : {}}
                   onMouseEnter={e => {
-                    if (items.length > 0) e.currentTarget.style.background = '#1e293b';
+                    if (items.length > 0) e.currentTarget.style.background = 'var(--color-primary-700)';
                   }}
                   onMouseLeave={e => {
-                    if (items.length > 0) e.currentTarget.style.background = '#000000';
+                    if (items.length > 0) e.currentTarget.style.background = 'var(--color-primary-600)';
                   }}
                 >
                   Lanjut ke Pembayaran <ArrowRight size={20} weight="regular" />
                 </Link>
                 
                 <div className="text-center mt-4">
-                  <Link to="/products" className="text-sm font-semibold transition-colors text-black hover:underline">
+                  <Link to="/products" className="text-sm font-semibold transition-colors text-slate-900 hover:underline">
                     Lanjutkan Belanja
                   </Link>
                 </div>

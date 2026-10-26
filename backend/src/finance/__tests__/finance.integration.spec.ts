@@ -4,6 +4,7 @@ import { RecordPaymentUseCase } from '../use-cases/record-payment.usecase';
 import { SendInvoiceUseCase } from '../use-cases/send-invoice.usecase';
 import { CalculateOutstandingBalanceUseCase } from '../use-cases/calculate-outstanding-balance.usecase';
 import { GenerateInvoiceUseCase } from '../use-cases/generate-invoice.usecase';
+import { GetArAgingReportUseCase } from '../use-cases/get-ar-aging-report.usecase';
 import { StorageService } from '../../storage/storage.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
@@ -40,6 +41,10 @@ describe('FinanceController Integration', () => {
           useValue: { execute: vi.fn() },
         },
         {
+          provide: GetArAgingReportUseCase,
+          useValue: { execute: vi.fn() },
+        },
+        {
           provide: StorageService,
           useValue: { getSignedUrl: vi.fn() },
         },
@@ -49,6 +54,7 @@ describe('FinanceController Integration', () => {
             invoice: {
               findMany: vi.fn(),
               findUnique: vi.fn(),
+              findFirst: vi.fn(),
               count: vi.fn(),
             },
           },
@@ -99,7 +105,7 @@ describe('FinanceController Integration', () => {
       expect(prisma.invoice.findMany).toHaveBeenCalledWith({
         where: { customerId: 'customer-1' },
         include: {
-          customer: { select: { id: true, fullName: true, email: true } },
+          customer: { select: { id: true, companyName: true, email: true } },
         },
         orderBy: { createdAt: 'desc' },
         skip: 0,
@@ -135,7 +141,7 @@ describe('FinanceController Integration', () => {
       expect(prisma.invoice.findMany).toHaveBeenCalledWith({
         where: { status: 'PENDING' },
         include: {
-          customer: { select: { id: true, fullName: true, email: true } },
+          customer: { select: { id: true, companyName: true, email: true } },
         },
         orderBy: { createdAt: 'desc' },
         skip: 0,
@@ -159,10 +165,7 @@ describe('FinanceController Integration', () => {
         user: { userId: 'customer-1', role: 'Customer' },
       } as any;
 
-      (prisma.invoice.findUnique as Mock).mockResolvedValue({
-        id: 'inv-1',
-        customerId: 'another-customer',
-      });
+      (prisma.invoice.findFirst as Mock).mockResolvedValue(null);
 
       await expect(controller.getInvoice('inv-1', mockReq)).rejects.toThrow(
         NotFoundException,
@@ -174,7 +177,7 @@ describe('FinanceController Integration', () => {
         user: { userId: 'customer-1', role: 'Customer' },
       } as any;
 
-      (prisma.invoice.findUnique as Mock).mockResolvedValue({
+      (prisma.invoice.findFirst as Mock).mockResolvedValue({
         id: 'inv-1',
         customerId: 'customer-1',
         amount: 1000,
@@ -230,7 +233,7 @@ describe('FinanceController Integration', () => {
         user: { userId: 'staff-1', role: 'Finance_Staff' },
       } as any;
 
-      (prisma.invoice.findUnique as Mock).mockResolvedValue({
+      (prisma.invoice.findFirst as Mock).mockResolvedValue({
         id: 'inv-1',
         invoiceNumber: 'INV-001',
         pdfUrl: 'invoices/INV-001.pdf',

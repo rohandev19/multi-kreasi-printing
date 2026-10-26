@@ -71,8 +71,8 @@ export const PublicLayout: React.FC = () => {
               onClick={closeMobileMenu}
               className="rounded-lg px-4 py-3 text-sm font-medium transition-colors duration-150 ease-out"
               style={{
-                color: location.pathname === link.to ? '#000000' : 'var(--text-primary)',
-                backgroundColor: location.pathname === link.to ? 'rgba(0, 0, 0, 0.06)' : 'transparent',
+                color: location.pathname === link.to ? 'var(--color-primary-600)' : 'var(--text-primary)',
+                backgroundColor: location.pathname === link.to ? 'rgba(15, 23, 42, 0.06)' : 'transparent',
               }}
               onMouseEnter={(e) => { if (location.pathname !== link.to) e.currentTarget.style.backgroundColor = 'var(--color-neutral-50)'; }}
               onMouseLeave={(e) => { if (location.pathname !== link.to) e.currentTarget.style.backgroundColor = 'transparent'; }}
@@ -91,7 +91,7 @@ export const PublicLayout: React.FC = () => {
                 <Link
                   to="/dashboard/my-orders"
                   onClick={closeMobileMenu}
-                  className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-150 ease-out border border-slate-200"
+                  className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-150 ease-out border border-slate-200 active:scale-[0.98]"
                 >
                   <Package size={18} weight="regular" />
                   Pesanan Saya
@@ -100,8 +100,8 @@ export const PublicLayout: React.FC = () => {
               <Link
                 to="/dashboard"
                 onClick={closeMobileMenu}
-                className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-150 ease-out"
-                style={{ backgroundColor: 'var(--color-neutral-100)', color: '#000000' }}
+                className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-150 ease-out active:scale-[0.98]"
+                style={{ backgroundColor: 'var(--color-neutral-100)', color: 'var(--color-neutral-900)' }}
               >
                 <User size={18} weight="regular" />
                 Dashboard
@@ -112,7 +112,7 @@ export const PublicLayout: React.FC = () => {
               <Link
                 to="/login"
                 onClick={closeMobileMenu}
-                className="text-center rounded-xl px-4 py-3 text-sm font-medium transition-colors duration-150 ease-out"
+                className="text-center rounded-xl px-4 py-3 text-sm font-medium transition-colors duration-150 ease-out active:scale-[0.98]"
                 style={{ color: 'var(--text-primary)' }}
                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-neutral-50)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
@@ -122,8 +122,8 @@ export const PublicLayout: React.FC = () => {
               <Link
                 to="/register"
                 onClick={closeMobileMenu}
-                className="text-center rounded-xl px-4 py-3 text-sm font-semibold shadow-sm transition-all duration-150 ease-out"
-                style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                className="text-center rounded-xl px-4 py-3 text-sm font-semibold shadow-xs transition-all duration-150 ease-out active:scale-[0.98]"
+                style={{ backgroundColor: 'var(--color-primary-600)', color: '#ffffff' }}
               >
                 Daftar
               </Link>
@@ -137,10 +137,6 @@ export const PublicLayout: React.FC = () => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-6 whitespace-nowrap">
           {/* Left: Identity & Location */}
           <div className="flex items-center gap-3 shrink-0">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 border border-emerald-200/80">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
-              Pabrik Aktif
-            </span>
             <span className="font-bold text-slate-900 tracking-tight">PT MULTI KREASI PRINTING</span>
             <span className="text-slate-300 hidden xl:inline">•</span>
             <span className="text-slate-600 hidden xl:inline">Offset &amp; Digital Production</span>
@@ -155,7 +151,7 @@ export const PublicLayout: React.FC = () => {
           <div className="flex items-center gap-4 text-xs shrink-0">
             <a 
               href="tel:0215558899" 
-              className="inline-flex items-center gap-1.5 text-slate-700 hover:text-black transition-colors"
+              className="inline-flex items-center gap-1.5 text-slate-700 hover:text-slate-950 transition-colors"
             >
               <Phone size={13} weight="bold" className="text-slate-500" />
               <span className="text-slate-500">Hotline:</span>
@@ -195,7 +191,7 @@ export const PublicLayout: React.FC = () => {
                 to="/" 
                 className="flex items-center gap-2.5 group"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-white shadow-2xs group-hover:bg-black transition-colors">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-white shadow-2xs group-hover:bg-slate-950 transition-colors">
                   <Printer size={20} weight="bold" />
                 </div>
                 <div className="flex flex-col">
@@ -212,8 +208,8 @@ export const PublicLayout: React.FC = () => {
             <nav className="hidden items-center gap-7 lg:flex">
               <Link
                 to="/products"
-                className={`text-xs font-bold uppercase tracking-wider transition-colors hover:text-black ${
-                  location.pathname === '/products' ? 'text-black' : 'text-slate-600'
+                className={`text-xs font-bold uppercase tracking-wider transition-colors hover:text-slate-900 ${
+                  location.pathname === '/products' ? 'text-slate-950' : 'text-slate-600'
                 }`}
               >
                 Katalog Produk
@@ -225,7 +221,7 @@ export const PublicLayout: React.FC = () => {
                     document.getElementById('estimator')?.scrollIntoView({ behavior: 'smooth' });
                   }
                 }}
-                className="text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-black transition-colors"
+                className="text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors"
               >
                 Kalkulator Job Ticket
               </Link>
@@ -236,7 +232,7 @@ export const PublicLayout: React.FC = () => {
                     document.getElementById('workflow')?.scrollIntoView({ behavior: 'smooth' });
                   }
                 }}
-                className="text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-black transition-colors"
+                className="text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors"
               >
                 Alur Kerja B2B
               </Link>
@@ -247,14 +243,14 @@ export const PublicLayout: React.FC = () => {
                     document.getElementById('workshop')?.scrollIntoView({ behavior: 'smooth' });
                   }
                 }}
-                className="text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-black transition-colors"
+                className="text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition-colors"
               >
                 Armada Mesin
               </Link>
               <Link
                 to="/custom-order"
-                className={`text-xs font-bold uppercase tracking-wider transition-colors hover:text-black ${
-                  location.pathname === '/custom-order' ? 'text-black' : 'text-slate-600'
+                className={`text-xs font-bold uppercase tracking-wider transition-colors hover:text-slate-900 ${
+                  location.pathname === '/custom-order' ? 'text-slate-950' : 'text-slate-600'
                 }`}
               >
                 Minta RFQ
@@ -265,7 +261,7 @@ export const PublicLayout: React.FC = () => {
               <Link
                 to="/cart"
                 aria-label="Keranjang Belanja"
-                className="relative rounded-lg p-2 text-slate-700 hover:text-black hover:bg-slate-100 transition-colors"
+                className="relative rounded-lg p-2 text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition-colors active:scale-[0.98]"
               >
                 <ShoppingCart size={20} weight="bold" />
                 {totalItems > 0 && (
@@ -278,7 +274,7 @@ export const PublicLayout: React.FC = () => {
               {role ? (
                 <Link
                   to="/dashboard"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-bold text-white shadow-2xs hover:bg-slate-800 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-slate-800 transition-colors active:scale-[0.98]"
                 >
                   <User size={15} weight="bold" />
                   <span>Dashboard</span>
@@ -287,13 +283,13 @@ export const PublicLayout: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <Link
                     to="/login"
-                    className="hidden sm:inline-flex rounded-lg px-3 py-2 text-xs font-bold text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition-colors"
+                    className="hidden sm:inline-flex rounded-lg px-3 py-2 text-xs font-bold text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition-colors active:scale-[0.98]"
                   >
                     Masuk
                   </Link>
                   <Link
                     to="/custom-order"
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-bold text-white shadow-2xs hover:bg-black transition-colors"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-slate-800 transition-colors active:scale-[0.98]"
                   >
                     <span>Minta Penawaran</span>
                   </Link>

@@ -1,19 +1,37 @@
+# Dependencies
 node_modules/
+package-lock.json
+
+# Production builds
 dist/
 build/
+.nx/
+
+# Testing & coverage
+coverage/
+
+# Environment variables
 .env
 .env.*
 !.env.example
+
+# Runtime & database artifacts
+*.exe
+*.rdb
+dump.rdb
+*.log
+
+# Operating System files
 .DS_Store
-coverage/
-.nx/
+Thumbs.db
 
-package-lock.json
-
-k6.exe
-
-# AI Prompts & Instructions
-.agents/
-.kiro/
-SKILL/
-GEMINI.md
+# IDE & Editor files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.tmp
+scratch/

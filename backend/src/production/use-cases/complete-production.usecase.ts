@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
@@ -84,7 +81,8 @@ export class CompleteProductionUseCase {
             data: {
               orderId: job.orderId,
               status: 'Completed',
-              notes: 'Pekerjaan produksi selesai dan lolos pemeriksaan mutu (QC Passed). Pesanan siap dikirim.',
+              notes:
+                'Pekerjaan produksi selesai dan lolos pemeriksaan mutu (QC Passed). Pesanan siap dikirim.',
               createdBy: currentUserId,
             },
           });

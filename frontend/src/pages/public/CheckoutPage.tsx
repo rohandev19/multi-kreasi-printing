@@ -221,10 +221,10 @@ export const CheckoutPage: React.FC = () => {
                 <button 
                   type="submit"
                   disabled={loading}
-                  className="w-full h-14 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed bg-black hover:bg-slate-900"
-                  style={{ backgroundColor: '#000000', color: '#ffffff' }}
-                  onMouseEnter={(e) => { if(!loading) e.currentTarget.style.backgroundColor = '#1e293b'; }}
-                  onMouseLeave={(e) => { if(!loading) e.currentTarget.style.backgroundColor = '#000000'; }}
+                  className="w-full h-14 text-white font-bold rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed active:scale-[0.98]"
+                  style={{ backgroundColor: 'var(--color-primary-600)', color: '#ffffff' }}
+                  onMouseEnter={(e) => { if(!loading) e.currentTarget.style.backgroundColor = 'var(--color-primary-700)'; }}
+                  onMouseLeave={(e) => { if(!loading) e.currentTarget.style.backgroundColor = 'var(--color-primary-600)'; }}
                 >
                   {loading ? (
                     <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

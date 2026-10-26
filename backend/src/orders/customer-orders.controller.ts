@@ -37,10 +37,7 @@ export class CustomerOrdersController {
 
   @Post(':id/reorder')
   @RequirePermissions({ action: 'read', subject: 'Order' })
-  async reorder(
-    @Param('id') id: string,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  async reorder(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const user = req.user;
     return this.reorderUseCase.execute(id, user);
   }

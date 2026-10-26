@@ -26,9 +26,9 @@ export class SettingsService {
   async update(key: string, value: any, description?: string) {
     return this.prisma.systemSettings.upsert({
       where: { key },
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
       update: { value, ...(description && { description }) },
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
       create: { key, value, description },
     });
   }

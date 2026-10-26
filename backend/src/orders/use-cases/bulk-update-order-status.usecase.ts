@@ -13,7 +13,9 @@ export class BulkUpdateOrderStatusUseCase {
 
   async execute(dto: BulkOrderStatusDto, currentUserId: string) {
     if (!dto.ids || dto.ids.length === 0) {
-      throw new BadRequestException('Pilih minimal 1 pesanan untuk operasi massal');
+      throw new BadRequestException(
+        'Pilih minimal 1 pesanan untuk operasi massal',
+      );
     }
 
     if (dto.ids.length > 500) {
@@ -21,7 +23,8 @@ export class BulkUpdateOrderStatusUseCase {
     }
 
     const updatedIds: string[] = [];
-    const errors: { orderId: string; orderNumber?: string; reason: string }[] = [];
+    const errors: { orderId: string; orderNumber?: string; reason: string }[] =
+      [];
 
     // Fetch target orders
     const orders = await this.prisma.order.findMany({

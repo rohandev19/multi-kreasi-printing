@@ -91,7 +91,9 @@ export class TicketsService {
     });
 
     if (ticket.priority === 'Urgent') {
-      this.logger.warn(`Urgent support ticket created: ${ticket.ticketNumber} by ${user.email}`);
+      this.logger.warn(
+        `Urgent support ticket created: ${ticket.ticketNumber} by ${user.email}`,
+      );
     }
 
     await this.auditService.log({
@@ -109,13 +111,16 @@ export class TicketsService {
     return ticket;
   }
 
-  async findAll(query: {
-    status?: string;
-    priority?: string;
-    category?: string;
-    assignedToId?: string;
-    customerId?: string;
-  }, user: UserContext) {
+  async findAll(
+    query: {
+      status?: string;
+      priority?: string;
+      category?: string;
+      assignedToId?: string;
+      customerId?: string;
+    },
+    user: UserContext,
+  ) {
     const isCustomer = user.role.toLowerCase() === 'customer';
     let customerId = query.customerId;
 
@@ -134,7 +139,10 @@ export class TicketsService {
         ...(isCustomer
           ? {
               OR: [
-                { customerId: customerId || '00000000-0000-0000-0000-000000000000' },
+                {
+                  customerId:
+                    customerId || '00000000-0000-0000-0000-000000000000',
+                },
                 { userId: user.sub },
               ],
             }
@@ -183,7 +191,8 @@ export class TicketsService {
         where: { id: user.sub },
         select: { customerId: true },
       });
-      const matchesCustomer = ticket.customerId && ticket.customerId === dbUser?.customerId;
+      const matchesCustomer =
+        ticket.customerId && ticket.customerId === dbUser?.customerId;
       const matchesUser = ticket.userId === user.sub;
       if (!matchesCustomer && !matchesUser) {
         throw new ForbiddenException('Akses ditolak ke tiket ini');
@@ -242,7 +251,11 @@ export class TicketsService {
     return updated;
   }
 
-  async addMessage(ticketId: string, dto: CreateTicketMessageDto, user: UserContext) {
+  async addMessage(
+    ticketId: string,
+    dto: CreateTicketMessageDto,
+    user: UserContext,
+  ) {
     const ticket = await this.findById(ticketId, user);
 
     const dbUser = await this.prisma.user.findUnique({
@@ -290,7 +303,9 @@ export class TicketsService {
   async getMetrics() {
     const total = await this.prisma.supportTicket.count();
     const open = await this.prisma.supportTicket.count({
-      where: { status: { in: ['Open', 'Assigned', 'In_Progress', 'Reopened'] } },
+      where: {
+        status: { in: ['Open', 'Assigned', 'In_Progress', 'Reopened'] },
+      },
     });
     const resolved = await this.prisma.supportTicket.count({
       where: { status: { in: ['Resolved', 'Closed'] } },

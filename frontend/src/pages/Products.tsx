@@ -538,8 +538,8 @@ export default function Products() {
             }
             setShowForm(true);
           }}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-black px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800"
-          style={!showForm ? { backgroundColor: '#000000', color: '#ffffff' } : undefined}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white shadow-xs transition hover:bg-slate-800 active:scale-[0.98]"
+          style={!showForm ? { backgroundColor: 'var(--color-primary-600)', color: '#ffffff' } : undefined}
         >
           <Plus size={18} weight="bold" />
           {showForm ? 'Tutup Form' : 'Tambah Produk'}
@@ -878,7 +878,7 @@ export default function Products() {
                      type="submit"
                      disabled={submitting}
                      className="inline-flex min-w-[180px] items-center justify-center gap-2 rounded-xl bg-black px-6 py-3 text-sm font-extrabold tracking-tight text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-slate-800 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-70 disabled:shadow-none"
-                     style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                     style={{ backgroundColor: 'var(--color-primary-600)', color: '#ffffff' }}
                    >
                      {submitting ? (
                        <>
@@ -1125,7 +1125,7 @@ export default function Products() {
                           type="button"
                           onClick={() => handleEditProduct(product)}
                           className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-white shadow transition hover:bg-slate-900"
-                          style={{ backgroundColor: '#000000' }}
+                          style={{ backgroundColor: 'var(--color-primary-600)' }}
                         >
                           <PencilSimple size={12} weight="bold" />
                           Ubah Cepat

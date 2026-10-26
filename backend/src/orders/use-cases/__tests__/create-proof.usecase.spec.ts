@@ -47,7 +47,10 @@ describe('CreateProofUseCase', () => {
   });
 
   it('throws BadRequestException if order is Cancelled', async () => {
-    prisma.order.findUnique.mockResolvedValue({ id: 'order-1', status: 'Cancelled' });
+    prisma.order.findUnique.mockResolvedValue({
+      id: 'order-1',
+      status: 'Cancelled',
+    });
 
     await expect(
       useCase.execute(
@@ -103,7 +106,10 @@ describe('CreateProofUseCase', () => {
       }),
     );
     expect(audit.log).toHaveBeenCalled();
-    expect(eventEmitter.emit).toHaveBeenCalledWith('proof.created', expect.any(Object));
+    expect(eventEmitter.emit).toHaveBeenCalledWith(
+      'proof.created',
+      expect.any(Object),
+    );
   });
 
   it('increments version to 2 if proof v1 exists and marks previous pending proofs as superseded', async () => {

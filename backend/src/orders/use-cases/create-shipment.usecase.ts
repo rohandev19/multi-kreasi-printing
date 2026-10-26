@@ -31,7 +31,9 @@ export class CreateShipmentUseCase {
     });
 
     if (!order) {
-      throw new NotFoundException(`Pesanan dengan ID ${dto.orderId} tidak ditemukan.`);
+      throw new NotFoundException(
+        `Pesanan dengan ID ${dto.orderId} tidak ditemukan.`,
+      );
     }
 
     // Collect all existing shipment items

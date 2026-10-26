@@ -13,11 +13,11 @@ export interface InvoiceAgingItem {
 }
 
 export interface AgingBuckets {
-  current: number;       // <= 0 days overdue (not due yet)
-  bucket1_30: number;    // 1 - 30 days overdue
-  bucket31_60: number;   // 31 - 60 days overdue
-  bucket61_90: number;   // 61 - 90 days overdue
-  bucketOver90: number;  // > 90 days overdue
+  current: number; // <= 0 days overdue (not due yet)
+  bucket1_30: number; // 1 - 30 days overdue
+  bucket31_60: number; // 31 - 60 days overdue
+  bucket61_90: number; // 61 - 90 days overdue
+  bucketOver90: number; // > 90 days overdue
   totalOutstanding: number;
   overdueCount: number;
   overdueAmount: number;

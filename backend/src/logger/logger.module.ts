@@ -10,7 +10,7 @@ const logFormat = winston.format.combine(
         winston.format.colorize(),
         winston.format.printf(
           ({ timestamp, level, message, ...meta }) =>
-            `${timestamp} [${level}]: ${message} ${
+            `${String(timestamp)} [${String(level)}]: ${String(message)} ${
               Object.keys(meta).length ? JSON.stringify(meta) : ''
             }`,
         ),

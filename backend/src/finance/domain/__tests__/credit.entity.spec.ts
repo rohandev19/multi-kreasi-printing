@@ -95,8 +95,12 @@ describe('CreditLogic Domain Entity', () => {
         overdueAmount: 0,
       };
 
-      expect(CreditLogic.determineRiskLevel(emptyAging, 50000000, 'SUSPENDED')).toBe('CRITICAL');
-      expect(CreditLogic.determineRiskLevel(emptyAging, 50000000, 'ON_HOLD')).toBe('CRITICAL');
+      expect(
+        CreditLogic.determineRiskLevel(emptyAging, 50000000, 'SUSPENDED'),
+      ).toBe('CRITICAL');
+      expect(
+        CreditLogic.determineRiskLevel(emptyAging, 50000000, 'ON_HOLD'),
+      ).toBe('CRITICAL');
     });
 
     it('should return CRITICAL if invoices are overdue > 60 days', () => {
@@ -110,7 +114,9 @@ describe('CreditLogic Domain Entity', () => {
         overdueCount: 1,
         overdueAmount: 500000,
       };
-      expect(CreditLogic.determineRiskLevel(aging, 50000000, 'ACTIVE')).toBe('CRITICAL');
+      expect(CreditLogic.determineRiskLevel(aging, 50000000, 'ACTIVE')).toBe(
+        'CRITICAL',
+      );
     });
 
     it('should return HIGH if debts are 31-60 days overdue or limit utilization >= 90%', () => {
@@ -124,7 +130,9 @@ describe('CreditLogic Domain Entity', () => {
         overdueCount: 1,
         overdueAmount: 1000000,
       };
-      expect(CreditLogic.determineRiskLevel(aging1, 50000000, 'ACTIVE')).toBe('HIGH');
+      expect(CreditLogic.determineRiskLevel(aging1, 50000000, 'ACTIVE')).toBe(
+        'HIGH',
+      );
 
       const agingHighUtil = {
         current: 46000000,
@@ -136,7 +144,9 @@ describe('CreditLogic Domain Entity', () => {
         overdueCount: 0,
         overdueAmount: 0,
       };
-      expect(CreditLogic.determineRiskLevel(agingHighUtil, 50000000, 'ACTIVE')).toBe('HIGH');
+      expect(
+        CreditLogic.determineRiskLevel(agingHighUtil, 50000000, 'ACTIVE'),
+      ).toBe('HIGH');
     });
 
     it('should return LOW when there are no overdues and utilization is low', () => {
@@ -150,7 +160,9 @@ describe('CreditLogic Domain Entity', () => {
         overdueCount: 0,
         overdueAmount: 0,
       };
-      expect(CreditLogic.determineRiskLevel(agingLow, 50000000, 'ACTIVE')).toBe('LOW');
+      expect(CreditLogic.determineRiskLevel(agingLow, 50000000, 'ACTIVE')).toBe(
+        'LOW',
+      );
     });
   });
 
@@ -166,7 +178,9 @@ describe('CreditLogic Domain Entity', () => {
       });
 
       expect(result.allowed).toBe(false);
-      expect(result.reason).toContain('tidak memiliki fasilitas Term of Payment');
+      expect(result.reason).toContain(
+        'tidak memiliki fasilitas Term of Payment',
+      );
     });
 
     it('should reject and auto-hold if customer has any overdue invoices', () => {

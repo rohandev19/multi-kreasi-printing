@@ -31,7 +31,7 @@ describe('ShipmentLogic', () => {
       );
 
       expect(remaining['item-1']).toBe(2000); // 5000 - 3000
-      expect(remaining['item-2']).toBe(500);  // 1000 - 500
+      expect(remaining['item-2']).toBe(500); // 1000 - 500
     });
   });
 
@@ -42,15 +42,23 @@ describe('ShipmentLogic', () => {
     ];
 
     it('should reject dispatch if order status is Draft or Cancelled', () => {
-      const result = ShipmentLogic.validateDispatch('Draft', orderItems, [], [
-        { orderItemId: 'item-1', quantity: 1000 },
-      ]);
+      const result = ShipmentLogic.validateDispatch(
+        'Draft',
+        orderItems,
+        [],
+        [{ orderItemId: 'item-1', quantity: 1000 }],
+      );
       expect(result.valid).toBe(false);
       expect(result.error).toContain('Draft');
     });
 
     it('should reject dispatch if no items are specified', () => {
-      const result = ShipmentLogic.validateDispatch('In_Production', orderItems, [], []);
+      const result = ShipmentLogic.validateDispatch(
+        'In_Production',
+        orderItems,
+        [],
+        [],
+      );
       expect(result.valid).toBe(false);
       expect(result.error).toContain('Minimal harus ada 1 item');
     });
@@ -75,7 +83,9 @@ describe('ShipmentLogic', () => {
         [{ orderItemId: 'item-1', quantity: 3000 }], // remaining is 2000
       );
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('melebihi sisa barang yang belum terkirim');
+      expect(result.error).toContain(
+        'melebihi sisa barang yang belum terkirim',
+      );
     });
 
     it('should approve partial dispatch and indicate order is not fully shipped', () => {
@@ -134,15 +144,27 @@ describe('ShipmentLogic', () => {
 
   describe('isValidStatusTransition', () => {
     it('should allow valid transitions for delivery tracking', () => {
-      expect(ShipmentLogic.isValidStatusTransition('Preparing', 'In_Transit')).toBe(true);
-      expect(ShipmentLogic.isValidStatusTransition('In_Transit', 'Delivered')).toBe(true);
-      expect(ShipmentLogic.isValidStatusTransition('In_Transit', 'Failed')).toBe(true);
-      expect(ShipmentLogic.isValidStatusTransition('Failed', 'In_Transit')).toBe(true);
+      expect(
+        ShipmentLogic.isValidStatusTransition('Preparing', 'In_Transit'),
+      ).toBe(true);
+      expect(
+        ShipmentLogic.isValidStatusTransition('In_Transit', 'Delivered'),
+      ).toBe(true);
+      expect(
+        ShipmentLogic.isValidStatusTransition('In_Transit', 'Failed'),
+      ).toBe(true);
+      expect(
+        ShipmentLogic.isValidStatusTransition('Failed', 'In_Transit'),
+      ).toBe(true);
     });
 
     it('should prevent invalid transitions once delivered', () => {
-      expect(ShipmentLogic.isValidStatusTransition('Delivered', 'Preparing')).toBe(false);
-      expect(ShipmentLogic.isValidStatusTransition('Delivered', 'In_Transit')).toBe(false);
+      expect(
+        ShipmentLogic.isValidStatusTransition('Delivered', 'Preparing'),
+      ).toBe(false);
+      expect(
+        ShipmentLogic.isValidStatusTransition('Delivered', 'In_Transit'),
+      ).toBe(false);
     });
   });
 });

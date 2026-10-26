@@ -3,7 +3,7 @@
  * 
  * Defines the design system tokens for Multi Kreasi Printing application.
  * Uses professional business colors (sky blue primary, neutral grays) and
- * IBM Plex Sans typography (avoiding AI slop fonts like Inter, Geist, Space Grotesk).
+ * IBM Plex Sans typography for a crisp, legible enterprise interface.
  * 
  * Requirements satisfied:
  * - 1.1, 1.2, 1.3, 1.4, 1.5: Professional typography system
@@ -72,12 +72,12 @@ export const designTokens: DesignTokens = {
       200: '#e2e8f0',
       300: '#cbd5e1',
       400: '#94a3b8',
-      500: '#000000',  // Main primary color - Black
-      600: '#000000',  // Hover/active state - Black
-      700: '#000000',
-      800: '#000000',
-      900: '#000000',
-      950: '#000000'
+      500: '#1e293b',  // Rich deep ink slate
+      600: '#0f172a',  // High-contrast primary text/button
+      700: '#090d16',  // Hover/active state
+      800: '#06090e',
+      900: '#030508',
+      950: '#020305'
     },
     // Neutral colors: True grays (not pure white/black)
     // Requirements: 2.5, 2.7, 9.2
@@ -208,24 +208,29 @@ export const designTokens: DesignTokens = {
     20: '5rem',     // 80px
     24: '6rem'      // 96px
   },
-  // Border radius tokens (maximum 8px, not soft rounded corners)
-  // Requirements: 4.7, 12.6
+  // Border radius tokens - Mathematical nested scale (R_outer = R_inner + P)
   borderRadius: {
-    sm: '0.25rem',  // 4px
-    md: '0.375rem', // 6px
-    lg: '0.5rem',   // 8px - Maximum border radius
-    xl: '0.75rem',  // 12px - Use sparingly
-    full: '9999px'  // For circular elements only
+    '2xs': '0.125rem', // 2px
+    xs: '0.1875rem',  // 3px
+    sm: '0.25rem',    // 4px
+    md: '0.375rem',   // 6px
+    lg: '0.5rem',     // 8px
+    xl: '0.75rem',    // 12px
+    '2xl': '1rem',    // 16px
+    '3xl': '1.5rem',  // 24px
+    '4xl': '2rem',    // 32px
+    full: '9999px'    // For circular elements
   },
-  // Shadow system with maximum 3 levels (subtle only)
-  // Requirements: 4.2, 12.4
+  // Multi-stop layered shadow system (ambient + key light)
   shadow: {
-    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',  // Subtle shadow (< 2px blur)
-    md: '0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04)',  // Standard shadow (2px blur)
-    lg: '0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03)'   // Maximum shadow (subtle)
+    '2xs': '0 1px 2px 0 rgba(15, 23, 42, 0.04)',
+    xs: '0 1px 2px 0 rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03)',
+    sm: '0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04)',
+    md: '0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04)',
+    lg: '0 10px 15px -3px rgba(15, 23, 42, 0.06), 0 4px 6px -4px rgba(15, 23, 42, 0.03)',
+    xl: '0 20px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.03)'
   },
-  // Animation system (maximum 200ms for hover animations)
-  // Requirements: 8.1, 8.3, 8.4
+  // Animation system (precise micro-interactions <= 200ms)
   animation: {
     duration: {
       fast: '100ms',    // Quick feedback
@@ -233,7 +238,7 @@ export const designTokens: DesignTokens = {
       slow: '200ms'     // Maximum for hover animations
     },
     easing: {
-      standard: 'cubic-bezier(0.4, 0.0, 0.2, 1)',    // Natural motion
+      standard: 'cubic-bezier(0.16, 1, 0.3, 1)',    // Natural deceleration
       decelerate: 'cubic-bezier(0.0, 0.0, 0.2, 1)',  // Ease out
       accelerate: 'cubic-bezier(0.4, 0.0, 1, 1)'     // Ease in
     }

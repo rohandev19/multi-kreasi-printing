@@ -44,6 +44,10 @@ import { ValidateCustomerCreditUseCase } from './use-cases/validate-customer-cre
     GetArAgingReportUseCase,
     ValidateCustomerCreditUseCase,
   ],
-  exports: [GenerateInvoiceUseCase, GetArAgingReportUseCase, ValidateCustomerCreditUseCase],
+  exports: [
+    GenerateInvoiceUseCase,
+    GetArAgingReportUseCase,
+    ValidateCustomerCreditUseCase,
+  ],
 })
 export class FinanceModule {}

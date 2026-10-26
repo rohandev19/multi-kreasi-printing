@@ -37,9 +37,9 @@ export class IdempotencyInterceptor implements NestInterceptor {
 
     // If not cached, proceed with the request and cache the successful response
     return next.handle().pipe(
-      tap(async (response) => {
+      tap((response) => {
         // Cache the response for 24 hours (86400000 ms)
-        await this.cacheManager.set(cacheKey, response, 86400000);
+        void this.cacheManager.set(cacheKey, response, 86400000);
       }),
     );
   }

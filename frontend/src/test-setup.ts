@@ -7,7 +7,6 @@
 
 import { beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
-import './index.css'; // This imports design-tokens.css via @import
 
 beforeEach(() => {
   if (!document.documentElement) {

@@ -36,7 +36,9 @@ export class ReorderUseCase {
     });
 
     if (!order) {
-      throw new NotFoundException(`Pesanan dengan ID ${orderId} tidak ditemukan.`);
+      throw new NotFoundException(
+        `Pesanan dengan ID ${orderId} tidak ditemukan.`,
+      );
     }
 
     // IDOR Protection: Customer must own the order

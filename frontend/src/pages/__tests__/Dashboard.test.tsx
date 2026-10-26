@@ -13,10 +13,9 @@ vi.mock('../../api/axios', () => {
 
 describe('Dashboard Page', () => {
   it('renders loading state initially if role loading', () => {
-    const { container } = render(<Dashboard />, { roleValue: { role: null, user: null, loading: true, refreshRole: vi.fn() as any } });
+    render(<Dashboard />, { roleValue: { role: null, user: null, loading: true, refreshRole: vi.fn() as any } });
     
-    // Check for animate-pulse which signifies loading
-    expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
+    expect(screen.getAllByRole('status').length).toBeGreaterThan(0);
   });
 
   it('renders User dashboard view for normal user role', async () => {
@@ -28,12 +27,12 @@ describe('Dashboard Page', () => {
     });
 
     render(<Dashboard />, { 
-      roleValue: { role: 'User' as any, user: { fullName: 'John Doe' } as any, loading: false, refreshRole: vi.fn() as any } 
+      roleValue: { role: 'Customer' as any, user: { fullName: 'John Doe' } as any, loading: false, refreshRole: vi.fn() as any } 
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Dashboard')).toBeInTheDocument();
-      expect(screen.getByText('No dashboard widgets available for your role.')).toBeInTheDocument();
+      expect(screen.getByText('Dasbor')).toBeInTheDocument();
+      expect(screen.getByText('Tidak ada widget dasbor yang tersedia untuk peran Anda.')).toBeInTheDocument();
     });
   });
 
@@ -51,9 +50,9 @@ describe('Dashboard Page', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/Good/i)).toBeInTheDocument();
-      expect(screen.getByText('Total Revenue')).toBeInTheDocument();
-      expect(screen.getByText('Orders Today')).toBeInTheDocument();
+      expect(screen.getByText(/Selamat/i)).toBeInTheDocument();
+      expect(screen.getByText('Total Pendapatan')).toBeInTheDocument();
+      expect(screen.getByText('Pesanan Hari Ini')).toBeInTheDocument();
     });
   });
 });

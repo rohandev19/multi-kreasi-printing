@@ -52,7 +52,11 @@ export class ApproveProofUseCase {
         where: { id: currentUser.id },
       });
       // Match by customer email or company email
-      if (user && proof.order.customer.email && user.email !== proof.order.customer.email) {
+      if (
+        user &&
+        proof.order.customer.email &&
+        user.email !== proof.order.customer.email
+      ) {
         throw new ForbiddenException(
           'Anda tidak memiliki izin untuk menyetujui bukti cetak pesanan ini',
         );

@@ -122,8 +122,8 @@ export default function Login() {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full bg-black text-white p-3 rounded-lg font-bold shadow-md hover:bg-slate-800 hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mt-2 relative z-10"
-            style={{ backgroundColor: loading ? undefined : '#000000', color: '#ffffff' }}
+            className="w-full bg-slate-900 text-white p-3 rounded-lg font-bold shadow-xs hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mt-2 relative z-10"
+            style={{ backgroundColor: loading ? undefined : 'var(--color-primary-600)', color: '#ffffff' }}
           >
             {loading ? 'Memproses...' : 'Masuk'}
           </button>

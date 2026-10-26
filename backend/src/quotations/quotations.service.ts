@@ -152,8 +152,8 @@ export class QuotationsService {
     const { items, ...quotationData } = data;
 
     // Recalculate totals if items or discount changed
-    let subtotal = Number(existing.subtotal);
-    let discountPercent =
+    const subtotal = Number(existing.subtotal);
+    const discountPercent =
       data.discountPercent !== undefined
         ? data.discountPercent
         : Number(existing.discountPercent);
@@ -490,4 +490,3 @@ export class QuotationsService {
     });
   }
 }
-

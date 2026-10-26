@@ -27,7 +27,11 @@ export class CreateProofUseCase {
       throw new NotFoundException('Pesanan tidak ditemukan');
     }
 
-    if (order.status === 'Cancelled' || order.status === 'Completed' || order.status === 'Delivered') {
+    if (
+      order.status === 'Cancelled' ||
+      order.status === 'Completed' ||
+      order.status === 'Delivered'
+    ) {
       throw new BadRequestException(
         `Tidak dapat menambahkan bukti cetak pada pesanan dengan status ${order.status}`,
       );

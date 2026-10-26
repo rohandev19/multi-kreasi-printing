@@ -102,10 +102,7 @@ export class ProductionJobsController {
 
     if (user.role === 'Production_Staff') {
       whereClause = {
-        OR: [
-          { assignedTo: user.sub },
-          { assignedTo: null },
-        ],
+        OR: [{ assignedTo: user.sub }, { assignedTo: null }],
       };
     }
 

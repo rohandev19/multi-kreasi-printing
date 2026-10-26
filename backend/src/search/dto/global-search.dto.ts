@@ -8,7 +8,8 @@ export class GlobalSearchDto {
 
   @IsOptional()
   @IsString()
-  type?: 'all' | 'orders' | 'customers' | 'products' | 'invoices' | 'quotations';
+  type?:
+    'all' | 'orders' | 'customers' | 'products' | 'invoices' | 'quotations';
 }
 
 export interface SearchItemResult {

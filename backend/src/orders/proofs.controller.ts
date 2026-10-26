@@ -13,7 +13,11 @@ import { CreateProofUseCase } from './use-cases/create-proof.usecase';
 import { ApproveProofUseCase } from './use-cases/approve-proof.usecase';
 import { RejectProofUseCase } from './use-cases/reject-proof.usecase';
 import { GetOrderProofsUseCase } from './use-cases/get-order-proofs.usecase';
-import { CreateProofDto, ApproveProofDto, RejectProofDto } from './dto/proof.dto';
+import {
+  CreateProofDto,
+  ApproveProofDto,
+  RejectProofDto,
+} from './dto/proof.dto';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import type { Request } from 'express';

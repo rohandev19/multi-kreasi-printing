@@ -134,7 +134,7 @@ export const HeroPhotoSlider: React.FC = () => {
                   <Link
                     to={slide.primaryCta.to}
                     className="group/btn inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-base font-bold text-white shadow-xl transition-all duration-200 hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98]"
-                    style={{ backgroundColor: '#000000', color: '#ffffff', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)' }}
+                    style={{ backgroundColor: 'var(--color-primary-600)', color: '#ffffff', boxShadow: 'var(--shadow-lg)' }}
                   >
                     {slide.primaryCta.label}
                     <ArrowRight size={18} weight="bold" className="transition-transform duration-200 group-hover/btn:translate-x-1" />

@@ -1,4 +1,5 @@
-export type ShipmentStatus = 'Preparing' | 'In_Transit' | 'Delivered' | 'Failed';
+export type ShipmentStatus =
+  'Preparing' | 'In_Transit' | 'Delivered' | 'Failed';
 
 export interface DispatchItemInput {
   orderItemId: string;
@@ -77,7 +78,8 @@ export class ShipmentLogic {
     if (!newItems || newItems.length === 0) {
       return {
         valid: false,
-        error: 'Minimal harus ada 1 item barang yang dikirim dalam Surat Jalan.',
+        error:
+          'Minimal harus ada 1 item barang yang dikirim dalam Surat Jalan.',
         isOrderFullyShipped: false,
         remainingPerItem: {},
       };
@@ -149,7 +151,10 @@ export class ShipmentLogic {
     orderItems: { id: string; quantity: number }[],
     allShipmentItems: { orderItemId: string; quantity: number }[],
   ): FulfillmentProgress {
-    const totalOrdered = orderItems.reduce((sum, item) => sum + item.quantity, 0);
+    const totalOrdered = orderItems.reduce(
+      (sum, item) => sum + item.quantity,
+      0,
+    );
 
     const shippedPerItem: Record<string, number> = {};
     for (const sItem of allShipmentItems) {
@@ -164,7 +169,9 @@ export class ShipmentLogic {
     }
 
     const percentage =
-      totalOrdered > 0 ? Math.min(100, Math.round((totalShipped / totalOrdered) * 100)) : 0;
+      totalOrdered > 0
+        ? Math.min(100, Math.round((totalShipped / totalOrdered) * 100))
+        : 0;
 
     return {
       totalOrdered,

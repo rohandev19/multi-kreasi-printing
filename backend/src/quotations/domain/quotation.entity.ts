@@ -63,7 +63,10 @@ export class QuotationLogic {
       return acc + Math.max(0, item.quantity) * Math.max(0, item.unitPrice);
     }, 0);
 
-    const discountPercent = Math.max(0, Math.min(100, input.discountPercent || 0));
+    const discountPercent = Math.max(
+      0,
+      Math.min(100, input.discountPercent || 0),
+    );
     const discountAmount = Math.round((subtotal * discountPercent) / 100);
 
     const afterDiscount = Math.max(0, subtotal - discountAmount);

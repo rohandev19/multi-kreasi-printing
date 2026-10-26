@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -32,13 +36,19 @@ export class GetShipmentDetailsUseCase {
     });
 
     if (!shipment) {
-      throw new NotFoundException(`Surat Jalan dengan ID ${shipmentId} tidak ditemukan.`);
+      throw new NotFoundException(
+        `Surat Jalan dengan ID ${shipmentId} tidak ditemukan.`,
+      );
     }
 
     // IDOR Protection: Verify ownership for Customer role
     if (currentUser?.role === 'Customer') {
       const customerEmail = shipment.order.customer?.email;
-      if (currentUser.email && customerEmail && customerEmail !== currentUser.email) {
+      if (
+        currentUser.email &&
+        customerEmail &&
+        customerEmail !== currentUser.email
+      ) {
         throw new ForbiddenException(
           'Akses ditolak: Anda tidak memiliki izin untuk melihat Surat Jalan ini.',
         );
@@ -92,7 +102,10 @@ export class GetShipmentDetailsUseCase {
         unitOfMeasure: item.orderItem.product.unitOfMeasure,
         notes: item.notes,
       })),
-      totalQuantity: shipment.items.reduce((sum, item) => sum + item.quantity, 0),
+      totalQuantity: shipment.items.reduce(
+        (sum, item) => sum + item.quantity,
+        0,
+      ),
     };
   }
 }

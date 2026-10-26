@@ -201,7 +201,7 @@ export default function Dashboard() {
                 <tbody style={{ color: 'var(--text-primary)' }}>
                   {pendingApprovals.map((order, idx) => (
                     <tr key={idx} className="transition-colors duration-150 hover:bg-[var(--color-neutral-50)]" style={{ borderBottom: '1px solid var(--border-default)' }}>
-                      <td className="px-5 py-3 font-bold" style={{ color: '#000000' }}>{order.id}</td>
+                      <td className="px-5 py-3 font-bold" style={{ color: 'var(--color-primary-600)' }}>{order.id}</td>
                       <td className="px-5 py-3">
                         <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>{order.customer}</p>
                         <p className="max-w-[200px] truncate text-xs" style={{ color: 'var(--text-secondary)' }}>{order.items}</p>
@@ -239,13 +239,13 @@ export default function Dashboard() {
                 <div key={idx}>
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{job.id} <span className="ml-1 font-normal" style={{ color: 'var(--text-secondary)' }}>· {job.machine}</span></span>
-                    <span className="text-xs font-bold" style={{ color: '#000000' }}>{job.progress}%</span>
+                    <span className="text-xs font-bold" style={{ color: 'var(--color-primary-600)' }}>{job.progress}%</span>
                   </div>
                   <div className="mb-2 h-2 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--color-neutral-100)' }}>
-                    <div className="h-full rounded-full transition-all duration-300" style={{ width: `${job.progress}%`, backgroundColor: '#000000' }}></div>
+                    <div className="h-full rounded-full transition-all duration-300" style={{ width: `${job.progress}%`, backgroundColor: 'var(--color-primary-600)' }}></div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--color-neutral-100)', color: '#000000' }}>
+                    <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--color-neutral-100)', color: 'var(--color-primary-600)' }}>
                       {job.status}
                     </span>
                   </div>
@@ -281,7 +281,7 @@ export default function Dashboard() {
                       formatter={(value: any) => [`Rp ${Number(value).toLocaleString('id-ID')}`, 'Pendapatan']} 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                     />
-                    <Line type="monotone" dataKey="total" stroke="#000000" strokeWidth={2} dot={{r: 3, fill: '#000000', strokeWidth: 2, stroke: 'var(--bg-elevated)'}} activeDot={{r: 5}} />
+                    <Line type="monotone" dataKey="total" stroke="#0f172a" strokeWidth={2} dot={{r: 3, fill: '#0f172a', strokeWidth: 2, stroke: 'var(--bg-elevated)'}} activeDot={{r: 5}} />
                   </LineChart>
                 </ResponsiveContainer>
               ) : (
@@ -295,7 +295,7 @@ export default function Dashboard() {
           <div className="flex flex-col overflow-hidden border" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
             <div className="flex items-center justify-between border-b p-5" style={{ backgroundColor: 'var(--color-neutral-50)', borderColor: 'var(--border-default)' }}>
               <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Pesanan Terbaru</h2>
-              <Link to="/dashboard/orders" className="text-sm font-bold hover:underline" style={{ color: '#000000' }}>Lihat Semua &rarr;</Link>
+              <Link to="/dashboard/orders" className="text-sm font-bold hover:underline" style={{ color: 'var(--color-primary-600)' }}>Lihat Semua &rarr;</Link>
             </div>
             <div className="overflow-x-auto flex-1">
               <table className="w-full text-sm text-left">

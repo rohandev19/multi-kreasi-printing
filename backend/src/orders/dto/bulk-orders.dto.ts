@@ -1,4 +1,10 @@
-import { IsArray, IsString, IsOptional, ArrayMinSize, ArrayMaxSize } from 'class-validator';
+import {
+  IsArray,
+  IsString,
+  IsOptional,
+  ArrayMinSize,
+  ArrayMaxSize,
+} from 'class-validator';
 
 export class BulkOrderStatusDto {
   @IsArray()

@@ -26,7 +26,10 @@ export class OrderProductionListener {
   }
 
   @OnEvent('order.status.changed')
-  async handleOrderStatusChanged(payload: { orderId: string; newStatus: string }) {
+  async handleOrderStatusChanged(payload: {
+    orderId: string;
+    newStatus: string;
+  }) {
     this.logger.log(
       `Received order.status.changed for order ${payload.orderId} -> ${payload.newStatus}`,
     );

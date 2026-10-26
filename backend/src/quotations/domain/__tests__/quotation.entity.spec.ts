@@ -8,16 +8,32 @@ describe('QuotationLogic Domain Tests', () => {
   describe('isValidTransition', () => {
     it('allows Draft to Sent or Pending_Manager_Approval', () => {
       expect(QuotationLogic.isValidTransition('Draft', 'Sent')).toBe(true);
-      expect(QuotationLogic.isValidTransition('Draft', 'Pending_Manager_Approval')).toBe(true);
+      expect(
+        QuotationLogic.isValidTransition('Draft', 'Pending_Manager_Approval'),
+      ).toBe(true);
       expect(QuotationLogic.isValidTransition('Draft', 'Rejected')).toBe(true);
       expect(QuotationLogic.isValidTransition('Draft', 'Accepted')).toBe(false);
-      expect(QuotationLogic.isValidTransition('Draft', 'Converted')).toBe(false);
+      expect(QuotationLogic.isValidTransition('Draft', 'Converted')).toBe(
+        false,
+      );
     });
 
     it('allows Pending_Manager_Approval to Sent on approval, or Rejected on decline', () => {
-      expect(QuotationLogic.isValidTransition('Pending_Manager_Approval', 'Sent')).toBe(true);
-      expect(QuotationLogic.isValidTransition('Pending_Manager_Approval', 'Rejected')).toBe(true);
-      expect(QuotationLogic.isValidTransition('Pending_Manager_Approval', 'Accepted')).toBe(false);
+      expect(
+        QuotationLogic.isValidTransition('Pending_Manager_Approval', 'Sent'),
+      ).toBe(true);
+      expect(
+        QuotationLogic.isValidTransition(
+          'Pending_Manager_Approval',
+          'Rejected',
+        ),
+      ).toBe(true);
+      expect(
+        QuotationLogic.isValidTransition(
+          'Pending_Manager_Approval',
+          'Accepted',
+        ),
+      ).toBe(false);
     });
 
     it('allows Sent to Accepted or Rejected by customer', () => {
@@ -27,13 +43,17 @@ describe('QuotationLogic Domain Tests', () => {
     });
 
     it('allows Accepted to Converted', () => {
-      expect(QuotationLogic.isValidTransition('Accepted', 'Converted')).toBe(true);
+      expect(QuotationLogic.isValidTransition('Accepted', 'Converted')).toBe(
+        true,
+      );
       expect(QuotationLogic.isValidTransition('Accepted', 'Draft')).toBe(false);
     });
 
     it('does not allow transitions out of terminal states (Rejected, Converted)', () => {
       expect(QuotationLogic.isValidTransition('Rejected', 'Draft')).toBe(false);
-      expect(QuotationLogic.isValidTransition('Converted', 'Accepted')).toBe(false);
+      expect(QuotationLogic.isValidTransition('Converted', 'Accepted')).toBe(
+        false,
+      );
     });
   });
 
@@ -56,7 +76,7 @@ describe('QuotationLogic Domain Tests', () => {
       const result = QuotationLogic.calculateTotals({
         items: [
           { quantity: 1000, unitPrice: 5000 }, // 5,000,000
-          { quantity: 2, unitPrice: 500000 },   // 1,000,000
+          { quantity: 2, unitPrice: 500000 }, // 1,000,000
         ],
         discountPercent: 15,
         taxRatePercent: 11,

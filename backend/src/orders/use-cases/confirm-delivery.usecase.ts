@@ -17,7 +17,11 @@ export class ConfirmDeliveryUseCase {
     private eventEmitter: EventEmitter2,
   ) {}
 
-  async execute(shipmentId: string, dto: ConfirmDeliveryDto, currentUserId: string) {
+  async execute(
+    shipmentId: string,
+    dto: ConfirmDeliveryDto,
+    currentUserId: string,
+  ) {
     const shipment = await this.prisma.shipment.findUnique({
       where: { id: shipmentId },
       include: {
@@ -33,14 +37,20 @@ export class ConfirmDeliveryUseCase {
     });
 
     if (!shipment) {
-      throw new NotFoundException(`Surat Jalan dengan ID ${shipmentId} tidak ditemukan.`);
+      throw new NotFoundException(
+        `Surat Jalan dengan ID ${shipmentId} tidak ditemukan.`,
+      );
     }
 
     if (shipment.status === 'Delivered') {
-      throw new BadRequestException('Pengiriman ini telah dikonfirmasi terkirim sebelumnya.');
+      throw new BadRequestException(
+        'Pengiriman ini telah dikonfirmasi terkirim sebelumnya.',
+      );
     }
 
-    const deliveredAt = dto.deliveredAt ? new Date(dto.deliveredAt) : new Date();
+    const deliveredAt = dto.deliveredAt
+      ? new Date(dto.deliveredAt)
+      : new Date();
 
     const updatedShipment = await this.prisma.$transaction(async (tx) => {
       const updated = await tx.shipment.update({
@@ -90,7 +100,8 @@ export class ConfirmDeliveryUseCase {
           data: {
             orderId: shipment.orderId,
             status: 'Delivered',
-            notes: 'Seluruh termin pengiriman telah selesai diterima oleh pemesan.',
+            notes:
+              'Seluruh termin pengiriman telah selesai diterima oleh pemesan.',
             createdBy: currentUserId,
           },
         });

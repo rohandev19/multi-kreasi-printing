@@ -29,7 +29,10 @@ describe('ReorderUseCase', () => {
     prisma.order.findUnique.mockResolvedValue(null);
 
     await expect(
-      useCase.execute('invalid-id', { sub: 'user-1', email: 'test@example.com' }),
+      useCase.execute('invalid-id', {
+        sub: 'user-1',
+        email: 'test@example.com',
+      }),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -41,7 +44,10 @@ describe('ReorderUseCase', () => {
     });
 
     await expect(
-      useCase.execute('order-1', { sub: 'user-1', email: 'hacker@example.com' }),
+      useCase.execute('order-1', {
+        sub: 'user-1',
+        email: 'hacker@example.com',
+      }),
     ).rejects.toThrow(ForbiddenException);
   });
 
@@ -118,7 +124,11 @@ describe('ReorderUseCase', () => {
           id: 'item-2',
           productId: 'prod-old',
           quantity: 100,
-          product: { id: 'prod-old', name: 'Kalender 2024', status: 'Discontinued' },
+          product: {
+            id: 'prod-old',
+            name: 'Kalender 2024',
+            status: 'Discontinued',
+          },
         },
       ],
     });

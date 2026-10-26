@@ -29,7 +29,8 @@ export class CreateTicketDto {
 
   @IsString()
   @IsIn(TICKET_CATEGORIES, {
-    message: 'Category must be one of: Order_Issue, Design_Problem, Payment_Question, Technical_Issue, General_Inquiry',
+    message:
+      'Category must be one of: Order_Issue, Design_Problem, Payment_Question, Technical_Issue, General_Inquiry',
   })
   category: TicketCategory;
 
@@ -52,7 +53,8 @@ export class UpdateTicketDto {
   @IsOptional()
   @IsString()
   @IsIn(TICKET_STATUSES, {
-    message: 'Status must be one of: Open, Assigned, In_Progress, Resolved, Closed, Reopened',
+    message:
+      'Status must be one of: Open, Assigned, In_Progress, Resolved, Closed, Reopened',
   })
   status?: TicketStatus;
 

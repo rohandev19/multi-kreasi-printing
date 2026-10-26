@@ -263,14 +263,13 @@ export const ProductDetail: React.FC = () => {
                       <button 
                         onClick={handleAddToCart}
                         disabled={cartLoading}
-                        className="flex-1 h-12 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-base disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="flex-1 h-12 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-base disabled:opacity-70 disabled:cursor-not-allowed shadow-xs active:scale-[0.98]"
                         style={{ 
-                          background: '#000000', 
+                          background: 'var(--color-primary-600)', 
                           color: '#ffffff',
-                          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.3)',
                         }}
-                        onMouseEnter={e => (e.currentTarget.style.background = '#1e293b')}
-                        onMouseLeave={e => (e.currentTarget.style.background = '#000000')}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-primary-700)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'var(--color-primary-600)')}
                       >
                         <ShoppingCart size={20} weight="bold" />
                         {cartLoading ? 'Menambahkan...' : 'Tambahkan ke Keranjang'}
@@ -281,14 +280,14 @@ export const ProductDetail: React.FC = () => {
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Link 
                         to={`/contact?product=${product.id}`}
-                        className="flex-1 py-3 font-bold rounded-xl transition-all flex items-center justify-center text-sm"
+                        className="flex-1 py-3 font-bold rounded-xl transition-all flex items-center justify-center text-sm shadow-xs active:scale-[0.98]"
                         style={{ 
-                          backgroundColor: '#000000', 
+                          backgroundColor: 'var(--color-primary-600)', 
                           color: '#ffffff', 
-                          border: '2px solid #000000',
+                          border: '2px solid var(--color-primary-600)',
                         }}
-                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#1e293b'; }}
-                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#000000'; }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-primary-700)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--color-primary-600)'; }}
                       >
                         Minta Penawaran B2B
                       </Link>

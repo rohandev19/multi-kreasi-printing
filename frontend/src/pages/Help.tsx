@@ -25,7 +25,7 @@ export const HelpPage = () => {
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8" style={{ color: 'var(--text-primary)' }}>
       <div className="mb-8">
-        <p className="mb-2 text-sm font-medium uppercase tracking-[0.12em]" style={{ color: '#000000' }}>Bantuan</p>
+        <p className="mb-2 text-sm font-medium uppercase tracking-[0.12em]" style={{ color: 'var(--color-primary-600)' }}>Bantuan</p>
         <h1 className="text-4xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Bantuan &amp; Dukungan Pelanggan</h1>
       </div>
 
@@ -36,7 +36,7 @@ export const HelpPage = () => {
             className="rounded-lg border p-6 transition-colors duration-150 ease-out hover:bg-[var(--color-neutral-50)]"
             style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-sm)' }}
           >
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg" style={{ backgroundColor: 'var(--color-neutral-100)', color: '#000000' }}>
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg" style={{ backgroundColor: 'var(--color-neutral-100)', color: 'var(--color-primary-600)' }}>
               <Icon size={22} weight="regular" />
             </div>
             <h2 className="mb-2 text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</h2>
@@ -49,7 +49,7 @@ export const HelpPage = () => {
       <div className="mt-10 grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
         <section className="rounded-lg border p-6" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-sm)' }}>
           <div className="mb-4 flex items-center gap-3">
-            <Headphones size={20} weight="regular" style={{ color: '#000000' }} />
+            <Headphones size={20} weight="regular" style={{ color: 'var(--color-primary-600)' }} />
             <h2 className="text-xl font-semibold">Pertanyaan yang Sering Diajukan</h2>
           </div>
           <div className="space-y-4">
@@ -73,8 +73,8 @@ export const HelpPage = () => {
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Untuk keperluan mendesak, sertakan nomor referensi pesanan dan deskripsi singkat agar tim kami dapat memprioritaskan penanganan Anda.</p>
           <a
             href="mailto:support@multikreasiprinting.com"
-            className="mt-5 inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold transition-all duration-150 hover:bg-slate-800"
-            style={{ backgroundColor: '#000000', color: '#ffffff' }}
+            className="mt-5 inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold transition-all duration-150 hover:bg-slate-800 active:scale-[0.98]"
+            style={{ backgroundColor: 'var(--color-primary-600)', color: '#ffffff' }}
           >
             Hubungi Tim Support
           </a>
