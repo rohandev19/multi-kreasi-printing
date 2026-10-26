@@ -2,7 +2,9 @@
   "name": "multi-kreasi-printing",
   "version": "1.0.0",
   "private": true,
-  "description": "Multi Kreasi Printing Enterprise Digital Platform",
+  "description": "Multi Kreasi Printing Enterprise Digital Platform - Fullstack Learning & Portfolio Project",
+  "license": "MIT",
+  "author": "rohandev19",
   "engines": {
     "node": "22.x",
     "npm": ">=10.0.0"

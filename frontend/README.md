@@ -1,32 +1,55 @@
-# React + TypeScript + Vite
+# 🖥️ Multi Kreasi Printing — Frontend Web Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Aplikasi Web Client untuk platform Multi Kreasi Printing, dibangun menggunakan React 19, Vite, Tailwind CSS 4, dan Phosphor Icons.
 
-Currently, two official plugins are available:
+Proyek ini merupakan bagian dari portofolio pembelajaran full-stack oleh **[Rohan (rohandev19)](https://github.com/rohandev19)**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🛠️ Tech Stack Frontend
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Framework:** React 19
+- **Build Tool:** Vite 5
+- **Routing:** React Router DOM 7
+- **Styling:** Tailwind CSS 4 + Design Tokens
+- **Icons:** Phosphor Icons React
+- **Forms & Validation:** React Hook Form + Zod
+- **Visuals & Charts:** Recharts + Three.js
+- **Drag & Drop:** `@dnd-kit`
+- **Real-time:** Socket.IO Client
+- **Testing:** Vitest + React Testing Library
 
-## Expanding the Oxlint configuration
+---
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## 🚀 Menjalankan Secara Lokal
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+1. Salin konfigurasi environment (opsional jika mengarahkan ke local API):
+   ```bash
+   cp .env.example .env
+   ```
+2. Pasang dependensi:
+   ```bash
+   npm install
+   ```
+3. Jalankan server pengembangan Vite:
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## 🧪 Pengujian (Tests) & Linting
+
+```bash
+# Menjalankan test suite
+npm run test
+
+# Menjalankan linter
+npm run lint
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+---
+
+## 📄 Lisensi
+
+[MIT License](../LICENSE)
