@@ -61,6 +61,20 @@ async function bootstrap() {
     ? allowedOriginsEnv.split(',').map((o) => o.trim())
     : localDevOrigins;
 
+  const isOriginAllowed = (origin: string): boolean => {
+    if (allowedOrigins.includes(origin)) return true;
+    if (localDevOrigins.includes(origin)) return true;
+    // Allow mkprinting.my.id and all its subdomains (both http and https, optional port)
+    if (/^https?:\/\/(?:[a-zA-Z0-9-]+\.)*mkprinting\.my\.id(?::\d+)?$/.test(origin)) {
+      return true;
+    }
+    // Allow Heroku web app domains
+    if (/^https?:\/\/mkprinting-web-[a-zA-Z0-9-]+\.herokuapp\.com$/.test(origin)) {
+      return true;
+    }
+    return false;
+  };
+
   app.enableCors({
     origin: (
       origin: string | undefined,
@@ -70,7 +84,7 @@ async function bootstrap() {
         callback(null, true);
         return;
       }
-      if (allowedOrigins.includes(origin)) {
+      if (isOriginAllowed(origin)) {
         callback(null, true);
         return;
       }
