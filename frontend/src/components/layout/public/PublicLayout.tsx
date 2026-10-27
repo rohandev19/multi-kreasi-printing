@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, User, Printer, List, X, Package, Phone, WhatsappLogo, MapPin, CheckCircle } from '@phosphor-icons/react';
+import { ShoppingCart, User, Printer, List, X, Package, Phone, WhatsappLogo, MapPin, CheckCircle, Clock, Truck } from '@phosphor-icons/react';
 import { useRoleContext } from '../../../contexts/RoleContext';
 import { Footer } from './Footer';
 import { useCart } from '../../../hooks/useCart';
@@ -32,14 +32,14 @@ export const PublicLayout: React.FC = () => {
           type="button"
           aria-label="Close navigation menu"
           onClick={closeMobileMenu}
-          className="fixed inset-0 z-40 md:hidden"
+          className="fixed inset-0 z-40 lg:hidden"
           style={{ backgroundColor: 'rgba(15, 20, 25, 0.5)' }}
         />
       )}
 
       {/* Mobile sidebar drawer (slides from right) */}
       <aside
-        className={`fixed inset-y-0 right-0 z-50 w-72 md:hidden`}
+        className={`fixed inset-y-0 right-0 z-50 w-72 lg:hidden`}
         style={{
           backgroundColor: 'var(--bg-elevated)',
           boxShadow: mobileMenuOpen ? '-4px 0 24px rgba(0,0,0,0.15)' : 'none',
@@ -133,13 +133,11 @@ export const PublicLayout: React.FC = () => {
       </aside>
 
       {/* B2B Industrial Utility Top Bar */}
-      <div className="hidden lg:block bg-slate-100/90 text-slate-700 text-xs border-b border-slate-200/90 py-2">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-6 whitespace-nowrap">
+      <div className="hidden lg:block bg-slate-100/90 text-slate-700 text-xs border-b border-slate-200/90 py-1.5">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 whitespace-nowrap">
           {/* Left: Identity & Location */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
             <span className="font-bold text-slate-900 tracking-tight">PT MULTI KREASI PRINTING</span>
-            <span className="text-slate-300 hidden xl:inline">•</span>
-            <span className="text-slate-600 hidden xl:inline">Offset &amp; Digital Production</span>
             <span className="text-slate-300">•</span>
             <span className="inline-flex items-center gap-1 text-slate-600">
               <MapPin size={13} weight="bold" className="text-slate-400" />
@@ -147,8 +145,25 @@ export const PublicLayout: React.FC = () => {
             </span>
           </div>
 
+          {/* Center: Live Workshop & SLA Status */}
+          <div className="flex items-center gap-2 text-slate-600 text-[11px] font-medium bg-white/80 px-3 py-0.5 rounded-full border border-slate-200/80 shadow-2xs shrink-0">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Clock size={13} weight="bold" className="text-slate-500" />
+              <span>Workshop: <strong className="text-slate-800 font-semibold">Senin – Sabtu 08.00 – 21.00 WIB</strong></span>
+            </span>
+            <span className="text-slate-300">•</span>
+            <span className="inline-flex items-center gap-1 text-slate-600">
+              <Truck size={13} weight="bold" className="text-slate-500" />
+              <span>Kirim Seluruh Indonesia</span>
+            </span>
+          </div>
+
           {/* Right: Direct B2B Contact & Tax Terms */}
-          <div className="flex items-center gap-4 text-xs shrink-0">
+          <div className="flex items-center gap-3 text-xs shrink-0">
             <a 
               href="tel:0215558899" 
               className="inline-flex items-center gap-1.5 text-slate-700 hover:text-slate-950 transition-colors"
@@ -289,7 +304,7 @@ export const PublicLayout: React.FC = () => {
                   </Link>
                   <Link
                     to="/custom-order"
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-slate-800 transition-colors active:scale-[0.98]"
+                    className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-slate-800 transition-colors active:scale-[0.98]"
                   >
                     <span>Minta Penawaran</span>
                   </Link>

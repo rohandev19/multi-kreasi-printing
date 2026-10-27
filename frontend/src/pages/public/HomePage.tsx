@@ -7,7 +7,7 @@ import {
   UploadSimple,
   Clock,
   Printer,
-  Package,
+  Check,
   CheckCircle,
   Truck,
   Buildings,
@@ -16,7 +16,53 @@ import {
 } from '@phosphor-icons/react';
 import { JobTicketEstimator } from '../../components/home/JobTicketEstimator';
 import { ColorBar } from '../../components/home/PrintMarks';
-import { CompactHeroBanner } from '../../components/home/CompactHeroBanner';
+import { motion, type Variants } from 'framer-motion';
+
+const heroStagger: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const heroFadeUp: Variants = {
+  hidden: { opacity: 0, y: 22 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.65,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const cardStagger: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const cardFadeUp: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.55,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
 
 interface SpecRow {
   category: string;
@@ -105,6 +151,52 @@ const b2bWorkflows = [
   },
 ];
 
+interface CorporateClient {
+  name: string;
+  logo: string;
+  alt: string;
+  heightClass: string;
+}
+
+const corporateClients: CorporateClient[] = [
+  {
+    name: 'Telkom Indonesia',
+    logo: '/logos/telkom.svg',
+    alt: 'Logo Resmi Telkom Indonesia',
+    heightClass: 'h-6 sm:h-7 md:h-8',
+  },
+  {
+    name: 'Bank BCA',
+    logo: '/logos/bca.svg',
+    alt: 'Logo Resmi Bank BCA',
+    heightClass: 'h-6 sm:h-7 md:h-7.5',
+  },
+  {
+    name: 'Pertamina',
+    logo: '/logos/pertamina.svg',
+    alt: 'Logo Resmi Pertamina',
+    heightClass: 'h-6 sm:h-7 md:h-8',
+  },
+  {
+    name: 'Astra Group',
+    logo: '/logos/astra.svg',
+    alt: 'Logo Resmi Astra International',
+    heightClass: 'h-5 sm:h-6 md:h-6.5',
+  },
+  {
+    name: 'Indofood',
+    logo: '/logos/indofood.svg',
+    alt: 'Logo Resmi Indofood',
+    heightClass: 'h-6 sm:h-7.5 md:h-8.5',
+  },
+  {
+    name: 'Kalbe Farma',
+    logo: '/logos/kalbe.svg',
+    alt: 'Logo Resmi Kalbe Farma',
+    heightClass: 'h-6 sm:h-7.5 md:h-8.5',
+  },
+];
+
 export const HomePage: React.FC = () => {
   const [orderQuery, setOrderQuery] = useState('');
   const navigate = useNavigate();
@@ -133,128 +225,252 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="w-full" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)' }}>
-      {/* Compact Commercial Banner under Navbar */}
-      <CompactHeroBanner />
-
       {/* =========================================================================
-          SECTION 1: HERO - B2B INDUSTRIAL MASTHEAD + LIVE JOB TICKET ESTIMATOR
+          HERO: FUNNEL.IO STYLE B2B COMMERCIAL PRINTING MASTHEAD
           ========================================================================= */}
-      <section className="relative overflow-hidden border-b border-slate-200 bg-white pt-8 pb-16 lg:pt-12 lg:pb-20">
+      <section className="relative overflow-hidden bg-white pt-10 sm:pt-14 lg:pt-18 pb-14 sm:pb-18 lg:pb-22">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
-            {/* Left Column: Industrial Positioning & Quick Actions (7 Cols) */}
-            <div className="space-y-6 lg:col-span-7">
-              {/* Main Headline with fluid typography */}
-              <h1 
-                className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl lg:leading-[1.15]"
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            {/* Left Column: Headline, Subtitle, Inline Action & Trust Badges (7 Cols) */}
+            <motion.div
+              variants={heroStagger}
+              initial="hidden"
+              animate="visible"
+              className="space-y-6 sm:space-y-7 lg:col-span-7"
+            >
+              {/* Main Headline */}
+              <motion.h1
+                variants={heroFadeUp}
+                className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold tracking-tight text-slate-900 leading-[1.12]"
                 style={{ fontFamily: '"Plus Jakarta Sans", system-ui, -apple-system, sans-serif' }}
               >
-                Solusi Percetakan Komersial &amp; Pengadaan B2B Skala Industri.
-              </h1>
+                Pusat Kendali Pengadaan &amp;<br className="hidden sm:inline" /> Percetakan Bisnis
+              </motion.h1>
 
-              {/* Precise Subtitle */}
-              <p className="max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
-                Dari materi pemasaran korporat hingga box kemasan kustom. Dapatkan kalkulasi harga volume grosir,
-                surat penawaran resmi (RFQ), validasi berkas pra-cetak 300 DPI, dan pelacakan pengerjaan real-time.
-              </p>
+              {/* Subtitle */}
+              <motion.p
+                variants={heroFadeUp}
+                className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl"
+              >
+                Platform terpadu untuk efisiensi pengadaan percetakan perusahaan. Dari materi promosi volume besar hingga box kemasan kustom dengan harga grosir transparan dan legalitas PPN 11%.
+              </motion.p>
 
-              {/* Order Tracking Bar */}
-              <div className="max-w-xl rounded-xl border border-slate-200 bg-slate-50 p-2.5 shadow-xs">
-                <form onSubmit={handleTrackOrder} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              {/* Inline Action Bar (Input + Button inline, exactly like Funnel) */}
+              <motion.div variants={heroFadeUp} className="pt-1 max-w-xl">
+                <form onSubmit={handleTrackOrder} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
                   <div className="relative flex-1">
                     <MagnifyingGlass
                       size={18}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
                     />
                     <input
                       type="text"
-                      placeholder="Lacak Pesanan (contoh: ORD-2026-1042)..."
+                      placeholder="Lacak No. Pesanan (contoh: ORD-2026-1042)..."
                       value={orderQuery}
                       onChange={(e) => setOrderQuery(e.target.value)}
-                      className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 font-mono text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                      className="w-full rounded-xl border border-slate-300 bg-white py-3.5 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 transition-all shadow-xs"
                     />
                   </div>
-                  <button
+                  <motion.button
                     type="submit"
-                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-xs transition-[background-color,transform] duration-150 hover:bg-slate-800 active:scale-[0.98]"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3.5 text-sm font-bold text-white shadow-md hover:bg-black transition-colors duration-150"
                   >
-                    <span>Cek Status</span>
+                    <span>Cek Pesanan</span>
                     <ArrowRight size={15} weight="bold" />
-                  </button>
+                  </motion.button>
                 </form>
-              </div>
 
-              {/* Primary Buttons */}
-              <div className="pt-2 flex flex-wrap items-center gap-3">
-                <Link
-                  to="/products"
-                  className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-3 text-sm font-bold text-white shadow-xs transition-[background-color,transform] duration-150 hover:bg-slate-800 active:scale-[0.98]"
-                >
-                  <Package size={18} weight="bold" />
-                  <span>Jelajahi Katalog Lengkap</span>
-                </Link>
-
-                <Link
-                  to="/custom-order"
-                  className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-900 shadow-xs transition-[background-color,border-color,transform] duration-150 hover:bg-slate-50 hover:border-slate-400 active:scale-[0.98]"
-                >
-                  <FileText size={18} weight="bold" />
-                  <span>Minta Penawaran (RFQ)</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Right Column: Authentic Industrial Print Quality & Production Standards (5 Cols) */}
-            <div className="lg:col-span-5 relative flex flex-col justify-center">
-              <div className="relative w-full rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs">
-                {/* Specification Sheet Header */}
-                <div className="flex items-center justify-between pb-3.5 border-b border-slate-200">
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900 tracking-tight">
-                      Standar Mutu Produksi Cetak
-                    </h3>
-                    <p className="text-[11px] text-slate-500">
-                      Spesifikasi teknis &amp; toleransi pengerjaan workshop
-                    </p>
-                  </div>
-                  <span className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                    ISO 12647-2
-                  </span>
+                {/* Quick Action Links */}
+                <div className="mt-3.5 flex flex-wrap items-center gap-3.5 text-xs sm:text-sm">
+                  <Link
+                    to="/products"
+                    className="inline-flex items-center gap-1.5 font-bold text-slate-900 hover:text-slate-600 transition-colors"
+                  >
+                    <span>Jelajahi Katalog Produk</span>
+                    <ArrowRight size={13} weight="bold" />
+                  </Link>
+                  <span className="text-slate-300">•</span>
+                  <Link
+                    to="/custom-order"
+                    className="inline-flex items-center gap-1.5 font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+                  >
+                    <FileText size={15} weight="bold" />
+                    <span>Minta Penawaran (RFQ)</span>
+                  </Link>
                 </div>
+              </motion.div>
 
-                {/* Production Press Visual */}
-                <div className="relative my-4 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 aspect-[16/10]">
+              {/* Trust Checklist (Red/Rose checkmarks like Funnel) */}
+              <motion.div
+                variants={heroFadeUp}
+                className="pt-2 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm font-medium text-slate-600"
+              >
+                <span className="inline-flex items-center gap-1.5 text-slate-700">
+                  <Check size={16} weight="bold" className="text-rose-500" />
+                  e-Faktur PPN 11% Resmi
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-slate-700">
+                  <Check size={16} weight="bold" className="text-rose-500" />
+                  Standar Mutu ISO 12647-2 (FOGRA 39)
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-slate-700">
+                  <Check size={16} weight="bold" className="text-rose-500" />
+                  Fasilitas TOP s/d 45 Hari
+                </span>
+              </motion.div>
+            </motion.div>
+
+            {/* Right Column: Layered Funnel Composition (Photo Behind + Floating QC Card in Front) (5 Cols) */}
+            <div className="lg:col-span-5 relative lg:pl-2">
+              <div className="relative mx-auto w-full max-w-lg lg:max-w-none pb-12 sm:pb-16 lg:pb-10">
+                {/* Background Workshop Photo with Soft Rounded Corners */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-slate-100 shadow-xl aspect-[4/3] sm:aspect-[16/11]"
+                >
                   <img
-                    src="/BannerPabrik.jpg"
-                    alt="Armada Mesin Cetak Offset & Digital Industri Multi Kreasi"
+                    src="/BannerTerbaru.webp"
+                    alt="Tim Produksi & Quality Control Multi Kreasi Printing"
                     className="h-full w-full object-cover object-center"
                   />
-                  <div className="absolute bottom-2 left-2 right-2 rounded-lg bg-slate-950/80 px-3 py-1.5 text-[11px] text-white flex items-center justify-between">
-                    <span className="font-medium">Armada Cetak Offset &amp; Digital</span>
-                    <span className="text-slate-300">Format s/d Plano</span>
-                  </div>
-                </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/25 via-transparent to-transparent" />
+                </motion.div>
 
-                {/* Technical Quality Metrics */}
-                <div className="grid grid-cols-3 gap-2 pt-1 text-center">
-                  <div className="rounded-lg bg-slate-50 p-2.5 border border-slate-100">
-                    <span className="block text-[10px] font-medium text-slate-500 uppercase tracking-tight">Standar Warna</span>
-                    <span className="text-xs font-bold text-slate-900">FOGRA 39</span>
+                {/* Floating Top-Left Chip (GPU-Accelerated Smooth Levitation) */}
+                <motion.div
+                  initial={{ opacity: 0, y: -14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  className="absolute -top-3 -left-3 sm:-top-5 sm:-left-6 z-20 animate-float-1"
+                >
+                  <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3.5 py-2 shadow-md">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-100 text-slate-900 font-bold text-[11px]">
+                      ✓
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-800">
+                      Pre Press 300 DPI CMYK Valid
+                    </span>
                   </div>
-                  <div className="rounded-lg bg-slate-50 p-2.5 border border-slate-100">
-                    <span className="block text-[10px] font-medium text-slate-500 uppercase tracking-tight">Toleransi Potong</span>
-                    <span className="text-xs font-bold text-slate-900">±0.5 mm</span>
+                </motion.div>
+
+                {/* Floating Main QC Card (GPU-Accelerated Smooth Counter-Float) */}
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.65, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative lg:absolute -mt-10 sm:-mt-14 lg:mt-0 lg:-bottom-6 lg:-left-8 z-20 w-[95%] sm:w-[92%] mx-auto lg:mx-0 animate-float-2"
+                >
+                  <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xl">
+                    {/* Card Header with Live Status */}
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white shadow-xs">
+                          <Printer size={16} weight="bold" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
+                            Kontrol Mutu &amp; Workshop Cetak
+                          </h4>
+                          <p className="text-[10px] text-slate-500">
+                            Heidelberg Speedmaster &amp; Digital Press
+                          </p>
+                        </div>
+                      </div>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200/60">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                        </span>
+                        Workshop Aktif
+                      </span>
+                    </div>
+
+                    {/* Production Output Badges */}
+                    <div className="flex items-center gap-1.5 py-2.5 text-[10px] font-semibold text-slate-600 overflow-x-auto">
+                      <span className="rounded-md bg-slate-100 px-2 py-1 text-slate-800 shrink-0">Offset Grosir</span>
+                      <span className="rounded-md bg-slate-100 px-2 py-1 text-slate-800 shrink-0">Hardbox Kustom</span>
+                      <span className="rounded-md bg-slate-100 px-2 py-1 text-slate-800 shrink-0">Foil Emas</span>
+                      <span className="rounded-md bg-slate-100 px-2 py-1 text-slate-800 shrink-0">Spot UV</span>
+                    </div>
+
+                    {/* Metric Stats Grid */}
+                    <div className="grid grid-cols-3 gap-2 pt-1 text-center">
+                      <div className="rounded-lg bg-slate-50 p-2 border border-slate-100">
+                        <span className="block text-[9px] font-medium text-slate-500 uppercase tracking-tight">Standar Warna</span>
+                        <span className="text-xs font-extrabold text-slate-900">FOGRA 39</span>
+                      </div>
+                      <div className="rounded-lg bg-slate-50 p-2 border border-slate-100">
+                        <span className="block text-[9px] font-medium text-slate-500 uppercase tracking-tight">Presisi Potong</span>
+                        <span className="text-xs font-extrabold text-slate-900">±0.5 mm</span>
+                      </div>
+                      <div className="rounded-lg bg-slate-50 p-2 border border-slate-100">
+                        <span className="block text-[9px] font-medium text-slate-500 uppercase tracking-tight">Kapasitas</span>
+                        <span className="text-xs font-extrabold text-slate-900">50K / Hari</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="rounded-lg bg-slate-50 p-2.5 border border-slate-100">
-                    <span className="block text-[10px] font-medium text-slate-500 uppercase tracking-tight">Resolusi File</span>
-                    <span className="text-xs font-bold text-slate-900">300 DPI</span>
-                  </div>
-                </div>
+                </motion.div>
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Client Logos Strip (Warm Sand Background with Infinite Leftward Marquee) */}
+      <div className="relative border-t border-b border-slate-200/80 bg-[#fbf9f6] py-7 sm:py-8 overflow-hidden select-none">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-4 sm:mb-5">
+          <p className="text-center text-xs font-bold uppercase tracking-wider text-slate-400">
+            Dipercaya oleh 500+ Perusahaan, Brand Nasional, dan Instansi Pemerintah
+          </p>
+        </div>
+
+        {/* Gradient Fade Masks on Left & Right for Elegant Transition */}
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-[#fbf9f6] to-transparent z-10" />
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-[#fbf9f6] to-transparent z-10" />
+
+        {/* Infinite Moving Marquee Track */}
+        <div className="flex w-max animate-marquee-infinite items-center">
+          {/* First set of logos (duplicated to guarantee full width on wide displays) */}
+          <div className="flex shrink-0 items-center gap-10 sm:gap-14 lg:gap-16 pr-10 sm:pr-14 lg:pr-16">
+            {[...corporateClients, ...corporateClients].map((client, idx) => (
+              <div
+                key={`client-1-${idx}`}
+                className="flex items-center justify-center shrink-0 opacity-85 hover:opacity-100 transition-all duration-300 transform hover:scale-105 cursor-pointer"
+                title={client.name}
+              >
+                <img
+                  src={client.logo}
+                  alt={client.alt}
+                  className={`${client.heightClass} w-auto max-w-[130px] sm:max-w-[160px] object-contain`}
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Second identical set for seamless infinite loop */}
+          <div className="flex shrink-0 items-center gap-10 sm:gap-14 lg:gap-16 pr-10 sm:pr-14 lg:pr-16" aria-hidden="true">
+            {[...corporateClients, ...corporateClients].map((client, idx) => (
+              <div
+                key={`client-2-${idx}`}
+                className="flex items-center justify-center shrink-0 opacity-85 hover:opacity-100 transition-all duration-300 transform hover:scale-105 cursor-pointer"
+                title={client.name}
+              >
+                <img
+                  src={client.logo}
+                  alt={client.alt}
+                  className={`${client.heightClass} w-auto max-w-[130px] sm:max-w-[160px] object-contain`}
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* CMYK Process Color Bar Divider */}
       <ColorBar />
@@ -263,8 +479,14 @@ export const HomePage: React.FC = () => {
           SECTION 2: B2B OPERATIONAL WORKFLOW (GATEWAYS)
           ========================================================================= */}
       <section id="workflow" className="border-b border-slate-200 bg-slate-50/70 py-16 scroll-mt-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={cardStagger}
+          className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+        >
+          <motion.div variants={cardFadeUp} className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
             <div className="max-w-2xl">
               <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
                 Standar Pengerjaan Cetak Tanpa Hambatan
@@ -280,22 +502,24 @@ export const HomePage: React.FC = () => {
               <span>Lihat Kapasitas &amp; Armada Mesin</span>
               <ArrowRight size={14} weight="bold" />
             </Link>
-          </div>
+          </motion.div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {b2bWorkflows.map((step) => {
               const Icon = step.icon;
               return (
-                <div
+                <motion.div
                   key={step.step}
-                  className="relative rounded-xl border border-slate-200/90 bg-white p-5 shadow-xs flex flex-col justify-between transition-[border-color,box-shadow] duration-150 hover:border-slate-300 hover:shadow-sm"
+                  variants={cardFadeUp}
+                  whileHover={{ y: -6, transition: { duration: 0.2, ease: 'easeOut' } }}
+                  className="relative rounded-xl border border-slate-200/90 bg-white p-5 shadow-xs hover:shadow-lg hover:border-slate-300 flex flex-col justify-between transition-[box-shadow,border-color] duration-200 group"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-3.5">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-900">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-900 group-hover:bg-slate-900 group-hover:text-white transition-colors duration-200">
                         <Icon size={18} weight="bold" />
                       </div>
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-[11px] font-bold text-white tabular-nums">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-[11px] font-bold text-white tabular-nums group-hover:scale-110 transition-transform duration-200">
                         {step.step}
                       </span>
                     </div>
@@ -319,11 +543,11 @@ export const HomePage: React.FC = () => {
                       <CaretRight size={13} weight="bold" />
                     </Link>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* =========================================================================
@@ -331,38 +555,55 @@ export const HomePage: React.FC = () => {
           ========================================================================= */}
       <section id="estimator" className="border-b border-slate-200 bg-white py-16 sm:py-20 scroll-mt-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            className="grid gap-12 lg:grid-cols-12 lg:items-center"
+          >
             {/* Left Context & Guidance */}
-            <div className="lg:col-span-5 space-y-5">
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, x: -28 },
+                visible: { opacity: 1, x: 0, transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] } },
+              }}
+              className="lg:col-span-5 space-y-5"
+            >
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
                 Kalkulasi Estimasi Biaya Cetak Grosir Seketika.
               </h2>
-              
+
               <p className="text-sm sm:text-base leading-relaxed text-slate-600">
                 Gunakan simulator Job Ticket interaktif ini untuk menghitung proyeksi biaya cetak volume grosir secara instan berbasis tier harga pabrik dan PPN 11%.
               </p>
 
-              <div className="space-y-3 pt-2 text-xs text-slate-700">
+              <div className="space-y-3 pt-2 text-xs sm:text-sm text-slate-700 font-medium">
                 <div className="flex items-center gap-2.5">
-                  <CheckCircle size={18} weight="bold" className="text-emerald-600 shrink-0" />
+                  <Check size={18} weight="bold" className="text-rose-500 shrink-0" />
                   <span>Perhitungan otomatis diskon volume kuantitas bertingkat</span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <CheckCircle size={18} weight="bold" className="text-emerald-600 shrink-0" />
+                  <Check size={18} weight="bold" className="text-rose-500 shrink-0" />
                   <span>Transparansi rincian PPN 11% &amp; e-Faktur resmi</span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <CheckCircle size={18} weight="bold" className="text-emerald-600 shrink-0" />
+                  <Check size={18} weight="bold" className="text-rose-500 shrink-0" />
                   <span>Langsung dapat diajukan menjadi Pesanan atau RFQ resmi</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Right: The Interactive Estimator Form */}
-            <div className="lg:col-span-7">
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, x: 28 },
+                visible: { opacity: 1, x: 0, transition: { duration: 0.65, delay: 0.15, ease: [0.16, 1, 0.3, 1] } },
+              }}
+              className="lg:col-span-7"
+            >
               <JobTicketEstimator />
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
@@ -370,7 +611,13 @@ export const HomePage: React.FC = () => {
           SECTION 3: SPECIFICATION MATRIX & POPULAR INDUSTRIAL CAPABILITIES
           ========================================================================= */}
       <section id="specs" className="bg-white py-16 border-b border-slate-200 scroll-mt-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.15 }}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+          className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+        >
           <div className="max-w-3xl mb-10">
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
               Matriks Spesifikasi &amp; Lini Produk Utama
@@ -383,7 +630,7 @@ export const HomePage: React.FC = () => {
           {/* Desktop Table View / Mobile Card Stack */}
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[600px]">
                 <thead className="border-b border-slate-200 bg-slate-50 uppercase text-slate-600">
                   <tr>
                     <th scope="col" className="px-5 py-3.5 font-bold">Kategori &amp; Produk</th>
@@ -436,7 +683,7 @@ export const HomePage: React.FC = () => {
               </Link>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* =========================================================================
@@ -444,9 +691,20 @@ export const HomePage: React.FC = () => {
           ========================================================================= */}
       <section id="workshop" className="border-b border-slate-200 bg-slate-50/70 py-16 sm:py-20 scroll-mt-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            className="grid gap-12 lg:grid-cols-12 lg:items-center"
+          >
             {/* Left: Capability description */}
-            <div className="space-y-6 lg:col-span-6">
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, x: -28 },
+                visible: { opacity: 1, x: 0, transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] } },
+              }}
+              className="space-y-6 lg:col-span-6"
+            >
               <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl leading-tight">
                 Kapasitas Produksi Skala Komersial &amp; Akurasi Warna Standar Pabrik.
               </h2>
@@ -501,10 +759,16 @@ export const HomePage: React.FC = () => {
                   Jadwalkan Kunjungan Workshop
                 </Link>
               </div>
-            </div>
+            </motion.div>
 
             {/* Right: Authentic Factory Image Split Grid */}
-            <div className="lg:col-span-6 grid grid-cols-2 gap-4">
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, x: 28 },
+                visible: { opacity: 1, x: 0, transition: { duration: 0.65, delay: 0.15, ease: [0.16, 1, 0.3, 1] } },
+              }}
+              className="lg:col-span-6 grid grid-cols-2 gap-4"
+            >
               <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white aspect-[4/5] shadow-xs group">
                 <img
                   src="/BannerPabrik.jpg"
@@ -552,8 +816,8 @@ export const HomePage: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
@@ -562,7 +826,13 @@ export const HomePage: React.FC = () => {
           ========================================================================= */}
       <section className="bg-white py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-8 sm:p-12 lg:flex lg:items-center lg:justify-between shadow-xs">
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="rounded-2xl border border-slate-200 bg-slate-50 p-8 sm:p-12 lg:flex lg:items-center lg:justify-between shadow-xs"
+          >
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 mb-2">
                 <Buildings size={16} weight="bold" className="text-slate-900" />
@@ -594,7 +864,7 @@ export const HomePage: React.FC = () => {
                 <span>Hubungi Tim Sales</span>
               </Link>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
     </div>

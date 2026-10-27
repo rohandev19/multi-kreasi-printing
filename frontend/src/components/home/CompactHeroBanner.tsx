@@ -4,9 +4,6 @@ import {
   ArrowRight,
   CaretLeft,
   CaretRight,
-  Buildings,
-  Package,
-  Printer,
   Pause,
   Play,
 } from '@phosphor-icons/react';
@@ -14,46 +11,34 @@ import {
 interface BannerSlide {
   id: string;
   image: string;
-  badgeIcon: React.ElementType;
-  badge: string;
-  title: string;
-  description: string;
+  titleMain: string;
+  titleAccent?: string;
   ctaText: string;
   ctaLink: string;
-  secondaryCtaText?: string;
-  secondaryCtaLink?: string;
 }
 
 const bannerSlides: BannerSlide[] = [
   {
     id: 'slide-offset',
     image: '/BannerTerbaru.webp',
-    badgeIcon: Printer,
-    badge: 'PRODUKSI PERCETAKAN KOMERSIAL',
-    title: 'Cetak Volume Grosir Cepat & Presisi Warna Standar Industri',
-    description: 'Kapasitas puluhan ribu lembar per hari untuk brosur, flyer, company profile, dan materi promosi korporat.',
+    titleMain: 'Cetak Brosur & Materi Promosi Grosir',
+    titleAccent: 'Presisi Standar Industri',
     ctaText: 'Jelajahi Katalog Produk',
     ctaLink: '/products',
-    secondaryCtaText: 'Hitung Job Ticket',
-    secondaryCtaLink: '#estimator',
   },
   {
     id: 'slide-packaging',
     image: '/BannerKemasan.jpg',
-    badgeIcon: Package,
-    badge: 'PACKAGING & HARD-BOX CUSTOM',
-    title: 'Kemasan Eksklusif, Box Produk & Finishing Foil Emas',
-    description: 'Kombinasi material Duplex, Ivory, dan corrugated dengan laminasi doff/glossy serta pond die-cut presisi.',
+    titleMain: 'Kemasan Eksklusif & Hardbox Produk',
+    titleAccent: 'Finishing Foil Emas',
     ctaText: 'Konsultasi Kemasan Kustom',
     ctaLink: '/custom-order',
   },
   {
     id: 'slide-corporate',
     image: '/BannerPabrik.jpg',
-    badgeIcon: Buildings,
-    badge: 'PENGADAAN PERUSAHAAN (B2B)',
-    title: 'Fasilitas Satu Atap, e-Faktur PPN 11% & TOP s/d 45 Hari',
-    description: 'Kemitraan pengadaan berkala untuk PT/CV dengan alokasi account manager khusus dan pengiriman terjadwal.',
+    titleMain: 'Pengadaan Percetakan Perusahaan',
+    titleAccent: 'Fasilitas Bisnis B2B',
     ctaText: 'Minta Penawaran Resmi (RFQ)',
     ctaLink: '/custom-order',
   },
@@ -78,12 +63,11 @@ export const CompactHeroBanner: React.FC = () => {
   }, [isPaused, nextSlide]);
 
   const activeSlide = bannerSlides[currentIdx];
-  const BadgeIcon = activeSlide.badgeIcon;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4">
       <div
-        className="group relative h-48 sm:h-56 md:h-64 lg:h-72 w-full overflow-hidden rounded-2xl border border-slate-200/90 bg-slate-950 shadow-xs"
+        className="group relative h-40 sm:h-48 md:h-56 lg:h-60 w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-md"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
@@ -97,61 +81,38 @@ export const CompactHeroBanner: React.FC = () => {
           >
             <img
               src={slide.image}
-              alt={slide.title}
+              alt={`${slide.titleMain} ${slide.titleAccent || ''}`}
               className="h-full w-full object-cover object-center"
             />
-            {/* High-Contrast Directional Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/30 sm:via-black/65 sm:to-transparent" />
+            {/* Cinematic Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/65 to-black/20 sm:to-transparent" />
           </div>
         ))}
 
         {/* Content Overlay */}
-        <div className="relative z-10 flex h-full flex-col justify-center px-6 sm:px-10 lg:px-12 max-w-2xl sm:max-w-3xl">
-          {/* Category Badge */}
-          <div className="inline-flex w-fit items-center gap-1.5 rounded-md bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/95 border border-white/15 mb-2 sm:mb-3">
-            <BadgeIcon size={14} weight="bold" className="text-emerald-400" />
-            <span>{activeSlide.badge}</span>
-          </div>
-
-          {/* Title with fluid typography */}
+        <div className="relative z-10 flex h-full flex-col justify-center px-6 sm:px-10 lg:px-12 max-w-3xl">
+          {/* Refined 1-Line Title */}
           <h2 
-            className="text-base sm:text-xl md:text-2xl font-bold tracking-tight text-white leading-snug"
+            className="text-base sm:text-xl md:text-2xl font-bold tracking-tight text-white leading-snug drop-shadow-sm flex flex-wrap items-center gap-x-2"
             style={{ fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif' }}
           >
-            {activeSlide.title}
+            <span>{activeSlide.titleMain}</span>
+            {activeSlide.titleAccent && (
+              <span className="bg-gradient-to-r from-amber-200 via-amber-100 to-yellow-300 bg-clip-text text-transparent font-extrabold">
+                • {activeSlide.titleAccent}
+              </span>
+            )}
           </h2>
 
-          {/* Subtitle */}
-          <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-slate-200 line-clamp-2 leading-relaxed max-w-xl">
-            {activeSlide.description}
-          </p>
-
-          {/* Action Button */}
-          <div className="mt-3 sm:mt-4 flex items-center gap-3">
+          {/* Action Button - Sleek Pill */}
+          <div className="mt-3 sm:mt-4 flex items-center">
             <Link
               to={activeSlide.ctaLink}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-bold text-slate-900 shadow-xs transition-[background-color,transform] duration-150 hover:bg-slate-100 active:scale-[0.98]"
+              className="group/btn inline-flex items-center gap-2 rounded-full bg-white/95 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-slate-900 shadow-md backdrop-blur-xs transition-all duration-200 hover:bg-white hover:shadow-lg hover:shadow-white/15 hover:scale-[1.02] active:scale-[0.98]"
             >
               <span>{activeSlide.ctaText}</span>
-              <ArrowRight size={13} weight="bold" />
+              <ArrowRight size={13} weight="bold" className="transition-transform duration-200 group-hover/btn:translate-x-1" />
             </Link>
-
-            {activeSlide.secondaryCtaText && (
-              <a
-                href={activeSlide.secondaryCtaLink}
-                onClick={(e) => {
-                  if (activeSlide.secondaryCtaLink?.startsWith('#')) {
-                    e.preventDefault();
-                    const targetId = activeSlide.secondaryCtaLink.replace('#', '');
-                    document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
-                    window.history.pushState(null, '', activeSlide.secondaryCtaLink);
-                  }
-                }}
-                className="hidden sm:inline-flex items-center gap-1 rounded-lg bg-slate-900/60 border border-white/20 px-3.5 py-2 text-xs font-semibold text-white transition-[background-color,transform] duration-150 hover:bg-slate-900/90 active:scale-[0.98]"
-              >
-                <span>{activeSlide.secondaryCtaText}</span>
-              </a>
-            )}
           </div>
         </div>
 
