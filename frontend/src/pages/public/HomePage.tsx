@@ -235,7 +235,8 @@ export const HomePage: React.FC = () => {
             <motion.div
               variants={heroStagger}
               initial="hidden"
-              animate="visible"
+              whileInView="visible"
+              viewport={{ once: false, amount: 0.15 }}
               className="space-y-6 sm:space-y-7 lg:col-span-7"
             >
               {/* Main Headline */}
@@ -328,7 +329,8 @@ export const HomePage: React.FC = () => {
                 {/* Background Workshop Photo with Soft Rounded Corners */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: false, amount: 0.15 }}
                   transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
                   className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-slate-100 shadow-xl aspect-[4/3] sm:aspect-[16/11]"
                 >
@@ -343,8 +345,9 @@ export const HomePage: React.FC = () => {
                 {/* Floating Top-Left Chip (GPU-Accelerated Smooth Levitation) */}
                 <motion.div
                   initial={{ opacity: 0, y: -14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: false, amount: 0.15 }}
+                  transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                   className="absolute -top-3 -left-3 sm:-top-5 sm:-left-6 z-20 animate-float-1"
                 >
                   <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3.5 py-2 shadow-md">
@@ -360,8 +363,9 @@ export const HomePage: React.FC = () => {
                 {/* Floating Main QC Card (GPU-Accelerated Smooth Counter-Float) */}
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.65, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: false, amount: 0.15 }}
+                  transition={{ duration: 0.65, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
                   className="relative lg:absolute -mt-10 sm:-mt-14 lg:mt-0 lg:-bottom-6 lg:-left-8 z-20 w-[95%] sm:w-[92%] mx-auto lg:mx-0 animate-float-2"
                 >
                   <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xl">
@@ -482,7 +486,7 @@ export const HomePage: React.FC = () => {
         <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={{ once: false, amount: 0.15 }}
           variants={cardStagger}
           className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
         >
@@ -558,7 +562,7 @@ export const HomePage: React.FC = () => {
           <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
+            viewport={{ once: false, amount: 0.15 }}
             className="grid gap-12 lg:grid-cols-12 lg:items-center"
           >
             {/* Left Context & Guidance */}
@@ -614,7 +618,7 @@ export const HomePage: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.15 }}
+          viewport={{ once: false, amount: 0.1 }}
           transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
           className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
         >
@@ -694,7 +698,7 @@ export const HomePage: React.FC = () => {
           <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
+            viewport={{ once: false, amount: 0.15 }}
             className="grid gap-12 lg:grid-cols-12 lg:items-center"
           >
             {/* Left: Capability description */}
@@ -829,7 +833,7 @@ export const HomePage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 28 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
+            viewport={{ once: false, amount: 0.15 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="rounded-2xl border border-slate-200 bg-slate-50 p-8 sm:p-12 lg:flex lg:items-center lg:justify-between shadow-xs"
           >
