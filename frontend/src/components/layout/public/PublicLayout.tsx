@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, User, Printer, List, X, Package, Phone, WhatsappLogo, MapPin, CheckCircle, Clock, Truck } from '@phosphor-icons/react';
+import { ShoppingCart, User, Printer, List, X, Package, Phone, WhatsappLogo, MapPin, Check, Clock, Truck } from '@phosphor-icons/react';
 import { useRoleContext } from '../../../contexts/RoleContext';
 import { Footer } from './Footer';
 import { useCart } from '../../../hooks/useCart';
@@ -146,24 +146,20 @@ export const PublicLayout: React.FC = () => {
           </div>
 
           {/* Center: Live Workshop & SLA Status */}
-          <div className="flex items-center gap-2 text-slate-600 text-[11px] font-medium bg-white/80 px-3 py-0.5 rounded-full border border-slate-200/80 shadow-2xs shrink-0">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
+          <div className="hidden xl:flex items-center gap-2 text-slate-600 text-[11px] font-medium bg-white/80 px-3 py-0.5 rounded-full border border-slate-200/80 shadow-2xs shrink-0">
             <span className="inline-flex items-center gap-1.5">
               <Clock size={13} weight="bold" className="text-slate-500" />
               <span>Workshop: <strong className="text-slate-800 font-semibold">Senin – Sabtu 08.00 – 21.00 WIB</strong></span>
             </span>
-            <span className="text-slate-300">•</span>
-            <span className="inline-flex items-center gap-1 text-slate-600">
+            <span className="text-slate-300 hidden 2xl:inline">•</span>
+            <span className="hidden 2xl:inline-flex items-center gap-1 text-slate-600">
               <Truck size={13} weight="bold" className="text-slate-500" />
               <span>Kirim Seluruh Indonesia</span>
             </span>
           </div>
 
           {/* Right: Direct B2B Contact & Tax Terms */}
-          <div className="flex items-center gap-3 text-xs shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 text-xs shrink-0">
             <a 
               href="tel:0215558899" 
               className="inline-flex items-center gap-1.5 text-slate-700 hover:text-slate-950 transition-colors"
@@ -182,14 +178,14 @@ export const PublicLayout: React.FC = () => {
               className="inline-flex items-center gap-1.5 text-slate-700 hover:text-emerald-700 transition-colors"
             >
               <WhatsappLogo size={14} weight="bold" className="text-emerald-600" />
-              <span className="text-slate-500">WA B2B:</span>
+              <span className="text-slate-500">WA:</span>
               <span className="font-bold text-emerald-700 font-mono tracking-tight">+62 812-9988-7766</span>
             </a>
 
             <span className="text-slate-300">|</span>
 
-            <div className="inline-flex items-center gap-1.5 rounded bg-white px-2 py-0.5 text-[11px] font-semibold text-emerald-800 border border-emerald-200 shadow-2xs">
-              <CheckCircle size={13} weight="bold" className="text-emerald-600" />
+            <div className="inline-flex items-center gap-1.5 rounded bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-800 border border-slate-200 shadow-2xs">
+              <Check size={13} weight="bold" className="text-rose-500" />
               <span>e-Faktur PPN 11% &amp; TOP 30 Hari</span>
             </div>
           </div>

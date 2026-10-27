@@ -8,7 +8,6 @@ import {
   Clock,
   Printer,
   Check,
-  CheckCircle,
   Truck,
   Buildings,
   PhoneCall,
@@ -237,12 +236,12 @@ export const HomePage: React.FC = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: false, amount: 0.15 }}
-              className="space-y-6 sm:space-y-7 lg:col-span-7"
+              className="space-y-5 sm:space-y-6 lg:col-span-7"
             >
               {/* Main Headline */}
               <motion.h1
                 variants={heroFadeUp}
-                className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold tracking-tight text-slate-900 leading-[1.12]"
+                className="text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold tracking-tight text-slate-900 leading-[1.18]"
                 style={{ fontFamily: '"Plus Jakarta Sans", system-ui, -apple-system, sans-serif' }}
               >
                 Pusat Kendali Pengadaan &amp;<br className="hidden sm:inline" /> Percetakan Bisnis
@@ -251,17 +250,17 @@ export const HomePage: React.FC = () => {
               {/* Subtitle */}
               <motion.p
                 variants={heroFadeUp}
-                className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl"
+                className="text-sm sm:text-[15px] text-slate-600 leading-relaxed max-w-lg"
               >
                 Platform terpadu untuk efisiensi pengadaan percetakan perusahaan. Dari materi promosi volume besar hingga box kemasan kustom dengan harga grosir transparan dan legalitas PPN 11%.
               </motion.p>
 
               {/* Inline Action Bar (Input + Button inline, exactly like Funnel) */}
-              <motion.div variants={heroFadeUp} className="pt-1 max-w-xl">
-                <form onSubmit={handleTrackOrder} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+              <motion.div variants={heroFadeUp} className="pt-0.5 max-w-lg">
+                <form onSubmit={handleTrackOrder} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                   <div className="relative flex-1">
                     <MagnifyingGlass
-                      size={18}
+                      size={16}
                       className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
                     />
                     <input
@@ -269,35 +268,35 @@ export const HomePage: React.FC = () => {
                       placeholder="Lacak No. Pesanan (contoh: ORD-2026-1042)..."
                       value={orderQuery}
                       onChange={(e) => setOrderQuery(e.target.value)}
-                      className="w-full rounded-xl border border-slate-300 bg-white py-3.5 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 transition-all shadow-xs"
+                      className="w-full rounded-xl border border-slate-300 bg-white py-2.5 sm:py-3 pl-10 pr-3.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 transition-all shadow-xs"
                     />
                   </div>
                   <motion.button
                     type="submit"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3.5 text-sm font-bold text-white shadow-md hover:bg-black transition-colors duration-150"
+                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-black transition-colors duration-150"
                   >
                     <span>Cek Pesanan</span>
-                    <ArrowRight size={15} weight="bold" />
+                    <ArrowRight size={14} weight="bold" />
                   </motion.button>
                 </form>
 
                 {/* Quick Action Links */}
-                <div className="mt-3.5 flex flex-wrap items-center gap-3.5 text-xs sm:text-sm">
+                <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
                   <Link
                     to="/products"
                     className="inline-flex items-center gap-1.5 font-bold text-slate-900 hover:text-slate-600 transition-colors"
                   >
                     <span>Jelajahi Katalog Produk</span>
-                    <ArrowRight size={13} weight="bold" />
+                    <ArrowRight size={12} weight="bold" />
                   </Link>
                   <span className="text-slate-300">•</span>
                   <Link
                     to="/custom-order"
                     className="inline-flex items-center gap-1.5 font-semibold text-slate-600 hover:text-slate-900 transition-colors"
                   >
-                    <FileText size={15} weight="bold" />
+                    <FileText size={14} weight="bold" />
                     <span>Minta Penawaran (RFQ)</span>
                   </Link>
                 </div>
@@ -306,18 +305,18 @@ export const HomePage: React.FC = () => {
               {/* Trust Checklist (Red/Rose checkmarks like Funnel) */}
               <motion.div
                 variants={heroFadeUp}
-                className="pt-2 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm font-medium text-slate-600"
+                className="pt-1 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-slate-600"
               >
                 <span className="inline-flex items-center gap-1.5 text-slate-700">
-                  <Check size={16} weight="bold" className="text-rose-500" />
+                  <Check size={14} weight="bold" className="text-rose-500" />
                   e-Faktur PPN 11% Resmi
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-slate-700">
-                  <Check size={16} weight="bold" className="text-rose-500" />
+                  <Check size={14} weight="bold" className="text-rose-500" />
                   Standar Mutu ISO 12647-2 (FOGRA 39)
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-slate-700">
-                  <Check size={16} weight="bold" className="text-rose-500" />
+                  <Check size={14} weight="bold" className="text-rose-500" />
                   Fasilitas TOP s/d 45 Hari
                 </span>
               </motion.div>
@@ -369,28 +368,19 @@ export const HomePage: React.FC = () => {
                   className="relative lg:absolute -mt-10 sm:-mt-14 lg:mt-0 lg:-bottom-6 lg:-left-8 z-20 w-[95%] sm:w-[92%] mx-auto lg:mx-0 animate-float-2"
                 >
                   <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xl">
-                    {/* Card Header with Live Status */}
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white shadow-xs">
-                          <Printer size={16} weight="bold" />
-                        </div>
-                        <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
-                            Kontrol Mutu &amp; Workshop Cetak
-                          </h4>
-                          <p className="text-[10px] text-slate-500">
-                            Heidelberg Speedmaster &amp; Digital Press
-                          </p>
-                        </div>
+                    {/* Card Header */}
+                    <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white shadow-xs">
+                        <Printer size={16} weight="bold" />
                       </div>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200/60">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                        </span>
-                        Workshop Aktif
-                      </span>
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
+                          Kontrol Mutu &amp; Workshop Cetak
+                        </h4>
+                        <p className="text-[10px] text-slate-500">
+                          Heidelberg Speedmaster &amp; Digital Press
+                        </p>
+                      </div>
                     </div>
 
                     {/* Production Output Badges */}
@@ -424,8 +414,8 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Client Logos Strip (Warm Sand Background with Infinite Leftward Marquee) */}
-      <div className="relative border-t border-b border-slate-200/80 bg-[#fbf9f6] py-7 sm:py-8 overflow-hidden select-none">
+      {/* Client Logos Strip (Pure White Background with Infinite Leftward Marquee) */}
+      <div className="relative border-t border-b border-slate-100 bg-white py-7 sm:py-8 overflow-hidden select-none">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-4 sm:mb-5">
           <p className="text-center text-xs font-bold uppercase tracking-wider text-slate-400">
             Dipercaya oleh 500+ Perusahaan, Brand Nasional, dan Instansi Pemerintah
@@ -433,8 +423,8 @@ export const HomePage: React.FC = () => {
         </div>
 
         {/* Gradient Fade Masks on Left & Right for Elegant Transition */}
-        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-[#fbf9f6] to-transparent z-10" />
-        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-[#fbf9f6] to-transparent z-10" />
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-white to-transparent z-10" />
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-white to-transparent z-10" />
 
         {/* Infinite Moving Marquee Track */}
         <div className="flex w-max animate-marquee-infinite items-center">
@@ -719,7 +709,7 @@ export const HomePage: React.FC = () => {
 
               <div className="space-y-4 pt-2">
                 <div className="flex items-start gap-3">
-                  <CheckCircle size={20} weight="bold" className="text-emerald-600 mt-0.5 shrink-0" />
+                  <Check size={18} weight="bold" className="text-rose-500 mt-0.5 shrink-0" />
                   <div>
                     <h4 className="text-sm font-bold text-slate-900">Konsistensi Warna CMYK Terkalibrasi</h4>
                     <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
@@ -729,7 +719,7 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <CheckCircle size={20} weight="bold" className="text-emerald-600 mt-0.5 shrink-0" />
+                  <Check size={18} weight="bold" className="text-rose-500 mt-0.5 shrink-0" />
                   <div>
                     <h4 className="text-sm font-bold text-slate-900">Finishing In-House Terintegrasi</h4>
                     <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
@@ -739,7 +729,7 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <CheckCircle size={20} weight="bold" className="text-emerald-600 mt-0.5 shrink-0" />
+                  <Check size={18} weight="bold" className="text-rose-500 mt-0.5 shrink-0" />
                   <div>
                     <h4 className="text-sm font-bold text-slate-900">Arsip Aset &amp; Riwayat Cetak Aman</h4>
                     <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
@@ -811,7 +801,7 @@ export const HomePage: React.FC = () => {
                 <div className="rounded-xl border border-slate-200 bg-white p-5 text-xs space-y-2 shadow-xs">
                   <div className="text-slate-900 font-bold flex items-center justify-between border-b border-slate-100 pb-2.5">
                     <span className="text-slate-600 font-medium">Jadwal Operasional Workshop</span>
-                    <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded text-[11px]">
+                    <span className="text-slate-700 font-semibold bg-slate-100 px-2 py-0.5 rounded text-[11px]">
                       Senin – Sabtu
                     </span>
                   </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calculator, FileText, CheckCircle } from '@phosphor-icons/react';
+import { Calculator, FileText, Check } from '@phosphor-icons/react';
 import api from '../../api/axios';
 import { estimatePrice } from '../../utils/priceEstimate';
 import type { PriceTier } from '../../utils/priceEstimate';
@@ -218,7 +218,7 @@ export const JobTicketEstimator: React.FC = () => {
           {estimate?.appliedTier && (
             <div className="flex items-center justify-between text-[11px] text-emerald-800 bg-emerald-50/90 border border-emerald-200/70 px-2.5 py-1.5 rounded-lg">
               <span className="flex items-center gap-1.5 font-semibold">
-                <CheckCircle size={14} weight="bold" className="text-emerald-600" />
+                <Check size={14} weight="bold" className="text-rose-500" />
                 Diskon Tier Aktif (min. {estimate.appliedTier.minQuantity} {selectedProduct.unitOfMeasure}):
               </span>
               <span className="font-bold tabular-nums">
