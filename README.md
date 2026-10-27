@@ -1,4 +1,4 @@
-# 🖨️ Multi Kreasi Printing (MKP) — Enterprise Digital Platform
+# Multi Kreasi Printing (MKP) — Enterprise Digital Platform
 > **Personal Learning & Engineering Portfolio Project**  
 > Dibuat dan dikembangkan oleh **[Rohan (rohandev19)](https://github.com/rohandev19)** sebagai pembuktian rancang bangun aplikasi web enterprise berskala penuh (*Full-Stack Commercial Printing Management System & ERP*).
 
@@ -11,21 +11,21 @@
 
 ---
 
-## 🌐 Live Demo & Deployment
+## Live Demo & Deployment
 
 Aplikasi ini sudah dideploy dan dapat diakses langsung secara publik:
 
-- 🖥️ **Live Web Application (Frontend):** [http://mkprinting.my.id](http://mkprinting.my.id) *(atau [https://www.mkprinting.my.id](https://www.mkprinting.my.id))*
-- ⚡ **Backend API Service:** [https://mkprinting-api-751b093a60df.herokuapp.com](https://mkprinting-api-751b093a60df.herokuapp.com)
-- 🗄️ **Database:** PostgreSQL on Neon Serverless Cloud (`ap-southeast-1` AWS Singapore)
-- ☁️ **Cloud Storage:** S3-compatible Object Storage (Cloudflare R2 / AWS S3) untuk berkas cetak resolusi tinggi
+-  **Live Web Application (Frontend):** [http://mkprinting.my.id](http://mkprinting.my.id) *(atau [https://www.mkprinting.my.id](https://www.mkprinting.my.id))*
+-  **Backend API Service:** [https://mkprinting-api-751b093a60df.herokuapp.com](https://mkprinting-api-751b093a60df.herokuapp.com)
+-  **Database:** PostgreSQL on Neon Serverless Cloud (`ap-southeast-1` AWS Singapore)
+-  **Cloud Storage:** S3-compatible Object Storage (Cloudflare R2 / AWS S3) untuk berkas cetak resolusi tinggi
 
 > **Catatan Pengunjung Portofolio:**  
 > Anda dapat langsung menguji coba berbagai hak akses menggunakan [Akun Demo Siap Pakai](#-akun-demo-siap-pakai-seed-credentials) di bawah tanpa perlu mendaftar akun baru.
 
 ---
 
-## 📖 Tentang Proyek Ini (Portfolio Overview)
+##  Tentang Proyek Ini (Portfolio Overview)
 
 **Multi Kreasi Printing (MKP)** adalah proyek portofolio pembelajaran independen yang memodelkan dan mendigitalisasi proses bisnis industri percetakan komersial secara *end-to-end* (B2B & B2C). 
 
@@ -33,7 +33,7 @@ Berangkat dari kompleksitas alur kerja percetakan riil—mulai dari kalkulasi es
 
 ---
 
-## 🏗️ Arsitektur Sistem
+##  Arsitektur Sistem
 
 Sistem mengadopsi pola arsitektur **Decoupled Modular Monolith** yang memisahkan tanggung jawab antara API Backend dan SPA Frontend secara tegas:
 
@@ -58,7 +58,7 @@ Sistem mengadopsi pola arsitektur **Decoupled Modular Monolith** yang memisahkan
 
 ---
 
-## 🛠️ Tech Stack Lengkap
+## Tech Stack Lengkap
 
 | Komponen | Teknologi | Keterangan |
 | :--- | :--- | :--- |
@@ -78,11 +78,11 @@ Sistem mengadopsi pola arsitektur **Decoupled Modular Monolith** yang memisahkan
 
 ---
 
-## 👥 Role-Based Access Control (RBAC), Jobdesk & Fitur
+## Role-Based Access Control (RBAC), Jobdesk & Fitur
 
 Sistem menerapkan pembagian peran (*Role-Based Access Control*) 8 tingkatan dengan antarmuka dan wewenang yang disesuaikan dengan alur divisi percetakan:
 
-### 📊 Matriks Hak Akses Antarmuka
+### Matriks Hak Akses Antarmuka
 
 | Modul / Fitur | Owner | Manager | Sales | Designer | Production | Warehouse | Finance | Customer |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -107,7 +107,7 @@ Sistem menerapkan pembagian peran (*Role-Based Access Control*) 8 tingkatan deng
 
 ---
 
-## 🔑 Akun Demo Siap Pakai (Seed Credentials)
+## Akun Demo Siap Pakai (Seed Credentials)
 
 Semua akun di bawah ini telah aktif pada deployment produksi live maupun saat menjalankan seeding lokal:
 
@@ -124,7 +124,7 @@ Semua akun di bawah ini telah aktif pada deployment produksi live maupun saat me
 
 ---
 
-## 🚀 Menjalankan Proyek Secara Lokal (Local Development)
+## Menjalankan Proyek Secara Lokal (Local Development)
 
 ### Prasyarat
 - Node.js versi 20.x atau 22.x
@@ -159,7 +159,7 @@ npm run dev
 
 ---
 
-## 🔒 Fitur Rekayasa & Keamanan (Engineering Highlights)
+## Fitur Rekayasa & Keamanan (Engineering Highlights)
 
 - **Idempotency Interceptor:** Mencegah duplikasi transaksi dan pesanan ganda pada request pembayaran atau pembuatan invoice akibat jaringan tidak stabil.
 - **Circuit Breaker Pattern (Opossum):** Melindungi layanan eksternal (cloud storage dan email) agar kegagalan upstream tidak menyebabkan *cascading failure*.
@@ -170,7 +170,7 @@ npm run dev
 
 ---
 
-## 🧭 Rencana Pengembangan Lanjutan (Roadmap)
+## Rencana Pengembangan Lanjutan (Roadmap)
 
 Fitur-fitur yang direncanakan untuk tahap eksperimen berikutnya:
 - [ ] **Payment Gateway Otomatis (Midtrans / Xendit Sandbox):** Otomatisasi pembayaran instan via QRIS dan Virtual Account.
@@ -180,7 +180,7 @@ Fitur-fitur yang direncanakan untuk tahap eksperimen berikutnya:
 
 ---
 
-## 📄 Lisensi (License)
+## Lisensi (License)
 
 Proyek ini dirilis di bawah lisensi terbuka **[MIT License](LICENSE)**.
 
