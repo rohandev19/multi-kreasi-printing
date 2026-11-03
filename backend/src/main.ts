@@ -1,3 +1,5 @@
+import './instrument';
+
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
@@ -82,21 +84,17 @@ async function bootstrap() {
     ) => {
       if (!origin) {
         callback(null, true);
-        return;
-      }
-      if (isOriginAllowed(origin)) {
+      } else if (isOriginAllowed(origin)) {
         callback(null, true);
-        return;
-      }
-      if (isProd && !allowedOriginsEnv) {
+      } else if (isProd && !allowedOriginsEnv) {
         bootstrapLogger.warn(
           `ALLOWED_ORIGINS not set in production — allowing origin dynamically: ${origin}. Set ALLOWED_ORIGINS for strict CORS.`,
         );
         callback(null, true);
-        return;
+      } else {
+        bootstrapLogger.error(`CORS blocked origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
       }
-      bootstrapLogger.error(`CORS blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',

@@ -26,6 +26,7 @@
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.7.1",
     "@phosphor-icons/react": "^2.1.10",
+    "@sentry/react": "^11.10.0",
     "@types/three": "^0.186.0",
     "axios": "^1.19.0",
     "express": "^5.1.0",

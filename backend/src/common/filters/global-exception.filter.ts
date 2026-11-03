@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import * as Sentry from '@sentry/nestjs';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -37,6 +38,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         `[${request.method}] ${request.url} - Unknown Error`,
         exception,
       );
+    }
+
+    // Capture 500+ / unexpected exceptions in Sentry
+    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      Sentry.captureException(exception);
     }
 
     const errorResponse = {
