@@ -161,7 +161,7 @@ export const PaymentPage: React.FC = () => {
           <div className="bg-emerald-100 p-2.5 rounded-full text-emerald-600 shrink-0">
             <CheckCircle size={28} weight="fill" />
           </div>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <h3 className="text-lg font-bold text-emerald-900 mb-1">Pembayaran Terverifikasi & Lunas!</h3>
             <p className="text-emerald-800 text-sm mb-4">
               Terima kasih! Pembayaran untuk pesanan ini telah diterima dan disetujui. Pesanan Anda kini sedang masuk ke proses antrian produksi cetak.
@@ -189,7 +189,7 @@ export const PaymentPage: React.FC = () => {
           <div className="bg-amber-100 p-2.5 rounded-full text-amber-600 shrink-0">
             <Clock size={28} weight="fill" />
           </div>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <h3 className="text-lg font-bold text-amber-900 mb-1">Bukti Pembayaran Sedang Diverifikasi</h3>
             <p className="text-amber-800 text-sm mb-4">
               Bukti transfer telah kami terima dan sedang dicocokkan dengan mutasi rekening oleh tim finance. Verifikasi umumnya memakan waktu 10-30 menit di hari kerja.
@@ -216,7 +216,7 @@ export const PaymentPage: React.FC = () => {
           <div className="bg-amber-100 p-2 rounded-full text-amber-600 shrink-0">
             <Clock size={24} weight="regular" />
           </div>
-          <div>
+          <div className="min-w-0">
             <h3 className="text-lg font-bold text-amber-900 mb-1">Menunggu Pembayaran</h3>
             <p className="text-amber-800 text-sm mb-3">
               Silakan selesaikan transfer sebelum batas waktu berakhir agar antrian cetak dapat segera dijadwalkan.
@@ -242,10 +242,10 @@ export const PaymentPage: React.FC = () => {
               </div>
               
               <div className="p-4 sm:p-6 space-y-6">
-                <div>
+                <div className="min-w-0">
                   <span className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Tagihan</span>
                   <div className="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                    <span className="text-2xl font-extrabold text-slate-900 tracking-tight">{formatIDR(amount)}</span>
+                    <span className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight break-all">{formatIDR(amount)}</span>
                     <button 
                       onClick={() => copyToClipboard(amount.toString(), 'Nominal')}
                       className="p-2 text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
@@ -262,7 +262,7 @@ export const PaymentPage: React.FC = () => {
                 <div className="space-y-3">
                   <div className="border border-slate-200 rounded-xl p-4 hover:border-primary-300 transition-colors bg-white">
                     <div className="flex justify-between items-start mb-2">
-                      <div>
+                      <div className="min-w-0">
                         <span className="font-bold text-slate-900 block text-base">Bank BCA</span>
                         <span className="text-xs text-slate-500">a.n. PT Multi Kreasi Printing</span>
                       </div>
@@ -281,7 +281,7 @@ export const PaymentPage: React.FC = () => {
 
                   <div className="border border-slate-200 rounded-xl p-4 hover:border-primary-300 transition-colors bg-white">
                     <div className="flex justify-between items-start mb-2">
-                      <div>
+                      <div className="min-w-0">
                         <span className="font-bold text-slate-900 block text-base">Bank Mandiri</span>
                         <span className="text-xs text-slate-500">a.n. PT Multi Kreasi Printing</span>
                       </div>
@@ -310,7 +310,7 @@ export const PaymentPage: React.FC = () => {
                 <div className="space-y-2 divide-y divide-slate-100">
                   {orderDetails.items.map((item: any, idx: number) => (
                     <div key={idx} className="pt-2 flex justify-between items-center text-sm">
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-semibold text-slate-800">{item.product?.name}</p>
                         <p className="text-xs text-slate-500">{item.quantity} pcs</p>
                       </div>
@@ -323,7 +323,7 @@ export const PaymentPage: React.FC = () => {
           </div>
 
           {/* RIGHT: Upload Proof Form */}
-          <div>
+          <div className="min-w-0">
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6 sticky top-24">
               <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
                 <CreditCard size={20} className="text-slate-900" weight="bold" /> Unggah Bukti Transfer

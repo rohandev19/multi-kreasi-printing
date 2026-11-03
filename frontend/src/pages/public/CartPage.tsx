@@ -43,12 +43,12 @@ export const CartPage: React.FC = () => {
             </div>
 
             {loading && items.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-slate-100 p-16 flex flex-col items-center justify-center text-center shadow-sm">
+              <div className="bg-white rounded-2xl border border-slate-100 p-8 sm:p-16 flex flex-col items-center justify-center text-center shadow-sm">
                 <CircleNotch size={48} className="text-black animate-spin mb-4" />
                 <h2 className="text-2xl font-bold text-slate-900 mb-2">Memuat keranjang...</h2>
               </div>
             ) : items.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-slate-100 p-16 flex flex-col items-center justify-center text-center shadow-sm">
+              <div className="bg-white rounded-2xl border border-slate-100 p-8 sm:p-16 flex flex-col items-center justify-center text-center shadow-sm">
                 <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
                   <ShoppingCart size={48} className="text-slate-300" weight="regular" />
                 </div>
@@ -61,7 +61,7 @@ export const CartPage: React.FC = () => {
             ) : (
               <div className="space-y-4">
                 {items.map(item => (
-                  <div key={item.productId} className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+                  <div key={item.productId} className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center">
                     <div className="w-24 h-24 shrink-0 rounded-xl bg-slate-100 overflow-hidden flex items-center justify-center">
                       {item.image ? (
                         <img src={item.image} alt={item.productName} className="w-full h-full object-cover" />
@@ -76,7 +76,7 @@ export const CartPage: React.FC = () => {
                       <span className="text-xs text-slate-400 font-mono bg-slate-100 px-2 py-1 rounded-md">PROD-{item.productId.slice(0,6).toUpperCase()}</span>
                     </div>
 
-                    <div className="flex items-center justify-between w-full sm:w-auto gap-6 sm:gap-8 border-t sm:border-t-0 border-slate-100 pt-4 sm:pt-0">
+                    <div className="flex flex-wrap items-center justify-between w-full sm:w-auto gap-3 sm:gap-8 border-t sm:border-t-0 border-slate-100 pt-4 sm:pt-0">
                       <div className="flex items-center h-10 border border-slate-200 rounded-lg overflow-hidden bg-white shrink-0">
                         <button 
                           onClick={() => updateQuantity(item.productId, item.quantity, -1)}
@@ -97,7 +97,7 @@ export const CartPage: React.FC = () => {
                         </button>
                       </div>
 
-                      <div className="flex flex-col items-end shrink-0 min-w-[120px]">
+                      <div className="flex flex-col items-end shrink-0 sm:min-w-[120px]">
                         <span className="text-xs text-slate-400 mb-0.5">{formatIDR(item.unitPrice)} / unit</span>
                         <span className="text-lg font-extrabold text-slate-900">{formatIDR(item.unitPrice * item.quantity)}</span>
                       </div>

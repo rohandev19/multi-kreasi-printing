@@ -41,7 +41,7 @@ export const Footer: React.FC = () => {
               </div>
               <div className="flex items-center gap-2">
                 <EnvelopeSimple size={15} weight="bold" className="text-slate-500 shrink-0" />
-                <span className="font-mono font-medium">procurement@multikreasiprinting.com</span>
+                <span className="font-mono font-medium break-all">procurement@multikreasiprinting.com</span>
               </div>
             </div>
           </div>
@@ -148,7 +148,7 @@ export const Footer: React.FC = () => {
             &copy; {new Date().getFullYear()} PT Multi Kreasi Printing. Seluruh hak cipta dilindungi. Terdaftar resmi di Kementerian Hukum dan HAM RI.
           </p>
 
-          <div className="flex items-center gap-4 text-xs font-medium">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium">
             <Link to="/terms" className="hover:text-slate-900 transition-colors">
               Syarat &amp; Ketentuan
             </Link>

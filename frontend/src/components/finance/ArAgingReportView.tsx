@@ -240,7 +240,7 @@ export const ArAgingReportView: React.FC = () => {
       {/* Top Header & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-lg font-bold text-slate-900">
               Laporan Umur Piutang (AR Aging)
             </h3>
@@ -253,8 +253,8 @@ export const ArAgingReportView: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <label className="text-xs font-medium text-slate-600">Per Tanggal:</label>
             <input
               type="date"
@@ -377,9 +377,9 @@ export const ArAgingReportView: React.FC = () => {
       {/* Aging Breakdown Bar */}
       {data && data.summary.totalReceivables > 0 && (
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-          <div className="flex items-center justify-between text-xs text-slate-600 font-medium">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-600 font-medium">
             <span>Komposisi Umur Piutang:</span>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
                 Lancar: {formatCurrency(data.summary.totalCurrent)}
@@ -469,7 +469,7 @@ export const ArAgingReportView: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <div className="flex items-center gap-1.5 text-xs text-slate-600">
             <Funnel size={14} />
             <span>Risiko:</span>

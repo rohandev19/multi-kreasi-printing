@@ -28,7 +28,7 @@ export const ContactPage = () => {
             </div>
           </div>
         </div>
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <div className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
           <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); success('Pesan Terkirim', 'Terima kasih! Tim kami akan segera menghubungi Anda.'); }}>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>

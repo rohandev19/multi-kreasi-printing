@@ -86,7 +86,7 @@ export const RegisterPage = () => {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 font-sans py-12 px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+      <div className="w-full max-w-md bg-white p-5 sm:p-8 rounded-xl shadow-sm border border-gray-100">
         
         {success ? (
           <div className="text-center py-8">
@@ -170,7 +170,7 @@ export const RegisterPage = () => {
                   <div className={`h-full transition-all duration-300 w-1/4 ${strength >= 3 ? getStrengthColor() : 'bg-transparent'}`}></div>
                   <div className={`h-full transition-all duration-300 w-1/4 ${strength >= 4 ? getStrengthColor() : 'bg-transparent'}`}></div>
                 </div>
-                <div className="flex justify-between items-center mt-1">
+                <div className="flex flex-wrap justify-between items-center gap-1 mt-1">
                   <p className="text-xs text-gray-500">Minimal 8 karakter dengan huruf besar, kecil, & angka.</p>
                   {strength > 0 && <span className={`text-xs font-semibold ${strengthColors[strength - 1].replace('bg-', 'text-')}`}>{getStrengthLabel()}</span>}
                 </div>

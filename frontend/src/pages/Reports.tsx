@@ -124,7 +124,7 @@ export default function Reports() {
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500 mb-1">Total Pendapatan</p>
-            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">{formatCurrency(kpis?.totalRevenue?.value || 0)}</h3>
+            <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight break-words">{formatCurrency(kpis?.totalRevenue?.value || 0)}</h3>
           </div>
         </div>
 
@@ -140,7 +140,7 @@ export default function Reports() {
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500 mb-1">Laba Kotor</p>
-            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">{formatCurrency(kpis?.grossProfit?.value || 0)}</h3>
+            <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight break-words">{formatCurrency(kpis?.grossProfit?.value || 0)}</h3>
           </div>
         </div>
 
@@ -172,7 +172,7 @@ export default function Reports() {
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500 mb-1">Biaya Akuisisi (CAC)</p>
-            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">{formatCurrency(kpis?.customerAcquisitionCost?.value || 0)}</h3>
+            <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight break-words">{formatCurrency(kpis?.customerAcquisitionCost?.value || 0)}</h3>
           </div>
         </div>
 
@@ -456,12 +456,12 @@ export default function Reports() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             <div className="p-4 bg-amber-50 rounded-xl border border-amber-100">
               <p className="text-sm font-medium text-amber-800 mb-1">Piutang Usaha</p>
-              <h3 className="text-xl font-extrabold text-amber-900 tracking-tight">{formatCurrency(45000000)}</h3>
+              <h3 className="text-lg sm:text-xl font-extrabold text-amber-900 tracking-tight break-words">{formatCurrency(45000000)}</h3>
               <p className="text-xs text-amber-700 mt-2 font-medium">12 faktur belum dibayar</p>
             </div>
             <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
               <p className="text-sm font-medium text-emerald-800 mb-1">Pembayaran Bulan Ini</p>
-              <h3 className="text-xl font-extrabold text-emerald-900 tracking-tight">{formatCurrency(850000000)}</h3>
+              <h3 className="text-lg sm:text-xl font-extrabold text-emerald-900 tracking-tight break-words">{formatCurrency(850000000)}</h3>
               <p className="text-xs text-emerald-700 mt-2 font-medium">85 pembayaran diterima</p>
             </div>
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">

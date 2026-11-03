@@ -8,7 +8,7 @@ export const BulkPrintingPage = () => {
       <section className="bg-black text-white py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-slate-400 via-slate-900 to-black"></div>
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">Solusi Cetak Partai Besar Enterprise</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">Solusi Cetak Partai Besar Enterprise</h1>
           <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-10 leading-relaxed">
             Tingkatkan efisiensi bisnis Anda dengan layanan cetak kuantitas besar. Dapatkan efisiensi biaya signifikan, prioritas antrian produksi, dan dukungan B2B profesional untuk seluruh kebutuhan cetak korporasi Anda.
           </p>
@@ -95,7 +95,7 @@ export const BulkPrintingPage = () => {
       <section className="py-16 bg-gray-50 border-y border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-10">Produk Terpopuler untuk Partai Besar</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
               <h3 className="font-bold text-gray-900">Box Kemasan &amp; Packaging</h3>
               <p className="text-sm text-gray-500 mt-1">Mulai dari 1.000 pcs</p>

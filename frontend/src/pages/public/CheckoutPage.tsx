@@ -134,8 +134,8 @@ export const CheckoutPage: React.FC = () => {
                 {/* Method Options */}
                 <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer transition-colors ${deliveryMethod === 'pickup' ? 'border-black bg-slate-50 ring-1 ring-black' : 'border-slate-200 hover:border-slate-400'}`}>
                   <input type="radio" name="delivery" value="pickup" checked={deliveryMethod === 'pickup'} onChange={() => setDeliveryMethod('pickup')} disabled={loading} className="mt-1" />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center justify-between gap-1 mb-1">
                       <span className="font-bold text-slate-900 flex items-center gap-2"><Buildings size={16} className="text-slate-900" weight="regular" /> Ambil Sendiri di Workshop</span>
                       <span className="font-bold text-emerald-600">Gratis</span>
                     </div>
@@ -145,8 +145,8 @@ export const CheckoutPage: React.FC = () => {
                 
                 <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer transition-colors ${deliveryMethod === 'standard' ? 'border-black bg-slate-50 ring-1 ring-black' : 'border-slate-200 hover:border-slate-400'}`}>
                   <input type="radio" name="delivery" value="standard" checked={deliveryMethod === 'standard'} onChange={() => setDeliveryMethod('standard')} disabled={loading} className="mt-1" />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center justify-between gap-1 mb-1">
                       <span className="font-bold text-slate-900 flex items-center gap-2"><Truck size={16} className="text-slate-900" weight="regular" /> Pengiriman Standar</span>
                       <span className="font-bold text-slate-900">Rp 25.000</span>
                     </div>
@@ -156,8 +156,8 @@ export const CheckoutPage: React.FC = () => {
 
                 <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer transition-colors ${deliveryMethod === 'express' ? 'border-black bg-slate-50 ring-1 ring-black' : 'border-slate-200 hover:border-slate-400'}`}>
                   <input type="radio" name="delivery" value="express" checked={deliveryMethod === 'express'} onChange={() => setDeliveryMethod('express')} disabled={loading} className="mt-1" />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center justify-between gap-1 mb-1">
                       <span className="font-bold text-slate-900 flex items-center gap-2"><Lightning size={16} className="text-amber-500" weight="regular" /> Pengiriman Kilat / Instan</span>
                       <span className="font-bold text-slate-900">Rp 75.000</span>
                     </div>

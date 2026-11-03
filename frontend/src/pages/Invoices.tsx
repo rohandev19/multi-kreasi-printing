@@ -111,7 +111,7 @@ export default function Invoices() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold text-slate-800">
             {isCustomer ? 'Faktur Saya' : 'Manajemen Keuangan & Faktur'}
@@ -122,7 +122,7 @@ export default function Invoices() {
               : 'Kelola faktur, pencatatan pembayaran, dan laporan umur piutang korporat (AR Aging).'}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {invoices.length > 0 && (
             <button 
               onClick={() => exportInvoicesData(invoices)}
@@ -145,7 +145,7 @@ export default function Invoices() {
       </div>
 
       {canManage && (
-        <div className="flex border-b border-slate-200 gap-6">
+        <div className="flex border-b border-slate-200 gap-6 overflow-x-auto whitespace-nowrap">
           <button
             onClick={() => setActiveTab('invoices')}
             className={`pb-3 text-sm font-semibold flex items-center gap-2 border-b-2 transition-colors ${

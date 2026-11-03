@@ -236,7 +236,7 @@ export const HomePage: React.FC = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: false, amount: 0.15 }}
-              className="space-y-5 sm:space-y-6 lg:col-span-7"
+              className="space-y-5 sm:space-y-6 lg:col-span-7 min-w-0"
             >
               {/* Main Headline */}
               <motion.h1
@@ -323,7 +323,7 @@ export const HomePage: React.FC = () => {
             </motion.div>
 
             {/* Right Column: Layered Funnel Composition (Photo Behind + Floating QC Card in Front) (5 Cols) */}
-            <div className="lg:col-span-5 relative lg:pl-2">
+            <div className="lg:col-span-5 relative lg:pl-2 min-w-0">
               <div className="relative mx-auto w-full max-w-lg lg:max-w-none pb-12 sm:pb-16 lg:pb-10">
                 {/* Background Workshop Photo with Soft Rounded Corners */}
                 <motion.div
@@ -347,13 +347,13 @@ export const HomePage: React.FC = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: false, amount: 0.15 }}
                   transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute -top-3 -left-3 sm:-top-5 sm:-left-6 z-20 animate-float-1"
+                  className="absolute -top-3 left-2 sm:-top-5 sm:-left-6 max-w-[calc(100%-1rem)] z-20 animate-float-1"
                 >
-                  <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3.5 py-2 shadow-md">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-100 text-slate-900 font-bold text-[11px]">
+                  <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3 sm:px-3.5 py-2 shadow-md max-w-full">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-slate-100 text-slate-900 font-bold text-[11px]">
                       ✓
                     </span>
-                    <span className="text-[11px] font-bold text-slate-800">
+                    <span className="text-[11px] font-bold text-slate-800 truncate">
                       Pre Press 300 DPI CMYK Valid
                     </span>
                   </div>
@@ -367,10 +367,10 @@ export const HomePage: React.FC = () => {
                   transition={{ duration: 0.65, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
                   className="relative lg:absolute -mt-10 sm:-mt-14 lg:mt-0 lg:-bottom-6 lg:-left-8 z-20 w-[95%] sm:w-[92%] mx-auto lg:mx-0 animate-float-2"
                 >
-                  <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xl">
+                  <div className="rounded-2xl border border-slate-200/90 bg-white p-3.5 sm:p-5 shadow-xl">
                     {/* Card Header */}
                     <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white shadow-xs">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-white shadow-xs">
                         <Printer size={16} weight="bold" />
                       </div>
                       <div>
@@ -384,7 +384,7 @@ export const HomePage: React.FC = () => {
                     </div>
 
                     {/* Production Output Badges */}
-                    <div className="flex items-center gap-1.5 py-2.5 text-[10px] font-semibold text-slate-600 overflow-x-auto">
+                    <div className="flex flex-wrap items-center gap-1.5 py-2.5 text-[10px] font-semibold text-slate-600">
                       <span className="rounded-md bg-slate-100 px-2 py-1 text-slate-800 shrink-0">Offset Grosir</span>
                       <span className="rounded-md bg-slate-100 px-2 py-1 text-slate-800 shrink-0">Hardbox Kustom</span>
                       <span className="rounded-md bg-slate-100 px-2 py-1 text-slate-800 shrink-0">Foil Emas</span>
@@ -392,17 +392,17 @@ export const HomePage: React.FC = () => {
                     </div>
 
                     {/* Metric Stats Grid */}
-                    <div className="grid grid-cols-3 gap-2 pt-1 text-center">
-                      <div className="rounded-lg bg-slate-50 p-2 border border-slate-100">
-                        <span className="block text-[9px] font-medium text-slate-500 uppercase tracking-tight">Standar Warna</span>
+                    <div className="grid grid-cols-3 gap-1.5 sm:gap-2 pt-1 text-center">
+                      <div className="rounded-lg bg-slate-50 px-1.5 py-2 sm:p-2 border border-slate-100 min-w-0">
+                        <span className="block text-[9px] font-medium text-slate-500 uppercase tracking-tight leading-tight break-words">Standar Warna</span>
                         <span className="text-xs font-extrabold text-slate-900">FOGRA 39</span>
                       </div>
-                      <div className="rounded-lg bg-slate-50 p-2 border border-slate-100">
-                        <span className="block text-[9px] font-medium text-slate-500 uppercase tracking-tight">Presisi Potong</span>
+                      <div className="rounded-lg bg-slate-50 px-1.5 py-2 sm:p-2 border border-slate-100 min-w-0">
+                        <span className="block text-[9px] font-medium text-slate-500 uppercase tracking-tight leading-tight break-words">Presisi Potong</span>
                         <span className="text-xs font-extrabold text-slate-900">±0.5 mm</span>
                       </div>
-                      <div className="rounded-lg bg-slate-50 p-2 border border-slate-100">
-                        <span className="block text-[9px] font-medium text-slate-500 uppercase tracking-tight">Kapasitas</span>
+                      <div className="rounded-lg bg-slate-50 px-1.5 py-2 sm:p-2 border border-slate-100 min-w-0">
+                        <span className="block text-[9px] font-medium text-slate-500 uppercase tracking-tight leading-tight break-words">Kapasitas</span>
                         <span className="text-xs font-extrabold text-slate-900">50K / Hari</span>
                       </div>
                     </div>
@@ -561,7 +561,7 @@ export const HomePage: React.FC = () => {
                 hidden: { opacity: 0, x: -28 },
                 visible: { opacity: 1, x: 0, transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] } },
               }}
-              className="lg:col-span-5 space-y-5"
+              className="lg:col-span-5 space-y-5 min-w-0"
             >
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
                 Kalkulasi Estimasi Biaya Cetak Grosir Seketika.
@@ -593,7 +593,7 @@ export const HomePage: React.FC = () => {
                 hidden: { opacity: 0, x: 28 },
                 visible: { opacity: 1, x: 0, transition: { duration: 0.65, delay: 0.15, ease: [0.16, 1, 0.3, 1] } },
               }}
-              className="lg:col-span-7"
+              className="lg:col-span-7 min-w-0"
             >
               <JobTicketEstimator />
             </motion.div>
@@ -664,7 +664,7 @@ export const HomePage: React.FC = () => {
               </table>
             </div>
 
-            <div className="bg-slate-50 p-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-600 gap-3">
+            <div className="bg-slate-50 p-4 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-slate-600 gap-3">
               <span>
                 *Membutuhkan spesifikasi gramatur, pisau pond, atau finishing khusus yang belum tertera?
               </span>
@@ -697,9 +697,9 @@ export const HomePage: React.FC = () => {
                 hidden: { opacity: 0, x: -28 },
                 visible: { opacity: 1, x: 0, transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] } },
               }}
-              className="space-y-6 lg:col-span-6"
+              className="space-y-6 lg:col-span-6 min-w-0"
             >
-              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl leading-tight">
+              <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl leading-tight">
                 Kapasitas Produksi Skala Komersial &amp; Akurasi Warna Standar Pabrik.
               </h2>
               <p className="text-sm sm:text-base leading-relaxed text-slate-600">
@@ -739,16 +739,16 @@ export const HomePage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-4 flex items-center gap-4">
+              <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                 <Link
                   to="/bulk"
-                  className="rounded-lg bg-slate-900 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition-[background-color,transform] duration-150 hover:bg-slate-800 active:scale-[0.98]"
+                  className="inline-flex items-center justify-center text-center rounded-lg bg-slate-900 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition-[background-color,transform] duration-150 hover:bg-slate-800 active:scale-[0.98]"
                 >
                   Informasi Cetak Partai Besar
                 </Link>
                 <Link
                   to="/contact"
-                  className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 shadow-xs transition-[background-color,border-color,transform] duration-150 hover:bg-slate-50 hover:border-slate-400 active:scale-[0.98]"
+                  className="inline-flex items-center justify-center text-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 shadow-xs transition-[background-color,border-color,transform] duration-150 hover:bg-slate-50 hover:border-slate-400 active:scale-[0.98]"
                 >
                   Jadwalkan Kunjungan Workshop
                 </Link>
@@ -761,9 +761,9 @@ export const HomePage: React.FC = () => {
                 hidden: { opacity: 0, x: 28 },
                 visible: { opacity: 1, x: 0, transition: { duration: 0.65, delay: 0.15, ease: [0.16, 1, 0.3, 1] } },
               }}
-              className="lg:col-span-6 grid grid-cols-2 gap-4"
+              className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0"
             >
-              <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white aspect-[4/5] shadow-xs group">
+              <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white aspect-[4/3] sm:aspect-[4/5] shadow-xs group">
                 <img
                   src="/BannerPabrik.jpg"
                   alt="Armada Mesin Percetakan Industri Multi Kreasi"
@@ -798,8 +798,8 @@ export const HomePage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 bg-white p-5 text-xs space-y-2 shadow-xs">
-                  <div className="text-slate-900 font-bold flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 text-xs space-y-2 shadow-xs">
+                  <div className="text-slate-900 font-bold flex flex-wrap items-center justify-between gap-1.5 border-b border-slate-100 pb-2.5">
                     <span className="text-slate-600 font-medium">Jadwal Operasional Workshop</span>
                     <span className="text-slate-700 font-semibold bg-slate-100 px-2 py-0.5 rounded text-[11px]">
                       Senin – Sabtu

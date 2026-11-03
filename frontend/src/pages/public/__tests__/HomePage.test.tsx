@@ -25,24 +25,24 @@ describe('HomePage Component', () => {
   it('renders B2B industrial masthead headline and identity', async () => {
     render(<HomePage />);
     expect(
-      await screen.findByText(/Solusi Percetakan Komersial & Pengadaan B2B/i)
+      await screen.findByText(/Pusat Kendali Pengadaan/i)
     ).toBeInTheDocument();
-    expect(screen.getByText(/Multi Kreasi Printing/i)).toBeInTheDocument();
+    expect(screen.getByText(/Percetakan Bisnis/i)).toBeInTheDocument();
   });
 
   it('renders order tracking input and submit button', async () => {
     render(<HomePage />);
     expect(
-      await screen.findByPlaceholderText(/Lacak Pesanan/i)
+      await screen.findByPlaceholderText(/Lacak No\. Pesanan/i)
     ).toBeInTheDocument();
-    expect(screen.getByText('Cek Status')).toBeInTheDocument();
+    expect(screen.getByText('Cek Pesanan')).toBeInTheDocument();
   });
 
   it('renders Job Ticket Estimator with calculation box', async () => {
     render(<HomePage />);
     const headings = await screen.findAllByText(/Kalkulasi Estimasi Biaya Cetak/i);
     expect(headings[0]).toBeInTheDocument();
-    expect(screen.getByText(/Jenis Pekerjaan \/ Produk/i)).toBeInTheDocument();
+    expect(screen.getByText(/Jenis Pekerjaan \/ Produk Cetak/i)).toBeInTheDocument();
     expect(screen.getByText(/Jumlah Pesanan/i)).toBeInTheDocument();
   });
 
@@ -55,11 +55,11 @@ describe('HomePage Component', () => {
     expect(screen.getByText('Custom Box Kemasan & Hardbox')).toBeInTheDocument();
   });
 
-  it('renders B2B partnership callout section', async () => {
+  it('renders commercial production and workshop section', async () => {
     render(<HomePage />);
     expect(
-      await screen.findByText(/Punya Kebutuhan Cetak Rutin atau Anggaran Kantor Tahunan/i)
+      await screen.findByText(/Kapasitas Produksi Skala Komersial/i)
     ).toBeInTheDocument();
-    expect(screen.getByText('Buka Akun Perusahaan')).toBeInTheDocument();
+    expect(screen.getByText('Informasi Cetak Partai Besar')).toBeInTheDocument();
   });
 });

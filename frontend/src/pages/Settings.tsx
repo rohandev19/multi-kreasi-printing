@@ -286,8 +286,8 @@ export default function Settings() {
         </div>
 
         {/* TAB CONTENT */}
-        <div className="flex-1">
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sm:p-8">
+        <div className="flex-1 min-w-0">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-8">
             
             {/* GENERAL SETTINGS */}
             {activeTab === 'Umum' && (
@@ -395,14 +395,14 @@ export default function Settings() {
               <div className="space-y-6 animate-fade-in">
                 <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Informasi Bisnis & Perusahaan</h2>
                 
-                <div className="flex gap-6 items-start mb-6">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start mb-6">
                   <div className="w-32 h-32 shrink-0 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-slate-50 overflow-hidden relative group cursor-pointer hover:border-primary-400">
                     <span className="text-2xl font-black text-primary-600">MK</span>
                     <div className="absolute inset-0 bg-slate-900/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <span className="text-white text-xs font-bold">Ganti Logo</span>
                     </div>
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-bold text-slate-700 mb-1">Logo Perusahaan</h3>
                     <p className="text-xs text-slate-500 mb-3">Format diterima: PNG, SVG, JPG (Maks 2MB)</p>
                     <button className="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-lg shadow-sm hover:bg-slate-50">
@@ -505,7 +505,7 @@ export default function Settings() {
                   <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Rekening Bank</h2>
                   <div className="space-y-4">
                     {dirtyState.payment.banks.map(bank => (
-                      <div key={bank.id} className="border border-slate-200 rounded-xl p-4 flex justify-between items-center bg-slate-50">
+                      <div key={bank.id} className="border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-50">
                         <div>
                           <p className="font-bold text-slate-900">{bank.name}</p>
                           <p className="text-sm text-slate-600">{bank.accountNo} a/n {bank.accountName}</p>
@@ -589,7 +589,7 @@ export default function Settings() {
             {/* NOTIFICATION SETTINGS */}
             {activeTab === 'Notifikasi' && (
               <div className="space-y-6 animate-fade-in">
-                <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4 flex justify-between items-center">
+                <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4 flex flex-wrap justify-between items-center gap-2">
                   Notifikasi Email
                   <span className="text-sm font-normal text-slate-500 flex items-center gap-1 opacity-70">
                     Kustomisasi Templat <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-bold">Segera Hadir</span>

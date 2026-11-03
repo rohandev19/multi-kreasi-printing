@@ -220,13 +220,13 @@ export const ProductsCatalog: React.FC = () => {
                   <div className="grid grid-cols-2 gap-2 mt-auto">
                     <Link 
                       to={`/products/${product.id}`}
-                      className="h-9 bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-100 transition-all flex items-center justify-center border border-slate-200 px-2 text-center"
+                      className="min-h-9 py-1.5 bg-slate-50 text-slate-700 text-xs font-semibold leading-tight rounded-xl hover:bg-slate-100 transition-all flex items-center justify-center border border-slate-200 px-2 text-center"
                     >
                       Lihat Detail
                     </Link>
                     <Link 
                       to={`/contact?product=${product.id}`}
-                      className="h-9 bg-black text-white text-xs font-semibold rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center border border-black hover:border-slate-800 px-2 text-center shadow-sm"
+                      className="min-h-9 py-1.5 bg-black text-white text-xs font-semibold leading-tight rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center border border-black hover:border-slate-800 px-2 text-center shadow-sm"
                     >
                       Minta Penawaran
                     </Link>
@@ -287,7 +287,7 @@ export const ProductsCatalog: React.FC = () => {
 
         {/* 5. PAGINATION (Static Mock) */}
         {filteredProducts.length > 0 && (
-          <div className="mt-12 flex items-center justify-between border-t border-slate-200 pt-6">
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 pt-6">
             <div className="text-sm text-slate-500 font-medium">
               Menampilkan <span className="font-bold text-slate-900">1-{filteredProducts.length}</span> dari <span className="font-bold text-slate-900">{filteredProducts.length}</span> produk
             </div>

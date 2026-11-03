@@ -96,7 +96,7 @@ export const ChatWidget: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
       {/* Chat Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -113,7 +113,7 @@ export const ChatWidget: React.FC = () => {
           isOpen
             ? 'translate-y-0 opacity-100 pointer-events-auto'
             : 'translate-y-10 opacity-0 pointer-events-none'
-        } transition-all duration-300 absolute bottom-0 right-0 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-neutral-200`}
+        } transition-all duration-300 absolute bottom-0 right-0 w-[calc(100vw-2rem)] sm:w-96 max-w-[24rem] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-neutral-200`}
         style={{ height: '500px', maxHeight: '80vh' }}
       >
         {/* Header */}

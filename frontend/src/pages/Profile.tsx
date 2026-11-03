@@ -43,7 +43,7 @@ export default function Profile() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="h-32 bg-gradient-to-r from-primary-500 to-primary-600"></div>
-        <div className="px-8 flex flex-col md:flex-row items-center md:items-end -mt-12 mb-6 gap-6">
+        <div className="px-4 sm:px-8 flex flex-col md:flex-row items-center md:items-end -mt-12 mb-6 gap-4 sm:gap-6">
           <div className="w-24 h-24 bg-white rounded-full p-1 shadow-md">
             <div className="w-full h-full bg-primary-100 text-primary-600 flex items-center justify-center rounded-full text-3xl font-bold uppercase">
               {(user?.fullName || user?.name || 'G').charAt(0)}
@@ -51,7 +51,7 @@ export default function Profile() {
           </div>
           <div className="text-center md:text-left flex-1">
             <h1 className="text-2xl font-bold text-slate-800">{user?.fullName || user?.name || 'Pengguna Tamu'}</h1>
-            <p className="text-slate-500 flex items-center justify-center md:justify-start gap-2">
+            <p className="text-slate-500 flex items-center justify-center md:justify-start gap-2 break-all">
               <Envelope className="w-4 h-4" weight="regular" /> {user?.email || 'Email tidak tersedia'}
             </p>
           </div>
@@ -63,20 +63,20 @@ export default function Profile() {
           </div>
         </div>
 
-        <div className="px-8 py-6 border-t border-slate-100">
+        <div className="px-4 sm:px-8 py-6 border-t border-slate-100">
           <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
             <User className="w-5 h-5 text-slate-400" weight="regular" /> Detail Akun
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-500 mb-1">Nama Lengkap</label>
-              <div className="text-slate-800 font-medium p-3 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="text-slate-800 font-medium p-3 bg-slate-50 rounded-lg border border-slate-100 break-words">
                 {user?.fullName || user?.name || 'N/A'}
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-500 mb-1">Alamat Email</label>
-              <div className="text-slate-800 font-medium p-3 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="text-slate-800 font-medium p-3 bg-slate-50 rounded-lg border border-slate-100 break-words">
                 {user?.email || 'N/A'}
               </div>
             </div>
@@ -95,11 +95,11 @@ export default function Profile() {
           </div>
         </div>
 
-        <div className="px-8 py-6 border-t border-slate-100">
+        <div className="px-4 sm:px-8 py-6 border-t border-slate-100">
           <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
             <Key className="w-5 h-5 text-slate-400" weight="regular" /> Keamanan
           </h2>
-          <div className="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border border-slate-200 rounded-lg">
             <div>
               <h3 className="font-medium text-slate-800">Kata Sandi</h3>
               <p className="text-sm text-slate-500">Terakhir diubah baru-baru ini</p>

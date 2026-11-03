@@ -187,7 +187,7 @@ export const OrderDetail = () => {
             <ArrowLeft size={20} weight="regular" />
           </Link>
           <div>
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex flex-wrap items-center gap-2 sm:gap-3">
               {order.orderNumber}
               <span className={`px-3 py-1 text-xs font-bold rounded-full ${getStatusColor(order.status)}`}>
                 {getStatusLabel(order.status)}
@@ -403,9 +403,9 @@ export const OrderDetail = () => {
                   <div className="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100 text-slate-400">
                     <Package size={24} weight="regular" />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <h4 className="font-bold text-slate-900">{item.product?.name || 'Produk Kustom'}</h4>
-                    <p className="text-sm text-slate-500 mt-1">{(item as any).specifications ? JSON.stringify((item as any).specifications) : 'Spesifikasi standar'}</p>
+                    <p className="text-sm text-slate-500 mt-1 break-words">{(item as any).specifications ? JSON.stringify((item as any).specifications) : 'Spesifikasi standar'}</p>
                     <div className="flex justify-between items-center mt-4">
                       <span className="text-sm font-medium text-slate-600">Jumlah: {item.quantity}</span>
                       <span className="font-bold text-slate-900 tabular-nums">{formatCurrency(item.unitPrice * item.quantity)}</span>
@@ -680,7 +680,7 @@ export const OrderDetail = () => {
               </div>
               <div>
                 <p className="text-xs text-slate-500 font-medium mb-0.5">Email</p>
-                <p className="font-medium text-slate-900">{order.customer?.email || 'Tidak Diketahui'}</p>
+                <p className="font-medium text-slate-900 break-all">{order.customer?.email || 'Tidak Diketahui'}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 font-medium mb-0.5">Telepon</p>

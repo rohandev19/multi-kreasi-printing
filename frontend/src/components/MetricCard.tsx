@@ -99,7 +99,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   };
 
   return (
-    <div className="border p-6 transition-all duration-150 ease-out hover:shadow-sm" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
+    <div className="border p-4 sm:p-6 transition-all duration-150 ease-out hover:shadow-sm min-w-0 overflow-hidden" style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border-default)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-sm font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
           {title}
@@ -108,7 +108,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
           <IconComponent className={`h-5 w-5 ${styles.text}`} weight="regular" />
         </div>
       </div>
-      <p className={`text-3xl font-bold tabular-nums ${styles.text}`}>
+      <p className={`text-2xl sm:text-3xl font-bold tabular-nums break-words ${styles.text}`}>
         {formatValue(value)}
       </p>
       {change && (

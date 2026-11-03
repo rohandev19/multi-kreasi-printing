@@ -130,7 +130,7 @@ export const JobTicketEstimator: React.FC = () => {
   ].filter((v, idx, arr) => v > 0 && arr.indexOf(v) === idx);
 
   return (
-    <div className="relative rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs">
+    <div className="relative rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-6 shadow-xs overflow-hidden">
       {/* Header Styled as Job Ticket Header */}
       <div className="border-b border-slate-200 pb-4 mb-5">
         <h3 className="text-xl font-bold tracking-tight text-slate-900">
@@ -154,7 +154,7 @@ export const JobTicketEstimator: React.FC = () => {
               value={selectedProductId}
               onChange={(e) => setSelectedProductId(e.target.value)}
               disabled={loading}
-              className="w-full rounded-lg border border-slate-300 bg-slate-50/60 px-3.5 py-2.5 text-sm font-medium text-slate-900 transition-colors focus:border-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 disabled:opacity-60"
+              className="w-full max-w-full truncate rounded-lg border border-slate-300 bg-slate-50/60 px-3 sm:px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 transition-colors focus:border-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 disabled:opacity-60"
             >
               {products.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -167,7 +167,7 @@ export const JobTicketEstimator: React.FC = () => {
 
         {/* Quantity Input + Presets */}
         <div>
-          <div className="flex items-center justify-between mb-1.5">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5 mb-1.5">
             <label htmlFor="quantity-input" className="block text-xs font-semibold text-slate-800">
               Jumlah Pesanan ({selectedProduct.unitOfMeasure || 'unit'})
             </label>
@@ -208,7 +208,7 @@ export const JobTicketEstimator: React.FC = () => {
 
         {/* Calculation Result Box - Styled with Surface Tone Shift & Nested Radius */}
         <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-4 text-xs space-y-2.5 mt-4">
-          <div className="flex justify-between items-center text-slate-600 border-b border-dashed border-slate-200 pb-2.5">
+          <div className="flex flex-wrap justify-between items-center gap-1 text-slate-600 border-b border-dashed border-slate-200 pb-2.5">
             <span className="font-medium">Harga Satuan Efektif:</span>
             <span className="font-bold tabular-nums text-slate-900 text-sm">
               {estimate ? formatIDR(estimate.unitPrice) : '-'} / {selectedProduct.unitOfMeasure || 'unit'}
@@ -216,9 +216,9 @@ export const JobTicketEstimator: React.FC = () => {
           </div>
 
           {estimate?.appliedTier && (
-            <div className="flex items-center justify-between text-[11px] text-emerald-800 bg-emerald-50/90 border border-emerald-200/70 px-2.5 py-1.5 rounded-lg">
+            <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-[11px] text-emerald-800 bg-emerald-50/90 border border-emerald-200/70 px-2.5 py-1.5 rounded-lg">
               <span className="flex items-center gap-1.5 font-semibold">
-                <Check size={14} weight="bold" className="text-rose-500" />
+                <Check size={14} weight="bold" className="text-rose-500 shrink-0" />
                 Diskon Tier Aktif (min. {estimate.appliedTier.minQuantity} {selectedProduct.unitOfMeasure}):
               </span>
               <span className="font-bold tabular-nums">
@@ -227,25 +227,25 @@ export const JobTicketEstimator: React.FC = () => {
             </div>
           )}
 
-          <div className="flex justify-between items-center text-slate-600 pt-0.5">
+          <div className="flex flex-wrap justify-between items-center gap-1 text-slate-600 pt-0.5">
             <span>Subtotal ({quantity.toLocaleString('id-ID')} unit):</span>
             <span className="font-bold tabular-nums text-slate-800">
               {estimate ? formatIDR(estimate.subtotal) : '-'}
             </span>
           </div>
 
-          <div className="flex justify-between items-center text-slate-500">
+          <div className="flex flex-wrap justify-between items-center gap-1 text-slate-500">
             <span>PPN (11%):</span>
             <span className="tabular-nums font-medium text-slate-700">
               {estimate ? formatIDR(estimate.tax) : '-'}
             </span>
           </div>
 
-          <div className="border-t border-slate-900 pt-2.5 flex justify-between items-baseline">
+          <div className="border-t border-slate-900 pt-2.5 flex flex-wrap justify-between items-baseline gap-1">
             <span className="font-bold text-sm text-slate-900 tracking-tight">
               Total Estimasi:
             </span>
-            <span className="text-xl font-extrabold text-slate-950 tabular-nums">
+            <span className="text-lg sm:text-xl font-extrabold text-slate-950 tabular-nums">
               {estimate ? formatIDR(estimate.total) : '-'}
             </span>
           </div>
@@ -256,7 +256,7 @@ export const JobTicketEstimator: React.FC = () => {
         </div>
 
         {/* Action CTAs */}
-        <div className="pt-2 grid grid-cols-2 gap-2.5">
+        <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <Link
             to={
               selectedProduct.id.startsWith('preset-')

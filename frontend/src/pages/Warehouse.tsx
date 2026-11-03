@@ -399,7 +399,7 @@ export default function Warehouse() {
       ) : (
         /* Suppliers Tab */
         <div className="space-y-4">
-          <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-xl border border-slate-200">
             <div>
               <h2 className="text-base font-bold text-slate-900">Daftar Rekanan Pemasok</h2>
               <p className="text-xs text-slate-500">Pemasok bahan baku kertas, tinta, film laminasi, dan perlengkapan cetak</p>

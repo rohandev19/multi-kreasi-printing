@@ -293,7 +293,8 @@ export default function AuditLog() {
             <div className="relative border-l-2 border-slate-200 ml-4 lg:ml-8 space-y-8 py-4">
               
               {/* Sticky Date Header (Mocked) */}
-              <div className="sticky top-0 z-10 -ml-12 mb-8 mt-[-16px]">
+              {/* Sticky Date Header (Mocked) */}
+              <div className="sticky top-0 z-10 -ml-4 sm:-ml-12 mb-8 mt-[-16px]">
                 <span className="bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-slate-200 shadow-sm">
                   Hari Ini
                 </span>
@@ -337,7 +338,7 @@ export default function AuditLog() {
                 </div>
               ))}
 
-              <div className="sticky top-0 z-10 -ml-12 mb-8 mt-8">
+              <div className="sticky top-0 z-10 -ml-4 sm:-ml-12 mb-8 mt-8">
                 <span className="bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-slate-200 shadow-sm">
                   Kemarin
                 </span>
@@ -385,7 +386,7 @@ export default function AuditLog() {
         )}
 
         {/* PAGINATION */}
-        <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex items-center justify-between">
+        <div className="bg-slate-50 border-t border-slate-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-sm text-slate-500">
             Menampilkan <span className="font-bold text-slate-900">1</span> sampai <span className="font-bold text-slate-900">{logs.length}</span> aktivitas
           </p>

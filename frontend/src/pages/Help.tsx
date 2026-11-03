@@ -26,7 +26,7 @@ export const HelpPage = () => {
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8" style={{ color: 'var(--text-primary)' }}>
       <div className="mb-8">
         <p className="mb-2 text-sm font-medium uppercase tracking-[0.12em]" style={{ color: 'var(--color-primary-600)' }}>Bantuan</p>
-        <h1 className="text-4xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Bantuan &amp; Dukungan Pelanggan</h1>
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Bantuan &amp; Dukungan Pelanggan</h1>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -41,7 +41,7 @@ export const HelpPage = () => {
             </div>
             <h2 className="mb-2 text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</h2>
             <p className="mb-3 text-sm" style={{ color: 'var(--text-secondary)' }}>{description}</p>
-            <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{value}</p>
+            <p className="text-sm font-medium break-all sm:break-words" style={{ color: 'var(--text-primary)' }}>{value}</p>
           </div>
         ))}
       </div>

@@ -131,9 +131,9 @@ export default function LiveSupport() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-6rem)] -m-6 bg-neutral-50 overflow-hidden">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-6rem)] -m-4 md:-m-6 bg-neutral-50 overflow-hidden">
       {/* Sidebar - Chat List */}
-      <div className="w-1/3 min-w-[300px] border-r border-neutral-200 bg-white flex flex-col">
+      <div className="w-full md:w-1/3 md:min-w-[300px] border-b md:border-b-0 md:border-r border-neutral-200 bg-white flex flex-col max-h-[40vh] md:max-h-none">
         <div className="p-4 border-b border-neutral-200">
           <h2 className="text-lg font-semibold text-neutral-800 flex items-center gap-2">
             <ChatCircleDots size={24} className="text-primary-600" weight="fill" />

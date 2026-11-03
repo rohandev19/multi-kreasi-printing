@@ -202,7 +202,7 @@ export const ProductDetail: React.FC = () => {
                   <div className="flex items-end gap-2 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
                     <div>
                       <span className="block text-sm text-slate-500 font-medium mb-1">Harga Mulai Dari</span>
-                      <span className="text-4xl font-extrabold text-slate-900">{formatIDR(product.basePrice)}</span>
+                      <span className="text-2xl sm:text-4xl font-extrabold text-slate-900 break-words">{formatIDR(product.basePrice)}</span>
                       {product.unitOfMeasure && <span className="text-slate-500 font-medium ml-2">/ {product.unitOfMeasure}</span>}
                     </div>
                   </div>
@@ -235,7 +235,7 @@ export const ProductDetail: React.FC = () => {
 
                   <div className="mt-8 space-y-4">
                     {/* Quantity + Add to Cart */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                       <div className="flex items-center h-12 rounded-xl overflow-hidden shrink-0" style={{ border: '2px solid #e2e8f0' }}>
                         <button 
                           onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -263,7 +263,7 @@ export const ProductDetail: React.FC = () => {
                       <button 
                         onClick={handleAddToCart}
                         disabled={cartLoading}
-                        className="flex-1 h-12 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-base disabled:opacity-70 disabled:cursor-not-allowed shadow-xs active:scale-[0.98]"
+                        className="flex-1 min-h-12 py-3 px-4 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm sm:text-base disabled:opacity-70 disabled:cursor-not-allowed shadow-xs active:scale-[0.98]"
                         style={{ 
                           background: 'var(--color-primary-600)', 
                           color: '#ffffff',
@@ -385,7 +385,7 @@ export const ProductDetail: React.FC = () => {
                     reviews.map((review) => (
                       <div key={review.id} className="pb-6 border-b border-slate-100 last:border-0">
                         <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-3">
+                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500 uppercase overflow-hidden">
                               {review.user.avatarUrl ? (
                                 <img src={review.user.avatarUrl} alt={review.user.fullName} className="w-full h-full object-cover" />
