@@ -200,7 +200,9 @@ export default function AuditLog() {
             {error}
           </div>
         ) : viewMode === 'table' ? (
-          <div className="overflow-x-auto">
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-50">
                 <tr>
@@ -288,7 +290,69 @@ export default function AuditLog() {
               </tbody>
             </table>
           </div>
-        ) : (
+
+          {/* Mobile Adaptive Card View */}
+          <div className="block md:hidden divide-y divide-slate-100">
+            {logs.map((log) => {
+              const isExpanded = expandedRow === log.id;
+              return (
+                <div
+                  key={log.id}
+                  onClick={() => setExpandedRow(isExpanded ? null : log.id)}
+                  className={`p-4 space-y-2.5 transition-colors cursor-pointer ${isExpanded ? 'bg-primary-50/20' : 'hover:bg-slate-50'}`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${log.user.color}`}>
+                        {log.user.initials}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-slate-900 truncate">{log.user.name}</p>
+                        <p className="text-[11px] text-slate-400 truncate">{log.user.role}</p>
+                      </div>
+                    </div>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold shrink-0 ${getActionBadgeColor(log.action)}`}>
+                      {log.action}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-slate-500 pt-0.5">
+                    <span className="font-mono text-[11px]">{log.timestamp}</span>
+                    <span className="font-mono text-primary-600 truncate max-w-[150px]">{log.resourceType}: {log.resourceId}</span>
+                  </div>
+
+                  <p className="text-xs text-slate-700 font-medium line-clamp-2">
+                    {log.description}
+                  </p>
+
+                  {isExpanded && (
+                    <div className="pt-2.5 space-y-2.5 border-t border-slate-200 mt-2 text-xs">
+                      <div className="bg-white p-2.5 rounded-lg border border-slate-200 space-y-1">
+                        <p><span className="text-slate-400 font-semibold">IP:</span> <span className="font-mono text-slate-800">{log.ip}</span></p>
+                        <p><span className="text-slate-400 font-semibold">Entitas:</span> <span className="font-mono text-slate-800">{log.resourceType} ({log.resourceId})</span></p>
+                      </div>
+
+                      {log.changes && log.changes.length > 0 && (
+                        <div className="bg-white p-2.5 rounded-lg border border-slate-200 overflow-x-auto space-y-1 font-mono text-[11px]">
+                          <span className="text-slate-400 font-semibold uppercase text-[10px] block mb-1">Perubahan Nilai:</span>
+                          {log.changes.map((change: any, idx: number) => (
+                            <div key={idx} className="flex items-center gap-1.5 py-0.5 border-b border-slate-50 last:border-0">
+                              <span className="font-bold text-slate-700">{change.field}:</span>
+                              <span className="text-red-500 line-through">{change.old}</span>
+                              <span className="text-slate-300">→</span>
+                              <span className="text-emerald-600 font-bold">{change.new}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      ) : (
           <div className="p-6">
             <div className="relative border-l-2 border-slate-200 ml-4 lg:ml-8 space-y-8 py-4">
               

@@ -140,7 +140,7 @@ export const CreateShipmentModal: React.FC<CreateShipmentModalProps> = ({
     e.preventDefault();
 
     const dispatchItems = Object.entries(selectedItems)
-      .filter(([_, val]) => val.selected && val.quantity > 0)
+      .filter(([, val]) => val.selected && val.quantity > 0)
       .map(([orderItemId, val]) => ({
         orderItemId,
         quantity: val.quantity,

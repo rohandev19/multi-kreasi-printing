@@ -303,7 +303,8 @@ export default function Production() {
       {/* TABLE VIEW */}
       {viewMode === 'table' && jobs.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-sm whitespace-nowrap">
               <thead className="bg-slate-50/50 border-b border-slate-200 text-slate-500 font-semibold">
                 <tr>
@@ -440,6 +441,102 @@ export default function Production() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Adaptive Card View */}
+          <div className="block md:hidden divide-y divide-slate-100">
+            {filteredJobs.map(job => (
+              <div key={job.id} className={`p-4 space-y-3.5 ${job.status === 'In Progress' ? 'bg-slate-50/50 border-l-4 border-slate-900' : ''}`}>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-sm text-slate-900">{job.jobNumber || job.id}</span>
+                      <span className="text-xs text-slate-500">• {job.orderNumber}</span>
+                    </div>
+                    <div className="font-semibold text-slate-800 text-sm mt-0.5">{job.product}</div>
+                  </div>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${
+                    job.priority === 'Urgent' ? 'bg-red-100 text-red-700' :
+                    job.priority === 'High' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
+                  }`}>
+                    {job.priority === 'Urgent' ? 'Kilat' : job.priority === 'High' ? 'Tinggi' : 'Normal'}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <span className="px-2 py-1 rounded bg-slate-100 text-slate-700 font-medium">{job.machine}</span>
+                  <span className="px-2 py-1 rounded bg-slate-100 text-slate-600">{job.material}</span>
+                  {job.isProofLocked && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+                      <LockSimple size={12} weight="bold" /> ACC Pending
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-1.5 bg-white p-3 rounded-xl border border-slate-200">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-bold text-slate-700">{statusDisplayMap[job.status] || job.status}</span>
+                    <span className="font-bold text-slate-900">{job.progress}%</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-slate-100 overflow-hidden w-full">
+                    <div className={`h-full rounded-full transition-all duration-500 ${job.progress === 100 ? 'bg-emerald-500' : 'bg-slate-900'}`} style={{ width: `${job.progress}%` }}></div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  {job.status === 'Queued' && (
+                    job.isProofLocked ? (
+                      <button
+                        onClick={() => handleStartJob(job.id, true)}
+                        className="flex-1 py-2 px-3 bg-amber-50 text-amber-800 border border-amber-300 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5"
+                      >
+                        <LockSimple size={14} weight="bold" /> Terkunci (ACC Proof)
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleStartJob(job.id, false)}
+                        className="flex-1 py-2 px-3 bg-slate-900 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
+                      >
+                        <Play size={14} weight="bold" /> Mulai Produksi
+                      </button>
+                    )
+                  )}
+
+                  {job.status === 'In Progress' && (
+                    <>
+                      <button onClick={() => handleMarkQC(job.id)} className="flex-1 py-2 px-3 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-bold flex items-center justify-center gap-1">
+                        <ClipboardText size={14} weight="bold" /> QC
+                      </button>
+                      <button onClick={() => handleCompleteJob(job.id)} className="flex-1 py-2 px-3 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1">
+                        <CheckCircle size={14} weight="bold" /> Selesai
+                      </button>
+                    </>
+                  )}
+
+                  {job.status === 'Quality Check' && (
+                    <button onClick={() => handleCompleteJob(job.id)} className="flex-1 py-2 px-3 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg text-xs font-bold flex items-center justify-center gap-1">
+                      <CheckCircle size={14} weight="bold" /> Selesai QC
+                    </button>
+                  )}
+
+                  {job.status === 'Completed' && job.orderId && (
+                    <button
+                      onClick={() => setCreateShipmentOrderId(job.orderId!)}
+                      className="flex-1 py-2 px-3 bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5"
+                    >
+                      <Truck size={14} weight="bold" /> {job.orderStatus === 'Delivered' ? 'Terkirim' : 'Kirim Barang'}
+                    </button>
+                  )}
+
+                  <button onClick={() => setReassignJobId(job.id)} className="p-2 border border-slate-200 text-slate-500 rounded-lg hover:bg-slate-50" title="Tugaskan Ulang">
+                    <Gear size={16} />
+                  </button>
+                  <button onClick={() => setReportIssueJobId(job.id)} className="p-2 border border-red-200 text-red-500 rounded-lg hover:bg-red-50" title="Laporkan Kendala">
+                    <Warning size={16} />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

@@ -41,7 +41,7 @@ export const RecordShipmentModal: React.FC<RecordShipmentModalProps> = ({
     handleSubmit,
     reset,
     formState: { errors }
-  } = useForm<any>({
+  } = useForm<ShipmentFormValues>({
     resolver: zodResolver(shipmentSchema),
     defaultValues: {
       quantity: 0,

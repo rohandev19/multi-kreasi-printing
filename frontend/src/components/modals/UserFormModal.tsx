@@ -46,7 +46,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
     reset,
     setValue,
     formState: { errors }
-  } = useForm<any>({
+  } = useForm<UserFormValues>({
     resolver: zodResolver(getUserSchema(isEditMode)),
     defaultValues: {
       fullName: '',

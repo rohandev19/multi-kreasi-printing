@@ -517,126 +517,215 @@ export const ArAgingReportView: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold tracking-wider">
-                <tr>
-                  <th className="py-3 px-4">Perusahaan / Nasabah</th>
-                  <th className="py-3 px-3 text-right">Plafon Kredit</th>
-                  <th className="py-3 px-3 text-center">TOP</th>
-                  <th className="py-3 px-3 text-right text-emerald-700 bg-emerald-50/50">
-                    Lancar (Current)
-                  </th>
-                  <th className="py-3 px-3 text-right text-sky-700">1 - 30 Hari</th>
-                  <th className="py-3 px-3 text-right text-amber-700">31 - 60 Hari</th>
-                  <th className="py-3 px-3 text-right text-orange-700">61 - 90 Hari</th>
-                  <th className="py-3 px-3 text-right text-rose-700">&gt; 90 Hari</th>
-                  <th className="py-3 px-3 text-right font-bold text-slate-900 bg-slate-100/60">
-                    Total Piutang
-                  </th>
-                  <th className="py-3 px-3 text-right">Sisa Plafon</th>
-                  <th className="py-3 px-3 text-center">Risiko</th>
-                  <th className="py-3 px-3 text-center">Status</th>
-                  <th className="py-3 px-4 text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredCustomers.map((row) => {
-                  const hasDebt = row.aging.totalOutstanding > 0;
-                  return (
-                    <tr
-                      key={row.customerId}
-                      className={`hover:bg-slate-50/80 transition-colors ${
-                        row.riskLevel === 'CRITICAL' ? 'bg-rose-50/20' : ''
-                      }`}
-                    >
-                      <td className="py-3 px-4">
-                        <div className="font-semibold text-slate-900">
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold tracking-wider">
+                  <tr>
+                    <th className="py-3 px-4">Perusahaan / Nasabah</th>
+                    <th className="py-3 px-3 text-right">Plafon Kredit</th>
+                    <th className="py-3 px-3 text-center">TOP</th>
+                    <th className="py-3 px-3 text-right text-emerald-700 bg-emerald-50/50">
+                      Lancar (Current)
+                    </th>
+                    <th className="py-3 px-3 text-right text-sky-700">1 - 30 Hari</th>
+                    <th className="py-3 px-3 text-right text-amber-700">31 - 60 Hari</th>
+                    <th className="py-3 px-3 text-right text-orange-700">61 - 90 Hari</th>
+                    <th className="py-3 px-3 text-right text-rose-700">&gt; 90 Hari</th>
+                    <th className="py-3 px-3 text-right font-bold text-slate-900 bg-slate-100/60">
+                      Total Piutang
+                    </th>
+                    <th className="py-3 px-3 text-right">Sisa Plafon</th>
+                    <th className="py-3 px-3 text-center">Risiko</th>
+                    <th className="py-3 px-3 text-center">Status</th>
+                    <th className="py-3 px-4 text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredCustomers.map((row) => {
+                    const hasDebt = row.aging.totalOutstanding > 0;
+                    return (
+                      <tr
+                        key={row.customerId}
+                        className={`hover:bg-slate-50/80 transition-colors ${
+                          row.riskLevel === 'CRITICAL' ? 'bg-rose-50/20' : ''
+                        }`}
+                      >
+                        <td className="py-3 px-4">
+                          <div className="font-semibold text-slate-900">
+                            {row.companyName}
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            {row.email || row.phone || '-'}
+                          </div>
+                        </td>
+
+                        <td className="py-3 px-3 text-right font-medium text-slate-800">
+                          {row.creditLimit > 0
+                            ? formatCurrency(row.creditLimit)
+                            : <span className="text-slate-400">Rp 0 (Cash)</span>}
+                        </td>
+
+                        <td className="py-3 px-3 text-center font-medium">
+                          {row.paymentTermDays > 0 ? (
+                            <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-800 text-[11px]">
+                              {row.paymentTermDays} Hari
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 text-[11px]">Cash</span>
+                          )}
+                        </td>
+
+                        <td className="py-3 px-3 text-right font-medium text-emerald-700 bg-emerald-50/30">
+                          {row.aging.current > 0
+                            ? formatCurrency(row.aging.current)
+                            : '-'}
+                        </td>
+
+                        <td className="py-3 px-3 text-right font-medium text-sky-700">
+                          {row.aging.bucket1_30 > 0
+                            ? formatCurrency(row.aging.bucket1_30)
+                            : '-'}
+                        </td>
+
+                        <td className="py-3 px-3 text-right font-medium text-amber-700">
+                          {row.aging.bucket31_60 > 0
+                            ? formatCurrency(row.aging.bucket31_60)
+                            : '-'}
+                        </td>
+
+                        <td className="py-3 px-3 text-right font-medium text-orange-700">
+                          {row.aging.bucket61_90 > 0
+                            ? formatCurrency(row.aging.bucket61_90)
+                            : '-'}
+                        </td>
+
+                        <td className="py-3 px-3 text-right font-bold text-rose-700">
+                          {row.aging.bucketOver90 > 0
+                            ? formatCurrency(row.aging.bucketOver90)
+                            : '-'}
+                        </td>
+
+                        <td className="py-3 px-3 text-right font-bold text-slate-900 bg-slate-100/60">
+                          {hasDebt ? formatCurrency(row.aging.totalOutstanding) : 'Rp 0'}
+                        </td>
+
+                        <td className="py-3 px-3 text-right text-slate-700 font-medium">
+                          {row.creditLimit > 0
+                            ? formatCurrency(row.availableCredit)
+                            : '-'}
+                        </td>
+
+                        <td className="py-3 px-3 text-center">
+                          {getRiskBadge(row.riskLevel)}
+                        </td>
+
+                        <td className="py-3 px-3 text-center">
+                          {getStatusBadge(row.creditStatus)}
+                        </td>
+
+                        <td className="py-3 px-4 text-center">
+                          <button
+                            onClick={() => setEditingCustomer(row)}
+                            className="px-2.5 py-1 text-[11px] font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors"
+                          >
+                            Kelola Kredit
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Adaptive Card View */}
+            <div className="block lg:hidden divide-y divide-slate-100">
+              {filteredCustomers.map((row) => {
+                const hasDebt = row.aging.totalOutstanding > 0;
+                return (
+                  <div
+                    key={row.customerId}
+                    className={`p-4 space-y-3 transition-colors ${
+                      row.riskLevel === 'CRITICAL' ? 'bg-rose-50/20' : 'hover:bg-slate-50/60'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-sm text-slate-900 truncate">
                           {row.companyName}
-                        </div>
-                        <div className="text-[11px] text-slate-500">
+                        </h4>
+                        <p className="text-xs text-slate-500 truncate mt-0.5">
                           {row.email || row.phone || '-'}
-                        </div>
-                      </td>
-
-                      <td className="py-3 px-3 text-right font-medium text-slate-800">
-                        {row.creditLimit > 0
-                          ? formatCurrency(row.creditLimit)
-                          : <span className="text-slate-400">Rp 0 (Cash)</span>}
-                      </td>
-
-                      <td className="py-3 px-3 text-center font-medium">
-                        {row.paymentTermDays > 0 ? (
-                          <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-800 text-[11px]">
-                            {row.paymentTermDays} Hari
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 text-[11px]">Cash</span>
-                        )}
-                      </td>
-
-                      <td className="py-3 px-3 text-right font-medium text-emerald-700 bg-emerald-50/30">
-                        {row.aging.current > 0
-                          ? formatCurrency(row.aging.current)
-                          : '-'}
-                      </td>
-
-                      <td className="py-3 px-3 text-right font-medium text-sky-700">
-                        {row.aging.bucket1_30 > 0
-                          ? formatCurrency(row.aging.bucket1_30)
-                          : '-'}
-                      </td>
-
-                      <td className="py-3 px-3 text-right font-medium text-amber-700">
-                        {row.aging.bucket31_60 > 0
-                          ? formatCurrency(row.aging.bucket31_60)
-                          : '-'}
-                      </td>
-
-                      <td className="py-3 px-3 text-right font-medium text-orange-700">
-                        {row.aging.bucket61_90 > 0
-                          ? formatCurrency(row.aging.bucket61_90)
-                          : '-'}
-                      </td>
-
-                      <td className="py-3 px-3 text-right font-bold text-rose-700">
-                        {row.aging.bucketOver90 > 0
-                          ? formatCurrency(row.aging.bucketOver90)
-                          : '-'}
-                      </td>
-
-                      <td className="py-3 px-3 text-right font-bold text-slate-900 bg-slate-100/60">
-                        {hasDebt ? formatCurrency(row.aging.totalOutstanding) : 'Rp 0'}
-                      </td>
-
-                      <td className="py-3 px-3 text-right text-slate-700 font-medium">
-                        {row.creditLimit > 0
-                          ? formatCurrency(row.availableCredit)
-                          : '-'}
-                      </td>
-
-                      <td className="py-3 px-3 text-center">
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
                         {getRiskBadge(row.riskLevel)}
-                      </td>
-
-                      <td className="py-3 px-3 text-center">
                         {getStatusBadge(row.creditStatus)}
-                      </td>
+                      </div>
+                    </div>
 
-                      <td className="py-3 px-4 text-center">
-                        <button
-                          onClick={() => setEditingCustomer(row)}
-                          className="px-2.5 py-1 text-[11px] font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors"
-                        >
-                          Kelola Kredit
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-slate-50 p-3 rounded-lg text-xs">
+                      <div>
+                        <span className="text-slate-400 block text-[10px] uppercase font-semibold">Total Piutang</span>
+                        <span className={`font-bold ${hasDebt ? 'text-rose-700' : 'text-slate-700'}`}>
+                          {hasDebt ? formatCurrency(row.aging.totalOutstanding) : 'Rp 0'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[10px] uppercase font-semibold">Plafon Kredit</span>
+                        <span className="font-medium text-slate-700">
+                          {row.creditLimit > 0 ? formatCurrency(row.creditLimit) : 'Cash'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[10px] uppercase font-semibold">Sisa Plafon / TOP</span>
+                        <span className="font-medium text-slate-700">
+                          {row.creditLimit > 0 ? formatCurrency(row.availableCredit) : '-'} • {row.paymentTermDays > 0 ? `${row.paymentTermDays} Hari` : 'Cash'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 pt-1">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Rincian Umur Piutang:</span>
+                      <div className="grid grid-cols-5 gap-1 text-[11px] text-center font-medium">
+                        <div className="p-1.5 rounded bg-emerald-50 text-emerald-800">
+                          <span className="block text-[9px] uppercase font-bold text-emerald-600">Lancar</span>
+                          <span className="truncate block font-semibold">{row.aging.current > 0 ? formatCurrency(row.aging.current) : '-'}</span>
+                        </div>
+                        <div className="p-1.5 rounded bg-sky-50 text-sky-800">
+                          <span className="block text-[9px] uppercase font-bold text-sky-600">1-30d</span>
+                          <span className="truncate block font-semibold">{row.aging.bucket1_30 > 0 ? formatCurrency(row.aging.bucket1_30) : '-'}</span>
+                        </div>
+                        <div className="p-1.5 rounded bg-amber-50 text-amber-800">
+                          <span className="block text-[9px] uppercase font-bold text-amber-600">31-60d</span>
+                          <span className="truncate block font-semibold">{row.aging.bucket31_60 > 0 ? formatCurrency(row.aging.bucket31_60) : '-'}</span>
+                        </div>
+                        <div className="p-1.5 rounded bg-orange-50 text-orange-800">
+                          <span className="block text-[9px] uppercase font-bold text-orange-600">61-90d</span>
+                          <span className="truncate block font-semibold">{row.aging.bucket61_90 > 0 ? formatCurrency(row.aging.bucket61_90) : '-'}</span>
+                        </div>
+                        <div className="p-1.5 rounded bg-rose-50 text-rose-800">
+                          <span className="block text-[9px] uppercase font-bold text-rose-600">&gt;90d</span>
+                          <span className="truncate block font-bold">{row.aging.bucketOver90 > 0 ? formatCurrency(row.aging.bucketOver90) : '-'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 flex justify-end">
+                      <button
+                        onClick={() => setEditingCustomer(row)}
+                        className="w-full sm:w-auto px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors text-center"
+                      >
+                        Kelola Plafon & Ketentuan Kredit
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 

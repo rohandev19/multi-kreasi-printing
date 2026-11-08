@@ -276,7 +276,11 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                                 <button
                                   onClick={() => {
                                     setOpenDropdown(null);
-                                    onStartProduction ? onStartProduction(order.id) : onView(order.id);
+                                    if (onStartProduction) {
+                                      onStartProduction(order.id);
+                                    } else {
+                                      onView(order.id);
+                                    }
                                   }}
                                   className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
                                 >

@@ -311,7 +311,6 @@ export const OrderDetail = () => {
             {order.proofs && order.proofs.length > 0 ? (
               <div className="space-y-3">
                 {order.proofs.map((proof: any) => {
-                  const isProofPending = proof.status === 'Pending_Approval';
                   const isProofApproved = proof.status === 'Approved';
                   const isProofRejected = proof.status === 'Rejected';
 

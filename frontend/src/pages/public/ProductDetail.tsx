@@ -77,7 +77,7 @@ export const ProductDetail: React.FC = () => {
     try {
       await addToCart(product, quantity);
       success('Berhasil', `${quantity} ${product.unitOfMeasure || 'unit'} ${product.name} ditambahkan ke keranjang.`);
-    } catch (error) {
+    } catch {
       addToast('error', 'Gagal menambahkan produk ke keranjang.');
     }
   };
