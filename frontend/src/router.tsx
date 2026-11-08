@@ -165,6 +165,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: '/verify-email',
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <VerifyEmail />
+          </Suspense>
+        ),
+      },
+      {
         path: '/verify-email/:token',
         element: (
           <Suspense fallback={<LoadingSpinner />}>

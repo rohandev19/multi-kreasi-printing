@@ -28,11 +28,21 @@ export class PrismaService
       );
     }
 
-    const useConnectionString = !!process.env.DATABASE_URL;
+    let connectionString = process.env.DATABASE_URL;
+    if (
+      connectionString &&
+      /[?&]sslmode=(?:prefer|require|verify-ca)(?:&|$)/i.test(
+        connectionString,
+      ) &&
+      !/[?&]uselibpqcompat=/i.test(connectionString)
+    ) {
+      connectionString += `${connectionString.includes('?') ? '&' : '?'}uselibpqcompat=true`;
+    }
+    const useConnectionString = !!connectionString;
 
     const pool = new Pool({
       ...(useConnectionString
-        ? { connectionString: process.env.DATABASE_URL }
+        ? { connectionString }
         : {
             host: process.env.DB_HOST || 'localhost',
             port: parseInt(process.env.DB_PORT || '5432', 10),

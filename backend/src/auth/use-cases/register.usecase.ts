@@ -13,12 +13,16 @@ export class RegisterUseCase {
 
   async execute(
     dto: RegisterRequestDto,
-  ): Promise<{ message: string; userId: string }> {
+  ): Promise<{ message: string; userId: string; autoVerified: boolean }> {
+    const normalizedEmail = dto.email.trim().toLowerCase();
     const existingUser = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+      where: { email: normalizedEmail },
     });
 
-    if (existingUser) {
+    if (
+      existingUser &&
+      (existingUser.emailVerified || existingUser.status !== 'Unverified')
+    ) {
       throw new ConflictException('Email already exists');
     }
 
@@ -42,28 +46,59 @@ export class RegisterUseCase {
       });
     }
 
-    // Create user with Unverified status
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        passwordHash,
-        fullName: dto.fullName,
-        roleId: customerRole.id,
-        status: 'Unverified',
-        emailVerified: false,
-      },
-    });
+    const smtpEnabled = this.emailVerificationService.isConfigured();
+    const initialStatus = smtpEnabled ? 'Unverified' : 'ACTIVE';
+    const initialEmailVerified = !smtpEnabled;
+    const cleanedPhone = dto.phone?.trim() || null;
 
-    // Send verification email
-    await this.emailVerificationService.sendVerificationEmail(
-      user.id,
-      user.email,
-    );
+    const user = existingUser
+      ? await this.prisma.user.update({
+          where: { id: existingUser.id },
+          data: {
+            passwordHash,
+            fullName: dto.fullName.trim(),
+            phone: cleanedPhone,
+            roleId: customerRole.id,
+            status: initialStatus,
+            emailVerified: initialEmailVerified,
+          },
+        })
+      : await this.prisma.user.create({
+          data: {
+            email: normalizedEmail,
+            passwordHash,
+            fullName: dto.fullName.trim(),
+            phone: cleanedPhone,
+            roleId: customerRole.id,
+            status: initialStatus,
+            emailVerified: initialEmailVerified,
+          },
+        });
+
+    if (smtpEnabled) {
+      // Clear any unused tokens if retrying an unverified registration
+      if (existingUser) {
+        await this.prisma.emailVerificationToken.deleteMany({
+          where: { userId: user.id, usedAt: null },
+        });
+      }
+      await this.emailVerificationService.sendVerificationEmail(
+        user.id,
+        user.email,
+      );
+      return {
+        message:
+          'Registration successful. Please check your email to verify your account.',
+        userId: user.id,
+        autoVerified: false,
+      };
+    }
 
     return {
       message:
-        'Registration successful. Please check your email to verify your account.',
+        'Pendaftaran berhasil! Akun Anda telah aktif dan siap digunakan.',
       userId: user.id,
+      autoVerified: true,
     };
   }
 }

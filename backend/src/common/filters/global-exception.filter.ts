@@ -42,7 +42,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     // Capture 500+ / unexpected exceptions in Sentry
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
-      Sentry.captureException(exception);
+      const errorToCapture =
+        exception instanceof HttpException && exception.cause instanceof Error
+          ? exception.cause
+          : exception;
+      Sentry.captureException(errorToCapture);
     }
 
     const errorResponse = {

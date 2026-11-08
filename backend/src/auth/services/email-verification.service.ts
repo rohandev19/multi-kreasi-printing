@@ -12,25 +12,67 @@ import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class EmailVerificationService {
-  private transporter: nodemailer.Transporter;
+  private transporter: nodemailer.Transporter | null = null;
+  private readonly isSmtpConfigured: boolean;
   private readonly logger = new Logger(EmailVerificationService.name);
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
   ) {
-    this.transporter = nodemailer.createTransport({
-      host: this.configService.get<string>('SMTP_HOST', 'localhost'),
-      port: this.configService.get<number>('SMTP_PORT', 1025), // Default to Mailhog
-      secure: this.configService.get<boolean>('SMTP_SECURE', false),
-      auth: {
-        user: this.configService.get<string>('SMTP_USER', ''),
-        pass: this.configService.get<string>('SMTP_PASS', ''),
-      },
-    });
+    const smtpHost = this.configService.get<string>('SMTP_HOST')?.trim();
+    this.isSmtpConfigured = Boolean(smtpHost);
+
+    if (this.isSmtpConfigured && smtpHost) {
+      const rawPort = this.configService.get<string | number>('SMTP_PORT', 587);
+      const smtpPort = Number(rawPort) || 587;
+      const rawSecure = this.configService.get<string | boolean>('SMTP_SECURE');
+      const smtpSecure =
+        rawSecure === true || rawSecure === 'true' || smtpPort === 465;
+      const smtpUser = this.configService
+        .get<string>('SMTP_USER', '')
+        .trim();
+      const smtpPass = (
+        this.configService.get<string>('SMTP_PASS') ||
+        this.configService.get<string>('SMTP_PASSWORD') ||
+        ''
+      ).trim();
+
+      this.transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpSecure,
+        ...(smtpUser
+          ? {
+              auth: {
+                user: smtpUser,
+                pass: smtpPass,
+              },
+            }
+          : {}),
+      });
+    }
+  }
+
+  isConfigured(): boolean {
+    return this.isSmtpConfigured && this.transporter !== null;
   }
 
   async sendVerificationEmail(userId: string, email: string): Promise<void> {
+    if (!this.isConfigured() || !this.transporter) {
+      this.logger.warn(
+        `SMTP is not configured; auto-verifying account for ${email}`,
+      );
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          emailVerified: true,
+          status: 'ACTIVE',
+        },
+      });
+      return;
+    }
+
     try {
       const token = crypto.randomBytes(32).toString('hex');
       const expiresAt = new Date();
@@ -44,11 +86,14 @@ export class EmailVerificationService {
         },
       });
 
-      const appUrl = this.configService.get<string>(
-        'APP_URL',
-        'http://localhost:5173',
-      );
-      const verificationLink = `${appUrl}/verify-email?token=${token}`;
+      const defaultAppUrl =
+        process.env.NODE_ENV === 'production'
+          ? 'https://mkprinting.my.id'
+          : 'http://localhost:5173';
+      const appUrl = this.configService
+        .get<string>('APP_URL', defaultAppUrl)
+        .replace(/\/+$/, '');
+      const verificationLink = `${appUrl}/verify-email/${token}`;
 
       const htmlTemplate = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -64,7 +109,7 @@ export class EmailVerificationService {
       await this.transporter.sendMail({
         from: this.configService.get<string>(
           'SMTP_FROM',
-          '"Multi Kreasi Printing" <noreply@mkprinting.test>',
+          '"Multi Kreasi Printing" <noreply@mkprinting.my.id>',
         ),
         to: email,
         subject: 'Verify Your Email - Multi Kreasi Printing',
@@ -74,11 +119,12 @@ export class EmailVerificationService {
       this.logger.log(`Verification email sent to ${email}`);
     } catch (error: any) {
       this.logger.error(
-        `Failed to send verification email to ${email}`,
-        error.stack,
+        `Failed to send verification email to ${email}: ${error?.message}`,
+        error?.stack,
       );
       throw new InternalServerErrorException(
         'Failed to send verification email',
+        { cause: error },
       );
     }
   }

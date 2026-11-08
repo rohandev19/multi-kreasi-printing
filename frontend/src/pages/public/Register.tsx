@@ -26,6 +26,7 @@ export const RegisterPage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [autoVerified, setAutoVerified] = useState(false);
   const [passwordValue, setPasswordValue] = useState('');
 
   const {
@@ -70,12 +71,13 @@ export const RegisterPage = () => {
     setLoading(true);
 
     try {
-      await api.post('/api/v1/auth/register', {
+      const response = await api.post('/api/v1/auth/register', {
         email: data.email,
         password: data.password,
         fullName: data.fullName,
         phone: data.phone || undefined,
       });
+      setAutoVerified(Boolean(response.data?.autoVerified));
       setSuccess(true);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Pendaftaran gagal. Silakan coba lagi.');
@@ -94,7 +96,11 @@ export const RegisterPage = () => {
               <CheckCircle className="w-8 h-8 text-green-600" weight="regular" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Pendaftaran Berhasil!</h2>
-            <p className="text-gray-600 mb-8">Silakan periksa email Anda untuk memverifikasi akun.</p>
+            <p className="text-gray-600 mb-8">
+              {autoVerified
+                ? 'Akun Anda telah aktif dan siap digunakan. Silakan masuk ke akun Anda.'
+                : 'Silakan periksa email Anda untuk memverifikasi akun.'}
+            </p>
             <Link 
               to="/login"
               className="inline-block px-8 py-3 bg-black text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors"
