@@ -1,4 +1,4 @@
-# 🖥️ Multi Kreasi Printing — Frontend Web Application
+# Multi Kreasi Printing — Frontend Web Application
 
 Aplikasi Web Client untuk platform Multi Kreasi Printing, dibangun menggunakan React 19, Vite, Tailwind CSS 4, dan Phosphor Icons.
 
@@ -6,22 +6,25 @@ Proyek ini merupakan bagian dari portofolio pembelajaran full-stack oleh **[Roha
 
 ---
 
-## 🛠️ Tech Stack Frontend
+## Tech Stack Frontend
 
 - **Framework:** React 19
 - **Build Tool:** Vite 5
+- **Language:** TypeScript 5 (Strict Mode, 0 explicit `any`)
 - **Routing:** React Router DOM 7
-- **Styling:** Tailwind CSS 4 + Design Tokens
+- **Styling:** Tailwind CSS 4 + Design Tokens + Mobile Adaptive Cards (AR Aging, Production, Audit)
 - **Icons:** Phosphor Icons React
 - **Forms & Validation:** React Hook Form + Zod
 - **Visuals & Charts:** Recharts + Three.js
 - **Drag & Drop:** `@dnd-kit`
+- **Networking:** Axios dengan timeout 30 detik untuk ketahanan jaringan
 - **Real-time:** Socket.IO Client
+- **Observability:** Sentry (`@sentry/react`) dengan BrowserTracing dan Session Replay
 - **Testing:** Vitest + React Testing Library
 
 ---
 
-## 🚀 Menjalankan Secara Lokal
+## Menjalankan Secara Lokal
 
 1. Salin konfigurasi environment (opsional jika mengarahkan ke local API):
    ```bash
@@ -38,18 +41,18 @@ Proyek ini merupakan bagian dari portofolio pembelajaran full-stack oleh **[Roha
 
 ---
 
-## 🧪 Pengujian (Tests) & Linting
+## Pengujian (Tests) & Linting
 
 ```bash
 # Menjalankan test suite
 npm run test
 
-# Menjalankan linter
+# Menjalankan linter (0 error, 0 warning)
 npm run lint
 ```
 
 ---
 
-## 📄 Lisensi
+## Lisensi
 
 [MIT License](../LICENSE)
