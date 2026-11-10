@@ -33,6 +33,7 @@ export class BulkUpdateOrderStatusUseCase {
     });
 
     const orderMap = new Map(orders.map((o) => [o.id, o]));
+    const validOrdersToTransition: { id: string; orderNumber: string }[] = [];
 
     for (const id of dto.ids) {
       const order = orderMap.get(id);
@@ -56,30 +57,65 @@ export class BulkUpdateOrderStatusUseCase {
         continue;
       }
 
+      validOrdersToTransition.push({
+        id: order.id,
+        orderNumber: order.orderNumber,
+      });
+    }
+
+    if (validOrdersToTransition.length > 0) {
+      const idsToUpdate = validOrdersToTransition.map((o) => o.id);
+      const timelineNotes =
+        dto.reason || `Pembaruan status massal ke ${dto.status}`;
+
       try {
         await this.prisma.$transaction(async (tx) => {
-          await tx.order.update({
-            where: { id },
-            data: { status: dto.status },
-          });
+          if (
+            typeof tx.order.updateMany === 'function' &&
+            typeof tx.orderTimeline.createMany === 'function'
+          ) {
+            await tx.order.updateMany({
+              where: { id: { in: idsToUpdate } },
+              data: { status: dto.status },
+            });
 
-          await tx.orderTimeline.create({
-            data: {
-              orderId: id,
-              status: dto.status,
-              notes: dto.reason || `Pembaruan status massal ke ${dto.status}`,
-              createdBy: currentUserId,
-            },
-          });
+            await tx.orderTimeline.createMany({
+              data: idsToUpdate.map((orderId) => ({
+                orderId,
+                status: dto.status,
+                notes: timelineNotes,
+                createdBy: currentUserId,
+              })),
+            });
+          } else {
+            for (const orderId of idsToUpdate) {
+              await tx.order.update({
+                where: { id: orderId },
+                data: { status: dto.status },
+              });
+              await tx.orderTimeline.create({
+                data: {
+                  orderId,
+                  status: dto.status,
+                  notes: timelineNotes,
+                  createdBy: currentUserId,
+                },
+              });
+            }
+          }
         });
 
-        updatedIds.push(id);
-      } catch (err: any) {
-        errors.push({
-          orderId: id,
-          orderNumber: order.orderNumber,
-          reason: err.message || 'Gagal memperbarui pesanan',
-        });
+        updatedIds.push(...idsToUpdate);
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : 'Gagal memperbarui pesanan';
+        for (const item of validOrdersToTransition) {
+          errors.push({
+            orderId: item.id,
+            orderNumber: item.orderNumber,
+            reason: message,
+          });
+        }
       }
     }
 
