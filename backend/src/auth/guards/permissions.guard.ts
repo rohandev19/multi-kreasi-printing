@@ -11,8 +11,19 @@ import {
 } from '../decorators/permissions.decorator';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { CacheService } from '../../cache/cache.service';
 import { AuditService } from '../../audit/audit.service';
+
+type UserWithPermissions = Prisma.UserGetPayload<{
+  include: { role: { include: { permissions: true } } };
+}>;
+
+interface PermissionEntry {
+  action: string;
+  subject: string;
+  conditions?: Prisma.JsonValue;
+}
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -46,7 +57,7 @@ export class PermissionsGuard implements CanActivate {
     }
 
     const cacheKey = `user_permissions_v2_${user.sub}`;
-    let userDb: any = await this.cache.get(cacheKey);
+    let userDb = await this.cache.get<UserWithPermissions>(cacheKey);
 
     if (!userDb) {
       userDb = await this.prisma.user.findUnique({
@@ -63,11 +74,11 @@ export class PermissionsGuard implements CanActivate {
       throw new ForbiddenException('Akses ditolak: Akun tidak aktif');
     }
 
-    const userPermissions: any[] = userDb.role?.permissions || [];
+    const userPermissions: PermissionEntry[] = userDb.role?.permissions || [];
 
     // Check if user has 'manage' 'all' (SuperAdmin)
     const isSuperAdmin = userPermissions.some(
-      (p: any) => p.action === 'manage' && p.subject === 'all',
+      (p) => p.action === 'manage' && p.subject === 'all',
     );
 
     if (isSuperAdmin) {
@@ -75,7 +86,7 @@ export class PermissionsGuard implements CanActivate {
     }
 
     const hasAllRequiredPermissions = requiredPermissions.every((req) => {
-      return userPermissions.some((up: any) => {
+      return userPermissions.some((up) => {
         // action match or 'manage' wildcard
         const actionMatch = up.action === req.action || up.action === 'manage';
         // subject match or 'all' wildcard (supporting singular/plural normalization)
@@ -89,19 +100,19 @@ export class PermissionsGuard implements CanActivate {
         if (!actionMatch || !subjectMatch) return false;
 
         // If ABAC conditions exist, evaluate them
-        if (up.conditions && typeof up.conditions === 'object') {
-          // Simplistic ABAC: e.g. {"customerId": "{{id}}"}
-          // Note: In real app, we need to fetch the resource to compare ownerId etc.
-          // For now, checking if params/body matches condition variables like {{id}}
-          // We will implement a full CASL alternative later if needed.
-          const conditionKeys = Object.keys(up.conditions);
+        if (
+          up.conditions &&
+          typeof up.conditions === 'object' &&
+          !Array.isArray(up.conditions)
+        ) {
+          const conditionsRecord = up.conditions as Record<string, unknown>;
+          const conditionKeys = Object.keys(conditionsRecord);
           for (const key of conditionKeys) {
-            let expectedValue = up.conditions[key];
+            let expectedValue = conditionsRecord[key];
             if (expectedValue === '{{id}}') {
               expectedValue = userDb.id;
             }
-            // Check if request param or body has this value (very basic)
-            const actualValue = params[key] || body[key] || query[key];
+            const actualValue = params?.[key] || body?.[key] || query?.[key];
             if (actualValue !== undefined && actualValue !== expectedValue) {
               return false;
             }
