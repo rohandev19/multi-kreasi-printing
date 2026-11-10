@@ -49,14 +49,20 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       Sentry.captureException(errorToCapture);
     }
 
+    const extractedMessage =
+      typeof message === 'string'
+        ? message
+        : typeof message === 'object' &&
+            message !== null &&
+            'message' in message
+          ? message.message
+          : message;
+
     const errorResponse = {
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
-      message:
-        typeof message === 'string'
-          ? message
-          : (message as any).message || message,
+      message: extractedMessage,
     };
 
     response.status(status).json(errorResponse);
