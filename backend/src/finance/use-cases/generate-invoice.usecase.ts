@@ -30,8 +30,9 @@ export class GenerateInvoiceUseCase {
         return;
       }
 
-      const count = await this.prisma.invoice.count();
-      const invoiceNumber = InvoiceLogic.generateInvoiceNumber(count + 1);
+      // Atomic sequence prevents race condition when multiple orders approved concurrently
+      const seq = await this.prisma.nextSequence('invoice_number_seq');
+      const invoiceNumber = InvoiceLogic.generateInvoiceNumber(seq);
 
       // Determine due date according to customer credit terms (TOP)
       const customer = await this.prisma.customer.findUnique({
