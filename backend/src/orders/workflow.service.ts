@@ -47,11 +47,24 @@ export class WorkflowService {
       return await this.prisma.$transaction(async (tx) => {
         // PRE-TRANSITION SAGA HOOKS
         if (nextStatus === 'In_Production') {
-          // E.g., Deduct raw materials, lock machines
           this.logger.log(
             `[SAGA] Locking inventory and allocating machine for Order ${order.id}`,
           );
-          // If inventory is empty, this throws and rolls back the transition!
+          if (typeof tx.order?.updateMany === 'function') {
+            const locked = await tx.order.updateMany({
+              where: {
+                id: orderId,
+                status: order.status,
+                version: order.version,
+              },
+              data: { version: { increment: 1 } },
+            });
+            if (locked.count === 0) {
+              throw new Error(
+                'Order state changed concurrently during production transition (Race Condition)',
+              );
+            }
+          }
         }
 
         const updated = await tx.order.update({
@@ -102,16 +115,23 @@ export class WorkflowService {
     const amount = Number(order.totalAmount);
     let requiredRole = this.determineApprovalRequired(amount);
 
-    // Check customer credit status & overdue debt before auto-approving
+    // Check customer credit status & overdue debt before auto-approving (O(1) targeted lookup)
+    const today = new Date();
     const customer = await this.prisma.customer.findUnique({
       where: { id: order.customerId },
-      include: {
+      select: {
+        creditStatus: true,
         orders: {
-          include: {
+          where: {
             invoices: {
-              include: { payments: true },
+              some: {
+                status: { notIn: ['Fully_Paid', 'Cancelled'] },
+                dueDate: { lt: today },
+              },
             },
           },
+          select: { id: true },
+          take: 1,
         },
       },
     });
@@ -123,21 +143,8 @@ export class WorkflowService {
         if (requiredRole === 'Auto_Approved') requiredRole = 'Manager';
       }
 
-      const today = new Date();
-      let hasOverdue = false;
-      for (const ord of customer.orders) {
-        if (ord.invoices && Array.isArray(ord.invoices)) {
-          for (const inv of ord.invoices) {
-            if (inv.status !== 'Fully_Paid' && inv.status !== 'Cancelled') {
-              if (new Date(inv.dueDate).getTime() < today.getTime()) {
-                hasOverdue = true;
-                break;
-              }
-            }
-          }
-          if (hasOverdue) break;
-        }
-      }
+      const hasOverdue =
+        Array.isArray(customer.orders) && customer.orders.length > 0;
 
       if (hasOverdue) {
         creditWarning = 'Pelanggan memiliki tagihan jatuh tempo (Overdue)';
