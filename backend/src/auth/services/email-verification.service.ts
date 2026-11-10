@@ -29,9 +29,7 @@ export class EmailVerificationService {
       const rawSecure = this.configService.get<string | boolean>('SMTP_SECURE');
       const smtpSecure =
         rawSecure === true || rawSecure === 'true' || smtpPort === 465;
-      const smtpUser = this.configService
-        .get<string>('SMTP_USER', '')
-        .trim();
+      const smtpUser = this.configService.get<string>('SMTP_USER', '').trim();
       const smtpPass = (
         this.configService.get<string>('SMTP_PASS') ||
         this.configService.get<string>('SMTP_PASSWORD') ||
@@ -74,14 +72,18 @@ export class EmailVerificationService {
     }
 
     try {
-      const token = crypto.randomBytes(32).toString('hex');
+      const rawToken = crypto.randomBytes(32).toString('hex');
+      const hashedToken = crypto
+        .createHash('sha256')
+        .update(rawToken)
+        .digest('hex');
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 24);
 
       await this.prisma.emailVerificationToken.create({
         data: {
           userId,
-          token,
+          token: hashedToken,
           expiresAt,
         },
       });
@@ -93,7 +95,7 @@ export class EmailVerificationService {
       const appUrl = this.configService
         .get<string>('APP_URL', defaultAppUrl)
         .replace(/\/+$/, '');
-      const verificationLink = `${appUrl}/verify-email/${token}`;
+      const verificationLink = `${appUrl}/verify-email/${rawToken}`;
 
       const htmlTemplate = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -117,10 +119,12 @@ export class EmailVerificationService {
       });
 
       this.logger.log(`Verification email sent to ${email}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errMessage = error instanceof Error ? error.message : String(error);
+      const errStack = error instanceof Error ? error.stack : undefined;
       this.logger.error(
-        `Failed to send verification email to ${email}: ${error?.message}`,
-        error?.stack,
+        `Failed to send verification email to ${email}: ${errMessage}`,
+        errStack,
       );
       throw new InternalServerErrorException(
         'Failed to send verification email',
@@ -130,11 +134,16 @@ export class EmailVerificationService {
   }
 
   async verifyEmail(token: string): Promise<void> {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
     const verificationToken =
-      await this.prisma.emailVerificationToken.findUnique({
+      (await this.prisma.emailVerificationToken.findUnique({
+        where: { token: hashedToken },
+        include: { user: true },
+      })) ||
+      (await this.prisma.emailVerificationToken.findUnique({
         where: { token },
         include: { user: true },
-      });
+      }));
 
     if (!verificationToken) {
       throw new BadRequestException('Invalid verification token');
@@ -180,6 +189,22 @@ export class EmailVerificationService {
 
     if (user.emailVerified) {
       throw new BadRequestException('Email is already verified');
+    }
+
+    // Rate limiting: cooldown 60 seconds
+    const recentToken = await this.prisma.emailVerificationToken.findFirst({
+      where: {
+        userId: user.id,
+        createdAt: {
+          gte: new Date(Date.now() - 60 * 1000),
+        },
+      },
+    });
+
+    if (recentToken) {
+      throw new BadRequestException(
+        'Silakan tunggu 60 detik sebelum meminta email verifikasi baru.',
+      );
     }
 
     // Invalidate previous tokens
