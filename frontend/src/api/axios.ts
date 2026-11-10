@@ -12,6 +12,7 @@ const fallbackUrl = 'http://localhost:3000';
 
 const api = axios.create({
   baseURL: runtimeApiUrl || buildTimeApiUrl || fallbackUrl,
+  timeout: 30000, // 30-second timeout prevents indefinite UI hang on slow/dropped connections
 });
 
 api.interceptors.request.use((config) => {
