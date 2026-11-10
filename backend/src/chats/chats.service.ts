@@ -107,17 +107,31 @@ export class ChatsService {
     };
   }
 
+  async verifyRoomAccess(
+    roomId: string,
+    userId: string,
+    userRole: string = 'Customer',
+  ) {
+    const room = await this.prisma.chatRoom.findUnique({
+      where: { id: roomId },
+    });
+    if (!room) throw new NotFoundException('Chat room not found');
+
+    if (userRole === 'Customer' && room.customerId !== userId) {
+      throw new ForbiddenException('You are not allowed to access this chat');
+    }
+
+    return room;
+  }
+
   async saveMessage(
     roomId: string,
     senderId: string,
     message: string,
     attachment?: string,
+    senderRole: string = 'Customer',
   ) {
-    // Basic check
-    const room = await this.prisma.chatRoom.findUnique({
-      where: { id: roomId },
-    });
-    if (!room) throw new NotFoundException('Chat room not found');
+    await this.verifyRoomAccess(roomId, senderId, senderRole);
 
     const chatMessage = await this.prisma.chatMessage.create({
       data: {
@@ -146,7 +160,13 @@ export class ChatsService {
     return chatMessage;
   }
 
-  async markAsRead(roomId: string, userId: string) {
+  async markAsRead(
+    roomId: string,
+    userId: string,
+    userRole: string = 'Customer',
+  ) {
+    await this.verifyRoomAccess(roomId, userId, userRole);
+
     // Mark all messages in the room NOT sent by the current user as read
     await this.prisma.chatMessage.updateMany({
       where: {
