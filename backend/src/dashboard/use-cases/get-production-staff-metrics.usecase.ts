@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createPrismaClient } from '../../prisma/prisma-client.helper';
+import { PrismaService } from '../../prisma/prisma.service';
 import { DashboardMetricsResponse } from '../dto/dashboard-metrics-response.dto';
 
 @Injectable()
 export class GetProductionStaffMetricsUseCase {
   private readonly logger = new Logger(GetProductionStaffMetricsUseCase.name);
-  private prisma = createPrismaClient();
+
+  constructor(private readonly prisma: PrismaService) {}
 
   async execute(userId: string): Promise<DashboardMetricsResponse> {
     this.logger.log(`Fetching Production Staff Metrics for user ${userId}...`);
@@ -16,39 +17,40 @@ export class GetProductionStaffMetricsUseCase {
     yesterday.setDate(yesterday.getDate() - 1);
 
     try {
-      // 1. Jobs in Queue (status 'Queue' or 'Pending')
-      const queuedJobs = await this.prisma.productionJob.count({
-        where: { status: { in: ['Queue', 'Pending'] } },
-      });
-
-      // 2. Jobs In Progress (assigned to current user)
-      const inProgressJobs = await this.prisma.productionJob.count({
-        where: {
-          status: 'In_Progress',
-          assignedTo: userId,
-        },
-      });
-
-      // 3. Completed Jobs Today
-      const completedToday = await this.prisma.productionJob.count({
-        where: {
-          status: 'Completed',
-          updatedAt: { gte: today },
-        },
-      });
-
-      const completedYesterday = await this.prisma.productionJob.count({
-        where: {
-          status: 'Completed',
-          updatedAt: { gte: yesterday, lt: today },
-        },
-      });
-
-      // 4. Machine Availability
-      const totalMachines = await this.prisma.machine.count();
-      const availableMachines = await this.prisma.machine.count({
-        where: { status: 'Available' },
-      });
+      const [
+        queuedJobs,
+        inProgressJobs,
+        completedToday,
+        completedYesterday,
+        totalMachines,
+        availableMachines,
+      ] = await Promise.all([
+        this.prisma.productionJob.count({
+          where: { status: { in: ['Queue', 'Queued', 'Pending'] } },
+        }),
+        this.prisma.productionJob.count({
+          where: {
+            status: 'In_Progress',
+            assignedTo: userId,
+          },
+        }),
+        this.prisma.productionJob.count({
+          where: {
+            status: 'Completed',
+            updatedAt: { gte: today },
+          },
+        }),
+        this.prisma.productionJob.count({
+          where: {
+            status: 'Completed',
+            updatedAt: { gte: yesterday, lt: today },
+          },
+        }),
+        this.prisma.machine.count(),
+        this.prisma.machine.count({
+          where: { status: 'Available' },
+        }),
+      ]);
 
       return {
         widgets: [
