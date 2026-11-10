@@ -6,16 +6,31 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
+export interface RolePermissionInput {
+  action: string;
+  subject: string;
+  conditions?: Prisma.InputJsonValue;
+}
+
+export interface CreateRoleInput {
+  name: string;
+  displayName?: string;
+  description?: string;
+  permissions?: RolePermissionInput[];
+}
+
+export interface UpdateRoleInput {
+  name?: string;
+  displayName?: string;
+  description?: string;
+  permissions?: RolePermissionInput[];
+}
+
 @Injectable()
 export class RolesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: {
-    name: string;
-    displayName?: string;
-    description?: string;
-    permissions?: { action: string; subject: string; conditions?: any }[];
-  }) {
+  async create(data: CreateRoleInput) {
     const existing = await this.prisma.role.findUnique({
       where: { name: data.name },
     });
@@ -53,15 +68,7 @@ export class RolesService {
     return role;
   }
 
-  async update(
-    id: string,
-    data: {
-      name?: string;
-      displayName?: string;
-      description?: string;
-      permissions?: { action: string; subject: string; conditions?: any }[];
-    },
-  ) {
+  async update(id: string, data: UpdateRoleInput) {
     return this.prisma.role.update({
       where: { id },
       data: {
