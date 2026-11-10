@@ -5,6 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import {
   CreateTicketDto,
@@ -125,12 +126,18 @@ export class TicketsService {
     let customerId = query.customerId;
 
     if (isCustomer) {
-      if (!customerId) {
-        const dbUser = await this.prisma.user.findUnique({
-          where: { id: user.sub },
-          select: { customerId: true },
+      // Never trust client-supplied query.customerId when caller is a Customer
+      const dbUser = await this.prisma.user.findUnique({
+        where: { id: user.sub },
+        select: { customerId: true },
+      });
+      customerId = dbUser?.customerId || user.customerId || undefined;
+      if (!customerId && user.email && this.prisma.customer?.findFirst) {
+        const customer = await this.prisma.customer.findFirst({
+          where: { email: user.email },
+          select: { id: true },
         });
-        customerId = dbUser?.customerId || undefined;
+        customerId = customer?.id || undefined;
       }
     }
 
@@ -203,9 +210,14 @@ export class TicketsService {
   }
 
   async updateTicket(id: string, dto: UpdateTicketDto, user: UserContext) {
+    if (user.role.toLowerCase() === 'customer') {
+      throw new ForbiddenException(
+        'Akses ditolak: Pelanggan tidak diizinkan mengubah status atau atribut administratif tiket',
+      );
+    }
     const existing = await this.findById(id, user);
 
-    const data: any = {};
+    const data: Prisma.SupportTicketUncheckedUpdateInput = {};
     if (dto.priority) data.priority = dto.priority;
     if (dto.category) data.category = dto.category;
     if (dto.assignedToId !== undefined) {
@@ -317,12 +329,14 @@ export class TicketsService {
       },
     });
 
-    // Resolution time calculation (Req 17.9 & 17.10)
+    // Resolution time calculation (Capped to recent 1000 tickets to prevent unbounded RAM bloat)
     const resolvedTickets = await this.prisma.supportTicket.findMany({
       where: {
         status: { in: ['Resolved', 'Closed'] },
         OR: [{ resolvedAt: { not: null } }, { closedAt: { not: null } }],
       },
+      take: 1000,
+      orderBy: { createdAt: 'desc' },
       select: {
         category: true,
         createdAt: true,
