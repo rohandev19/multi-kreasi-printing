@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createPrismaClient } from '../../prisma/prisma-client.helper';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class GetRevenueChartDataUseCase {
   private readonly logger = new Logger(GetRevenueChartDataUseCase.name);
-  private prisma = createPrismaClient();
+
+  constructor(private readonly prisma: PrismaService) {}
 
   async execute() {
     this.logger.log('Fetching Revenue Chart Data...');
