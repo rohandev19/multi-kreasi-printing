@@ -14,10 +14,25 @@ export class ValidateCustomerCreditUseCase {
       where: { id: customerId },
       include: {
         orders: {
-          include: {
+          where: {
             invoices: {
-              include: {
-                payments: true,
+              some: {
+                status: { notIn: ['Fully_Paid', 'Cancelled'] },
+              },
+            },
+          },
+          select: {
+            invoices: {
+              where: {
+                status: { notIn: ['Fully_Paid', 'Cancelled'] },
+              },
+              select: {
+                amount: true,
+                dueDate: true,
+                status: true,
+                payments: {
+                  select: { amount: true },
+                },
               },
             },
           },
@@ -39,7 +54,7 @@ export class ValidateCustomerCreditUseCase {
           if (inv.status !== 'Fully_Paid' && inv.status !== 'Cancelled') {
             const totalAmount = Number(inv.amount || 0);
             const paidAmount = inv.payments.reduce(
-              (sum: number, p: any) => sum + Number(p.amount || 0),
+              (sum, p) => sum + Number(p.amount || 0),
               0,
             );
             const outstanding = Math.max(0, totalAmount - paidAmount);
