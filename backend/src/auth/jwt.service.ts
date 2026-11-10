@@ -1,5 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
+import type { Request } from 'express';
+
+export interface JwtPayload extends jwt.JwtPayload {
+  sub: string;
+  id?: string;
+  email?: string;
+  role?: string;
+  userId?: string;
+  customerId?: string;
+  type?: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user?: JwtPayload;
+}
 
 @Injectable()
 export class JwtService {
@@ -42,17 +57,21 @@ export class JwtService {
     });
   }
 
-  verifyToken(token: string): any {
+  verifyToken(token: string): JwtPayload | null {
     try {
-      return jwt.verify(token, this.secret, { algorithms: ['HS256'] });
+      return jwt.verify(token, this.secret, {
+        algorithms: ['HS256'],
+      }) as JwtPayload;
     } catch {
       return null;
     }
   }
 
-  verifyRefreshToken(token: string): any {
+  verifyRefreshToken(token: string): JwtPayload | null {
     try {
-      return jwt.verify(token, this.refreshSecret, { algorithms: ['HS256'] });
+      return jwt.verify(token, this.refreshSecret, {
+        algorithms: ['HS256'],
+      }) as JwtPayload;
     } catch {
       return null;
     }
