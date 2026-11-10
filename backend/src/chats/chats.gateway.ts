@@ -10,6 +10,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatsService } from './chats.service';
 import * as jwt from 'jsonwebtoken';
+import type { JwtPayload } from '../auth/jwt.service';
 import { ConfigService } from '@nestjs/config';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
@@ -18,7 +19,29 @@ import { WsThrottlerGuard } from '../common/guards/ws-throttler.guard';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      const allowed = [
+        process.env.FRONTEND_URL,
+        process.env.APP_URL,
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://mkprinting.my.id',
+      ].filter(Boolean);
+
+      if (
+        !origin ||
+        allowed.includes(origin) ||
+        process.env.NODE_ENV !== 'production'
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
   },
 })
 export class ChatsGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -50,7 +73,7 @@ export class ChatsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const decoded = jwt.verify(
         token,
         this.configService.get<string>('JWT_SECRET') as string,
-      ) as any;
+      ) as JwtPayload;
 
       // Attach user info to socket
       client.data.user = decoded;
@@ -73,11 +96,29 @@ export class ChatsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('joinRoom')
-  handleJoinRoom(
+  async handleJoinRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody('roomId') roomId: string,
   ) {
-    // Basic authorization could be implemented here
+    const user = client.data.user;
+    if (!user) {
+      client.disconnect();
+      return;
+    }
+
+    const userRole = user.role || 'Customer';
+    if (roomId === 'admin-room') {
+      if (userRole === 'Customer') {
+        this.logger.warn(
+          `Customer ${user.sub} attempted to join restricted admin-room`,
+        );
+        return { event: 'error', message: 'Forbidden room access' };
+      }
+      client.join(roomId);
+      return { event: 'joinedRoom', data: roomId };
+    }
+
+    await this.chatsService.verifyRoomAccess(roomId, user.sub, userRole);
     client.join(roomId);
     return { event: 'joinedRoom', data: roomId };
   }
@@ -89,14 +130,29 @@ export class ChatsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody()
     payload: { roomId: string; message: string; attachment?: string },
   ) {
-    const user = client.data.user;
+    const user = client.data.user as JwtPayload | undefined;
+    if (!user || !user.sub) {
+      client.disconnect();
+      return { event: 'error', message: 'Unauthorized socket connection' };
+    }
+    if (
+      !payload ||
+      typeof payload.roomId !== 'string' ||
+      !payload.roomId.trim() ||
+      typeof payload.message !== 'string' ||
+      !payload.message.trim() ||
+      payload.message.length > 5000
+    ) {
+      return { event: 'error', message: 'Invalid chat message payload' };
+    }
 
-    // Save to database
+    // Save to database (with room ownership verification)
     const savedMessage = await this.chatsService.saveMessage(
       payload.roomId,
       user.sub,
       payload.message,
       payload.attachment,
+      user.role || 'Customer',
     );
 
     // Broadcast to room
