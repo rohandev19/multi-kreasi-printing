@@ -1,24 +1,32 @@
 import * as crypto from 'crypto';
 
 export class OrderLogic {
-  static calculateTotal(items: { quantity: number; unitPrice: number }[]): {
+  static calculateTotal(
+    items: { quantity: number; unitPrice: number }[],
+    taxRate = 0.11,
+  ): {
     subtotal: number;
     tax: number;
     total: number;
   } {
-    const subtotal = items.reduce(
+    const subtotalRaw = items.reduce(
       (sum, item) => sum + item.quantity * item.unitPrice,
       0,
     );
-    const tax = subtotal * 0.11; // 11% tax
-    const total = subtotal + tax; // shipping handled separately for MVP if not in items
+    // Precise rounding to 2 decimal places to avoid floating point drift
+    const subtotal = Math.round(subtotalRaw * 100) / 100;
+    const tax = Math.round(subtotal * taxRate * 100) / 100;
+    const total = Math.round((subtotal + tax) * 100) / 100;
     return { subtotal, tax, total };
   }
 
   static generateOrderNumber(): string {
-    const year = new Date().getFullYear();
-    const random = Math.floor(1000 + Math.random() * 9000);
-    return `ORD-${year}-${random}`;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const randomHex = crypto.randomBytes(3).toString('hex').toUpperCase();
+    return `ORD-${year}${month}${day}-${randomHex}`;
   }
 
   static isValidTransition(currentStatus: string, nextStatus: string): boolean {
