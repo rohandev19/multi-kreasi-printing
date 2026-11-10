@@ -14,7 +14,7 @@ import { CalculateKPIsUseCase } from './use-cases/calculate-kpis.usecase';
 import { GetRevenueChartDataUseCase } from './use-cases/get-revenue-chart-data.usecase';
 import { GetProductionStatusUseCase } from './use-cases/get-production-status.usecase';
 import { GetReportsMetricsUseCase } from './use-cases/get-reports-metrics.usecase';
-import { createPrismaClient } from '../prisma/prisma-client.helper';
+import { PrismaService } from '../prisma/prisma.service';
 import type { Request as ExpressRequest } from 'express';
 
 interface AuthRequest extends ExpressRequest {
@@ -36,9 +36,8 @@ import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 @Controller('api/v1/dashboard')
 @UseGuards(JwtAuthGuard)
 export class DashboardController {
-  private prisma = createPrismaClient();
-
   constructor(
+    private readonly prisma: PrismaService,
     private readonly getMetrics: GetDashboardMetricsUseCase,
     private readonly getOwnerMetrics: GetOwnerMetricsUseCase,
     private readonly getManagerMetrics: GetManagerMetricsUseCase,
@@ -54,11 +53,20 @@ export class DashboardController {
     private readonly getReportsMetrics: GetReportsMetricsUseCase,
   ) {}
 
+  private assertStaffAccess(req?: AuthRequest) {
+    if (req?.user?.role?.toLowerCase() === 'customer') {
+      throw new ForbiddenException(
+        'Akses ditolak: Metrik eksekutif dan operasional hanya untuk staf internal',
+      );
+    }
+  }
+
   @Get('metrics')
   @UseInterceptors(CacheInterceptor)
   @CacheKey('dashboard-metrics')
   @CacheTTL(300000) // 5 minutes
-  async getDashboardMetrics() {
+  async getDashboardMetrics(@Request() req?: AuthRequest) {
+    this.assertStaffAccess(req);
     return this.getMetrics.execute();
   }
 
@@ -101,7 +109,8 @@ export class DashboardController {
   @UseInterceptors(CacheInterceptor)
   @CacheKey('dashboard-kpis')
   @CacheTTL(900000) // 15 minutes
-  async getKpis() {
+  async getKpis(@Request() req?: AuthRequest) {
+    this.assertStaffAccess(req);
     return this.calculateKpis.execute();
   }
 
@@ -109,18 +118,21 @@ export class DashboardController {
   @UseInterceptors(CacheInterceptor)
   @CacheKey('dashboard-revenue-chart')
   @CacheTTL(1800000) // 30 minutes
-  async getRevenueChartData() {
+  async getRevenueChartData(@Request() req?: AuthRequest) {
+    this.assertStaffAccess(req);
     return this.getRevenueChart.execute();
   }
 
   @Get('reports/metrics')
-  async getReportsMetricsData() {
+  async getReportsMetricsData(@Request() req?: AuthRequest) {
+    this.assertStaffAccess(req);
     return this.getReportsMetrics.execute();
   }
 
   @Get('production-status')
   // We do not cache production status as it requires real-time overview for queue
-  async getProductionOverview() {
+  async getProductionOverview(@Request() req?: AuthRequest) {
+    this.assertStaffAccess(req);
     return this.getProductionStatus.execute();
   }
 
