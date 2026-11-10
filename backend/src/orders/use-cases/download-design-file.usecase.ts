@@ -20,8 +20,14 @@ export class DownloadDesignFileUseCase {
   ) {
     const whereClause: Prisma.DesignFileWhereInput = { id: fileId };
 
-    if (user.role === 'Customer' && user.email) {
-      whereClause.order = { customer: { email: user.email } };
+    if (user.role === 'Customer') {
+      whereClause.OR = [
+        ...(user.sub ? [{ uploadedBy: user.sub }] : []),
+        ...(user.email ? [{ order: { customer: { email: user.email } } }] : []),
+        ...(user.sub
+          ? [{ order: { customer: { members: { some: { id: user.sub } } } } }]
+          : []),
+      ];
     }
 
     const file = await this.prisma.designFile.findFirst({
