@@ -8,6 +8,7 @@ import {
   Query,
   Req,
   UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TicketsService, UserContext } from './tickets.service';
@@ -47,7 +48,12 @@ export class TicketsController {
   }
 
   @Get('metrics')
-  async getMetrics() {
+  async getMetrics(@Req() req?: RequestWithUser) {
+    if (req?.user?.role?.toLowerCase() === 'customer') {
+      throw new ForbiddenException(
+        'Akses ditolak: Metrik tiket hanya dapat diakses oleh staf internal',
+      );
+    }
     return this.ticketsService.getMetrics();
   }
 
