@@ -5,6 +5,7 @@ import {
   Put,
   Body,
   Param,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -33,9 +34,15 @@ export class InventoryController {
 
   @Get()
   @RequirePermissions({ action: 'read', subject: 'Material' })
-  async getInventory(@Req() req: AuthenticatedRequest) {
+  async getInventory(
+    @Req() req: AuthenticatedRequest,
+    @Query('page') pageStr?: string,
+    @Query('limit') limitStr?: string,
+  ) {
     const user = req.user;
-    return this.inventoryService.getMaterials(user.role);
+    const page = pageStr ? parseInt(pageStr, 10) : 1;
+    const limit = limitStr ? parseInt(limitStr, 10) : 50;
+    return this.inventoryService.getMaterials(user.role, page, limit);
   }
 
   @Get(':id')
