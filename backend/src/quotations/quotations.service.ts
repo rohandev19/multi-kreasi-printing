@@ -20,6 +20,49 @@ import { QuotationLogic } from './domain/quotation.entity';
 export class QuotationsService {
   constructor(private prisma: PrismaService) {}
 
+  async resolveCustomerIdForUser(user: {
+    sub?: string;
+    email?: string;
+    customerId?: string;
+  }): Promise<string> {
+    if (user.customerId) {
+      return user.customerId;
+    }
+
+    if (user.email) {
+      const customer = await this.prisma.customer?.findFirst?.({
+        where: { email: user.email },
+        select: { id: true },
+      });
+      if (customer?.id) {
+        return customer.id;
+      }
+    }
+
+    if (user.sub) {
+      const dbUser = await this.prisma.user?.findUnique?.({
+        where: { id: user.sub },
+        select: { customerId: true, email: true },
+      });
+      if (dbUser?.customerId) {
+        return dbUser.customerId;
+      }
+      if (dbUser?.email) {
+        const customer = await this.prisma.customer?.findFirst?.({
+          where: { email: dbUser.email },
+          select: { id: true },
+        });
+        if (customer?.id) {
+          return customer.id;
+        }
+      }
+    }
+
+    throw new ForbiddenException(
+      'You do not have a valid customer profile for quotation access',
+    );
+  }
+
   async findAll(customerId?: string) {
     const where = customerId ? { customerId } : {};
     return this.prisma.quotation.findMany({
@@ -102,9 +145,9 @@ export class QuotationsService {
       ? 'Pending_Manager_Approval'
       : 'Sent';
 
-    // Auto-generate quotation number
-    const count = await this.prisma.quotation.count();
-    const quotationNumber = `QUO-${new Date().getFullYear()}-${(count + 1)
+    // Atomic sequence prevents quotation number collision
+    const seq = await this.prisma.nextSequence('quotation_number_seq');
+    const quotationNumber = `QUO-${new Date().getFullYear()}-${seq
       .toString()
       .padStart(4, '0')}`;
 
@@ -205,7 +248,7 @@ export class QuotationsService {
     }
 
     if (data.discountPercent !== undefined) {
-      const currentItems = (existing as any).items.map((i: any) => ({
+      const currentItems = existing.items.map((i) => ({
         quantity: i.quantity,
         unitPrice: Number(i.unitPrice),
       }));
@@ -394,9 +437,9 @@ export class QuotationsService {
         ? dto.discountPercent
         : Number(quotation.discountPercent);
 
-    const quotationItems = (quotation as any).items || [];
+    const quotationItems = quotation.items || [];
     const totals = QuotationLogic.calculateTotals({
-      items: quotationItems.map((i: any) => ({
+      items: quotationItems.map((i) => ({
         quantity: i.quantity,
         unitPrice: Number(i.unitPrice),
       })),
@@ -426,7 +469,7 @@ export class QuotationsService {
         validUntil: quotation.validUntil,
         notes: revisionNotes,
         items: {
-          create: quotationItems.map((item: any) => ({
+          create: quotationItems.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
             unitPrice: item.unitPrice,
@@ -452,7 +495,16 @@ export class QuotationsService {
     });
   }
 
-  async createCustomQuotation(data: any) {
+  async createCustomQuotation(data: {
+    email: string;
+    fullName: string;
+    companyName?: string;
+    phone?: string;
+    productCategory?: string;
+    estimatedQuantity?: number | string;
+    specifications?: string;
+    notes?: string;
+  }) {
     // 1. Find or create Customer
     let customer = await this.prisma.customer.findUnique({
       where: { email: data.email },
@@ -468,11 +520,11 @@ export class QuotationsService {
       });
     }
 
-    // 2. Auto-generate quotation number
-    const count = await this.prisma.quotation.count();
-    const quotationNumber = `REQ-${new Date().getFullYear()}-${(count + 1)
+    // 2. Atomic sequence prevents request quotation number collision
+    const seq = await this.prisma.nextSequence('quotation_number_seq');
+    const quotationNumber = `REQ-${new Date().getFullYear()}-${seq
       .toString()
-      .padStart(4, '0')}`;
+      .padStart(5, '0')}`;
 
     const notes = `[CUSTOM REQUEST]\nName: ${data.fullName}\nCategory: ${data.productCategory}\nQuantity: ${data.estimatedQuantity}\n\nSpecs:\n${data.specifications}\n\nAdditional Notes:\n${data.notes || 'None'}`;
 
