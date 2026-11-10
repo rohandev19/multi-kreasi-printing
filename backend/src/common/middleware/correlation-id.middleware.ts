@@ -10,7 +10,7 @@ export class CorrelationIdMiddleware implements NestMiddleware {
     req.headers['x-request-id'] = correlationId;
     res.setHeader('x-request-id', correlationId);
 
-    const store = new Map<string, any>();
+    const store = new Map<string, unknown>();
     store.set('correlationId', correlationId);
 
     ALS.run(store, () => {
