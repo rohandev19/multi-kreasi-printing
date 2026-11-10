@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Param,
+  Query,
   Req,
   UseGuards,
   ForbiddenException,
@@ -44,35 +45,65 @@ export class CustomerOrdersController {
 
   @Get()
   @RequirePermissions({ action: 'read', subject: 'Order' })
-  async getMyOrders(@Req() req: AuthenticatedRequest) {
+  async getMyOrders(
+    @Req() req: AuthenticatedRequest,
+    @Query('page') pageStr?: string,
+    @Query('limit') limitStr?: string,
+  ) {
     const user = req.user;
+    const page = Math.max(1, parseInt(pageStr || '1', 10) || 1);
+    const limit = Math.min(
+      100,
+      Math.max(1, parseInt(limitStr || '20', 10) || 20),
+    );
+    const skip = (page - 1) * limit;
 
-    const orders = await this.prisma.order.findMany({
-      where: { customer: { email: user.email } },
-      include: {
-        items: {
-          include: {
-            product: true,
+    const where = {
+      OR: [
+        { customer: { email: user.email } },
+        { customer: { members: { some: { id: user.sub || user.id } } } },
+      ],
+    };
+
+    const [orders, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where,
+        skip,
+        take: limit,
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
+          shipments: {
+            select: {
+              id: true,
+              shipmentNumber: true,
+              status: true,
+              carrier: true,
+              trackingNumber: true,
+              driverName: true,
+              deliveredAt: true,
+              receivedBy: true,
+            },
+            orderBy: { createdAt: 'desc' },
           },
         },
-        shipments: {
-          select: {
-            id: true,
-            shipmentNumber: true,
-            status: true,
-            carrier: true,
-            trackingNumber: true,
-            driverName: true,
-            deliveredAt: true,
-            receivedBy: true,
-          },
-          orderBy: { createdAt: 'desc' },
-        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.order.count({ where }),
+    ]);
+
+    return {
+      data: orders,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
       },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return orders;
+    };
   }
 
   @Get(':id')
