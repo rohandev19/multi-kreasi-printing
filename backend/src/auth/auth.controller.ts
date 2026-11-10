@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import type { Response, Request } from 'express';
+import type { AuthenticatedRequest } from './jwt.service';
 import { LoginRequestDto } from './dto/login.dto';
 import { LoginUseCase } from './use-cases/login.usecase';
 import { LogoutUseCase } from './use-cases/logout.usecase';
@@ -78,8 +79,8 @@ export class AuthController {
 
   @Get('me')
   @HttpCode(HttpStatus.OK)
-  async getMe(@Req() req: Request) {
-    const user = (req as any).user;
+  async getMe(@Req() req: AuthenticatedRequest) {
+    const user = req.user;
     if (!user || !user.sub) {
       throw new UnauthorizedException();
     }
@@ -105,8 +106,11 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const user = (req as any).user;
+  async logout(
+    @Req() req: AuthenticatedRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const user = req.user;
     if (user && user.sub) {
       await this.logoutUseCase.execute(user.sub);
     }
@@ -115,8 +119,11 @@ export class AuthController {
   }
 
   @Patch('change-password')
-  async changePassword(@Req() req: Request, @Body() dto: ChangePasswordDto) {
-    const user = (req as any).user;
+  async changePassword(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    const user = req.user;
     if (!user || !user.sub) {
       throw new UnauthorizedException();
     }
