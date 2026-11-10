@@ -11,7 +11,29 @@ import { JwtService } from '../../auth/jwt.service';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      const allowed = [
+        process.env.FRONTEND_URL,
+        process.env.APP_URL,
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://mkprinting.my.id',
+      ].filter(Boolean);
+
+      if (
+        !origin ||
+        allowed.includes(origin) ||
+        process.env.NODE_ENV !== 'production'
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
   },
 })
 export class NotificationsGateway
@@ -26,7 +48,7 @@ export class NotificationsGateway
     this.logger.log('WebSocket Gateway initialized');
   }
 
-  async handleConnection(client: Socket, ...args: any[]) {
+  async handleConnection(client: Socket, ..._args: unknown[]) {
     try {
       const token = this.extractTokenFromHeader(client.handshake);
       if (!token) {
@@ -63,8 +85,11 @@ export class NotificationsGateway
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
-  private extractTokenFromHeader(handshake: any): string | undefined {
-    const auth = handshake.auth?.token || handshake.headers?.authorization;
+  private extractTokenFromHeader(
+    handshake: Socket['handshake'],
+  ): string | undefined {
+    const authToken = (handshake.auth as { token?: string } | undefined)?.token;
+    const auth = authToken || handshake.headers?.authorization;
     if (auth && auth.startsWith('Bearer ')) {
       return auth.substring(7);
     }
@@ -74,7 +99,10 @@ export class NotificationsGateway
   /**
    * Emit a notification to a specific user
    */
-  sendNotificationToUser(userId: string, notification: any) {
+  sendNotificationToUser(
+    userId: string,
+    notification: Record<string, unknown>,
+  ) {
     this.server.to(userId).emit('notification:new', notification);
     this.logger.debug(`Emitted notification:new to user ${userId}`);
   }
