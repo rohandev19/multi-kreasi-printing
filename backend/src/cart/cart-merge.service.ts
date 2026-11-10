@@ -4,6 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { GuestCartItemDto } from './dto/guest-cart-item.dto';
 import { CartResponseDto, CartItemResponseDto } from './dto/cart-response.dto';
 import { PricingTierLogic } from '../products/domain/pricing-tier';
@@ -13,7 +14,14 @@ export class CartMergeService {
   constructor(private readonly prisma: PrismaService) {}
 
   private calculateProductUnitPrice(
-    product: { basePrice: any; pricingTiers?: any[] },
+    product: {
+      basePrice: Prisma.Decimal | number | string;
+      pricingTiers?: Array<{
+        minQuantity: number;
+        maxQuantity: number | null;
+        unitPrice: Prisma.Decimal | number | string;
+      }>;
+    },
     quantity: number,
   ): number {
     if (product.pricingTiers && product.pricingTiers.length > 0) {
