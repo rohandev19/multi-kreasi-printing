@@ -23,21 +23,31 @@ export class PaymentWebhookUseCase {
     private readonly recordPaymentUseCase: RecordPaymentUseCase,
   ) {}
 
-  async execute(payload: PaymentWebhookPayload, signature: string) {
-    // 1. HMAC Signature Validation
+  async execute(
+    payload: PaymentWebhookPayload,
+    signature: string,
+    rawBody?: string,
+  ) {
+    // 1. HMAC Signature Validation (constant-time comparison)
     const secret = this.configService.get<string>('PAYMENT_WEBHOOK_SECRET');
     if (!secret) {
       this.logger.error('PAYMENT_WEBHOOK_SECRET is not configured');
       throw new Error('Internal Server Error: Webhook configuration missing');
     }
 
-    const payloadString = JSON.stringify(payload);
+    const payloadString = rawBody ?? JSON.stringify(payload);
     const expectedSignature = crypto
       .createHmac('sha256', secret)
       .update(payloadString)
       .digest('hex');
 
-    if (signature !== expectedSignature) {
+    const sigBuffer = Buffer.from(signature || '', 'utf8');
+    const expectedBuffer = Buffer.from(expectedSignature, 'utf8');
+
+    if (
+      sigBuffer.length !== expectedBuffer.length ||
+      !crypto.timingSafeEqual(sigBuffer, expectedBuffer)
+    ) {
       this.logger.warn(
         `Invalid webhook signature for transaction ${payload.transactionId}`,
       );
