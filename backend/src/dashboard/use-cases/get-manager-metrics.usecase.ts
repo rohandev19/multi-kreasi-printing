@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createPrismaClient } from '../../prisma/prisma-client.helper';
+import { PrismaService } from '../../prisma/prisma.service';
 import { DashboardMetricsResponse } from '../dto/dashboard-metrics-response.dto';
 
 @Injectable()
 export class GetManagerMetricsUseCase {
   private readonly logger = new Logger(GetManagerMetricsUseCase.name);
-  private prisma = createPrismaClient();
+
+  constructor(private readonly prisma: PrismaService) {}
 
   async execute(): Promise<DashboardMetricsResponse> {
     this.logger.log('Fetching Manager Metrics...');
@@ -16,59 +17,63 @@ export class GetManagerMetricsUseCase {
     yesterday.setDate(yesterday.getDate() - 1);
 
     try {
-      // 1. Orders Created Today
-      const ordersToday = await this.prisma.order.count({
-        where: {
-          createdAt: { gte: today },
-        },
-      });
-
-      const ordersYesterday = await this.prisma.order.count({
-        where: {
-          createdAt: { gte: yesterday, lt: today },
-        },
-      });
-
-      // 2. Pending Approvals
-      const pendingApprovals = await this.prisma.order.count({
-        where: { status: 'Draft' }, // Assumed pending approval
-      });
-
-      // 3. Production Status Summary
-      const queuedJobs = await this.prisma.productionJob.count({
-        where: { status: 'Pending' },
-      });
-      const inProgressJobs = await this.prisma.productionJob.count({
-        where: { status: 'In_Progress' },
-      });
-      const completedJobsToday = await this.prisma.productionJob.count({
-        where: { status: 'Completed', updatedAt: { gte: today } },
-      });
-
-      // 4. Low Stock Alerts
-      let lowStockAlerts = 0;
-      try {
-        const lowStockAlertsRaw = await this.prisma.$queryRaw<
-          { count: bigint }[]
-        >`
-          SELECT COUNT(*) as count 
-          FROM raw_materials 
-          WHERE current_stock < minimum_stock
-        `;
-        lowStockAlerts = Number(lowStockAlertsRaw[0]?.count || 0);
-      } catch (error) {
-        lowStockAlerts = 0;
-      }
-
-      // 5. Team Performance (Mocked for now since not fully in schema)
-      const activeStaff = await this.prisma.user.count({
-        where: {
-          role: {
-            name: { in: ['Production_Staff', 'Designer', 'Warehouse_Staff'] },
+      const [
+        ordersToday,
+        ordersYesterday,
+        pendingApprovals,
+        queuedJobs,
+        inProgressJobs,
+        completedJobsToday,
+        lowStockAlertsRaw,
+        activeStaff,
+      ] = await Promise.all([
+        this.prisma.order.count({
+          where: {
+            createdAt: { gte: today },
           },
-          status: 'Active',
-        },
-      });
+        }),
+        this.prisma.order.count({
+          where: {
+            createdAt: { gte: yesterday, lt: today },
+          },
+        }),
+        this.prisma.order.count({
+          where: { status: { in: ['Draft', 'Pending_Approval'] } },
+        }),
+        this.prisma.productionJob.count({
+          where: { status: { in: ['Pending', 'Queued', 'Queue'] } },
+        }),
+        this.prisma.productionJob.count({
+          where: { status: 'In_Progress' },
+        }),
+        this.prisma.productionJob.count({
+          where: { status: 'Completed', updatedAt: { gte: today } },
+        }),
+        this.prisma.$queryRaw<{ count: bigint }[]>`
+          SELECT COUNT(*) as count
+          FROM materials
+          WHERE current_stock < min_stock_level
+            AND status = 'Active'
+        `.catch(() => [{ count: 0n }]),
+        this.prisma.user.count({
+          where: {
+            role: {
+              name: {
+                in: [
+                  'Production',
+                  'Production_Staff',
+                  'Designer',
+                  'Warehouse',
+                  'Warehouse_Staff',
+                ],
+              },
+            },
+            status: { in: ['ACTIVE', 'Active'] },
+          },
+        }),
+      ]);
+
+      const lowStockAlerts = Number(lowStockAlertsRaw[0]?.count || 0);
 
       return {
         widgets: [
