@@ -10,6 +10,15 @@ import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CacheService } from '../../cache/cache.service';
 
+interface CachedRoleUser {
+  id: string;
+  status: string;
+  role: {
+    name: string;
+    permissions?: unknown;
+  };
+}
+
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(
@@ -42,7 +51,7 @@ export class RolesGuard implements CanActivate {
     }
 
     const cacheKey = `user_roles_${user.sub}`;
-    let userDb: any = await this.cache.get(cacheKey);
+    let userDb = await this.cache.get<CachedRoleUser>(cacheKey);
 
     if (!userDb) {
       userDb = await this.prisma.user.findUnique({
@@ -60,7 +69,9 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('Akses ditolak: Akun tidak aktif');
     }
 
-    const permissions = userDb.role.permissions as string[];
+    const permissions = Array.isArray(userDb.role.permissions)
+      ? (userDb.role.permissions as string[])
+      : [];
 
     // Check if user has '*' permission, matches the role name, or has specific required permission
     const hasPermission = requiredRoles.some(
