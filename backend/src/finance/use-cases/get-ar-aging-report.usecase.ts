@@ -45,14 +45,32 @@ export class GetArAgingReportUseCase {
   async execute(
     referenceDate: Date = new Date(),
   ): Promise<ArAgingReportResult> {
-    // Fetch all customers with their credit profile and their invoices
+    // Fetch active customers and ONLY their unpaid/active invoices to avoid OOM on historical data
     const customers = await this.prisma.customer.findMany({
+      where: { deletedAt: null },
       include: {
         orders: {
-          include: {
+          where: {
             invoices: {
-              include: {
-                payments: true,
+              some: {
+                status: { notIn: ['Fully_Paid', 'Cancelled'] },
+              },
+            },
+          },
+          select: {
+            invoices: {
+              where: {
+                status: { notIn: ['Fully_Paid', 'Cancelled'] },
+              },
+              select: {
+                id: true,
+                invoiceNumber: true,
+                amount: true,
+                dueDate: true,
+                status: true,
+                payments: {
+                  select: { amount: true },
+                },
               },
             },
           },
@@ -73,7 +91,7 @@ export class GetArAgingReportUseCase {
     let highRiskCount = 0;
 
     for (const customer of customers) {
-      // Gather all invoices across customer orders
+      // Gather all unpaid invoices across customer orders
       const invoices: InvoiceAgingItem[] = [];
 
       for (const order of customer.orders) {
@@ -81,7 +99,7 @@ export class GetArAgingReportUseCase {
           for (const inv of order.invoices) {
             const totalAmount = Number(inv.amount || 0);
             const paidAmount = inv.payments.reduce(
-              (sum: number, p: any) => sum + Number(p.amount || 0),
+              (sum, p) => sum + Number(p.amount || 0),
               0,
             );
             const outstanding = Math.max(0, totalAmount - paidAmount);
