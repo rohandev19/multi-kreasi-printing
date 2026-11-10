@@ -15,5 +15,3 @@ if (dsn) {
 }
 
 export { Sentry };
-
-
