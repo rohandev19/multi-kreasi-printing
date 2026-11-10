@@ -17,55 +17,66 @@ export class RecordPaymentUseCase {
     referenceNumber: string | undefined,
     currentUserId: string,
   ) {
-    const invoice = await this.prisma.invoice.findUnique({
-      where: { id: invoiceId },
-      include: { payments: true },
-    });
+    const { oldStatus, updatedInvoice } = await this.prisma.$transaction(
+      async (tx) => {
+        const invoice = await tx.invoice.findUnique({
+          where: { id: invoiceId },
+          include: { payments: true },
+        });
 
-    if (!invoice) {
-      throw new NotFoundException('Invoice not found');
-    }
+        if (!invoice) {
+          throw new NotFoundException('Invoice not found');
+        }
 
-    InvoiceLogic.validatePaymentAmount(
-      invoice.amount,
-      invoice.payments,
-      amount,
-    );
+        if (referenceNumber) {
+          const duplicateRef = invoice.payments.find(
+            (p) => p.referenceNumber === referenceNumber,
+          );
+          if (duplicateRef) {
+            return { oldStatus: invoice.status, updatedInvoice: invoice };
+          }
+        }
 
-    const updatedInvoice = await this.prisma.$transaction(async (tx) => {
-      const payment = await tx.payment.create({
-        data: {
-          invoiceId,
+        InvoiceLogic.validatePaymentAmount(
+          invoice.amount,
+          invoice.payments,
           amount,
-          paymentMethod:
-            paymentMethod as import('@prisma/client').PaymentMethod,
-          referenceNumber,
-        },
-      });
+        );
 
-      // Recalculate status
-      const updatedPayments = [...invoice.payments, payment];
-      const newStatus = InvoiceLogic.determineStatus(
-        invoice.amount,
-        updatedPayments,
-        invoice.dueDate,
-        invoice.status,
-      );
+        const payment = await tx.payment.create({
+          data: {
+            invoiceId,
+            amount,
+            paymentMethod:
+              paymentMethod as import('@prisma/client').PaymentMethod,
+            referenceNumber,
+          },
+        });
 
-      const updated = await tx.invoice.update({
-        where: { id: invoiceId },
-        data: { status: newStatus },
-      });
+        // Recalculate status
+        const updatedPayments = [...invoice.payments, payment];
+        const newStatus = InvoiceLogic.determineStatus(
+          invoice.amount,
+          updatedPayments,
+          invoice.dueDate,
+          invoice.status,
+        );
 
-      return updated;
-    });
+        const updated = await tx.invoice.update({
+          where: { id: invoiceId },
+          data: { status: newStatus },
+        });
+
+        return { oldStatus: invoice.status, updatedInvoice: updated };
+      },
+    );
 
     await this.audit.log({
       userId: currentUserId,
       action: 'PAYMENT_RECORDED',
       entityType: 'Invoice',
       entityId: invoiceId,
-      oldValue: { status: invoice.status },
+      oldValue: { status: oldStatus },
       newValue: { status: updatedInvoice.status, amount },
     });
 
