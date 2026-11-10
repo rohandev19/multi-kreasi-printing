@@ -1,61 +1,59 @@
 import { Injectable } from '@nestjs/common';
-import { createPrismaClient } from '../../prisma/prisma-client.helper';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class GetReportsMetricsUseCase {
-  private prisma = createPrismaClient();
+  constructor(private readonly prisma: PrismaService) {}
 
   async execute() {
-    // 1. Orders by Status
-    const ordersByStatusRaw = await this.prisma.order.groupBy({
-      by: ['status'],
-      _count: {
-        id: true,
-      },
-    });
+    const [ordersByStatusRaw, ordersByPriorityRaw, topCustomersRaw] =
+      await Promise.all([
+        this.prisma.order.groupBy({
+          by: ['status'],
+          _count: {
+            id: true,
+          },
+        }),
+        this.prisma.order.groupBy({
+          by: ['priority'],
+          _count: {
+            id: true,
+          },
+        }),
+        this.prisma.order.groupBy({
+          by: ['customerId'],
+          _sum: {
+            totalAmount: true,
+          },
+          _count: {
+            id: true,
+          },
+          orderBy: {
+            _sum: {
+              totalAmount: 'desc',
+            },
+          },
+          take: 5,
+        }),
+      ]);
 
-    const ordersByStatus = ordersByStatusRaw.map((item: any) => ({
+    const ordersByStatus = ordersByStatusRaw.map((item) => ({
       name: item.status.replace('_', ' '),
       value: item._count.id,
     }));
 
-    // 2. Orders by Priority
-    const ordersByPriorityRaw = await this.prisma.order.groupBy({
-      by: ['priority'],
-      _count: {
-        id: true,
-      },
-    });
-
-    const ordersByPriority = ordersByPriorityRaw.map((item: any) => ({
+    const ordersByPriority = ordersByPriorityRaw.map((item) => ({
       name: item.priority,
       value: item._count.id,
     }));
 
-    // 3. Top Customers by Revenue
-    const topCustomersRaw = await this.prisma.order.groupBy({
-      by: ['customerId'],
-      _sum: {
-        totalAmount: true,
-      },
-      _count: {
-        id: true,
-      },
-      orderBy: {
-        _sum: {
-          totalAmount: 'desc',
-        },
-      },
-      take: 5,
-    });
-
-    const customerIds = topCustomersRaw.map((c: any) => c.customerId);
+    const customerIds = topCustomersRaw.map((c) => c.customerId);
     const customersInfo = await this.prisma.customer.findMany({
       where: { id: { in: customerIds } },
       select: { id: true, companyName: true },
     });
 
-    const topCustomers = topCustomersRaw.map((tc: any) => {
+    const topCustomers = topCustomersRaw.map((tc) => {
       const customer = customersInfo.find((c) => c.id === tc.customerId);
       return {
         id: tc.customerId,
