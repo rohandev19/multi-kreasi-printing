@@ -39,15 +39,16 @@ export class CreateOrderUseCase {
       });
       if (!currentUser) throw new BadRequestException('User tidak ditemukan');
 
-      // Check if they have a Customer profile
+      // Check if they have a Customer profile or create one atomically (prevents P2002 race on concurrent checkouts)
       let customer = await this.prisma.customer.findFirst({
         where: { email: currentUser.email },
       });
 
-      // If not, create one automatically
       if (!customer) {
-        customer = await this.prisma.customer.create({
-          data: {
+        customer = await this.prisma.customer.upsert({
+          where: { email: currentUser.email },
+          update: {},
+          create: {
             companyName: currentUser.fullName || 'Customer Individual',
             email: currentUser.email,
             loyaltyTier: 'Bronze',
@@ -73,14 +74,16 @@ export class CreateOrderUseCase {
       }
     }
 
-    // Fetch product details for validation and pricing
-    const productIds = dto.items.map((i) => i.productId);
+    // Fetch product details for validation and pricing (deduplicated & sorted deterministically to prevent deadlocks)
+    const uniqueProductIds = [
+      ...new Set(dto.items.map((i) => i.productId)),
+    ].sort();
     const products = await this.prisma.product.findMany({
-      where: { id: { in: productIds } },
+      where: { id: { in: uniqueProductIds } },
       include: { pricingTiers: true },
     });
 
-    if (products.length !== productIds.length) {
+    if (products.length !== uniqueProductIds.length) {
       throw new BadRequestException('Satu atau lebih produk tidak ditemukan');
     }
 
