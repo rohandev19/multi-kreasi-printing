@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class SettingsService {
@@ -23,7 +24,11 @@ export class SettingsService {
     return setting;
   }
 
-  async update(key: string, value: any, description?: string) {
+  async update(
+    key: string,
+    value: Prisma.InputJsonValue,
+    description?: string,
+  ) {
     return this.prisma.systemSettings.upsert({
       where: { key },
 
