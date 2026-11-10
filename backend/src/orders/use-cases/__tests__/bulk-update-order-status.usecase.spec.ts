@@ -12,9 +12,11 @@ describe('BulkUpdateOrderStatusUseCase', () => {
       order: {
         findMany: vi.fn(),
         update: vi.fn(),
+        updateMany: vi.fn(),
       },
       orderTimeline: {
         create: vi.fn(),
+        createMany: vi.fn(),
       },
       $transaction: vi.fn(async (cb) => cb(prismaMock)),
     };
@@ -53,6 +55,19 @@ describe('BulkUpdateOrderStatusUseCase', () => {
     expect(result.total).toBe(2);
     expect(result.successCount).toBe(2);
     expect(result.failedCount).toBe(0);
+
+    // Verify O(1) single batch queries were executed instead of sequential single updates
+    expect(prismaMock.order.updateMany).toHaveBeenCalledWith({
+      where: { id: { in: ['order-1', 'order-2'] } },
+      data: { status: 'Approved' },
+    });
+    expect(prismaMock.orderTimeline.createMany).toHaveBeenCalledWith({
+      data: expect.arrayContaining([
+        expect.objectContaining({ orderId: 'order-1', status: 'Approved' }),
+        expect.objectContaining({ orderId: 'order-2', status: 'Approved' }),
+      ]),
+    });
+
     expect(auditMock.log).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'BULK_ORDER_STATUS_UPDATE',
