@@ -94,7 +94,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async set(key: string, value: any, ttlSeconds?: number): Promise<void> {
+  async set(key: string, value: unknown, ttlSeconds?: number): Promise<void> {
     if (!this.redisClient) return;
     try {
       const data = JSON.stringify(value);
@@ -103,8 +103,9 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
       } else {
         await this.redisClient.set(key, data);
       }
-    } catch (err) {
-      this.logger.warn(`Redis set failed: ${err.message}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      this.logger.warn(`Redis set failed: ${msg}`);
     }
   }
 
@@ -120,12 +121,47 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
   async invalidatePattern(pattern: string): Promise<void> {
     if (!this.redisClient) return;
     try {
-      const keys = await this.redisClient.keys(pattern);
-      if (keys.length > 0) {
-        await this.redisClient.del(...keys);
-      }
+      // Non-blocking scan stream prevents freezing Redis single-thread
+      const stream = this.redisClient.scanStream({
+        match: pattern,
+        count: 100,
+      });
+
+      const keysToDelete: string[] = [];
+
+      stream.on('data', (resultKeys: string[]) => {
+        for (const k of resultKeys) {
+          keysToDelete.push(k);
+        }
+      });
+
+      await new Promise<void>((resolve, reject) => {
+        stream.on('end', () => {
+          (async () => {
+            if (keysToDelete.length > 0 && this.redisClient) {
+              const batchSize = 100;
+              for (let i = 0; i < keysToDelete.length; i += batchSize) {
+                const batch = keysToDelete.slice(i, i + batchSize);
+                await this.redisClient.del(...batch);
+              }
+            }
+          })()
+            .then(() => resolve())
+            .catch((err: unknown) =>
+              reject(err instanceof Error ? err : new Error(String(err))),
+            );
+        });
+        stream.on('error', (streamErr: unknown) =>
+          reject(
+            streamErr instanceof Error
+              ? streamErr
+              : new Error(String(streamErr)),
+          ),
+        );
+      });
     } catch (err) {
-      this.logger.warn(`Redis invalidate pattern failed: ${err.message}`);
+      const msg = err instanceof Error ? err.message : String(err);
+      this.logger.warn(`Redis invalidate pattern failed: ${msg}`);
     }
   }
 
