@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ShipmentLogic } from '../domain/shipment.entity';
 
@@ -6,7 +10,10 @@ import { ShipmentLogic } from '../domain/shipment.entity';
 export class GetOrderShipmentsUseCase {
   constructor(private prisma: PrismaService) {}
 
-  async execute(orderId: string) {
+  async execute(
+    orderId: string,
+    currentUser?: { role?: string; email?: string; sub?: string },
+  ) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: {
@@ -31,6 +38,14 @@ export class GetOrderShipmentsUseCase {
 
     if (!order) {
       throw new NotFoundException(`Order with ID ${orderId} not found`);
+    }
+
+    if (currentUser?.role === 'Customer') {
+      if (!currentUser.email || order.customer?.email !== currentUser.email) {
+        throw new ForbiddenException(
+          'Akses ditolak: Anda tidak memiliki izin untuk melihat pengiriman pesanan ini.',
+        );
+      }
     }
 
     const allShipmentItems = order.shipments.flatMap((s) => s.items);
