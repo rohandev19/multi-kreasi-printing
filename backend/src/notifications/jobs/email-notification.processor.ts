@@ -2,11 +2,20 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Logger } from '@nestjs/common';
 
+export interface EmailNotificationJobData {
+  to: string;
+  subject: string;
+  body: string;
+  notificationId: string;
+}
+
 @Processor('email-notification')
 export class EmailNotificationProcessor extends WorkerHost {
   private readonly logger = new Logger(EmailNotificationProcessor.name);
 
-  async process(job: any): Promise<any> {
+  async process(
+    job: Job<EmailNotificationJobData>,
+  ): Promise<{ success: boolean } | undefined> {
     if (job.name === 'send-email') {
       const { to, subject, body, notificationId } = job.data;
 
