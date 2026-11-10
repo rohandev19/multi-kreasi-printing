@@ -9,9 +9,10 @@ import {
   UseGuards,
   Req,
   NotFoundException,
+  ForbiddenException,
   UseInterceptors,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, InvoiceStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
@@ -57,7 +58,7 @@ export class FinanceController {
     const user = req.user;
 
     const where: Prisma.InvoiceWhereInput = {};
-    if (filters.status) where.status = filters.status as any;
+    if (filters.status) where.status = filters.status as InvoiceStatus;
 
     // Customers can only see their own company's invoices
     if (user.role === 'Customer') {
@@ -101,8 +102,16 @@ export class FinanceController {
   }
 
   @Get('ar-aging')
-  @RequirePermissions({ action: 'read', subject: 'Invoice' })
-  async getArAgingReport(@Query('referenceDate') referenceDate?: string) {
+  @RequirePermissions({ action: 'manage', subject: 'Invoice' })
+  async getArAgingReport(
+    @Query('referenceDate') referenceDate?: string,
+    @Req() req?: AuthenticatedRequest,
+  ) {
+    if (req?.user?.role === 'Customer') {
+      throw new ForbiddenException(
+        'Akses ditolak: Laporan AR Aging hanya untuk staf keuangan dan manajemen',
+      );
+    }
     const refDate = referenceDate ? new Date(referenceDate) : new Date();
     return this.getArAgingReportUseCase.execute(refDate);
   }
