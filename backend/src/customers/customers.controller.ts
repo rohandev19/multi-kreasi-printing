@@ -19,7 +19,7 @@ import { ValidateCustomerCreditUseCase } from '../finance/use-cases/validate-cus
 import { UpdateCustomerCreditDto } from '../finance/dto/finance.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
-import type { Request } from 'express';
+import type { AuthenticatedRequest } from '../auth/jwt.service';
 
 @Controller('api/v1/customers')
 export class CustomersController {
@@ -29,20 +29,26 @@ export class CustomersController {
     private searchCustomersUseCase: SearchCustomersUseCase,
     private validateCustomerCreditUseCase: ValidateCustomerCreditUseCase,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   @Post()
   @RequirePermissions({ action: 'manage', subject: 'Customers' })
-  async create(@Body() dto: CreateCustomerDto, @Req() req: Request) {
-    const userId = (req as any).user.sub;
+  async create(
+    @Body() dto: CreateCustomerDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user!.sub;
     return this.createCustomerUseCase.execute(dto, userId);
   }
 
   @Get()
   @RequirePermissions({ action: 'read', subject: 'Customers' })
-  async search(@Query() query: SearchCustomersDto, @Req() req: Request) {
+  async search(
+    @Query() query: SearchCustomersDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const result = await this.searchCustomersUseCase.execute(query);
-    const user = (req as any).user;
+    const user = req.user!;
 
     let metrics: Record<
       string,
@@ -102,24 +108,26 @@ export class CustomersController {
   @Get(':id/payments')
   @RequirePermissions({ action: 'manage', subject: 'Customers' })
   async getPaymentHistory(@Param('id') id: string) {
-    const invoices = await this.prisma.invoice.findMany({
-      where: { customerId: id },
-      include: { payments: true },
+    // Database-level query & ordering prevents massive memory flatMap and JS sort
+    const payments = await this.prisma.payment.findMany({
+      where: { invoice: { customerId: id } },
+      include: {
+        invoice: {
+          select: { invoiceNumber: true },
+        },
+      },
+      orderBy: { date: 'desc' },
+      take: 100,
     });
 
-    const payments = invoices.flatMap((inv) =>
-      inv.payments.map((p) => ({
-        id: p.id,
-        date: p.date,
-        amount: p.amount,
-        method: p.paymentMethod,
-        status: 'Completed', // All recorded payments are completed
-        invoiceNumber: inv.invoiceNumber,
-      })),
-    );
-
-    // Sort by date descending
-    return payments.sort((a, b) => b.date.getTime() - a.date.getTime());
+    return payments.map((p) => ({
+      id: p.id,
+      date: p.date,
+      amount: p.amount,
+      method: p.paymentMethod,
+      status: 'Completed',
+      invoiceNumber: p.invoice.invoiceNumber,
+    }));
   }
 
   @Patch(':id')
@@ -127,9 +135,9 @@ export class CustomersController {
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateCustomerDto,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user!.sub;
     return this.updateCustomerUseCase.execute(id, dto, userId);
   }
 
