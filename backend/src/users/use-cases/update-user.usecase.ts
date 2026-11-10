@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { UpdateUserDto } from '../dto/update-user.dto';
@@ -12,9 +16,35 @@ export class UpdateUserUseCase {
     private audit: AuditService,
   ) {}
 
-  async execute(id: string, dto: UpdateUserDto, currentUserId: string) {
-    const existing = await this.prisma.user.findUnique({ where: { id } });
+  async execute(
+    id: string,
+    dto: UpdateUserDto,
+    currentUserId: string,
+    currentUserRole?: string,
+  ) {
+    const existing = await this.prisma.user.findUnique({
+      where: { id },
+      include: { role: true },
+    });
     if (!existing) throw new NotFoundException('Pengguna tidak ditemukan');
+
+    if (currentUserRole !== 'Owner') {
+      if (existing.role?.name === 'Owner') {
+        throw new ForbiddenException(
+          'Hanya Owner yang dapat mengubah akun dengan role Owner',
+        );
+      }
+      if (dto.roleId) {
+        const targetRole = await this.prisma.role?.findUnique?.({
+          where: { id: dto.roleId },
+        });
+        if (targetRole?.name === 'Owner' || targetRole?.name === 'Admin') {
+          throw new ForbiddenException(
+            'Hanya Owner yang dapat menetapkan role Owner atau Admin',
+          );
+        }
+      }
+    }
 
     const { password, ...rest } = dto;
     const updateData: Prisma.UserUpdateInput = { ...rest };
