@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createPrismaClient } from '../../prisma/prisma-client.helper';
+import { PrismaService } from '../../prisma/prisma.service';
 import { DashboardMetricsResponse } from '../dto/dashboard-metrics-response.dto';
 
 @Injectable()
 export class GetOwnerMetricsUseCase {
   private readonly logger = new Logger(GetOwnerMetricsUseCase.name);
-  private prisma = createPrismaClient();
+
+  constructor(private readonly prisma: PrismaService) {}
 
   async execute(): Promise<DashboardMetricsResponse> {
     this.logger.log('Fetching Owner Metrics...');
@@ -16,63 +17,54 @@ export class GetOwnerMetricsUseCase {
     yesterday.setDate(yesterday.getDate() - 1);
 
     try {
-      // 1. Total Revenue Today
-      const todayInvoices = await this.prisma.invoice.aggregate({
-        _sum: { amount: true },
-        where: {
-          status: 'Fully_Paid',
-          createdAt: { gte: today },
-        },
-      });
-
-      const yesterdayInvoices = await this.prisma.invoice.aggregate({
-        _sum: { amount: true },
-        where: {
-          status: 'Fully_Paid',
-          createdAt: { gte: yesterday, lt: today },
-        },
-      });
+      const [
+        todayInvoices,
+        yesterdayInvoices,
+        ordersToday,
+        pendingApprovals,
+        lowStockAlertsRaw,
+        activeProductionJobs,
+        totalCustomers,
+      ] = await Promise.all([
+        this.prisma.invoice.aggregate({
+          _sum: { amount: true },
+          where: {
+            status: 'Fully_Paid',
+            createdAt: { gte: today },
+          },
+        }),
+        this.prisma.invoice.aggregate({
+          _sum: { amount: true },
+          where: {
+            status: 'Fully_Paid',
+            createdAt: { gte: yesterday, lt: today },
+          },
+        }),
+        this.prisma.order.count({
+          where: {
+            createdAt: { gte: today },
+          },
+        }),
+        this.prisma.order.count({
+          where: { status: { in: ['Draft', 'Pending_Approval'] } },
+        }),
+        this.prisma.$queryRaw<{ count: bigint }[]>`
+          SELECT COUNT(*) as count
+          FROM materials
+          WHERE current_stock < min_stock_level
+            AND status = 'Active'
+        `.catch(() => [{ count: 0n }]),
+        this.prisma.productionJob.count({
+          where: { status: 'In_Progress' },
+        }),
+        this.prisma.customer.count({
+          where: { deletedAt: null },
+        }),
+      ]);
 
       const revenueToday = todayInvoices._sum.amount?.toNumber() || 0;
       const revenueYesterday = yesterdayInvoices._sum.amount?.toNumber() || 0;
-
-      // 2. Orders Created Today
-      const ordersToday = await this.prisma.order.count({
-        where: {
-          createdAt: { gte: today },
-        },
-      });
-
-      // 3. Pending Approvals
-      const pendingApprovals = await this.prisma.order.count({
-        where: { status: 'Draft' }, // Assumed as pending approval based on previous code
-      });
-
-      // 4. Low Stock Alerts
-      let lowStockAlerts = 0;
-      try {
-        const lowStockAlertsRaw = await this.prisma.$queryRaw<
-          { count: bigint }[]
-        >`
-          SELECT COUNT(*) as count 
-          FROM raw_materials 
-          WHERE current_stock < minimum_stock
-        `;
-        lowStockAlerts = Number(lowStockAlertsRaw[0]?.count || 0);
-      } catch (error) {
-        // Table might not exist yet if raw_materials is implemented later
-        lowStockAlerts = 0;
-      }
-
-      // 5. Active Production Jobs
-      const activeProductionJobs = await this.prisma.productionJob.count({
-        where: { status: 'In_Progress' },
-      });
-
-      // 6. Total Customers
-      const totalCustomers = await this.prisma.customer.count({
-        where: { deletedAt: null },
-      });
+      const lowStockAlerts = Number(lowStockAlertsRaw[0]?.count || 0);
 
       return {
         widgets: [
