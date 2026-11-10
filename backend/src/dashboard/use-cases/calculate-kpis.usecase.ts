@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createPrismaClient } from '../../prisma/prisma-client.helper';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class CalculateKPIsUseCase {
   private readonly logger = new Logger(CalculateKPIsUseCase.name);
-  private prisma = createPrismaClient();
+
+  constructor(private readonly prisma: PrismaService) {}
 
   async execute() {
     this.logger.log('Calculating Dashboard KPIs...');
@@ -29,55 +30,96 @@ export class CalculateKPIsUseCase {
       };
     };
 
-    // Revenue
-    const completedInvoices = await this.prisma.invoice.aggregate({
-      _sum: { amount: true },
-      where: { status: 'Fully_Paid', createdAt: { gte: thirtyDaysAgo } },
-    });
-    const prevCompletedInvoices = await this.prisma.invoice.aggregate({
-      _sum: { amount: true },
-      where: {
-        status: 'Fully_Paid',
-        createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo },
-      },
-    });
+    const [
+      completedInvoices,
+      prevCompletedInvoices,
+      totalOrders,
+      approvedOrders,
+      prevTotalOrders,
+      prevApprovedOrders,
+      newCustomers,
+      prevNewCustomers,
+      currentConsumptions,
+      prevConsumptions,
+    ] = await Promise.all([
+      this.prisma.invoice.aggregate({
+        _sum: { amount: true },
+        where: { status: 'Fully_Paid', createdAt: { gte: thirtyDaysAgo } },
+      }),
+      this.prisma.invoice.aggregate({
+        _sum: { amount: true },
+        where: {
+          status: 'Fully_Paid',
+          createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo },
+        },
+      }),
+      this.prisma.order.count({
+        where: { createdAt: { gte: thirtyDaysAgo } },
+      }),
+      this.prisma.order.count({
+        where: { status: 'Completed', createdAt: { gte: thirtyDaysAgo } },
+      }),
+      this.prisma.order.count({
+        where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
+      }),
+      this.prisma.order.count({
+        where: {
+          status: 'Completed',
+          createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo },
+        },
+      }),
+      this.prisma.customer.count({
+        where: { createdAt: { gte: thirtyDaysAgo } },
+      }),
+      this.prisma.customer.count({
+        where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
+      }),
+      this.prisma.materialConsumption.findMany({
+        where: { createdAt: { gte: thirtyDaysAgo } },
+        take: 2000,
+        select: {
+          quantity: true,
+          material: { select: { costPrice: true } },
+        },
+      }),
+      this.prisma.materialConsumption.findMany({
+        where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
+        take: 2000,
+        select: {
+          quantity: true,
+          material: { select: { costPrice: true } },
+        },
+      }),
+    ]);
 
     const totalRevenue = completedInvoices._sum.amount?.toNumber() || 0;
     const prevRevenue = prevCompletedInvoices._sum.amount?.toNumber() || 0;
 
-    // Gross Profit (Revenue - Material Costs) -> Simplified to 30% margin for MVP
-    const grossProfit = totalRevenue * 0.3;
-    const prevGrossProfit = prevRevenue * 0.3;
+    // Gross Profit (Revenue - Actual Material Costs, fallback to 30% margin if no consumption logged)
+    const actualMaterialCost = currentConsumptions.reduce(
+      (sum, c) =>
+        sum + Number(c.quantity || 0) * Number(c.material?.costPrice || 0),
+      0,
+    );
+    const prevMaterialCost = prevConsumptions.reduce(
+      (sum, c) =>
+        sum + Number(c.quantity || 0) * Number(c.material?.costPrice || 0),
+      0,
+    );
 
-    // Conversion Rate: Completed Orders / Total Orders
-    const totalOrders = await this.prisma.order.count({
-      where: { createdAt: { gte: thirtyDaysAgo } },
-    });
-    const approvedOrders = await this.prisma.order.count({
-      where: { status: 'Completed', createdAt: { gte: thirtyDaysAgo } },
-    });
+    const grossProfit =
+      actualMaterialCost > 0
+        ? Math.max(0, totalRevenue - actualMaterialCost)
+        : totalRevenue * 0.3;
+    const prevGrossProfit =
+      prevMaterialCost > 0
+        ? Math.max(0, prevRevenue - prevMaterialCost)
+        : prevRevenue * 0.3;
+
     const conversionRate =
       totalOrders > 0 ? (approvedOrders / totalOrders) * 100 : 0;
-
-    const prevTotalOrders = await this.prisma.order.count({
-      where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
-    });
-    const prevApprovedOrders = await this.prisma.order.count({
-      where: {
-        status: 'Completed',
-        createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo },
-      },
-    });
     const prevConversionRate =
       prevTotalOrders > 0 ? (prevApprovedOrders / prevTotalOrders) * 100 : 0;
-
-    // Customer Acquisition Cost (CAC) -> Marketing spend / New customers (Mock marketing spend to 10% of revenue)
-    const newCustomers = await this.prisma.customer.count({
-      where: { createdAt: { gte: thirtyDaysAgo } },
-    });
-    const prevNewCustomers = await this.prisma.customer.count({
-      where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
-    });
 
     const marketingSpend = totalRevenue * 0.1;
     const prevMarketingSpend = prevRevenue * 0.1;
