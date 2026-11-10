@@ -12,51 +12,51 @@ export class GetSalesMetricsUseCase {
 
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    // 1. New Orders today
-    const newOrdersToday = await this.prisma.order.count({
-      where: {
-        createdAt: {
-          gte: today,
+    const [
+      newOrdersToday,
+      activeCustomersCount,
+      revenueThisMonth,
+      pendingOrders,
+    ] = await Promise.all([
+      this.prisma.order.count({
+        where: {
+          createdAt: {
+            gte: today,
+          },
         },
-      },
-    });
-
-    // 2. Active Customers (Customers with orders this month)
-    const activeCustomersCount = await this.prisma.customer.count({
-      where: {
-        orders: {
-          some: {
-            createdAt: {
-              gte: firstDayOfMonth,
+      }),
+      this.prisma.customer.count({
+        where: {
+          orders: {
+            some: {
+              createdAt: {
+                gte: firstDayOfMonth,
+              },
             },
           },
         },
-      },
-    });
-
-    // 3. Revenue this month
-    const revenueThisMonth = await this.prisma.order.aggregate({
-      _sum: {
-        totalAmount: true,
-      },
-      where: {
-        createdAt: {
-          gte: firstDayOfMonth,
+      }),
+      this.prisma.order.aggregate({
+        _sum: {
+          totalAmount: true,
         },
-        status: {
-          notIn: ['Cancelled'],
+        where: {
+          createdAt: {
+            gte: firstDayOfMonth,
+          },
+          status: {
+            notIn: ['Cancelled'],
+          },
         },
-      },
-    });
-
-    // 4. Draft or Pending Approval Orders
-    const pendingOrders = await this.prisma.order.count({
-      where: {
-        status: {
-          in: ['Draft', 'Pending_Approval'],
+      }),
+      this.prisma.order.count({
+        where: {
+          status: {
+            in: ['Draft', 'Pending_Approval'],
+          },
         },
-      },
-    });
+      }),
+    ]);
 
     return {
       widgets: [
