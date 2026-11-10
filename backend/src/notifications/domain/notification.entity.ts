@@ -23,7 +23,7 @@ export class NotificationEntity {
     public readonly message: string,
     public readonly isRead: boolean,
     public readonly channels: NotificationChannel[],
-    public readonly metadata: Record<string, any> | null,
+    public readonly metadata: Record<string, unknown> | null,
     public readonly createdAt: Date,
   ) {}
 
@@ -33,7 +33,7 @@ export class NotificationEntity {
     title: string;
     message: string;
     channels: NotificationChannel[];
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }): NotificationEntity {
     return new NotificationEntity(
       '', // ID will be assigned by DB
