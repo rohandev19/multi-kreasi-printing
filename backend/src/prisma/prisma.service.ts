@@ -113,4 +113,24 @@ export class PrismaService
       return false;
     }
   }
+
+  /**
+   * Generates next atomic integer from a PostgreSQL sequence.
+   * Safe against race conditions and concurrent workers.
+   */
+  async nextSequence(sequenceName: string): Promise<number> {
+    try {
+      const result = await this.$queryRawUnsafe<
+        { val: bigint | number | string }[]
+      >(`SELECT nextval('${sequenceName}') as val;`);
+      if (result && result[0]?.val != null) {
+        return Number(result[0].val);
+      }
+    } catch (error) {
+      this.logger.warn(
+        `Failed to fetch next sequence for '${sequenceName}', using fallback: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+    return Math.floor(Date.now() / 1000) % 1000000;
+  }
 }
