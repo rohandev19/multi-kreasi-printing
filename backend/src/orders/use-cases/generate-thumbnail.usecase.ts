@@ -21,12 +21,16 @@ export class GenerateThumbnailUseCase {
     }
 
     try {
-      const thumbnailBuffer = await sharp(fileBuffer)
+      const thumbnailBuffer = await sharp(fileBuffer, {
+        limitInputPixels: 50000000, // Protect memory against decompression bomb images
+        sequentialRead: true, // Enable stream-friendly sequential memory reads
+      })
         .resize(300, 300, {
           fit: 'inside',
           withoutEnlargement: true,
+          fastShrinkOnLoad: true, // Downsamples at decode time to save ~90% memory
         })
-        .webp({ quality: 80 })
+        .webp({ quality: 80, effort: 2 }) // Low CPU effort while maintaining quality
         .toBuffer();
 
       const thumbnailPath = r2Path
