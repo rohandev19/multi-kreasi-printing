@@ -1,4 +1,8 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -11,7 +15,22 @@ export class CreateUserUseCase {
     private audit: AuditService,
   ) {}
 
-  async execute(dto: CreateUserDto, currentUserId: string) {
+  async execute(
+    dto: CreateUserDto,
+    currentUserId: string,
+    currentUserRole?: string,
+  ) {
+    if (dto.roleId && currentUserRole !== 'Owner') {
+      const targetRole = await this.prisma.role?.findUnique?.({
+        where: { id: dto.roleId },
+      });
+      if (targetRole?.name === 'Owner' || targetRole?.name === 'Admin') {
+        throw new ForbiddenException(
+          'Hanya Owner yang dapat membuat akun dengan role Owner atau Admin',
+        );
+      }
+    }
+
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
