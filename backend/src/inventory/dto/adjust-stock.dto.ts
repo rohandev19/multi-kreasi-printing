@@ -5,6 +5,8 @@ import {
   IsEnum,
   IsOptional,
   IsUUID,
+  Min,
+  ValidateIf,
 } from 'class-validator';
 
 export enum StockMovementType {
@@ -19,6 +21,11 @@ export class AdjustStockDto {
 
   @IsInt()
   @IsNotEmpty()
+  @ValidateIf(
+    (o: AdjustStockDto) =>
+      o.type === StockMovementType.IN || o.type === StockMovementType.OUT,
+  )
+  @Min(1, { message: 'Quantity untuk tipe IN/OUT minimal adalah 1' })
   quantity: number;
 
   @IsOptional()
