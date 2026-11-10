@@ -33,10 +33,12 @@ export class AppSettingsDto {
   // We can add more specific validation as needed, but this prevents complete garbage JSON
 }
 
+import { Prisma } from '@prisma/client';
+
 export class UpdateSettingDto {
   @IsObject()
   @IsNotEmpty()
-  value!: any;
+  value!: Prisma.InputJsonValue;
 
   @IsString()
   @IsOptional()
