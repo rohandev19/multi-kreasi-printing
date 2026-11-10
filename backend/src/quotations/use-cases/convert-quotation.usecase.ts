@@ -4,6 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { OrderLogic } from '../../orders/domain/order.entity';
 
 @Injectable()
 export class ConvertQuotationToOrderUseCase {
@@ -27,9 +28,8 @@ export class ConvertQuotationToOrderUseCase {
       );
     }
 
-    // Generate Order Number
-    const count = await this.prisma.order.count();
-    const orderNumber = `ORD-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
+    // Generate collision-safe Order Number
+    const orderNumber = OrderLogic.generateOrderNumber();
 
     // Create the Order
     const newOrder = await this.prisma.order.create({
