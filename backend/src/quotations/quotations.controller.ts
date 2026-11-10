@@ -25,7 +25,7 @@ import {
 import { ConvertQuotationToOrderUseCase } from './use-cases/convert-quotation.usecase';
 
 interface AuthenticatedRequest extends Request {
-  user: { sub: string; role: string; customerId?: string };
+  user: { sub: string; role: string; email?: string; customerId?: string };
 }
 
 @Controller('api/v1/quotations')
@@ -44,23 +44,27 @@ export class QuotationsController {
 
   @Get()
   @RequirePermissions({ action: 'read', subject: 'Quotation' })
-  findAll(@Req() req: AuthenticatedRequest) {
+  async findAll(@Req() req: AuthenticatedRequest) {
     const isCustomer = req.user.role === 'Customer';
-    const customerId = req.user.customerId;
-    return this.quotationsService.findAll(isCustomer ? customerId : undefined);
+    const customerId = isCustomer
+      ? await this.quotationsService.resolveCustomerIdForUser(req.user)
+      : undefined;
+    return this.quotationsService.findAll(customerId);
   }
 
   @Get(':id')
   @RequirePermissions({ action: 'read', subject: 'Quotation' })
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const quotation = await this.quotationsService.findOne(id);
-    if (
-      req.user.role === 'Customer' &&
-      quotation.customerId !== req.user.customerId
-    ) {
-      throw new ForbiddenException(
-        'You do not have permission to view this quotation',
+    if (req.user.role === 'Customer') {
+      const customerId = await this.quotationsService.resolveCustomerIdForUser(
+        req.user,
       );
+      if (quotation.customerId !== customerId) {
+        throw new ForbiddenException(
+          'You do not have permission to view this quotation',
+        );
+      }
     }
     return quotation;
   }
@@ -118,7 +122,9 @@ export class QuotationsController {
     @Body() dto: AcceptQuotationDto,
   ) {
     const customerId =
-      req.user.role === 'Customer' ? req.user.customerId : undefined;
+      req.user.role === 'Customer'
+        ? await this.quotationsService.resolveCustomerIdForUser(req.user)
+        : undefined;
     return this.quotationsService.accept(id, customerId, dto);
   }
 
@@ -130,7 +136,9 @@ export class QuotationsController {
     @Body() dto: RejectQuotationDto,
   ) {
     const customerId =
-      req.user.role === 'Customer' ? req.user.customerId : undefined;
+      req.user.role === 'Customer'
+        ? await this.quotationsService.resolveCustomerIdForUser(req.user)
+        : undefined;
     return this.quotationsService.reject(id, customerId, dto);
   }
 
@@ -150,13 +158,15 @@ export class QuotationsController {
     @Req() req: AuthenticatedRequest,
   ) {
     const quotation = await this.quotationsService.findOne(id);
-    if (
-      req.user.role === 'Customer' &&
-      quotation.customerId !== req.user.customerId
-    ) {
-      throw new ForbiddenException(
-        'You do not have permission to convert this quotation',
+    if (req.user.role === 'Customer') {
+      const customerId = await this.quotationsService.resolveCustomerIdForUser(
+        req.user,
       );
+      if (quotation.customerId !== customerId) {
+        throw new ForbiddenException(
+          'You do not have permission to convert this quotation',
+        );
+      }
     }
     return this.convertQuotation.execute(id);
   }
