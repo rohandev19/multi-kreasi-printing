@@ -12,7 +12,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { CartMergeService } from './cart-merge.service';
 import { MergeCartDto } from './dto/merge-cart.dto';
-import type { Request } from 'express';
+import type { AuthenticatedRequest } from '../auth/jwt.service';
 
 @Controller('api/v1/cart')
 @UseGuards(JwtAuthGuard)
@@ -20,14 +20,14 @@ export class CartController {
   constructor(private readonly cartMergeService: CartMergeService) {}
 
   @Post('merge')
-  async mergeCart(@Body() dto: MergeCartDto, @Req() req: Request) {
-    const userId = (req as any).user.sub;
+  async mergeCart(@Body() dto: MergeCartDto, @Req() req: AuthenticatedRequest) {
+    const userId = req.user!.sub;
     return this.cartMergeService.mergeGuestCart(userId, dto.guestCartItems);
   }
 
   @Get()
-  async getCart(@Req() req: Request) {
-    const userId = (req as any).user.sub;
+  async getCart(@Req() req: AuthenticatedRequest) {
+    const userId = req.user!.sub;
     // Calling merge without new items will just fetch and calculate current cart
     return this.cartMergeService.mergeGuestCart(userId, []);
   }
@@ -35,9 +35,9 @@ export class CartController {
   @Post('items')
   async addItem(
     @Body() body: { productId: string; quantity: number },
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user!.sub;
     return this.cartMergeService.mergeGuestCart(userId, [body]);
   }
 
@@ -45,9 +45,9 @@ export class CartController {
   async updateItem(
     @Param('productId') productId: string,
     @Body() body: { quantity: number },
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const userId = (req as any).user.sub;
+    const userId = req.user!.sub;
     return this.cartMergeService.updateItemQuantity(
       userId,
       productId,
@@ -56,14 +56,17 @@ export class CartController {
   }
 
   @Delete('items/:productId')
-  async removeItem(@Param('productId') productId: string, @Req() req: Request) {
-    const userId = (req as any).user.sub;
+  async removeItem(
+    @Param('productId') productId: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user!.sub;
     return this.cartMergeService.removeItem(userId, productId);
   }
 
   @Delete()
-  async clearCart(@Req() req: Request) {
-    const userId = (req as any).user.sub;
+  async clearCart(@Req() req: AuthenticatedRequest) {
+    const userId = req.user!.sub;
     return this.cartMergeService.clearCart(userId);
   }
 }
