@@ -67,11 +67,17 @@ async function bootstrap() {
     if (allowedOrigins.includes(origin)) return true;
     if (localDevOrigins.includes(origin)) return true;
     // Allow mkprinting.my.id and all its subdomains (both http and https, optional port)
-    if (/^https?:\/\/(?:[a-zA-Z0-9-]+\.)*mkprinting\.my\.id(?::\d+)?$/.test(origin)) {
+    if (
+      /^https?:\/\/(?:[a-zA-Z0-9-]+\.)*mkprinting\.my\.id(?::\d+)?$/.test(
+        origin,
+      )
+    ) {
       return true;
     }
     // Allow Heroku web app domains
-    if (/^https?:\/\/mkprinting-web-[a-zA-Z0-9-]+\.herokuapp\.com$/.test(origin)) {
+    if (
+      /^https?:\/\/mkprinting-web-[a-zA-Z0-9-]+\.herokuapp\.com$/.test(origin)
+    ) {
       return true;
     }
     return false;
@@ -85,11 +91,6 @@ async function bootstrap() {
       if (!origin) {
         callback(null, true);
       } else if (isOriginAllowed(origin)) {
-        callback(null, true);
-      } else if (isProd && !allowedOriginsEnv) {
-        bootstrapLogger.warn(
-          `ALLOWED_ORIGINS not set in production — allowing origin dynamically: ${origin}. Set ALLOWED_ORIGINS for strict CORS.`,
-        );
         callback(null, true);
       } else {
         bootstrapLogger.error(`CORS blocked origin: ${origin}`);
