@@ -30,6 +30,7 @@ describe('QuotationsService & ConvertQuotationToOrderUseCase', () => {
         create: vi.fn(),
         count: vi.fn().mockResolvedValue(10),
       },
+      nextSequence: vi.fn().mockResolvedValue(5),
     };
 
     const module: TestingModule = await Test.createTestingModule({
