@@ -24,7 +24,7 @@ import { GetOrderShipmentsUseCase } from './use-cases/get-order-shipments.usecas
 import { ConfirmDeliveryUseCase } from './use-cases/confirm-delivery.usecase';
 import { GetShipmentDetailsUseCase } from './use-cases/get-shipment-details.usecase';
 import { PrismaService } from '../prisma/prisma.service';
-import type { Request } from 'express';
+import type { AuthenticatedRequest } from '../auth/jwt.service';
 
 @Controller('api/v1')
 @UseGuards(JwtAuthGuard)
@@ -39,15 +39,32 @@ export class ShipmentsController {
 
   @Post('shipments')
   @RequirePermissions({ action: 'manage', subject: 'Order' })
-  async createShipment(@Body() dto: CreateShipmentDto, @Req() req: Request) {
-    const currentUserId = (req as any).user.userId || (req as any).user.sub;
+  async createShipment(
+    @Body() dto: CreateShipmentDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const currentUserId = req.user?.userId || req.user?.sub || '';
     return this.createShipmentUseCase.execute(dto, currentUserId);
   }
 
   @Get('shipments')
   @RequirePermissions({ action: 'read', subject: 'Order' })
-  async listAllShipments() {
+  async listAllShipments(@Req() req?: AuthenticatedRequest) {
+    const user = req?.user;
+    const isCustomer = user?.role === 'Customer';
+
     return this.prisma.shipment.findMany({
+      ...(isCustomer
+        ? {
+            where: {
+              order: {
+                customer: {
+                  email: user.email || '',
+                },
+              },
+            },
+          }
+        : {}),
       include: {
         order: {
           select: {
@@ -86,14 +103,21 @@ export class ShipmentsController {
 
   @Get('orders/:orderId/shipments')
   @RequirePermissions({ action: 'read', subject: 'Order' })
-  async getOrderShipments(@Param('orderId') orderId: string) {
-    return this.getOrderShipmentsUseCase.execute(orderId);
+  async getOrderShipments(
+    @Param('orderId') orderId: string,
+    @Req() req?: AuthenticatedRequest,
+  ) {
+    const user = req?.user;
+    return this.getOrderShipmentsUseCase.execute(orderId, user);
   }
 
   @Get('shipments/:id')
   @RequirePermissions({ action: 'read', subject: 'Order' })
-  async getShipmentDetails(@Param('id') id: string, @Req() req: Request) {
-    const user = (req as any).user;
+  async getShipmentDetails(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const user = req.user;
     return this.getShipmentDetailsUseCase.execute(id, user);
   }
 
@@ -102,15 +126,15 @@ export class ShipmentsController {
   async confirmDelivery(
     @Param('id') id: string,
     @Body() dto: ConfirmDeliveryDto,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const user = (req as any).user;
+    const user = req.user;
     if (user?.role === 'Customer') {
       throw new ForbiddenException(
         'Akses ditolak: Pelanggan tidak dapat mengonfirmasi serah terima pengiriman.',
       );
     }
-    const currentUserId = user.userId || user.sub;
+    const currentUserId = user?.userId || user?.sub || '';
     return this.confirmDeliveryUseCase.execute(id, dto, currentUserId);
   }
 
@@ -119,15 +143,15 @@ export class ShipmentsController {
   async updateShipmentStatus(
     @Param('id') id: string,
     @Body() dto: UpdateShipmentStatusDto,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const user = (req as any).user;
+    const user = req.user;
     if (user?.role === 'Customer') {
       throw new ForbiddenException(
         'Akses ditolak: Pelanggan tidak dapat memperbarui status pengiriman.',
       );
     }
-    const currentUserId = user?.userId || user?.sub;
+    const currentUserId = user?.userId || user?.sub || '';
     const shipment = await this.prisma.shipment.findUnique({
       where: { id },
       include: {
@@ -266,9 +290,9 @@ export class ShipmentsController {
   async updateShipmentTracking(
     @Param('id') id: string,
     @Body() dto: UpdateShipmentTrackingDto,
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
   ) {
-    const currentUserId = (req as any).user?.userId || (req as any).user?.sub;
+    const currentUserId = req.user?.userId || req.user?.sub || '';
     const shipment = await this.prisma.shipment.findUnique({
       where: { id },
     });
