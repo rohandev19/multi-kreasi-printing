@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { NotificationsGateway } from '../gateways/notifications.gateway';
 import {
   NotificationType,
@@ -13,7 +14,7 @@ interface SendNotificationCommand {
   type: NotificationType;
   title: string;
   message: string;
-  metadata?: Record<string, any>;
+  metadata?: Prisma.InputJsonObject;
   forceChannels?: NotificationChannel[];
 }
 
