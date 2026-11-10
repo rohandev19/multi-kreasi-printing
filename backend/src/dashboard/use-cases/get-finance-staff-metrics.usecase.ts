@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createPrismaClient } from '../../prisma/prisma-client.helper';
+import { PrismaService } from '../../prisma/prisma.service';
 import { DashboardMetricsResponse } from '../dto/dashboard-metrics-response.dto';
 
 @Injectable()
 export class GetFinanceStaffMetricsUseCase {
   private readonly logger = new Logger(GetFinanceStaffMetricsUseCase.name);
-  private prisma = createPrismaClient();
+
+  constructor(private readonly prisma: PrismaService) {}
 
   async execute(): Promise<DashboardMetricsResponse> {
     this.logger.log('Fetching Finance Staff Metrics...');
@@ -16,43 +17,59 @@ export class GetFinanceStaffMetricsUseCase {
     yesterday.setDate(yesterday.getDate() - 1);
 
     try {
-      // 1. Pending Payments (Invoices with Sent, Partially_Paid, Overdue status)
-      const pendingInvoices = await this.prisma.invoice.count({
-        where: { status: { in: ['Sent', 'Partially_Paid', 'Overdue'] } },
-      });
-
-      // 2. Revenue Today (Fully paid invoices today)
-      const todayInvoices = await this.prisma.invoice.aggregate({
-        _sum: { amount: true },
-        where: {
-          status: 'Fully_Paid',
-          updatedAt: { gte: today },
-        },
-      });
-
-      const yesterdayInvoices = await this.prisma.invoice.aggregate({
-        _sum: { amount: true },
-        where: {
-          status: 'Fully_Paid',
-          updatedAt: { gte: yesterday, lt: today },
-        },
-      });
+      const [
+        pendingInvoices,
+        todayInvoices,
+        yesterdayInvoices,
+        outstandingInvoicesAgg,
+        partialPaymentsAgg,
+        overdueInvoices,
+      ] = await Promise.all([
+        this.prisma.invoice.count({
+          where: { status: { in: ['Sent', 'Partially_Paid', 'Overdue'] } },
+        }),
+        this.prisma.invoice.aggregate({
+          _sum: { amount: true },
+          where: {
+            status: 'Fully_Paid',
+            updatedAt: { gte: today },
+          },
+        }),
+        this.prisma.invoice.aggregate({
+          _sum: { amount: true },
+          where: {
+            status: 'Fully_Paid',
+            updatedAt: { gte: yesterday, lt: today },
+          },
+        }),
+        this.prisma.invoice.aggregate({
+          _sum: { amount: true },
+          where: { status: { in: ['Sent', 'Partially_Paid', 'Overdue'] } },
+        }),
+        this.prisma.payment.aggregate({
+          _sum: { amount: true },
+          where: {
+            invoice: {
+              status: { in: ['Sent', 'Partially_Paid', 'Overdue'] },
+            },
+          },
+        }),
+        this.prisma.invoice.count({
+          where: { status: 'Overdue' },
+        }),
+      ]);
 
       const revenueToday = todayInvoices._sum.amount?.toNumber() || 0;
       const revenueYesterday = yesterdayInvoices._sum.amount?.toNumber() || 0;
 
-      // 3. Outstanding Receivables (Total amount of unpaid invoices)
-      const outstandingReceivablesRaw = await this.prisma.invoice.aggregate({
-        _sum: { amount: true },
-        where: { status: { in: ['Sent', 'Partially_Paid', 'Overdue'] } },
-      });
-      const outstandingReceivables =
-        outstandingReceivablesRaw._sum.amount?.toNumber() || 0;
-
-      // 4. Overdue Invoices
-      const overdueInvoices = await this.prisma.invoice.count({
-        where: { status: 'Overdue' },
-      });
+      // 3. Outstanding Receivables (Total unpaid invoice amount minus partial payments already collected)
+      const grossReceivables =
+        outstandingInvoicesAgg._sum.amount?.toNumber() || 0;
+      const partialPaid = partialPaymentsAgg._sum.amount?.toNumber() || 0;
+      const outstandingReceivables = Math.max(
+        0,
+        grossReceivables - partialPaid,
+      );
 
       return {
         widgets: [
