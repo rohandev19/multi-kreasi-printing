@@ -20,6 +20,7 @@ import { GetDesignFileUseCase } from './use-cases/get-design-file.usecase';
 import { DownloadDesignFileUseCase } from './use-cases/download-design-file.usecase';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import type { Request } from 'express';
 
 export interface AuthenticatedUser {
@@ -49,10 +50,22 @@ export class DesignFilesController {
   @RequirePermissions({ action: 'read', subject: 'DesignFiles' })
   async list(@Req() req: AuthenticatedRequest) {
     const user = req.user;
-    let whereClause = {};
+    let whereClause: Prisma.DesignFileWhereInput = {};
 
     if (user.role === 'Designer') {
       whereClause = { status: DesignFileStatus.Manual_Review };
+    } else if (user.role === 'Customer') {
+      whereClause = {
+        OR: [
+          { uploadedBy: user.sub },
+          ...(user.email
+            ? [{ order: { customer: { email: user.email } } }]
+            : []),
+          ...(user.sub
+            ? [{ order: { customer: { members: { some: { id: user.sub } } } } }]
+            : []),
+        ],
+      };
     }
 
     return this.prisma.designFile.findMany({
