@@ -10,6 +10,7 @@ import {
   Delete,
   UseGuards,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -26,7 +27,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { Request } from 'express';
 
 export interface AuthenticatedRequest extends Request {
-  user: { sub: string };
+  user: { sub: string; role?: string };
 }
 
 @Controller('api/v1/users')
@@ -46,7 +47,7 @@ export class UsersController {
   @Post()
   async create(@Body() dto: CreateUserDto, @Req() req: AuthenticatedRequest) {
     const userId = req.user.sub;
-    return this.createUserUseCase.execute(dto, userId);
+    return this.createUserUseCase.execute(dto, userId, req.user.role);
   }
 
   @Get('roles')
@@ -66,7 +67,7 @@ export class UsersController {
     @Req() req: AuthenticatedRequest,
   ) {
     const userId = req.user.sub;
-    return this.updateUserUseCase.execute(id, dto, userId);
+    return this.updateUserUseCase.execute(id, dto, userId, req.user.role);
   }
 
   @Get(':id')
@@ -85,9 +86,19 @@ export class UsersController {
   }
 
   @Delete(':id')
-  async deleteUser(@Param('id') id: string) {
-    // We should technically use a UseCase, but for brevity we'll soft/hard delete directly here,
-    // or just call prisma.
+  async deleteUser(@Param('id') id: string, @Req() req?: AuthenticatedRequest) {
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id },
+      include: { role: true },
+    });
+    if (!targetUser) {
+      throw new NotFoundException('User not found');
+    }
+    if (targetUser.role?.name === 'Owner' && req?.user?.role !== 'Owner') {
+      throw new ForbiddenException(
+        'Hanya Owner yang dapat menghapus akun dengan role Owner',
+      );
+    }
     await this.prisma.user.delete({ where: { id } });
     return { success: true };
   }
