@@ -33,6 +33,7 @@ import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CacheService } from '../cache/cache.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 export interface AuthenticatedUser {
   sub: string;
   role: string;
@@ -221,15 +222,21 @@ export class ProductsController {
       await this.cacheService.invalidatePattern('/api/v1/public/products*');
       await this.cacheService.invalidatePattern('public_categories*');
       return { success: true, product: deleted, method: 'hard_delete' };
-    } catch (error: any) {
-      // Fallback to soft delete if hard delete fails due to constraints (e.g. order exists)
-      const updated = await this.prisma.product.update({
-        where: { id },
-        data: { status: 'Discontinued' },
-      });
-      await this.cacheService.invalidatePattern('/api/v1/public/products*');
-      await this.cacheService.invalidatePattern('public_categories*');
-      return { success: true, product: updated, method: 'soft_delete' };
+    } catch (err: unknown) {
+      // Fallback to soft delete only if hard delete fails due to foreign key constraints (e.g. order exists)
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2003'
+      ) {
+        const updated = await this.prisma.product.update({
+          where: { id },
+          data: { status: 'Discontinued' },
+        });
+        await this.cacheService.invalidatePattern('/api/v1/public/products*');
+        await this.cacheService.invalidatePattern('public_categories*');
+        return { success: true, product: updated, method: 'soft_delete' };
+      }
+      throw err;
     }
   }
 
