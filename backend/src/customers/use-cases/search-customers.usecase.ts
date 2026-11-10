@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { SearchCustomersDto } from '../dto/search-customers.dto';
 
 @Injectable()
@@ -10,7 +11,7 @@ export class SearchCustomersUseCase {
     const { page = 1, limit = 10, search, loyaltyTier } = dto;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.CustomerWhereInput = {};
     if (search) {
       where.OR = [
         { companyName: { contains: search, mode: 'insensitive' } },
